@@ -143,9 +143,13 @@ const BLUR_RADIUS_METERS: Record<1 | 2, number> = {
   2: 600,
 };
 
-export default function ColonyMap({ showListPanel = false }: { showListPanel?: boolean }) {
+export default function ColonyMap() {
   const [colonies, setColonies] = useState<Colony[]>([]);
   const [visibleBounds, setVisibleBounds] = useState<L.LatLngBounds | null>(null);
+  // The activity panel itself is always on screen; this only toggles
+  // whether its body (the scrollable list) is expanded or collapsed
+  // down to just the header, so it never has to fully disappear.
+  const [listExpanded, setListExpanded] = useState(true);
   const [hasLoadedColonies, setHasLoadedColonies] = useState(false);
   const [emergencies, setEmergencies] = useState<EmergencyReport[]>([]);
   const [sightings, setSightings] = useState<EmergencyReport[]>([]);
@@ -360,20 +364,20 @@ export default function ColonyMap({ showListPanel = false }: { showListPanel?: b
   // within the visible map area, so the list always matches what's on
   // screen instead of dumping every report/colony in the whole city.
   const panelColonies = useMemo(() => {
-    if (!showListPanel || !visibleBounds) return [];
+    if (!visibleBounds) return [];
     return filteredColonies.filter((colony) =>
       visibleBounds.contains(resolveColonyPosition(colony).position)
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps -- resolveColonyPosition depends on session/myColonyIds/exactCoordsByColonyId, already covered by filteredColonies recomputation
-  }, [showListPanel, visibleBounds, filteredColonies]);
+  }, [visibleBounds, filteredColonies]);
 
   function isInBounds(report: EmergencyReport) {
     if (!visibleBounds || report.latitude == null || report.longitude == null) return false;
     return visibleBounds.contains([report.latitude, report.longitude]);
   }
 
-  const panelEmergencies = showListPanel ? filteredEmergencies.filter(isInBounds) : [];
-  const panelSightings = showListPanel ? filteredSightings.filter(isInBounds) : [];
+  const panelEmergencies = filteredEmergencies.filter(isInBounds);
+  const panelSightings = filteredSightings.filter(isInBounds);
 
   return (
     <div className="relative h-full w-full">
@@ -585,14 +589,23 @@ export default function ColonyMap({ showListPanel = false }: { showListPanel?: b
         <ColonyClickTooltip onDismiss={() => setShowColonyClickTooltip(false)} />
       )}
 
-      {showListPanel && (
-        <div className="absolute right-4 top-4 bottom-24 z-[999] flex w-72 flex-col rounded-xl border border-felines-border bg-felines-surface shadow-lg sm:w-80">
-          <div className="border-b border-felines-border p-3">
-            <h2 className="text-sm font-bold text-felines-text-primary">Atividade nesta área</h2>
-            <p className="text-xs text-felines-text-secondary">
-              Mova ou dê zoom no mapa para atualizar a lista.
-            </p>
-          </div>
+      {/* Always on screen — positioned below the weather banner on both
+          layouts (it sits lower, full-width, on mobile, and top-right on
+          desktop) so the two never overlap. The on/off toggle lives in
+          its own footer instead of floating separately, so the panel
+          never has to fully disappear. */}
+      <div
+        className={`absolute left-4 right-4 top-[19rem] z-[999] flex flex-col rounded-xl border border-felines-border bg-felines-surface shadow-lg sm:left-auto sm:top-24 sm:w-80 ${
+          listExpanded ? "bottom-24" : ""
+        }`}
+      >
+        <div className="border-b border-felines-border p-3">
+          <h2 className="text-sm font-bold text-felines-text-primary">Atividade nesta área</h2>
+          <p className="text-xs text-felines-text-secondary">
+            Mova ou dê zoom no mapa para atualizar a lista.
+          </p>
+        </div>
+        {listExpanded && (
           <div className="flex-1 space-y-2 overflow-y-auto p-3">
             {panelColonies.length === 0 && panelEmergencies.length === 0 && panelSightings.length === 0 ? (
               <p className="text-sm text-felines-text-secondary">
@@ -647,8 +660,31 @@ export default function ColonyMap({ showListPanel = false }: { showListPanel?: b
               </>
             )}
           </div>
+        )}
+        <div className="border-t border-felines-border p-2">
+          <button
+            onClick={() => setListExpanded((previous) => !previous)}
+            role="switch"
+            aria-checked={listExpanded}
+            aria-label="Mostrar ou ocultar a lista de atividades"
+            className="flex w-full items-center justify-center gap-2 rounded-full px-3 py-1.5 text-xs font-medium text-felines-text-secondary transition-colors hover:text-felines-accent"
+          >
+            <span>Ocultar</span>
+            <span
+              className={`relative h-5 w-9 flex-shrink-0 rounded-full transition-colors ${
+                listExpanded ? "bg-felines-accent" : "bg-felines-border"
+              }`}
+            >
+              <span
+                className={`absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform ${
+                  listExpanded ? "translate-x-[18px]" : "translate-x-0.5"
+                }`}
+              />
+            </span>
+            <span>Mostrar</span>
+          </button>
         </div>
-      )}
+      </div>
 
       {hasLoadedColonies && visiblePinTypes.has("colony") && filteredColonies.length === 0 && (
         // bottom-24 (not bottom-6) so this never overlaps the floating

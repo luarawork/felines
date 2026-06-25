@@ -14,6 +14,6 @@ const ColonyMap = dynamic(() => import("@/components/ColonyMap"), {
   ),
 });
 
-export default function MapShell({ showListPanel = false }: { showListPanel?: boolean }) {
-  return <ColonyMap showListPanel={showListPanel} />;
+export default function MapShell() {
+  return <ColonyMap />;
 }
