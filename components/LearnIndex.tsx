@@ -66,17 +66,17 @@ export default function LearnIndex({ articles }: { articles: Article[] }) {
           {readSlugs.length >= 3 && !showQuiz && (
             <div className="mt-3">
               <p className="text-sm text-felines-accent">
-                Você já leu {readSlugs.length} artigos — que tal testar o que aprendeu em um quiz?
+                Você já leu {readSlugs.length} artigos — que tipo de vizinho você é?
               </p>
               <button
                 onClick={() => setShowQuiz(true)}
                 className="mt-2 rounded-full bg-felines-accent px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-felines-accent-hover"
               >
-                Fazer quiz
+                Descobrir
               </button>
             </div>
           )}
-          {showQuiz && <Quiz />}
+          {showQuiz && <Quiz onSkip={() => setShowQuiz(false)} />}
         </div>
       )}
 

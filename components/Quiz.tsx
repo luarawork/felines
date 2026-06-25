@@ -1,34 +1,68 @@
-// Short multiple-choice quiz shown on /learn once a user has read at
-// least 3 articles. Purely client-side — no submission is stored, it's
-// just a quick comprehension check to reinforce the guide's content.
+// Personalization quiz shown on /learn once a user has read at least 3
+// articles. No wrong answers — only the commitment question determines
+// the resulting "neighbor profile" and its suggested first action.
 "use client";
 
 import { useState } from "react";
-import { QUIZ_QUESTIONS } from "@/lib/quiz";
+import Link from "next/link";
+import { NEIGHBOR_PROFILES, QUIZ_QUESTIONS, type NeighborProfileKey } from "@/lib/quiz";
 
-export default function Quiz() {
-  const [answers, setAnswers] = useState<(number | null)[]>(
+// Index of the question whose answer determines the resulting profile —
+// see lib/quiz.ts for why only this one is scored.
+const SCORING_QUESTION_INDEX = 1;
+
+export default function Quiz({ onSkip }: { onSkip?: () => void }) {
+  const [answers, setAnswers] = useState<(NeighborProfileKey | null)[]>(
     QUIZ_QUESTIONS.map(() => null)
   );
   const [submitted, setSubmitted] = useState(false);
 
-  function selectAnswer(questionIndex: number, optionIndex: number) {
+  function selectAnswer(questionIndex: number, profile: NeighborProfileKey) {
     if (submitted) return;
     setAnswers((previous) => {
       const next = [...previous];
-      next[questionIndex] = optionIndex;
+      next[questionIndex] = profile;
       return next;
     });
   }
 
   const allAnswered = answers.every((answer) => answer !== null);
-  const correctCount = answers.filter(
-    (answer, index) => answer === QUIZ_QUESTIONS[index].correctIndex
-  ).length;
+  const resultProfileKey = answers[SCORING_QUESTION_INDEX];
+  const resultProfile = resultProfileKey ? NEIGHBOR_PROFILES[resultProfileKey] : null;
+
+  if (submitted && resultProfile) {
+    return (
+      <div className="mt-4 rounded-xl border border-felines-border bg-felines-surface p-5">
+        <p className="text-sm font-medium text-felines-text-secondary">Seu perfil</p>
+        <h3 className="mt-1 text-lg font-bold text-felines-text-primary">
+          {resultProfile.title}
+        </h3>
+        <p className="mt-2 text-sm leading-relaxed text-felines-text-secondary">
+          {resultProfile.description}
+        </p>
+        <p className="mt-3 text-sm font-medium text-felines-text-primary">
+          Primeira ação sugerida: {resultProfile.firstAction}
+        </p>
+        <p className="mt-4 text-sm text-felines-text-secondary">
+          Agora que você já sabe o que é uma colônia, quer ver se existe uma perto de você?
+        </p>
+        <Link
+          href="/map"
+          className="mt-2 inline-block rounded-full bg-felines-accent px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-felines-accent-hover"
+        >
+          Ver o mapa →
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <div className="mt-4 rounded-xl border border-felines-border bg-felines-surface p-5">
-      <h3 className="font-semibold text-felines-text-primary">Quiz rápido</h3>
+      <h3 className="font-semibold text-felines-text-primary">Que tipo de vizinho você é?</h3>
+      <p className="mt-1 text-xs text-felines-text-secondary">
+        Não existe resposta errada — isso é só pra te ajudar a achar seu primeiro passo.
+      </p>
+
       <div className="mt-4 space-y-5">
         {QUIZ_QUESTIONS.map((quizQuestion, questionIndex) => (
           <div key={quizQuestion.question}>
@@ -36,26 +70,21 @@ export default function Quiz() {
               {questionIndex + 1}. {quizQuestion.question}
             </p>
             <div className="mt-2 space-y-1">
-              {quizQuestion.options.map((option, optionIndex) => {
-                const isSelected = answers[questionIndex] === optionIndex;
-                const isCorrect = optionIndex === quizQuestion.correctIndex;
-                let stateClass = "border-felines-border";
-                if (submitted && isSelected) {
-                  stateClass = isCorrect
-                    ? "border-felines-success text-felines-success"
-                    : "border-felines-emergency text-felines-emergency";
-                } else if (isSelected) {
-                  stateClass = "border-felines-accent text-felines-accent";
-                }
+              {quizQuestion.options.map((option) => {
+                const isSelected = answers[questionIndex] === option.profile;
 
                 return (
                   <button
-                    key={option}
+                    key={option.label}
                     type="button"
-                    onClick={() => selectAnswer(questionIndex, optionIndex)}
-                    className={`block w-full rounded-md border px-3 py-2 text-left text-sm transition-colors ${stateClass}`}
+                    onClick={() => selectAnswer(questionIndex, option.profile)}
+                    className={`block w-full rounded-md border px-3 py-2 text-left text-sm transition-colors ${
+                      isSelected
+                        ? "border-felines-accent text-felines-accent"
+                        : "border-felines-border"
+                    }`}
                   >
-                    {option}
+                    {option.label}
                   </button>
                 );
               })}
@@ -64,19 +93,21 @@ export default function Quiz() {
         ))}
       </div>
 
-      {!submitted ? (
+      <div className="mt-5 flex flex-wrap items-center gap-3">
         <button
           onClick={() => setSubmitted(true)}
           disabled={!allAnswered}
-          className="mt-5 rounded-full bg-felines-accent px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+          className="rounded-full bg-felines-accent px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
         >
-          Conferir respostas
+          Ver meu perfil
         </button>
-      ) : (
-        <p className="mt-5 text-sm font-medium text-felines-text-primary">
-          Você acertou {correctCount} de {QUIZ_QUESTIONS.length} perguntas.
-        </p>
-      )}
+        <button
+          onClick={onSkip}
+          className="text-sm font-medium text-felines-text-secondary hover:text-felines-accent"
+        >
+          Fazer isso depois
+        </button>
+      </div>
     </div>
   );
 }
