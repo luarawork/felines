@@ -13,8 +13,8 @@
 //     coordinates are never readable through a direct table select.
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { MapContainer, TileLayer, Marker, Popup, ZoomControl } from "react-leaflet";
+import { Fragment, useEffect, useMemo, useState } from "react";
+import { MapContainer, TileLayer, Marker, Popup, ZoomControl, Circle } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import type { Session } from "@supabase/supabase-js";
@@ -90,6 +90,16 @@ const CASTRATION_FILTER_OPTIONS: { value: CastrationStatus; label: string }[] = 
   { value: "partial", label: "Parcial" },
   { value: "full", label: "Total" },
 ];
+
+// Uncertainty circle radius (meters) drawn around blurred pins, so the
+// approximation is visually obvious even to someone who doesn't know
+// the colony's real address — a single precise-looking pin doesn't
+// communicate "somewhere around here" on its own. No circle for level 3
+// (exact location, no blur applied).
+const BLUR_RADIUS_METERS: Record<1 | 2, number> = {
+  1: 600,
+  2: 150,
+};
 
 export default function ColonyMap() {
   const [colonies, setColonies] = useState<Colony[]>([]);
@@ -314,22 +324,31 @@ export default function ColonyMap() {
         {filteredColonies.map((colony) => {
           const { position, level } = resolveColonyPosition(colony);
           return (
-            <Marker key={colony.id} position={position} icon={colonyIcon}>
-              <Popup>
-                <strong>{colony.name}</strong>
-                <p className="mt-1 text-sm">{colony.narrative}</p>
-                <p className="mt-1 text-xs text-felines-text-secondary">
-                  {CASTRATION_LABELS[colony.castration_status]}
-                </p>
-                <LocationBlurBadge level={level} />
-                <a
-                  href={`/colony/${colony.id}`}
-                  className="mt-2 block text-xs font-medium text-felines-accent"
-                >
-                  Ver colônia →
-                </a>
-              </Popup>
-            </Marker>
+            <Fragment key={colony.id}>
+              {level !== 3 && (
+                <Circle
+                  center={position}
+                  radius={BLUR_RADIUS_METERS[level]}
+                  pathOptions={{ color: "#E8A838", fillColor: "#E8A838", fillOpacity: 0.12, weight: 1 }}
+                />
+              )}
+              <Marker position={position} icon={colonyIcon}>
+                <Popup>
+                  <strong>{colony.name}</strong>
+                  <p className="mt-1 text-sm">{colony.narrative}</p>
+                  <p className="mt-1 text-xs text-felines-text-secondary">
+                    {CASTRATION_LABELS[colony.castration_status]}
+                  </p>
+                  <LocationBlurBadge level={level} />
+                  <a
+                    href={`/colony/${colony.id}`}
+                    className="mt-2 block text-xs font-medium text-felines-accent"
+                  >
+                    Ver colônia →
+                  </a>
+                </Popup>
+              </Marker>
+            </Fragment>
           );
         })}
 
