@@ -400,12 +400,18 @@ export default function ColonyMap() {
                 {CASTRATION_LABELS[colony.castration_status]}
               </p>
               <LocationBlurBadge level={level} />
-              <a
-                href={`/colony/${colony.id}`}
-                className="mt-2 block text-xs font-medium text-felines-accent"
-              >
-                Ver colônia →
-              </a>
+              {/* The colony page's name and narrative can describe the
+                  location in plain language (street names, landmarks),
+                  so this link is only shown to signed-in visitors —
+                  anonymous visitors get the blurred pin and nothing more. */}
+              {session && (
+                <a
+                  href={`/colony/${colony.id}`}
+                  className="mt-2 block text-xs font-medium text-felines-accent"
+                >
+                  Ver colônia →
+                </a>
+              )}
             </Popup>
           );
 
