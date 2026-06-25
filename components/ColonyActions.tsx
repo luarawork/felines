@@ -4,11 +4,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabaseClient";
 import AuthRequiredNotice from "@/components/AuthRequiredNotice";
 
 export default function ColonyActions({ colonyId }: { colonyId: string }) {
+  const router = useRouter();
   const [session, setSession] = useState<Session | null>(null);
   const [loadingSession, setLoadingSession] = useState(true);
   const [feedingLogged, setFeedingLogged] = useState(false);
@@ -23,7 +25,9 @@ export default function ColonyActions({ colonyId }: { colonyId: string }) {
     });
   }, []);
 
-  // Logs a feeding event for this colony by the signed-in user.
+  // Logs a feeding event for this colony by the signed-in user, and
+  // mirrors it into the timeline so it actually shows up in the
+  // colony's history — the feedings row alone is invisible to visitors.
   async function handleLogFeeding() {
     if (!session) return;
     setActionError(null);
@@ -35,10 +39,20 @@ export default function ColonyActions({ colonyId }: { colonyId: string }) {
       setActionError("Não foi possível registrar a alimentação.");
       return;
     }
+
+    await supabase.from("timeline_events").insert({
+      colony_id: colonyId,
+      event_type: "feeding",
+      description: "Alimentação registrada.",
+      created_by: session.user.id,
+    });
+
     setFeedingLogged(true);
+    router.refresh();
   }
 
-  // Links the signed-in user as a caretaker of this colony.
+  // Links the signed-in user as a caretaker of this colony, and logs
+  // it on the timeline too.
   async function handleBecomeCaretaker() {
     if (!session) return;
     setActionError(null);
@@ -50,7 +64,16 @@ export default function ColonyActions({ colonyId }: { colonyId: string }) {
       setActionError("Não foi possível vincular você como cuidador.");
       return;
     }
+
+    await supabase.from("timeline_events").insert({
+      colony_id: colonyId,
+      event_type: "new_caretaker",
+      description: "Um novo cuidador se vinculou a esta colônia.",
+      created_by: session.user.id,
+    });
+
     setCaretakerJoined(true);
+    router.refresh();
   }
 
   if (loadingSession) return null;

@@ -47,7 +47,7 @@ export default function HelpModalProvider({ children }: { children: React.ReactN
                 ×
               </button>
             </div>
-            <HelpFlow />
+            <HelpFlow onClose={() => setIsOpen(false)} />
           </div>
         </div>
       )}

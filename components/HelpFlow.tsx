@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient";
 import AnonymousReportNotice from "@/components/AnonymousReportNotice";
+import AddressAutocomplete from "@/components/AddressAutocomplete";
 
 type SituationKey =
   | "injured"
@@ -122,10 +123,11 @@ const SITUATIONS: Situation[] = [
   },
 ];
 
-export default function HelpFlow() {
+export default function HelpFlow({ onClose }: { onClose?: () => void }) {
   const [step, setStep] = useState<1 | 2>(1);
   const [situation, setSituation] = useState<Situation | null>(null);
   const [location, setLocation] = useState("");
+  const [locationCoords, setLocationCoords] = useState<{ lat: number; lon: number } | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(true);
@@ -141,10 +143,15 @@ export default function HelpFlow() {
     const { error } = await supabase.from("reports").insert({
       type: situation.reportType,
       description: location ? `Localização informada: ${location}` : null,
+      latitude: locationCoords?.lat ?? null,
+      longitude: locationCoords?.lon ?? null,
       status: "open",
     });
     setSubmitting(false);
-    if (!error) setSubmitted(true);
+    if (!error) {
+      setSubmitted(true);
+      if (onClose) setTimeout(onClose, 1500);
+    }
   }
 
   return (
@@ -184,14 +191,16 @@ export default function HelpFlow() {
             2. Onde você está?
           </h2>
           {situation.reportType && !isLoggedIn && <AnonymousReportNotice />}
-          <input
-            type="text"
-            value={location}
-            onChange={(formEvent) => setLocation(formEvent.target.value)}
-            placeholder="Bairro ou rua (opcional)"
-            maxLength={200}
-            className="mt-2 w-full rounded-md border border-felines-border bg-white px-3 py-2 text-sm"
-          />
+          <div className="mt-2">
+            <AddressAutocomplete
+              value={location}
+              onChange={(newValue) => {
+                setLocation(newValue);
+                setLocationCoords(null);
+              }}
+              onSelectLocation={(lat, lon) => setLocationCoords({ lat, lon })}
+            />
+          </div>
 
           <div className="mt-6 rounded-xl border border-felines-border bg-felines-surface p-5">
             <h3 className="font-semibold text-felines-text-primary">{situation.label}</h3>
@@ -233,7 +242,17 @@ export default function HelpFlow() {
                 </button>
               )}
               {submitted && (
-                <p className="text-sm text-felines-success">Relato registrado, obrigado.</p>
+                <div className="flex items-center gap-3">
+                  <p className="text-sm text-felines-success">Relato registrado, obrigado.</p>
+                  {onClose && (
+                    <button
+                      onClick={onClose}
+                      className="text-sm font-medium text-felines-text-secondary hover:text-felines-accent"
+                    >
+                      Fechar
+                    </button>
+                  )}
+                </div>
               )}
               <Link
                 href="/#aprender"
