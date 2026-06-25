@@ -14,12 +14,12 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { MapContainer, TileLayer, Marker, Popup, ZoomControl, Circle } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup, ZoomControl, Circle, Tooltip } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabaseClient";
-import LocationBlurBadge, { type LocationAccessLevel } from "@/components/LocationBlurBadge";
+import LocationBlurBadge, { BADGE_TEXT, type LocationAccessLevel } from "@/components/LocationBlurBadge";
 import EmptyState from "@/components/EmptyState";
 import ColonyClickTooltip, {
   hasSeenColonyClickTooltip,
@@ -382,6 +382,9 @@ export default function ColonyMap() {
               pathOptions={{ color: "#E8A838", fillColor: "#E8A838", fillOpacity: 0.18, weight: 1 }}
               eventHandlers={{ click: handleColonyPinClick }}
             >
+              <Tooltip direction="top" opacity={1}>
+                🔒 {BADGE_TEXT[level]}
+              </Tooltip>
               {popupContent}
             </Circle>
           );

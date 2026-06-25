@@ -5,7 +5,7 @@
 // apologize for it.
 export type LocationAccessLevel = 1 | 2 | 3;
 
-const BADGE_TEXT: Record<1 | 2, string> = {
+export const BADGE_TEXT: Record<1 | 2, string> = {
   1: "Entre para ver mais perto",
   2: "Torne-se cuidador para ver a localização exata",
 };
