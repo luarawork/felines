@@ -94,7 +94,7 @@ export default function ReportsList() {
   if (!session) {
     return (
       <p className="mt-8 rounded-lg border border-felines-border bg-felines-surface px-4 py-3 text-sm text-felines-text-secondary">
-        <Link href="/login" className="font-medium text-felines-accent">
+        <Link href="/login?returnTo=/reports" className="font-medium text-felines-accent">
           Entre na sua conta
         </Link>{" "}
         para ver e confirmar relatos.

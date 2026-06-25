@@ -26,11 +26,19 @@ const ENTRY_CARDS = [
   },
 ];
 
-// Short, scannable facts used to build trust and context quickly.
+// Real impact numbers used to build trust and context quickly — sources
+// kept inline since these are exactly the kind of claim a reader checks.
 const QUICK_FACTS = [
-  "Gatos castrados não geram novas ninhadas e tendem a ser mais tranquilos no território.",
-  "Colônias bem cuidadas reduzem conflitos como barulho, cheiro e brigas territoriais.",
-  "Alimentar um gato de rua sem cuidados de saúde pode, na prática, prejudicar a colônia.",
+  { value: "10 milhões", label: "de gatos de rua no Brasil (estimativa OMS)" },
+  { value: "480 milhões", label: "de gatos de rua no mundo (World Animal Foundation)" },
+  {
+    value: "185 mil",
+    label: "animais em ONGs — capacidade já esgotada (Instituto Pet Brasil)",
+  },
+  {
+    value: "40%",
+    label: "dos brasileiros já tiveram conflito com vizinhos envolvendo animais (IBGE)",
+  },
 ];
 
 export default function Home() {
@@ -68,20 +76,17 @@ export default function Home() {
 
       {/* Quick facts */}
       <section className="mt-16 rounded-xl border border-felines-border bg-felines-surface p-6 sm:p-8">
-        <h2 className="text-xl font-bold text-felines-text-primary">
-          Fatos rápidos
-        </h2>
-        <ul className="mt-4 space-y-3">
+        <h2 className="text-xl font-bold text-felines-text-primary">Fatos rápidos</h2>
+        <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {QUICK_FACTS.map((fact) => (
-            <li
-              key={fact}
-              className="flex gap-3 text-sm leading-relaxed text-felines-text-secondary"
-            >
-              <span className="mt-1 h-2 w-2 flex-shrink-0 rounded-full bg-felines-success" />
-              {fact}
-            </li>
+            <div key={fact.label} className="rounded-lg bg-felines-background p-4">
+              <p className="text-2xl font-bold text-felines-accent">{fact.value}</p>
+              <p className="mt-1 text-sm leading-relaxed text-felines-text-secondary">
+                {fact.label}
+              </p>
+            </div>
           ))}
-        </ul>
+        </div>
       </section>
     </div>
   );

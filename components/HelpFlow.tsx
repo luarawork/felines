@@ -9,13 +9,26 @@ import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient";
 import AnonymousReportNotice from "@/components/AnonymousReportNotice";
 
-type SituationKey = "injured" | "kitten" | "conflict" | "missing" | "other";
+type SituationKey =
+  | "injured"
+  | "kitten"
+  | "abuse"
+  | "disease"
+  | "conflict"
+  | "missing"
+  | "threat"
+  | "other";
 
 type Situation = {
   key: SituationKey;
   label: string;
   reportType: string | null;
   guidance: string[];
+  /** A more urgent, specifically-worded note (hotlines, official channels). */
+  alert?: string;
+  /** Link to a relevant /learn article for deeper guidance. */
+  relatedArticleSlug?: string;
+  relatedArticleLabel?: string;
 };
 
 // What's happening? options, with the educational guidance shown for each
@@ -28,8 +41,10 @@ const SITUATIONS: Situation[] = [
     guidance: [
       "Mantenha distância e evite tocar o gato sem proteção — animais feridos podem morder por dor ou medo.",
       "Se possível, cubra a área com uma caixa ou toalha para evitar que ele se machuque mais ou fuja.",
-      "Procure uma clínica veterinária ou ONG de proteção animal da região para orientação imediata.",
     ],
+    alert: "Encontre uma clínica veterinária ou abrigo de emergência perto de você.",
+    relatedArticleSlug: "found-injured-cat-step-by-step",
+    relatedArticleLabel: "Veja o passo a passo completo",
   },
   {
     key: "kitten",
@@ -37,9 +52,33 @@ const SITUATIONS: Situation[] = [
     reportType: "new_kitten",
     guidance: [
       "Filhotes sozinhos nem sempre estão abandonados — a mãe pode estar caçando comida nas proximidades.",
-      "Observe de uma distância segura por 1 a 2 horas antes de qualquer intervenção.",
-      "Só remova o filhote do local se ele estiver visivelmente ferido, muito frio ou em risco imediato.",
+      "Observe de uma distância segura por algumas horas antes de qualquer intervenção.",
     ],
+    relatedArticleSlug: "found-a-kitten-alone",
+    relatedArticleLabel: "Veja o guia completo antes de agir",
+  },
+  {
+    key: "abuse",
+    label: "Suspeita de envenenamento ou maus-tratos",
+    reportType: "suspected_abuse",
+    guidance: [
+      "Documente o máximo possível: fotos, vídeos com data visível, localização e horário aproximado.",
+      "Não confronte diretamente quem você suspeita — priorize sua segurança e a do animal.",
+    ],
+    alert:
+      "Procure também contatar: Disque Denúncia 181 (anônimo) ou Emergência 190. Maus-tratos a animais são crime previsto na Lei 9.605/98.",
+    relatedArticleSlug: "how-to-report-animal-abuse",
+    relatedArticleLabel: "Saiba como denunciar corretamente",
+  },
+  {
+    key: "disease",
+    label: "Surto de doença na colônia",
+    reportType: "disease_outbreak",
+    guidance: [
+      "Evite contato direto com gatos doentes e não permita que outros animais domésticos se aproximem.",
+      "Anote quantos gatos parecem afetados e quais sintomas você observou.",
+    ],
+    alert: "Contate o Centro de Controle de Zoonoses (CCZ) da sua cidade.",
   },
   {
     key: "conflict",
@@ -48,8 +87,9 @@ const SITUATIONS: Situation[] = [
     guidance: [
       "Cheiro, barulho e sujeira costumam vir de colônias sem cuidado — castração e alimentação controlada reduzem muito esses problemas.",
       "Evite remover ou afugentar os gatos: isso geralmente atrai novos gatos para o território vazio.",
-      "Veja se já existe um cuidador responsável pela colônia da sua rua no mapa do Felines.",
     ],
+    relatedArticleSlug: "cats-bothering-your-building",
+    relatedArticleLabel: "Veja o que realmente funciona",
   },
   {
     key: "missing",
@@ -58,8 +98,18 @@ const SITUATIONS: Situation[] = [
     guidance: [
       "Avise os cuidadores de colônias próximas — eles costumam reconhecer os gatos da região.",
       "Espalhe uma foto recente e características marcantes (cor, porte, coleira) na vizinhança.",
-      "Registre um relato para que outras pessoas que avistarem o gato possam confirmar.",
     ],
+    alert: "Confira as colônias próximas no mapa — gatos costumam ficar a poucos quarteirões.",
+  },
+  {
+    key: "threat",
+    label: "Obra ou risco de despejo perto de uma colônia",
+    reportType: "threat_to_colony",
+    guidance: [
+      "Identifique prazos (início de obra, data de despejo) o quanto antes — isso define a urgência da ação.",
+      "Procure o cuidador responsável pela colônia, se houver um cadastrado no mapa.",
+    ],
+    alert: "Avise cuidadores e vizinhos da região para que a comunidade possa agir junto.",
   },
   {
     key: "other",
@@ -156,6 +206,21 @@ export default function HelpFlow() {
                 </li>
               ))}
             </ul>
+
+            {situation.alert && (
+              <p className="mt-3 rounded-md bg-felines-warning/10 px-3 py-2 text-sm text-felines-text-primary">
+                {situation.alert}
+              </p>
+            )}
+
+            {situation.relatedArticleSlug && (
+              <Link
+                href={`/learn/${situation.relatedArticleSlug}`}
+                className="mt-3 inline-block text-sm font-medium text-felines-accent hover:text-felines-accent-hover"
+              >
+                {situation.relatedArticleLabel ?? "Saiba mais"} →
+              </Link>
+            )}
 
             <div className="mt-5 flex flex-wrap items-center gap-3">
               {situation.reportType && !submitted && (

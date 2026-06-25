@@ -6,6 +6,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabaseClient";
@@ -32,8 +33,10 @@ export default function NewColonyForm() {
   const [session, setSession] = useState<Session | null>(null);
   const [checkingSession, setCheckingSession] = useState(true);
 
-  const [seenMultipleTimes, setSeenMultipleTimes] = useState(false);
-  const [hasFixedSpot, setHasFixedSpot] = useState(false);
+  const [moreThanOneCat, setMoreThanOneCat] = useState<boolean | null>(null);
+  const [seenFrequently, setSeenFrequently] = useState<boolean | null>(null);
+  const [hasCareSigns, setHasCareSigns] = useState<boolean | null>(null);
+  const [canPhotoNow, setCanPhotoNow] = useState<boolean | null>(null);
 
   const [name, setName] = useState("");
   const [narrative, setNarrative] = useState("");
@@ -55,8 +58,16 @@ export default function NewColonyForm() {
     formEvent.preventDefault();
     setError(null);
 
-    if (!seenMultipleTimes || !hasFixedSpot) {
-      setError("Confirme as duas perguntas de validação antes de continuar.");
+    if (moreThanOneCat === null || seenFrequently === null || hasCareSigns === null) {
+      setError("Responda as perguntas de validação antes de continuar.");
+      return;
+    }
+    if (!moreThanOneCat || !seenFrequently) {
+      setError("Isso pode ser um avistamento em vez de uma colônia. Veja a sugestão acima.");
+      return;
+    }
+    if (!canPhotoNow) {
+      setError("É necessário poder fotografar o local agora para cadastrar a colônia.");
       return;
     }
     if (!name.trim()) {
@@ -133,28 +144,41 @@ export default function NewColonyForm() {
   return (
     <form onSubmit={handleSubmit} className="mt-6 space-y-6">
       {/* Validation questions */}
-      <fieldset className="space-y-2 rounded-xl border border-felines-border bg-felines-surface p-4">
+      <fieldset className="space-y-4 rounded-xl border border-felines-border bg-felines-surface p-4">
         <legend className="text-sm font-semibold text-felines-text-primary">
           Antes de cadastrar
         </legend>
-        <label className="flex items-start gap-2 text-sm text-felines-text-secondary">
-          <input
-            type="checkbox"
-            checked={seenMultipleTimes}
-            onChange={(formEvent) => setSeenMultipleTimes(formEvent.target.checked)}
-            className="mt-1"
-          />
-          Já vi esses gatos pelo menos 3 vezes nesse local.
-        </label>
-        <label className="flex items-start gap-2 text-sm text-felines-text-secondary">
-          <input
-            type="checkbox"
-            checked={hasFixedSpot}
-            onChange={(formEvent) => setHasFixedSpot(formEvent.target.checked)}
-            className="mt-1"
-          />
-          Eles parecem ter um local fixo onde dormem ou se alimentam.
-        </label>
+
+        <ValidationQuestion
+          question="Há mais de um gato nesse local?"
+          value={moreThanOneCat}
+          onChange={setMoreThanOneCat}
+        />
+        <ValidationQuestion
+          question="Você os vê com frequência no mesmo lugar?"
+          value={seenFrequently}
+          onChange={setSeenFrequently}
+        />
+
+        {(moreThanOneCat === false || seenFrequently === false) && (
+          <p className="rounded-md bg-felines-warning/10 px-3 py-2 text-sm text-felines-text-primary">
+            Isso pode ser um avistamento em vez de uma colônia.{" "}
+            <Link href="/help" className="font-medium text-felines-accent">
+              Quer registrar um avistamento em vez disso?
+            </Link>
+          </p>
+        )}
+
+        <ValidationQuestion
+          question="Há sinais de que alguém já cuida deles? (potes de comida, água, abrigos pequenos)"
+          value={hasCareSigns}
+          onChange={setHasCareSigns}
+        />
+        <ValidationQuestion
+          question="Você consegue fotografar o local agora? (obrigatório para cadastrar)"
+          value={canPhotoNow}
+          onChange={setCanPhotoNow}
+        />
       </fieldset>
 
       {/* Name and narrative */}
@@ -238,5 +262,48 @@ export default function NewColonyForm() {
         {submitting ? "Cadastrando..." : "Cadastrar colônia"}
       </button>
     </form>
+  );
+}
+
+// A single yes/no validation question with two toggle buttons. Using
+// explicit Yes/No buttons (rather than a checkbox) lets "no" be a real,
+// trackable answer instead of just "unchecked".
+function ValidationQuestion({
+  question,
+  value,
+  onChange,
+}: {
+  question: string;
+  value: boolean | null;
+  onChange: (value: boolean) => void;
+}) {
+  return (
+    <div>
+      <p className="text-sm text-felines-text-secondary">{question}</p>
+      <div className="mt-1 flex gap-2">
+        <button
+          type="button"
+          onClick={() => onChange(true)}
+          className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
+            value === true
+              ? "border-felines-success bg-felines-success text-white"
+              : "border-felines-border text-felines-text-secondary"
+          }`}
+        >
+          Sim
+        </button>
+        <button
+          type="button"
+          onClick={() => onChange(false)}
+          className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
+            value === false
+              ? "border-felines-emergency bg-felines-emergency text-white"
+              : "border-felines-border text-felines-text-secondary"
+          }`}
+        >
+          Não
+        </button>
+      </div>
+    </div>
   );
 }

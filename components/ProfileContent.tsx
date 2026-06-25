@@ -36,7 +36,7 @@ export default function ProfileContent() {
       const session = sessionData.session;
 
       if (!session) {
-        router.push("/login");
+        router.push("/login?returnTo=/profile");
         return;
       }
 

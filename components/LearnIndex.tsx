@@ -82,7 +82,7 @@ export default function LearnIndex({ articles }: { articles: Article[] }) {
 
       {!session && (
         <p className="mt-6 text-sm text-felines-text-secondary">
-          <Link href="/login" className="font-medium text-felines-accent">
+          <Link href="/login?returnTo=/learn" className="font-medium text-felines-accent">
             Entre na sua conta
           </Link>{" "}
           para acompanhar seu progresso de leitura.
