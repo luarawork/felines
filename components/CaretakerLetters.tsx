@@ -88,9 +88,8 @@ export default function CaretakerLetters({ colonyId }: { colonyId: string }) {
   if (loading) return null;
 
   return (
-    <section className="mt-10">
-      <h2 className="text-xl font-bold text-felines-text-primary">Carta para o próximo cuidador</h2>
-      <p className="mt-1 text-sm text-felines-text-secondary">
+    <div>
+      <p className="text-sm text-felines-text-secondary">
         Histórico, hábitos dos gatos e dicas deixadas por quem já cuidou desta colônia.
       </p>
 
@@ -146,6 +145,6 @@ export default function CaretakerLetters({ colonyId }: { colonyId: string }) {
             ))}
         </ul>
       )}
-    </section>
+    </div>
   );
 }

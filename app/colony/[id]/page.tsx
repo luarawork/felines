@@ -2,7 +2,8 @@
 // Server component that loads a single colony's public data (name,
 // narrative, castration status, named cats, and timeline) and renders
 // the colony detail page. Exact coordinates are never fetched here —
-// only data already safe for public display.
+// only data already safe for public display. Sections are organized
+// into tabs to keep the page scannable instead of one long scroll.
 import { notFound } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import ReportButton from "@/components/ReportButton";
@@ -11,6 +12,7 @@ import WeatherBanner from "@/components/WeatherBanner";
 import CatManager from "@/components/CatManager";
 import CaretakerLetters from "@/components/CaretakerLetters";
 import TimelineEventForm from "@/components/TimelineEventForm";
+import ColonyTabs from "@/components/ColonyTabs";
 
 type Cat = {
   id: string;
@@ -60,6 +62,74 @@ export default async function ColonyDetailPage({
     .eq("colony_id", id)
     .order("created_at", { ascending: false });
 
+  const catsSection = (
+    <>
+      {!cats || cats.length === 0 ? (
+        <p className="text-sm text-felines-text-secondary">
+          Ainda não há gatos cadastrados nesta colônia.
+        </p>
+      ) : (
+        <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
+          {(cats as Cat[]).map((cat) => (
+            <div
+              key={cat.id}
+              className="rounded-xl border border-felines-border bg-felines-surface p-4"
+            >
+              {cat.photo_url ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={cat.photo_url}
+                  alt={cat.name ?? "Gato da colônia"}
+                  className="h-32 w-full rounded-lg object-cover"
+                />
+              ) : (
+                <div className="h-32 w-full rounded-lg bg-felines-border" />
+              )}
+              <p className="mt-3 font-semibold text-felines-text-primary">
+                {cat.name ?? "Sem nome"}
+              </p>
+              <p className="text-xs text-felines-text-secondary">
+                {cat.castrated ? "Castrado" : "Não castrado"}
+                {cat.last_seen &&
+                  ` · Visto em ${new Date(cat.last_seen).toLocaleDateString("pt-BR")}`}
+              </p>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Cat management, visible only to the colony's creator/caretakers */}
+      <CatManager colonyId={colony.id} />
+    </>
+  );
+
+  const timelineSection = (
+    <>
+      <TimelineEventForm colonyId={colony.id} />
+      {!timelineEvents || timelineEvents.length === 0 ? (
+        <p className="mt-4 text-sm text-felines-text-secondary">
+          Nenhum evento registrado ainda.
+        </p>
+      ) : (
+        <ol className="mt-4 space-y-4 border-l border-felines-border pl-5">
+          {(timelineEvents as TimelineEvent[]).map((event) => (
+            <li key={event.id}>
+              <p className="text-sm font-medium text-felines-text-primary">
+                {event.event_type.replace(/_/g, " ")}
+              </p>
+              {event.description && (
+                <p className="text-sm text-felines-text-secondary">{event.description}</p>
+              )}
+              <p className="text-xs text-felines-text-secondary">
+                {new Date(event.created_at).toLocaleDateString("pt-BR")}
+              </p>
+            </li>
+          ))}
+        </ol>
+      )}
+    </>
+  );
+
   return (
     <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6">
       <div className="mb-4">
@@ -99,76 +169,17 @@ export default async function ColonyDetailPage({
       {/* Available actions, scoped by the visitor's access level */}
       <ColonyActions colonyId={colony.id} />
 
-      {/* Named cats */}
-      <section className="mt-10">
-        <h2 className="text-xl font-bold text-felines-text-primary">Gatos da colônia</h2>
-        {!cats || cats.length === 0 ? (
-          <p className="mt-2 text-sm text-felines-text-secondary">
-            Ainda não há gatos cadastrados nesta colônia.
-          </p>
-        ) : (
-          <div className="mt-4 grid gap-4 sm:grid-cols-2 md:grid-cols-3">
-            {(cats as Cat[]).map((cat) => (
-              <div
-                key={cat.id}
-                className="rounded-xl border border-felines-border bg-felines-surface p-4"
-              >
-                {cat.photo_url ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={cat.photo_url}
-                    alt={cat.name ?? "Gato da colônia"}
-                    className="h-32 w-full rounded-lg object-cover"
-                  />
-                ) : (
-                  <div className="h-32 w-full rounded-lg bg-felines-border" />
-                )}
-                <p className="mt-3 font-semibold text-felines-text-primary">
-                  {cat.name ?? "Sem nome"}
-                </p>
-                <p className="text-xs text-felines-text-secondary">
-                  {cat.castrated ? "Castrado" : "Não castrado"}
-                  {cat.last_seen &&
-                    ` · Visto em ${new Date(cat.last_seen).toLocaleDateString("pt-BR")}`}
-                </p>
-              </div>
-            ))}
-          </div>
-        )}
-      </section>
-
-      {/* Cat management, visible only to the colony's creator/caretakers */}
-      <CatManager colonyId={colony.id} />
-
-      {/* Letter for the next caretaker */}
-      <CaretakerLetters colonyId={colony.id} />
-
-      {/* Collective timeline */}
-      <section className="mt-10">
-        <h2 className="text-xl font-bold text-felines-text-primary">Linha do tempo</h2>
-        <TimelineEventForm colonyId={colony.id} />
-        {!timelineEvents || timelineEvents.length === 0 ? (
-          <p className="mt-2 text-sm text-felines-text-secondary">
-            Nenhum evento registrado ainda.
-          </p>
-        ) : (
-          <ol className="mt-4 space-y-4 border-l border-felines-border pl-5">
-            {(timelineEvents as TimelineEvent[]).map((event) => (
-              <li key={event.id}>
-                <p className="text-sm font-medium text-felines-text-primary">
-                  {event.event_type.replace(/_/g, " ")}
-                </p>
-                {event.description && (
-                  <p className="text-sm text-felines-text-secondary">{event.description}</p>
-                )}
-                <p className="text-xs text-felines-text-secondary">
-                  {new Date(event.created_at).toLocaleDateString("pt-BR")}
-                </p>
-              </li>
-            ))}
-          </ol>
-        )}
-      </section>
+      <ColonyTabs
+        tabs={[
+          { id: "cats", label: "Gatos", content: catsSection },
+          { id: "timeline", label: "Linha do tempo", content: timelineSection },
+          {
+            id: "letter",
+            label: "Carta do cuidador",
+            content: <CaretakerLetters colonyId={colony.id} />,
+          },
+        ]}
+      />
     </div>
   );
 }
