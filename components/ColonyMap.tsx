@@ -7,7 +7,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup, ZoomControl } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { supabase } from "@/lib/supabaseClient";
@@ -210,7 +210,13 @@ export default function ColonyMap() {
         </div>
       </div>
 
-      <MapContainer center={NATAL_CENTER} zoom={DEFAULT_ZOOM} className="h-full w-full">
+      <MapContainer
+        center={NATAL_CENTER}
+        zoom={DEFAULT_ZOOM}
+        zoomControl={false}
+        className="h-full w-full"
+      >
+        <ZoomControl position="bottomleft" />
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
