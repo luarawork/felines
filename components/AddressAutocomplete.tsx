@@ -1,19 +1,20 @@
 // Free-text address input with autocomplete suggestions from
-// OpenStreetMap's Nominatim search API, biased to the Natal, RN area.
-// Helps people type a real, findable address instead of a vague
-// description, while still allowing free text if nothing matches.
+// OpenStreetMap's Nominatim search API, anchored to Natal, RN. Uses a
+// structured query (street/city/state/country) instead of a single
+// free-text string — Nominatim matches house numbers much more
+// reliably that way — and flags which suggestions actually resolved to
+// a specific house number versus just a street/area match, since OSM's
+// address coverage in Natal is incomplete and a street-level match can
+// still be off by a fair distance.
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-
-// Rough bounding box around Natal, RN, used to bias (not strictly
-// limit) suggestions toward the region this app actually covers.
-const NATAL_VIEWBOX = "-35.35,-5.70,-35.05,-5.95";
 
 type Suggestion = {
   label: string;
   lat: number;
   lon: number;
+  hasHouseNumber: boolean;
 };
 
 export default function AddressAutocomplete({
@@ -40,26 +41,40 @@ export default function AddressAutocomplete({
 
     debounceRef.current = setTimeout(async () => {
       try {
+        // Structured search: passing the typed text as `street` makes
+        // Nominatim parse it as "<housenumber> <streetname>" and match
+        // house-level points when they exist, instead of treating the
+        // whole string as a single fuzzy label.
         const params = new URLSearchParams({
-          q: value,
-          format: "json",
+          street: value,
+          city: "Natal",
+          state: "Rio Grande do Norte",
+          country: "Brasil",
+          format: "jsonv2",
+          addressdetails: "1",
           limit: "5",
-          viewbox: NATAL_VIEWBOX,
-          bounded: "0",
-          countrycodes: "br",
         });
         const response = await fetch(
           `https://nominatim.openstreetmap.org/search?${params.toString()}`
         );
         if (!response.ok) return;
         const results = await response.json();
-        setSuggestions(
-          results.map((result: { display_name: string; lat: string; lon: string }) => ({
+        const parsed: Suggestion[] = results.map(
+          (result: {
+            display_name: string;
+            lat: string;
+            lon: string;
+            address?: { house_number?: string };
+          }) => ({
             label: result.display_name,
             lat: parseFloat(result.lat),
             lon: parseFloat(result.lon),
-          }))
+            hasHouseNumber: !!result.address?.house_number,
+          })
         );
+        // House-level matches first — they're the ones worth trusting.
+        parsed.sort((a, b) => Number(b.hasHouseNumber) - Number(a.hasHouseNumber));
+        setSuggestions(parsed);
       } catch {
         setSuggestions([]);
       }
@@ -85,7 +100,7 @@ export default function AddressAutocomplete({
         onChange={(formEvent) => onChange(formEvent.target.value)}
         onFocus={() => setShowSuggestions(true)}
         onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
-        placeholder="Bairro ou rua (opcional)"
+        placeholder="Rua, número e bairro"
         maxLength={200}
         className="w-full rounded-md border border-felines-border bg-white px-3 py-2 text-sm"
       />
@@ -99,6 +114,11 @@ export default function AddressAutocomplete({
                 className="block w-full px-3 py-2 text-left text-sm text-felines-text-primary hover:bg-felines-background"
               >
                 {suggestion.label}
+                {!suggestion.hasHouseNumber && (
+                  <span className="ml-1 text-xs text-felines-warning">
+                    (aproximado, sem número exato)
+                  </span>
+                )}
               </button>
             </li>
           ))}

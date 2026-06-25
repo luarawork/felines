@@ -484,6 +484,12 @@ export default function ColonyMap() {
             >
               <Popup>
                 <strong>{getReportTypeLabel(report.type)}</strong>
+                <a
+                  href={`/reports#report-${report.id}`}
+                  className="mt-2 block text-xs font-medium text-felines-accent"
+                >
+                  Ver relato →
+                </a>
               </Popup>
             </Marker>
           ))}
@@ -498,6 +504,12 @@ export default function ColonyMap() {
             >
               <Popup>
                 <strong>Alerta: {report.type.replace(/_/g, " ")}</strong>
+                <a
+                  href={`/reports#report-${report.id}`}
+                  className="mt-2 block text-xs font-medium text-felines-accent"
+                >
+                  Ver relato →
+                </a>
               </Popup>
             </Marker>
           ))}

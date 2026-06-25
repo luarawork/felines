@@ -32,6 +32,7 @@ export default function ReportsList() {
   const [confirmedReportIds, setConfirmedReportIds] = useState<Set<string>>(new Set());
   const [showResolved, setShowResolved] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [highlightedReportId, setHighlightedReportId] = useState<string | null>(null);
 
   // Loads the auth session, the list of reports filtered by status, and
   // which colonies the current user can manage (to gate manual resolve).
@@ -76,6 +77,25 @@ export default function ReportsList() {
 
     loadReports();
   }, [showResolved]);
+
+  // If we arrived here via a map popup's "Ver relato" link
+  // (/reports#report-<id>), scroll to that report and highlight it
+  // briefly so it's obvious which one was linked.
+  useEffect(() => {
+    if (loading || reports.length === 0) return;
+    const hash = window.location.hash;
+    if (!hash.startsWith("#report-")) return;
+
+    const reportId = hash.replace("#report-", "");
+    const element = document.getElementById(`report-${reportId}`);
+    if (!element) return;
+
+    element.scrollIntoView({ behavior: "smooth", block: "center" });
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- responding to the URL hash on mount, not deriving render state
+    setHighlightedReportId(reportId);
+    const timer = setTimeout(() => setHighlightedReportId(null), 3000);
+    return () => clearTimeout(timer);
+  }, [loading, reports]);
 
   // Confirms a report (atomic increment, auto-resolves at 3 confirmations).
   async function handleConfirm(reportId: string) {
@@ -163,7 +183,12 @@ export default function ReportsList() {
             return (
               <li
                 key={report.id}
-                className="rounded-xl border border-felines-border bg-felines-surface p-4"
+                id={`report-${report.id}`}
+                className={`rounded-xl border bg-felines-surface p-4 transition-colors ${
+                  highlightedReportId === report.id
+                    ? "border-felines-accent ring-2 ring-felines-accent"
+                    : "border-felines-border"
+                }`}
               >
                 <div className="flex flex-wrap items-start justify-between gap-2">
                   <div>

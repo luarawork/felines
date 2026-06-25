@@ -10,6 +10,7 @@ import { useRouter } from "next/navigation";
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabaseClient";
 import MapMarkerPickerShell from "@/components/MapMarkerPickerShell";
+import AddressAutocomplete from "@/components/AddressAutocomplete";
 import AuthRequiredNotice from "@/components/AuthRequiredNotice";
 import { useHelpModal } from "@/components/HelpModalProvider";
 
@@ -44,6 +45,7 @@ export default function NewColonyForm() {
   const [castrationStatus, setCastrationStatus] = useState<"none" | "partial" | "full">("none");
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [position, setPosition] = useState<[number, number] | null>(null);
+  const [addressText, setAddressText] = useState("");
 
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -244,11 +246,22 @@ export default function NewColonyForm() {
         />
       </div>
 
-      {/* Map marker placement */}
+      {/* Address + map marker placement */}
       <div>
         <label className="block text-sm font-medium text-felines-text-primary">
-          Localização exata (clique no mapa)
+          Localização exata
         </label>
+        <p className="mt-1 text-xs text-felines-text-secondary">
+          Digite o endereço — o pino no mapa vai marcar onde ele fica. Você ainda pode ajustar
+          clicando no mapa.
+        </p>
+        <div className="mt-2">
+          <AddressAutocomplete
+            value={addressText}
+            onChange={setAddressText}
+            onSelectLocation={(lat, lon) => setPosition([lat, lon])}
+          />
+        </div>
         <div className="mt-2 h-64 w-full overflow-hidden rounded-xl border border-felines-border">
           <MapMarkerPickerShell
             position={position}

@@ -1,8 +1,9 @@
 // Lets a colony's creator or a linked caretaker manage its named cats:
-// add a new cat (with optional photo), toggle castration status, and
-// remove a cat. Hidden entirely for visitors who aren't authorized to
-// manage the colony — RLS would block the mutation anyway, but checking
-// here avoids showing controls that would just fail.
+// add a new cat (with optional photo), edit a cat's name/photo, toggle
+// castration status, and remove a cat. Hidden entirely for visitors who
+// aren't authorized to manage the colony — RLS would block the
+// mutation anyway, but checking here avoids showing controls that would
+// just fail.
 "use client";
 
 import { useEffect, useState } from "react";
@@ -18,6 +19,17 @@ type ManagedCat = {
   last_seen: string | null;
 };
 
+// Uploads a cat photo and returns its public URL.
+async function uploadCatPhoto(colonyId: string, photoFile: File): Promise<string | null> {
+  const filePath = `cats/${colonyId}/${Date.now()}-${photoFile.name}`;
+  const { error: uploadError } = await supabase.storage
+    .from("colony-photos")
+    .upload(filePath, photoFile);
+
+  if (uploadError) return null;
+  return supabase.storage.from("colony-photos").getPublicUrl(filePath).data.publicUrl;
+}
+
 export default function CatManager({ colonyId }: { colonyId: string }) {
   const router = useRouter();
   const [session, setSession] = useState<Session | null>(null);
@@ -31,6 +43,11 @@ export default function CatManager({ colonyId }: { colonyId: string }) {
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const [editingCatId, setEditingCatId] = useState<string | null>(null);
+  const [editName, setEditName] = useState("");
+  const [editPhotoFile, setEditPhotoFile] = useState<File | null>(null);
+  const [savingEdit, setSavingEdit] = useState(false);
 
   // Determines whether the signed-in user created this colony or is a
   // linked caretaker, and loads the current cat list for management.
@@ -82,18 +99,12 @@ export default function CatManager({ colonyId }: { colonyId: string }) {
 
     let photoUrl: string | null = null;
     if (photoFile) {
-      const filePath = `cats/${colonyId}/${Date.now()}-${photoFile.name}`;
-      const { error: uploadError } = await supabase.storage
-        .from("colony-photos")
-        .upload(filePath, photoFile);
-
-      if (uploadError) {
+      photoUrl = await uploadCatPhoto(colonyId, photoFile);
+      if (!photoUrl) {
         setSubmitting(false);
         setError("Não foi possível enviar a foto do gato.");
         return;
       }
-
-      photoUrl = supabase.storage.from("colony-photos").getPublicUrl(filePath).data.publicUrl;
     }
 
     const { data: newCat, error: insertError } = await supabase
@@ -173,24 +184,93 @@ export default function CatManager({ colonyId }: { colonyId: string }) {
     router.refresh();
   }
 
+  function startEditing(cat: ManagedCat) {
+    setEditingCatId(cat.id);
+    setEditName(cat.name ?? "");
+    setEditPhotoFile(null);
+    setError(null);
+  }
+
+  // Saves the name (always) and photo (only if a new one was chosen)
+  // for the cat currently being edited.
+  async function handleSaveEdit(catId: string) {
+    if (!editName.trim()) {
+      setError("Informe o nome do gato.");
+      return;
+    }
+
+    setSavingEdit(true);
+
+    let photoUrl: string | undefined;
+    if (editPhotoFile) {
+      const uploadedUrl = await uploadCatPhoto(colonyId, editPhotoFile);
+      if (!uploadedUrl) {
+        setSavingEdit(false);
+        setError("Não foi possível enviar a nova foto do gato.");
+        return;
+      }
+      photoUrl = uploadedUrl;
+    }
+
+    const { error: updateError } = await supabase
+      .from("cats")
+      .update({ name: editName.trim(), ...(photoUrl ? { photo_url: photoUrl } : {}) })
+      .eq("id", catId);
+
+    setSavingEdit(false);
+
+    if (updateError) {
+      setError("Não foi possível salvar as alterações do gato.");
+      return;
+    }
+
+    setCats((previous) =>
+      previous.map((item) =>
+        item.id === catId
+          ? { ...item, name: editName.trim(), photo_url: photoUrl ?? item.photo_url }
+          : item
+      )
+    );
+    setEditingCatId(null);
+    router.refresh();
+  }
+
   if (checkingAccess || !canManage) return null;
 
   return (
     <section className="mt-10 rounded-xl border border-felines-border bg-felines-surface p-5">
       <h2 className="text-lg font-bold text-felines-text-primary">Gerenciar gatos</h2>
 
-      <form onSubmit={handleAddCat} className="mt-4 flex flex-wrap items-end gap-3">
+      <form onSubmit={handleAddCat} className="mt-4 space-y-3">
         <div>
-          <label className="block text-xs font-medium text-felines-text-secondary">Nome</label>
+          <label className="block text-xs font-medium text-felines-text-secondary">
+            Nome do gato
+          </label>
           <input
             type="text"
             value={name}
             onChange={(formEvent) => setName(formEvent.target.value)}
             maxLength={100}
-            className="mt-1 rounded-md border border-felines-border bg-white px-3 py-2 text-sm"
+            className="mt-1 w-full max-w-xs rounded-md border border-felines-border bg-white px-3 py-2 text-sm"
           />
         </div>
-        <label className="flex items-center gap-2 pb-2 text-sm text-felines-text-secondary">
+
+        <div>
+          <label className="block text-xs font-medium text-felines-text-secondary">
+            Foto do gato (opcional)
+          </label>
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(formEvent) => setPhotoFile(formEvent.target.files?.[0] ?? null)}
+            className="mt-1 block text-sm text-felines-text-secondary"
+          />
+          {photoFile && (
+            <p className="mt-1 text-xs text-felines-success">Selecionada: {photoFile.name}</p>
+          )}
+        </div>
+
+        <label className="flex items-center gap-2 text-sm text-felines-text-secondary">
           <input
             type="checkbox"
             checked={castrated}
@@ -198,17 +278,7 @@ export default function CatManager({ colonyId }: { colonyId: string }) {
           />
           Castrado
         </label>
-        <div>
-          <label className="block text-xs font-medium text-felines-text-secondary">
-            Foto (opcional)
-          </label>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={(formEvent) => setPhotoFile(formEvent.target.files?.[0] ?? null)}
-            className="mt-1 text-sm text-felines-text-secondary"
-          />
-        </div>
+
         <button
           type="submit"
           disabled={submitting}
@@ -222,41 +292,93 @@ export default function CatManager({ colonyId }: { colonyId: string }) {
 
       {cats.length > 0 && (
         <ul className="mt-5 space-y-2">
-          {cats.map((cat) => (
-            <li
-              key={cat.id}
-              className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-felines-border px-3 py-2 text-sm"
-            >
-              <span className="font-medium text-felines-text-primary">
-                {cat.name ?? "Sem nome"}
-                {cat.last_seen && (
-                  <span className="ml-2 text-xs font-normal text-felines-text-secondary">
-                    visto em {new Date(cat.last_seen).toLocaleDateString("pt-BR")}
-                  </span>
-                )}
-              </span>
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={() => handleMarkSeenToday(cat.id)}
-                  className="text-felines-success hover:underline"
-                >
-                  Visto hoje
-                </button>
-                <button
-                  onClick={() => handleToggleCastrated(cat)}
-                  className="text-felines-accent hover:text-felines-accent-hover"
-                >
-                  {cat.castrated ? "Marcar como não castrado" : "Marcar como castrado"}
-                </button>
-                <button
-                  onClick={() => handleRemoveCat(cat.id)}
-                  className="text-felines-emergency hover:underline"
-                >
-                  Remover
-                </button>
-              </div>
-            </li>
-          ))}
+          {cats.map((cat) =>
+            editingCatId === cat.id ? (
+              <li
+                key={cat.id}
+                className="space-y-2 rounded-md border border-felines-accent px-3 py-3 text-sm"
+              >
+                <div>
+                  <label className="block text-xs font-medium text-felines-text-secondary">
+                    Nome
+                  </label>
+                  <input
+                    type="text"
+                    value={editName}
+                    onChange={(formEvent) => setEditName(formEvent.target.value)}
+                    maxLength={100}
+                    className="mt-1 w-full max-w-xs rounded-md border border-felines-border bg-white px-3 py-2 text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-felines-text-secondary">
+                    Substituir foto (opcional)
+                  </label>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(formEvent) => setEditPhotoFile(formEvent.target.files?.[0] ?? null)}
+                    className="mt-1 block text-sm text-felines-text-secondary"
+                  />
+                </div>
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => handleSaveEdit(cat.id)}
+                    disabled={savingEdit}
+                    className="rounded-full bg-felines-accent px-3 py-1 text-xs font-medium text-white disabled:opacity-50"
+                  >
+                    {savingEdit ? "Salvando..." : "Salvar"}
+                  </button>
+                  <button
+                    onClick={() => setEditingCatId(null)}
+                    className="text-xs text-felines-text-secondary"
+                  >
+                    Cancelar
+                  </button>
+                </div>
+              </li>
+            ) : (
+              <li
+                key={cat.id}
+                className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-felines-border px-3 py-2 text-sm"
+              >
+                <span className="font-medium text-felines-text-primary">
+                  {cat.name ?? "Sem nome"}
+                  {cat.last_seen && (
+                    <span className="ml-2 text-xs font-normal text-felines-text-secondary">
+                      visto em {new Date(cat.last_seen).toLocaleDateString("pt-BR")}
+                    </span>
+                  )}
+                </span>
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => startEditing(cat)}
+                    className="text-felines-text-secondary hover:text-felines-accent"
+                  >
+                    Editar
+                  </button>
+                  <button
+                    onClick={() => handleMarkSeenToday(cat.id)}
+                    className="text-felines-success hover:underline"
+                  >
+                    Visto hoje
+                  </button>
+                  <button
+                    onClick={() => handleToggleCastrated(cat)}
+                    className="text-felines-accent hover:text-felines-accent-hover"
+                  >
+                    {cat.castrated ? "Marcar como não castrado" : "Marcar como castrado"}
+                  </button>
+                  <button
+                    onClick={() => handleRemoveCat(cat.id)}
+                    className="text-felines-emergency hover:underline"
+                  >
+                    Remover
+                  </button>
+                </div>
+              </li>
+            )
+          )}
         </ul>
       )}
     </section>

@@ -1,11 +1,13 @@
 // /u/:id route for Felines.
-// Public caretaker page: shows a display name and the colonies this
-// person caretakes, without exposing any private data (email, etc).
-// Anyone can view this — it exists to give caretakers visibility and
-// trust, not to gate information.
+// Public caretaker page: shows a display name, the colonies this person
+// caretakes, the reports they've made, and the reports they've
+// confirmed — type/status/date only, never the free-text description
+// or photo. Anyone can view this — it exists to give caretakers
+// visibility and trust, not to gate information.
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient";
+import { getReportTypeLabel } from "@/lib/reportTypes";
 
 export default async function CaretakerPublicPage({
   params,
@@ -40,6 +42,27 @@ export default async function CaretakerPublicPage({
       colony !== null
     );
 
+  const { data: madeReportRows } = await supabase
+    .from("reports")
+    .select("id, type, status, created_at")
+    .eq("created_by", id)
+    .order("created_at", { ascending: false });
+
+  const { data: confirmationRows } = await supabase
+    .from("report_confirmations")
+    .select("created_at, reports(id, type, status)")
+    .eq("user_id", id)
+    .order("created_at", { ascending: false });
+
+  const confirmedReports = (confirmationRows ?? [])
+    .map((row) => ({
+      confirmedAt: row.created_at,
+      report: row.reports as unknown as { id: string; type: string; status: string } | null,
+    }))
+    .filter((row): row is { confirmedAt: string; report: { id: string; type: string; status: string } } =>
+      row.report !== null
+    );
+
   return (
     <div className="mx-auto max-w-2xl px-4 py-12 sm:px-6">
       <h1 className="text-2xl font-bold text-felines-text-primary sm:text-3xl">
@@ -63,6 +86,51 @@ export default async function CaretakerPublicPage({
           ))}
         </ul>
       )}
+
+      <section className="mt-10">
+        <h2 className="text-lg font-bold text-felines-text-primary">Relatos feitos</h2>
+        {!madeReportRows || madeReportRows.length === 0 ? (
+          <p className="mt-2 text-sm text-felines-text-secondary">Nenhum relato ainda.</p>
+        ) : (
+          <ul className="mt-3 space-y-2">
+            {madeReportRows.map((report) => (
+              <li
+                key={report.id}
+                className="flex items-center justify-between rounded-md border border-felines-border px-3 py-2 text-sm"
+              >
+                <span className="text-felines-text-primary">{getReportTypeLabel(report.type)}</span>
+                <span className="text-xs text-felines-text-secondary">
+                  {report.status === "resolved" ? "resolvido" : "aberto"} ·{" "}
+                  {new Date(report.created_at).toLocaleDateString("pt-BR")}
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+
+      <section className="mt-10">
+        <h2 className="text-lg font-bold text-felines-text-primary">Confirmações dadas</h2>
+        {confirmedReports.length === 0 ? (
+          <p className="mt-2 text-sm text-felines-text-secondary">Nenhuma confirmação ainda.</p>
+        ) : (
+          <ul className="mt-3 space-y-2">
+            {confirmedReports.map((item) => (
+              <li
+                key={item.report.id + item.confirmedAt}
+                className="flex items-center justify-between rounded-md border border-felines-border px-3 py-2 text-sm"
+              >
+                <span className="text-felines-text-primary">
+                  {getReportTypeLabel(item.report.type)}
+                </span>
+                <span className="text-xs text-felines-text-secondary">
+                  {new Date(item.confirmedAt).toLocaleDateString("pt-BR")}
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
     </div>
   );
 }
