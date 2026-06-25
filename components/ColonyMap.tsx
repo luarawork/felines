@@ -664,24 +664,12 @@ export default function ColonyMap() {
         <div className="border-t border-felines-border p-2">
           <button
             onClick={() => setListExpanded((previous) => !previous)}
-            role="switch"
-            aria-checked={listExpanded}
-            aria-label="Mostrar ou ocultar a lista de atividades"
-            className="flex w-full items-center justify-center gap-2 rounded-full px-3 py-1.5 text-xs font-medium text-felines-text-secondary transition-colors hover:text-felines-accent"
+            aria-expanded={listExpanded}
+            aria-label={listExpanded ? "Ocultar lista de atividades" : "Mostrar lista de atividades"}
+            className="flex w-full items-center justify-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium text-felines-text-secondary transition-colors hover:text-felines-accent"
           >
-            <span>Ocultar</span>
-            <span
-              className={`relative h-5 w-9 flex-shrink-0 rounded-full transition-colors ${
-                listExpanded ? "bg-felines-accent" : "bg-felines-border"
-              }`}
-            >
-              <span
-                className={`absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform ${
-                  listExpanded ? "translate-x-[18px]" : "translate-x-0.5"
-                }`}
-              />
-            </span>
-            <span>Mostrar</span>
+            <span>{listExpanded ? "Ocultar lista" : "Mostrar lista"}</span>
+            <span aria-hidden="true">{listExpanded ? "▲" : "▼"}</span>
           </button>
         </div>
       </div>
