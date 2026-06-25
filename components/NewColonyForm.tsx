@@ -10,6 +10,7 @@ import { useRouter } from "next/navigation";
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabaseClient";
 import MapMarkerPickerShell from "@/components/MapMarkerPickerShell";
+import AuthRequiredNotice from "@/components/AuthRequiredNotice";
 
 // Location blur protects cats from malicious users who could use exact
 // coordinates to find and harm animals. Both blur levels are computed
@@ -45,14 +46,10 @@ export default function NewColonyForm() {
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
-      if (!data.session) {
-        router.push("/login");
-        return;
-      }
       setSession(data.session);
       setCheckingSession(false);
     });
-  }, [router]);
+  }, []);
 
   async function handleSubmit(formEvent: React.FormEvent) {
     formEvent.preventDefault();
@@ -124,6 +121,14 @@ export default function NewColonyForm() {
   }
 
   if (checkingSession) return null;
+
+  if (!session) {
+    return (
+      <div className="mt-6">
+        <AuthRequiredNotice />
+      </div>
+    );
+  }
 
   return (
     <form onSubmit={handleSubmit} className="mt-6 space-y-6">

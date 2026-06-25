@@ -4,9 +4,10 @@
 // full report status requires authentication (enforced by RLS).
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import { REPORT_TYPES } from "@/lib/reportTypes";
+import AnonymousReportNotice from "@/components/AnonymousReportNotice";
 
 export default function ReportButton({ colonyId }: { colonyId: string }) {
   const [open, setOpen] = useState(false);
@@ -15,6 +16,11 @@ export default function ReportButton({ colonyId }: { colonyId: string }) {
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(true);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => setIsLoggedIn(!!data.session));
+  }, []);
 
   // Validates and submits the report to Supabase.
   async function handleSubmit(formEvent: React.FormEvent) {
@@ -67,6 +73,8 @@ export default function ReportButton({ colonyId }: { colonyId: string }) {
       onSubmit={handleSubmit}
       className="w-full max-w-sm rounded-xl border border-felines-border bg-felines-surface p-4"
     >
+      {!isLoggedIn && <AnonymousReportNotice />}
+
       <label className="block text-xs font-medium text-felines-text-secondary">
         Tipo de relato
       </label>

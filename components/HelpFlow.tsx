@@ -4,9 +4,10 @@
 // directly from the flow (no login required).
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient";
+import AnonymousReportNotice from "@/components/AnonymousReportNotice";
 
 type SituationKey = "injured" | "kitten" | "conflict" | "missing" | "other";
 
@@ -77,6 +78,11 @@ export default function HelpFlow() {
   const [location, setLocation] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(true);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => setIsLoggedIn(!!data.session));
+  }, []);
 
   // Sends a report using the situation's report type and the free-text location.
   async function handleSubmitReport() {
@@ -127,6 +133,7 @@ export default function HelpFlow() {
           <h2 className="mt-3 text-lg font-semibold text-felines-text-primary">
             2. Onde você está?
           </h2>
+          {situation.reportType && !isLoggedIn && <AnonymousReportNotice />}
           <input
             type="text"
             value={location}

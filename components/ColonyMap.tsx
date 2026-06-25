@@ -20,6 +20,10 @@ import "leaflet/dist/leaflet.css";
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabaseClient";
 import LocationBlurBadge, { type LocationAccessLevel } from "@/components/LocationBlurBadge";
+import ColonyClickTooltip, {
+  hasSeenColonyClickTooltip,
+  markColonyClickTooltipSeen,
+} from "@/components/ColonyClickTooltip";
 
 // Natal, RN map center and default zoom, per the Felines spec.
 const NATAL_CENTER: [number, number] = [-5.7945, -35.211];
@@ -122,6 +126,15 @@ export default function ColonyMap() {
   const [visibleCastrationStatuses, setVisibleCastrationStatuses] = useState<
     Set<CastrationStatus>
   >(new Set(["none", "partial", "full"]));
+
+  const [showColonyClickTooltip, setShowColonyClickTooltip] = useState(false);
+
+  function handleColonyPinClick() {
+    if (!hasSeenColonyClickTooltip()) {
+      setShowColonyClickTooltip(true);
+      markColonyClickTooltipSeen();
+    }
+  }
 
   // Load colonies (blurred coordinates only — exact lat/long is not
   // selectable here even for an authenticated session; the database
@@ -347,7 +360,12 @@ export default function ColonyMap() {
           // exists to prevent. Only level 3 (exact location) gets a pin.
           if (level === 3) {
             return (
-              <Marker key={colony.id} position={position} icon={colonyIcon}>
+              <Marker
+                key={colony.id}
+                position={position}
+                icon={colonyIcon}
+                eventHandlers={{ click: handleColonyPinClick }}
+              >
                 {popupContent}
               </Marker>
             );
@@ -359,6 +377,7 @@ export default function ColonyMap() {
               center={position}
               radius={BLUR_RADIUS_METERS[level]}
               pathOptions={{ color: "#E8A838", fillColor: "#E8A838", fillOpacity: 0.18, weight: 1 }}
+              eventHandlers={{ click: handleColonyPinClick }}
             >
               {popupContent}
             </Circle>
@@ -393,6 +412,10 @@ export default function ColonyMap() {
             </Marker>
           ))}
       </MapContainer>
+
+      {showColonyClickTooltip && (
+        <ColonyClickTooltip onDismiss={() => setShowColonyClickTooltip(false)} />
+      )}
     </div>
   );
 }

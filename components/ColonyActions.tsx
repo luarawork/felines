@@ -4,9 +4,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabaseClient";
+import AuthRequiredNotice from "@/components/AuthRequiredNotice";
 
 export default function ColonyActions({ colonyId }: { colonyId: string }) {
   const [session, setSession] = useState<Session | null>(null);
@@ -57,12 +57,9 @@ export default function ColonyActions({ colonyId }: { colonyId: string }) {
 
   if (!session) {
     return (
-      <p className="mt-6 rounded-lg border border-felines-border bg-felines-surface px-4 py-3 text-sm text-felines-text-secondary">
-        <Link href="/login" className="font-medium text-felines-accent">
-          Entre na sua conta
-        </Link>{" "}
-        para registrar alimentações ou se tornar cuidador desta colônia.
-      </p>
+      <div className="mt-6">
+        <AuthRequiredNotice />
+      </div>
     );
   }
 
