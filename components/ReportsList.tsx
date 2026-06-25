@@ -11,6 +11,7 @@ import type { Session } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabaseClient";
 import { getReportTypeLabel } from "@/lib/reportTypes";
 import EmptyState from "@/components/EmptyState";
+import FlagButton from "@/components/FlagButton";
 
 type Report = {
   id: string;
@@ -191,6 +192,9 @@ export default function ReportsList() {
                         </>
                       )}
                     </p>
+                    <div className="mt-2">
+                      <FlagButton targetType="report" targetId={report.id} />
+                    </div>
                   </div>
                   {report.status === "open" && (
                     <div className="flex gap-2">

@@ -15,6 +15,9 @@ import TimelineEventForm from "@/components/TimelineEventForm";
 import ColonyTabs from "@/components/ColonyTabs";
 import EditColonyForm from "@/components/EditColonyForm";
 import EmptyState from "@/components/EmptyState";
+import ThankYouButton from "@/components/ThankYouButton";
+import MarkCatSeenButton from "@/components/MarkCatSeenButton";
+import FlagButton from "@/components/FlagButton";
 
 type Cat = {
   id: string;
@@ -84,6 +87,11 @@ export default async function ColonyDetailPage({
       (caretakerProfiles ?? []).find((profile) => profile.id === userId)?.display_name ?? null,
   }));
 
+  // This is a server component rendered fresh per request, not a
+  // client component re-rendered in place — Date.now() here just reads
+  // the request time once, it isn't a purity hazard in practice.
+  const now = Date.now(); // eslint-disable-line react-hooks/purity
+
   const catsSection = (
     <>
       {!cats || cats.length === 0 ? (
@@ -92,31 +100,46 @@ export default async function ColonyDetailPage({
         </p>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
-          {(cats as Cat[]).map((cat) => (
-            <div
-              key={cat.id}
-              className="rounded-xl border border-felines-border bg-felines-surface p-4"
-            >
-              {cat.photo_url ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={cat.photo_url}
-                  alt={cat.name ?? "Gato da colônia"}
-                  className="h-32 w-full rounded-lg object-cover"
-                />
-              ) : (
-                <div className="h-32 w-full rounded-lg bg-felines-border" />
-              )}
-              <p className="mt-3 font-semibold text-felines-text-primary">
-                {cat.name ?? "Sem nome"}
-              </p>
-              <p className="text-xs text-felines-text-secondary">
-                {cat.castrated ? "Castrado" : "Não castrado"}
-                {cat.last_seen &&
-                  ` · Visto em ${new Date(cat.last_seen).toLocaleDateString("pt-BR")}`}
-              </p>
-            </div>
-          ))}
+          {(cats as Cat[]).map((cat) => {
+            const daysSinceSeen = cat.last_seen
+              ? (now - new Date(cat.last_seen).getTime()) / (1000 * 60 * 60 * 24)
+              : null;
+            const isStale = daysSinceSeen === null || daysSinceSeen >= 7;
+
+            return (
+              <div
+                key={cat.id}
+                className="rounded-xl border border-felines-border bg-felines-surface p-4"
+              >
+                {cat.photo_url ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={cat.photo_url}
+                    alt={cat.name ?? "Gato da colônia"}
+                    className="h-32 w-full rounded-lg object-cover"
+                  />
+                ) : (
+                  <div className="h-32 w-full rounded-lg bg-felines-border" />
+                )}
+                <p className="mt-3 font-semibold text-felines-text-primary">
+                  {cat.name ?? "Sem nome"}
+                </p>
+                <p className="text-xs text-felines-text-secondary">
+                  {cat.castrated ? "Castrado" : "Não castrado"}
+                  {cat.last_seen &&
+                    ` · Visto em ${new Date(cat.last_seen).toLocaleDateString("pt-BR")}`}
+                </p>
+                {isStale && (
+                  <>
+                    <p className="mt-1 text-xs text-felines-warning">
+                      Não visto recentemente — você sabe onde {cat.name ?? "ele"} está?
+                    </p>
+                    <MarkCatSeenButton catId={cat.id} catName={cat.name ?? "esse gato"} />
+                  </>
+                )}
+              </div>
+            );
+          })}
         </div>
       )}
 
@@ -128,10 +151,6 @@ export default async function ColonyDetailPage({
   const mostRecentEventDate = timelineEvents?.[0]?.created_at
     ? new Date(timelineEvents[0].created_at)
     : null;
-  // This is a server component rendered fresh per request, not a
-  // client component re-rendered in place — Date.now() here just reads
-  // the request time once, it isn't a purity hazard in practice.
-  const now = Date.now(); // eslint-disable-line react-hooks/purity
   const daysSinceLastUpdate = mostRecentEventDate
     ? (now - mostRecentEventDate.getTime()) / (1000 * 60 * 60 * 24)
     : null;
@@ -197,17 +216,22 @@ export default async function ColonyDetailPage({
             {CASTRATION_LABELS[colony.castration_status] ?? colony.castration_status}
           </span>
           {caretakers.length > 0 && (
-            <p className="mt-2 text-xs text-felines-text-secondary">
-              Cuidado por:{" "}
+            <div className="mt-2 flex flex-wrap items-center gap-x-1 gap-y-1 text-xs text-felines-text-secondary">
+              <span>Cuidado por:</span>
               {caretakers.map((caretaker, index) => (
-                <span key={caretaker.userId}>
-                  {index > 0 && ", "}
+                <span key={caretaker.userId} className="flex items-center gap-1">
+                  {index > 0 && <span>,</span>}
                   <a href={`/u/${caretaker.userId}`} className="text-felines-accent">
                     {caretaker.displayName || "Cuidador da comunidade"}
                   </a>
+                  <ThankYouButton
+                    colonyId={colony.id}
+                    caretakerUserId={caretaker.userId}
+                    caretakerDisplayName={caretaker.displayName || "o cuidador"}
+                  />
                 </span>
               ))}
-            </p>
+            </div>
           )}
         </div>
         <div id="colony-report-button">
@@ -247,6 +271,10 @@ export default async function ColonyDetailPage({
           },
         ]}
       />
+
+      <div className="mt-8">
+        <FlagButton targetType="colony" targetId={colony.id} />
+      </div>
     </div>
   );
 }

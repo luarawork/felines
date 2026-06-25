@@ -131,6 +131,13 @@ export default function ColonyMap() {
 
   const [showColonyClickTooltip, setShowColonyClickTooltip] = useState(false);
 
+  // Heat map: highlights colonies that likely need attention (open
+  // reports and/or no recent feeding check-in). Needs `reports` and
+  // `feedings` data, both of which RLS restricts to authenticated users,
+  // so the toggle is only offered once signed in.
+  const [heatMapOn, setHeatMapOn] = useState(false);
+  const [colonyNeedScores, setColonyNeedScores] = useState<Map<string, number>>(new Map());
+
   function handleColonyPinClick() {
     if (!hasSeenColonyClickTooltip()) {
       setShowColonyClickTooltip(true);
@@ -210,6 +217,38 @@ export default function ColonyMap() {
       setExactCoordsByColonyId(
         new Map(exactCoordsEntries.filter((entry): entry is [string, [number, number]] => entry !== null))
       );
+
+      // Need score per colony: +1 per open report tied to it, +1 if no
+      // feeding check-in in the last 7 days. Both queries require
+      // authentication (reports/feedings RLS), which is fine since the
+      // heat map toggle itself is only shown once signed in.
+      const [{ data: openReportRows }, { data: feedingRows }] = await Promise.all([
+        supabase.from("reports").select("colony_id").eq("status", "open").not("colony_id", "is", null),
+        supabase.from("feedings").select("colony_id, created_at"),
+      ]);
+
+      const openReportCounts = new Map<string, number>();
+      (openReportRows ?? []).forEach((row) => {
+        const colonyId = row.colony_id as string;
+        openReportCounts.set(colonyId, (openReportCounts.get(colonyId) ?? 0) + 1);
+      });
+
+      const lastFeedingByColony = new Map<string, number>();
+      (feedingRows ?? []).forEach((row) => {
+        const timestamp = new Date(row.created_at).getTime();
+        const current = lastFeedingByColony.get(row.colony_id);
+        if (!current || timestamp > current) lastFeedingByColony.set(row.colony_id, timestamp);
+      });
+
+      const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+      const needScores = new Map<string, number>();
+      (colonyData as Colony[]).forEach((colony) => {
+        let score = openReportCounts.get(colony.id) ?? 0;
+        const lastFeeding = lastFeedingByColony.get(colony.id);
+        if (!lastFeeding || lastFeeding < sevenDaysAgo) score += 1;
+        if (score > 0) needScores.set(colony.id, score);
+      });
+      setColonyNeedScores(needScores);
     }
 
     loadMapData();
@@ -323,6 +362,20 @@ export default function ColonyMap() {
             );
           })}
         </div>
+
+        {session && (
+          <button
+            type="button"
+            onClick={() => setHeatMapOn((previous) => !previous)}
+            className={`w-full rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
+              heatMapOn
+                ? "border-felines-emergency bg-felines-emergency text-white"
+                : "border-felines-border text-felines-text-secondary"
+            }`}
+          >
+            {heatMapOn ? "Ocultar" : "Mostrar"} intensidade de necessidade
+          </button>
+        )}
       </div>
 
       <MapContainer
@@ -389,6 +442,22 @@ export default function ColonyMap() {
             </Circle>
           );
         })}
+
+        {heatMapOn &&
+          filteredColonies.map((colony) => {
+            const needScore = colonyNeedScores.get(colony.id);
+            if (!needScore) return null;
+            const { position } = resolveColonyPosition(colony);
+            const color = needScore >= 2 ? "#C0392B" : "#E8A838";
+            return (
+              <Circle
+                key={`heat-${colony.id}`}
+                center={position}
+                radius={400}
+                pathOptions={{ color, fillColor: color, fillOpacity: 0.25, weight: 0 }}
+              />
+            );
+          })}
 
         {filteredSightings
           .filter((report) => report.latitude != null && report.longitude != null)
