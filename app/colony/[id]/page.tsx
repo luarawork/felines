@@ -10,6 +10,7 @@ import ColonyActions from "@/components/ColonyActions";
 import WeatherBanner from "@/components/WeatherBanner";
 import CatManager from "@/components/CatManager";
 import CaretakerLetters from "@/components/CaretakerLetters";
+import TimelineEventForm from "@/components/TimelineEventForm";
 
 type Cat = {
   id: string;
@@ -145,6 +146,7 @@ export default async function ColonyDetailPage({
       {/* Collective timeline */}
       <section className="mt-10">
         <h2 className="text-xl font-bold text-felines-text-primary">Linha do tempo</h2>
+        <TimelineEventForm colonyId={colony.id} />
         {!timelineEvents || timelineEvents.length === 0 ? (
           <p className="mt-2 text-sm text-felines-text-secondary">
             Nenhum evento registrado ainda.
