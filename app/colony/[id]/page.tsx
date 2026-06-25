@@ -8,6 +8,7 @@ import { supabase } from "@/lib/supabaseClient";
 import ReportButton from "@/components/ReportButton";
 import ColonyActions from "@/components/ColonyActions";
 import WeatherBanner from "@/components/WeatherBanner";
+import CatManager from "@/components/CatManager";
 
 type Cat = {
   id: string;
@@ -110,7 +111,16 @@ export default async function ColonyDetailPage({
                 key={cat.id}
                 className="rounded-xl border border-felines-border bg-felines-surface p-4"
               >
-                <div className="h-32 w-full rounded-lg bg-felines-border" />
+                {cat.photo_url ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={cat.photo_url}
+                    alt={cat.name ?? "Gato da colônia"}
+                    className="h-32 w-full rounded-lg object-cover"
+                  />
+                ) : (
+                  <div className="h-32 w-full rounded-lg bg-felines-border" />
+                )}
                 <p className="mt-3 font-semibold text-felines-text-primary">
                   {cat.name ?? "Sem nome"}
                 </p>
@@ -124,6 +134,9 @@ export default async function ColonyDetailPage({
           </div>
         )}
       </section>
+
+      {/* Cat management, visible only to the colony's creator/caretakers */}
+      <CatManager colonyId={colony.id} />
 
       {/* Collective timeline */}
       <section className="mt-10">
