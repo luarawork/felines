@@ -9,6 +9,7 @@ import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient";
 import AnonymousReportNotice from "@/components/AnonymousReportNotice";
 import AddressAutocomplete from "@/components/AddressAutocomplete";
+import LostCatForm from "@/components/LostCatForm";
 
 type SituationKey =
   | "injured"
@@ -187,87 +188,114 @@ export default function HelpFlow({ onClose }: { onClose?: () => void }) {
             ← Voltar
           </button>
 
-          <h2 className="mt-3 text-lg font-semibold text-felines-text-primary">
-            2. Onde você está?
-          </h2>
-          {situation.reportType && !isLoggedIn && <AnonymousReportNotice />}
-          <div className="mt-2">
-            <AddressAutocomplete
-              value={location}
-              onChange={(newValue) => {
-                setLocation(newValue);
-                setLocationCoords(null);
-              }}
-              onSelectLocation={(lat, lon) => setLocationCoords({ lat, lon })}
-            />
-          </div>
-
-          <div className="mt-6 rounded-xl border border-felines-border bg-felines-surface p-5">
-            <h3 className="font-semibold text-felines-text-primary">{situation.label}</h3>
-            <ul className="mt-3 space-y-2">
-              {situation.guidance.map((line) => (
-                <li
-                  key={line}
-                  className="flex gap-2 text-sm leading-relaxed text-felines-text-secondary"
-                >
-                  <span className="mt-1 h-2 w-2 flex-shrink-0 rounded-full bg-felines-success" />
-                  {line}
-                </li>
-              ))}
-            </ul>
-
-            {situation.alert && (
-              <p className="mt-3 rounded-md bg-felines-warning/10 px-3 py-2 text-sm text-felines-text-primary">
-                {situation.alert}
-              </p>
-            )}
-
-            {situation.relatedArticleSlug && (
-              <Link
-                href={`/learn/${situation.relatedArticleSlug}`}
-                className="mt-3 inline-block text-sm font-medium text-felines-accent hover:text-felines-accent-hover"
-              >
-                {situation.relatedArticleLabel ?? "Saiba mais"} →
-              </Link>
-            )}
-
-            <div className="mt-5 flex flex-wrap items-center gap-3">
-              {situation.reportType && !submitted && (
-                <button
-                  onClick={handleSubmitReport}
-                  disabled={submitting}
-                  className="rounded-full bg-felines-accent px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-felines-accent-hover disabled:opacity-50"
-                >
-                  {submitting ? "Enviando..." : "Registrar relato"}
-                </button>
+          {situation.key === "missing" ? (
+            <div className="mt-3 rounded-xl border border-felines-border bg-felines-surface p-5">
+              <h3 className="font-semibold text-felines-text-primary">{situation.label}</h3>
+              <ul className="mt-3 space-y-2">
+                {situation.guidance.map((line) => (
+                  <li
+                    key={line}
+                    className="flex gap-2 text-sm leading-relaxed text-felines-text-secondary"
+                  >
+                    <span className="mt-1 h-2 w-2 flex-shrink-0 rounded-full bg-felines-success" />
+                    {line}
+                  </li>
+                ))}
+              </ul>
+              {situation.alert && (
+                <p className="mt-3 rounded-md bg-felines-warning/10 px-3 py-2 text-sm text-felines-text-primary">
+                  {situation.alert}
+                </p>
               )}
-              {submitted && (
-                <div className="flex items-center gap-3">
-                  <p className="text-sm text-felines-success">Relato registrado, obrigado.</p>
-                  {onClose && (
-                    <button
-                      onClick={onClose}
-                      className="text-sm font-medium text-felines-text-secondary hover:text-felines-accent"
+              <div className="mt-5">
+                <LostCatForm onSubmitted={onClose} />
+              </div>
+            </div>
+          ) : (
+            <>
+              <h2 className="mt-3 text-lg font-semibold text-felines-text-primary">
+                2. Onde você está?
+              </h2>
+              {situation.reportType && !isLoggedIn && <AnonymousReportNotice />}
+              <div className="mt-2">
+                <AddressAutocomplete
+                  value={location}
+                  onChange={(newValue) => {
+                    setLocation(newValue);
+                    setLocationCoords(null);
+                  }}
+                  onSelectLocation={(lat, lon) => setLocationCoords({ lat, lon })}
+                />
+              </div>
+
+              <div className="mt-6 rounded-xl border border-felines-border bg-felines-surface p-5">
+                <h3 className="font-semibold text-felines-text-primary">{situation.label}</h3>
+                <ul className="mt-3 space-y-2">
+                  {situation.guidance.map((line) => (
+                    <li
+                      key={line}
+                      className="flex gap-2 text-sm leading-relaxed text-felines-text-secondary"
                     >
-                      Fechar
+                      <span className="mt-1 h-2 w-2 flex-shrink-0 rounded-full bg-felines-success" />
+                      {line}
+                    </li>
+                  ))}
+                </ul>
+
+                {situation.alert && (
+                  <p className="mt-3 rounded-md bg-felines-warning/10 px-3 py-2 text-sm text-felines-text-primary">
+                    {situation.alert}
+                  </p>
+                )}
+
+                {situation.relatedArticleSlug && (
+                  <Link
+                    href={`/learn/${situation.relatedArticleSlug}`}
+                    className="mt-3 inline-block text-sm font-medium text-felines-accent hover:text-felines-accent-hover"
+                  >
+                    {situation.relatedArticleLabel ?? "Saiba mais"} →
+                  </Link>
+                )}
+
+                <div className="mt-5 flex flex-wrap items-center gap-3">
+                  {situation.reportType && !submitted && (
+                    <button
+                      onClick={handleSubmitReport}
+                      disabled={submitting}
+                      className="rounded-full bg-felines-accent px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-felines-accent-hover disabled:opacity-50"
+                    >
+                      {submitting ? "Enviando..." : "Registrar relato"}
                     </button>
                   )}
+                  {submitted && (
+                    <div className="flex items-center gap-3">
+                      <p className="text-sm text-felines-success">Relato registrado, obrigado.</p>
+                      {onClose && (
+                        <button
+                          onClick={onClose}
+                          className="text-sm font-medium text-felines-text-secondary hover:text-felines-accent"
+                        >
+                          Fechar
+                        </button>
+                      )}
+                    </div>
+                  )}
+                  <Link
+                    href="/#aprender"
+                    className="text-sm font-medium text-felines-accent hover:text-felines-accent-hover"
+                  >
+                    Aprender mais sobre o tema →
+                  </Link>
+                  <Link
+                    href="/map"
+                    className="text-sm font-medium text-felines-text-secondary hover:text-felines-accent"
+                  >
+                    Ver mapa de colônias →
+                  </Link>
                 </div>
-              )}
-              <Link
-                href="/#aprender"
-                className="text-sm font-medium text-felines-accent hover:text-felines-accent-hover"
-              >
-                Aprender mais sobre o tema →
-              </Link>
-              <Link
-                href="/map"
-                className="text-sm font-medium text-felines-text-secondary hover:text-felines-accent"
-              >
-                Ver mapa de colônias →
-              </Link>
-            </div>
-          </div>
+              </div>
+            </>
+          )}
         </div>
       )}
     </div>

@@ -13,7 +13,6 @@ import { supabase } from "@/lib/supabaseClient";
 import { getReportTypeLabel, REPORT_TYPES } from "@/lib/reportTypes";
 import EmptyState from "@/components/EmptyState";
 import FlagButton from "@/components/FlagButton";
-import LostCatForm from "@/components/LostCatForm";
 import SightingReportButton from "@/components/SightingReportButton";
 
 type Report = {
@@ -40,8 +39,6 @@ export default function ReportsList() {
   const [typeFilter, setTypeFilter] = useState<string>("all");
   const [error, setError] = useState<string | null>(null);
   const [highlightedReportId, setHighlightedReportId] = useState<string | null>(null);
-  const [showLostCatForm, setShowLostCatForm] = useState(false);
-  const [reloadKey, setReloadKey] = useState(0);
 
   // Loads the auth session, the list of reports filtered by status, and
   // which colonies the current user can manage (to gate manual resolve).
@@ -87,7 +84,7 @@ export default function ReportsList() {
     }
 
     loadReports();
-  }, [showResolved, reloadKey]);
+  }, [showResolved]);
 
   // If we arrived here via a map popup's "Ver relato" link
   // (/reports#report-<id>), scroll to that report and highlight it
@@ -194,13 +191,6 @@ export default function ReportsList() {
             </option>
           ))}
         </select>
-
-        <button
-          onClick={() => setShowLostCatForm(true)}
-          className="ml-auto rounded-full bg-felines-accent px-4 py-1.5 text-sm font-medium text-white transition-colors hover:bg-felines-accent-hover"
-        >
-          + Cadastrar gato perdido
-        </button>
       </div>
 
       {error && <p className="mt-2 text-sm text-felines-emergency">{error}</p>}
@@ -329,31 +319,6 @@ export default function ReportsList() {
             );
           })}
         </ul>
-      )}
-
-      {showLostCatForm && (
-        <div className="fixed inset-0 z-[2000] flex items-center justify-center bg-black/40 p-4">
-          <div className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-xl bg-felines-background p-6 shadow-xl">
-            <div className="flex items-start justify-between">
-              <h2 className="text-lg font-bold text-felines-text-primary">Gato perdido</h2>
-              <button
-                onClick={() => setShowLostCatForm(false)}
-                aria-label="Fechar"
-                className="flex-shrink-0 text-xl leading-none text-felines-text-secondary hover:text-felines-text-primary"
-              >
-                ×
-              </button>
-            </div>
-            <div className="mt-4">
-              <LostCatForm
-                onSubmitted={() => {
-                  setShowLostCatForm(false);
-                  setReloadKey((key) => key + 1);
-                }}
-              />
-            </div>
-          </div>
-        </div>
       )}
     </div>
   );
