@@ -9,6 +9,7 @@ import Link from "next/link";
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabaseClient";
 import type { Article, ArticleLevel } from "@/lib/articles";
+import Quiz from "@/components/Quiz";
 
 const LEVEL_LABELS: Record<ArticleLevel, string> = {
   1: "Nível 1 · Primeiros passos",
@@ -19,6 +20,7 @@ const LEVEL_LABELS: Record<ArticleLevel, string> = {
 export default function LearnIndex({ articles }: { articles: Article[] }) {
   const [session, setSession] = useState<Session | null>(null);
   const [readSlugs, setReadSlugs] = useState<string[]>([]);
+  const [showQuiz, setShowQuiz] = useState(false);
 
   // Load auth session and, if signed in, the user's reading progress.
   useEffect(() => {
@@ -58,11 +60,20 @@ export default function LearnIndex({ articles }: { articles: Article[] }) {
               style={{ width: `${progressPercent}%` }}
             />
           </div>
-          {readSlugs.length >= 3 && (
-            <p className="mt-3 text-sm text-felines-accent">
-              Você já leu {readSlugs.length} artigos — que tal testar o que aprendeu em um quiz?
-            </p>
+          {readSlugs.length >= 3 && !showQuiz && (
+            <div className="mt-3">
+              <p className="text-sm text-felines-accent">
+                Você já leu {readSlugs.length} artigos — que tal testar o que aprendeu em um quiz?
+              </p>
+              <button
+                onClick={() => setShowQuiz(true)}
+                className="mt-2 rounded-full bg-felines-accent px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-felines-accent-hover"
+              >
+                Fazer quiz
+              </button>
+            </div>
           )}
+          {showQuiz && <Quiz />}
         </div>
       )}
 
