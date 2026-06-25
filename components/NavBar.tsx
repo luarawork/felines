@@ -12,13 +12,13 @@ import { supabase } from "@/lib/supabaseClient";
 import { getOpenReportsForMyColonies } from "@/lib/myColonyReports";
 import { useHelpModal } from "@/components/HelpModalProvider";
 
-// Links shown in the main navigation, in display order. "Aprender"
-// points to the learn section anchored on the home page (merged in),
-// and "Ajuda" opens a modal instead of linking anywhere — see below.
+// Links shown in the main navigation, in display order. "Aprender" was
+// dropped since that content now lives on the home page itself. The
+// help action is a standalone highlighted button, not a plain link —
+// see below.
 const NAV_LINKS = [
   { href: "/", label: "Início" },
   { href: "/map", label: "Mapa" },
-  { href: "/#aprender", label: "Aprender" },
 ];
 
 export default function NavBar() {
@@ -79,8 +79,11 @@ export default function NavBar() {
             </li>
           ))}
           <li>
-            <button onClick={openHelpModal} className="transition-colors hover:text-felines-accent">
-              Ajuda
+            <button
+              onClick={openHelpModal}
+              className="rounded-full bg-felines-emergency px-4 py-1.5 font-medium text-white transition-colors hover:bg-felines-emergency/90"
+            >
+              Preciso de ajuda
             </button>
           </li>
           {session ? (
