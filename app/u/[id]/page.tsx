@@ -18,7 +18,7 @@ export default async function CaretakerPublicPage({
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("id, display_name")
+    .select("id, display_name, avatar_url")
     .eq("id", id)
     .maybeSingle();
 
@@ -65,9 +65,21 @@ export default async function CaretakerPublicPage({
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-12 sm:px-6">
-      <h1 className="text-2xl font-bold text-felines-text-primary sm:text-3xl">
-        {profile.display_name || "Cuidador da comunidade Felines"}
-      </h1>
+      <div className="flex items-center gap-4">
+        {profile.avatar_url ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={profile.avatar_url}
+            alt={profile.display_name ?? "Cuidador"}
+            className="h-16 w-16 rounded-full object-cover"
+          />
+        ) : (
+          <div className="h-16 w-16 rounded-full bg-felines-border" />
+        )}
+        <h1 className="text-2xl font-bold text-felines-text-primary sm:text-3xl">
+          {profile.display_name || "Cuidador da comunidade Felines"}
+        </h1>
+      </div>
       <p className="mt-2 text-sm text-felines-text-secondary">
         Cuida de {colonies.length} {colonies.length === 1 ? "colônia" : "colônias"} no Felines.
       </p>

@@ -11,7 +11,14 @@ import { ARTICLES } from "@/lib/articles";
 import { supabase } from "@/lib/supabaseClient";
 import { getOpenReportsForMyColonies, type MyColonyReport } from "@/lib/myColonyReports";
 import { getReportTypeLabel } from "@/lib/reportTypes";
-import { ensureOwnProfile, getDisplayName, updateOwnDisplayName } from "@/lib/profile";
+import {
+  ensureOwnProfile,
+  getAvatarUrl,
+  getDisplayName,
+  updateOwnAvatarUrl,
+  updateOwnDisplayName,
+} from "@/lib/profile";
+import { buildSafeStoragePath, validatePhotoFile } from "@/lib/storage";
 import EmptyState from "@/components/EmptyState";
 
 type LinkedColony = { id: string; name: string };
@@ -29,6 +36,9 @@ export default function ProfileContent() {
   const [displayName, setDisplayName] = useState("");
   const [savingName, setSavingName] = useState(false);
   const [nameSaved, setNameSaved] = useState(false);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [avatarError, setAvatarError] = useState<string | null>(null);
 
   useEffect(() => {
     async function loadProfile() {
@@ -46,6 +56,7 @@ export default function ProfileContent() {
       await ensureOwnProfile(session.user.id);
       const currentDisplayName = await getDisplayName(session.user.id);
       setDisplayName(currentDisplayName ?? "");
+      setAvatarUrl(await getAvatarUrl(session.user.id));
 
       const [{ data: feedingRows }, { data: caretakerRows }, { data: progressRows }] =
         await Promise.all([
@@ -94,6 +105,38 @@ export default function ProfileContent() {
     setNameSaved(success);
   }
 
+  async function handleAvatarChange(file: File | null) {
+    if (!file || !userId) return;
+    setAvatarError(null);
+
+    const photoError = validatePhotoFile(file);
+    if (photoError) {
+      setAvatarError(photoError);
+      return;
+    }
+
+    setUploadingAvatar(true);
+    const filePath = buildSafeStoragePath(`avatars/${userId}`, file);
+    const { error: uploadError } = await supabase.storage.from("colony-photos").upload(filePath, file);
+
+    if (uploadError) {
+      setUploadingAvatar(false);
+      setAvatarError("Não foi possível enviar a foto.");
+      return;
+    }
+
+    const publicUrl = supabase.storage.from("colony-photos").getPublicUrl(filePath).data.publicUrl;
+    const success = await updateOwnAvatarUrl(userId, publicUrl);
+    setUploadingAvatar(false);
+
+    if (!success) {
+      setAvatarError("Não foi possível salvar a foto.");
+      return;
+    }
+
+    setAvatarUrl(publicUrl);
+  }
+
   if (loading) return null;
 
   const progressPercent = Math.round((readCount / ARTICLES.length) * 100);
@@ -116,9 +159,9 @@ export default function ProfileContent() {
       )}
 
       <section>
-        <h2 className="text-lg font-bold text-felines-text-primary">Nome de exibição</h2>
+        <h2 className="text-lg font-bold text-felines-text-primary">Foto e nome de exibição</h2>
         <p className="mt-1 text-sm text-felines-text-secondary">
-          Mostrado na sua{" "}
+          Mostrados na sua{" "}
           {userId ? (
             <Link href={`/u/${userId}`} className="text-felines-accent">
               página pública de cuidador
@@ -128,7 +171,27 @@ export default function ProfileContent() {
           )}{" "}
           — seu e-mail nunca é exibido publicamente.
         </p>
-        <div className="mt-2 flex flex-wrap gap-2">
+
+        <div className="mt-3 flex items-center gap-3">
+          {avatarUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={avatarUrl} alt="Sua foto de perfil" className="h-16 w-16 rounded-full object-cover" />
+          ) : (
+            <div className="h-16 w-16 rounded-full bg-felines-border" />
+          )}
+          <div>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(formEvent) => handleAvatarChange(formEvent.target.files?.[0] ?? null)}
+              className="block text-sm text-felines-text-secondary"
+            />
+            {uploadingAvatar && <p className="text-xs text-felines-text-secondary">Enviando...</p>}
+            {avatarError && <p className="text-xs text-felines-emergency">{avatarError}</p>}
+          </div>
+        </div>
+
+        <div className="mt-3 flex flex-wrap gap-2">
           <input
             type="text"
             value={displayName}

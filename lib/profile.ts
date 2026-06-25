@@ -34,3 +34,18 @@ export async function updateOwnDisplayName(userId: string, displayName: string):
 
   return !error;
 }
+
+export async function getAvatarUrl(userId: string): Promise<string | null> {
+  const { data } = await supabase
+    .from("profiles")
+    .select("avatar_url")
+    .eq("id", userId)
+    .maybeSingle();
+
+  return data?.avatar_url ?? null;
+}
+
+export async function updateOwnAvatarUrl(userId: string, avatarUrl: string): Promise<boolean> {
+  const { error } = await supabase.from("profiles").update({ avatar_url: avatarUrl }).eq("id", userId);
+  return !error;
+}
