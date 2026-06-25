@@ -4,10 +4,11 @@
 // no way to be fixed through the app.
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
-import type { Session } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabaseClient";
+import { buildSafeStoragePath, validatePhotoFile } from "@/lib/storage";
+import { useColonyAccess } from "@/lib/useColonyAccess";
 
 type CastrationStatus = "none" | "partial" | "full";
 
@@ -23,9 +24,7 @@ export default function EditColonyForm({
   initialCoverPhotoUrl: string | null;
 }) {
   const router = useRouter();
-  const [session, setSession] = useState<Session | null>(null);
-  const [canManage, setCanManage] = useState(false);
-  const [checkingAccess, setCheckingAccess] = useState(true);
+  const { session, canManage, checkingAccess } = useColonyAccess(colonyId);
 
   const [narrative, setNarrative] = useState(initialNarrative ?? "");
   const [castrationStatus, setCastrationStatus] = useState<CastrationStatus>(
@@ -36,43 +35,24 @@ export default function EditColonyForm({
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
 
-  // Same creator/caretaker access check used by CatManager and TimelineEventForm.
-  useEffect(() => {
-    async function loadAccess() {
-      const { data: sessionData } = await supabase.auth.getSession();
-      const currentSession = sessionData.session;
-      setSession(currentSession);
-
-      if (currentSession) {
-        const [{ data: colony }, { data: caretakerLink }] = await Promise.all([
-          supabase.from("colonies").select("created_by").eq("id", colonyId).single(),
-          supabase
-            .from("caretakers")
-            .select("id")
-            .eq("colony_id", colonyId)
-            .eq("user_id", currentSession.user.id)
-            .maybeSingle(),
-        ]);
-
-        setCanManage(colony?.created_by === currentSession.user.id || !!caretakerLink);
-      }
-
-      setCheckingAccess(false);
-    }
-
-    loadAccess();
-  }, [colonyId]);
-
   async function handleSubmit(formEvent: React.FormEvent) {
     formEvent.preventDefault();
     setError(null);
     setSaved(false);
 
+    if (photoFile) {
+      const photoError = validatePhotoFile(photoFile);
+      if (photoError) {
+        setError(photoError);
+        return;
+      }
+    }
+
     setSubmitting(true);
 
     let coverPhotoUrl = initialCoverPhotoUrl;
     if (photoFile) {
-      const filePath = `${colonyId}/${Date.now()}-${photoFile.name}`;
+      const filePath = buildSafeStoragePath(colonyId, photoFile);
       const { error: uploadError } = await supabase.storage
         .from("colony-photos")
         .upload(filePath, photoFile);

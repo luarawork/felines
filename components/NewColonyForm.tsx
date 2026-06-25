@@ -10,6 +10,7 @@ import { useRouter } from "next/navigation";
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabaseClient";
 import MapMarkerPickerShell from "@/components/MapMarkerPickerShell";
+import { buildSafeStoragePath, validatePhotoFile } from "@/lib/storage";
 import AddressAutocomplete from "@/components/AddressAutocomplete";
 import AuthRequiredNotice from "@/components/AuthRequiredNotice";
 import { useHelpModal } from "@/components/HelpModalProvider";
@@ -81,6 +82,11 @@ export default function NewColonyForm() {
       setError("Envie uma foto da colônia.");
       return;
     }
+    const photoError = validatePhotoFile(photoFile);
+    if (photoError) {
+      setError(photoError);
+      return;
+    }
     if (!position) {
       setError("Clique no mapa para marcar a localização exata da colônia.");
       return;
@@ -89,7 +95,7 @@ export default function NewColonyForm() {
 
     setSubmitting(true);
 
-    const filePath = `${session.user.id}/${Date.now()}-${photoFile.name}`;
+    const filePath = buildSafeStoragePath(session.user.id, photoFile);
     const { error: uploadError } = await supabase.storage
       .from("colony-photos")
       .upload(filePath, photoFile);

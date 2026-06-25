@@ -4,10 +4,10 @@
 // be inserted by an authenticated user per RLS.
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
-import type { Session } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabaseClient";
+import { useColonyAccess } from "@/lib/useColonyAccess";
 
 // Common timeline event types. The column has no check constraint, so
 // these are just suggestions to keep entries consistent.
@@ -22,43 +22,13 @@ const EVENT_TYPES = [
 
 export default function TimelineEventForm({ colonyId }: { colonyId: string }) {
   const router = useRouter();
-  const [session, setSession] = useState<Session | null>(null);
-  const [canManage, setCanManage] = useState(false);
-  const [checkingAccess, setCheckingAccess] = useState(true);
+  const { session, canManage, checkingAccess } = useColonyAccess(colonyId);
 
   const [eventType, setEventType] = useState(EVENT_TYPES[0].value);
   const [description, setDescription] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
-
-  // Same creator/caretaker check used by CatManager, kept local since
-  // each component needs it independently for its own access gate.
-  useEffect(() => {
-    async function loadAccess() {
-      const { data: sessionData } = await supabase.auth.getSession();
-      const currentSession = sessionData.session;
-      setSession(currentSession);
-
-      if (currentSession) {
-        const [{ data: colony }, { data: caretakerLink }] = await Promise.all([
-          supabase.from("colonies").select("created_by").eq("id", colonyId).single(),
-          supabase
-            .from("caretakers")
-            .select("id")
-            .eq("colony_id", colonyId)
-            .eq("user_id", currentSession.user.id)
-            .maybeSingle(),
-        ]);
-
-        setCanManage(colony?.created_by === currentSession.user.id || !!caretakerLink);
-      }
-
-      setCheckingAccess(false);
-    }
-
-    loadAccess();
-  }, [colonyId]);
 
   async function handleSubmit(formEvent: React.FormEvent) {
     formEvent.preventDefault();

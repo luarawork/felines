@@ -8,8 +8,9 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import type { Session } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabaseClient";
+import { buildSafeStoragePath, validatePhotoFile } from "@/lib/storage";
+import { useColonyAccess } from "@/lib/useColonyAccess";
 
 type ManagedCat = {
   id: string;
@@ -19,9 +20,12 @@ type ManagedCat = {
   last_seen: string | null;
 };
 
-// Uploads a cat photo and returns its public URL.
+// Uploads a cat photo and returns its public URL, or null if the file
+// fails validation (wrong type, too large) or the upload itself fails.
 async function uploadCatPhoto(colonyId: string, photoFile: File): Promise<string | null> {
-  const filePath = `cats/${colonyId}/${Date.now()}-${photoFile.name}`;
+  if (validatePhotoFile(photoFile)) return null;
+
+  const filePath = buildSafeStoragePath(`cats/${colonyId}`, photoFile);
   const { error: uploadError } = await supabase.storage
     .from("colony-photos")
     .upload(filePath, photoFile);
@@ -32,9 +36,7 @@ async function uploadCatPhoto(colonyId: string, photoFile: File): Promise<string
 
 export default function CatManager({ colonyId }: { colonyId: string }) {
   const router = useRouter();
-  const [session, setSession] = useState<Session | null>(null);
-  const [canManage, setCanManage] = useState(false);
-  const [checkingAccess, setCheckingAccess] = useState(true);
+  const { session, canManage, checkingAccess } = useColonyAccess(colonyId);
 
   const [cats, setCats] = useState<ManagedCat[]>([]);
 
@@ -49,28 +51,11 @@ export default function CatManager({ colonyId }: { colonyId: string }) {
   const [editPhotoFile, setEditPhotoFile] = useState<File | null>(null);
   const [savingEdit, setSavingEdit] = useState(false);
 
-  // Determines whether the signed-in user created this colony or is a
-  // linked caretaker, and loads the current cat list for management.
+  // Loads the current cat list for management. Independent of the
+  // access check above — the list itself is public-readable, only the
+  // mutation controls are gated.
   useEffect(() => {
-    async function loadAccessAndCats() {
-      const { data: sessionData } = await supabase.auth.getSession();
-      const currentSession = sessionData.session;
-      setSession(currentSession);
-
-      if (currentSession) {
-        const [{ data: colony }, { data: caretakerLink }] = await Promise.all([
-          supabase.from("colonies").select("created_by").eq("id", colonyId).single(),
-          supabase
-            .from("caretakers")
-            .select("id")
-            .eq("colony_id", colonyId)
-            .eq("user_id", currentSession.user.id)
-            .maybeSingle(),
-        ]);
-
-        setCanManage(colony?.created_by === currentSession.user.id || !!caretakerLink);
-      }
-
+    async function loadCats() {
       const { data: catRows } = await supabase
         .from("cats")
         .select("id, name, photo_url, castrated, last_seen")
@@ -78,10 +63,9 @@ export default function CatManager({ colonyId }: { colonyId: string }) {
         .order("created_at", { ascending: false });
 
       if (catRows) setCats(catRows as ManagedCat[]);
-      setCheckingAccess(false);
     }
 
-    loadAccessAndCats();
+    loadCats();
   }, [colonyId]);
 
   // Adds a new cat to the colony, uploading the photo first if provided.
