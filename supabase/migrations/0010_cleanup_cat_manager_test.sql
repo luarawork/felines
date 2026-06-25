@@ -6,3 +6,8 @@ delete from caretakers where user_id = '2e4c8a83-79f4-4430-9154-154d037aac24';
 -- flow. It has created_by = null (submitted anonymously), so it couldn't
 -- be deleted via the API (reports_delete_own only allows the creator).
 delete from reports where id = '95412aa0-43dc-4470-ba18-805b72027bac';
+
+-- Removes the duplicate caretaker rows and test letter created while
+-- validating the caretaker letter feature.
+delete from caretakers where user_id = '2e4c8a83-79f4-4430-9154-154d037aac24'
+  and colony_id = '995a051f-aab5-401b-8cb7-d07155631394';

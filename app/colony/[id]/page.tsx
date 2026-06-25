@@ -9,6 +9,7 @@ import ReportButton from "@/components/ReportButton";
 import ColonyActions from "@/components/ColonyActions";
 import WeatherBanner from "@/components/WeatherBanner";
 import CatManager from "@/components/CatManager";
+import CaretakerLetters from "@/components/CaretakerLetters";
 
 type Cat = {
   id: string;
@@ -137,6 +138,9 @@ export default async function ColonyDetailPage({
 
       {/* Cat management, visible only to the colony's creator/caretakers */}
       <CatManager colonyId={colony.id} />
+
+      {/* Letter for the next caretaker */}
+      <CaretakerLetters colonyId={colony.id} />
 
       {/* Collective timeline */}
       <section className="mt-10">
