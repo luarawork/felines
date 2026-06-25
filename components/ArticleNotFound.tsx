@@ -10,7 +10,7 @@ export default function ArticleNotFound() {
       </p>
       <p className="mt-2 text-base text-felines-text-secondary">O que você quer saber?</p>
       <Link
-        href="/learn"
+        href="/#aprender"
         className="mt-6 inline-block rounded-full bg-felines-accent px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-felines-accent-hover"
       >
         Explorar o que já temos →

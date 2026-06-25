@@ -6,12 +6,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabaseClient";
 import MapMarkerPickerShell from "@/components/MapMarkerPickerShell";
 import AuthRequiredNotice from "@/components/AuthRequiredNotice";
+import { useHelpModal } from "@/components/HelpModalProvider";
 
 // Location blur protects cats from malicious users who could use exact
 // coordinates to find and harm animals. Both blur levels are computed
@@ -30,6 +30,7 @@ function blurCoordinateNear(value: number) {
 
 export default function NewColonyForm() {
   const router = useRouter();
+  const { openHelpModal } = useHelpModal();
   const [session, setSession] = useState<Session | null>(null);
   const [checkingSession, setCheckingSession] = useState(true);
 
@@ -163,9 +164,13 @@ export default function NewColonyForm() {
         {(moreThanOneCat === false || seenFrequently === false) && (
           <p className="rounded-md bg-felines-warning/10 px-3 py-2 text-sm text-felines-text-primary">
             Isso pode ser um avistamento em vez de uma colônia.{" "}
-            <Link href="/help" className="font-medium text-felines-accent">
+            <button
+              type="button"
+              onClick={openHelpModal}
+              className="font-medium text-felines-accent underline"
+            >
               Quer registrar um avistamento em vez disso?
-            </Link>
+            </button>
           </p>
         )}
 

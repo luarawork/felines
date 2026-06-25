@@ -10,17 +10,20 @@ import { useRouter } from "next/navigation";
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabaseClient";
 import { getOpenReportsForMyColonies } from "@/lib/myColonyReports";
+import { useHelpModal } from "@/components/HelpModalProvider";
 
-// Links shown in the main navigation, in display order.
+// Links shown in the main navigation, in display order. "Aprender"
+// points to the learn section anchored on the home page (merged in),
+// and "Ajuda" opens a modal instead of linking anywhere — see below.
 const NAV_LINKS = [
   { href: "/", label: "Início" },
   { href: "/map", label: "Mapa" },
-  { href: "/help", label: "Ajuda" },
-  { href: "/learn", label: "Aprender" },
+  { href: "/#aprender", label: "Aprender" },
 ];
 
 export default function NavBar() {
   const router = useRouter();
+  const { openHelpModal } = useHelpModal();
   const [session, setSession] = useState<Session | null>(null);
   const [myColonyReportCount, setMyColonyReportCount] = useState(0);
 
@@ -75,6 +78,11 @@ export default function NavBar() {
               </Link>
             </li>
           ))}
+          <li>
+            <button onClick={openHelpModal} className="transition-colors hover:text-felines-accent">
+              Ajuda
+            </button>
+          </li>
           {session ? (
             <>
               <li>

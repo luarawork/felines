@@ -236,7 +236,7 @@ export default function HelpFlow() {
                 <p className="text-sm text-felines-success">Relato registrado, obrigado.</p>
               )}
               <Link
-                href="/learn"
+                href="/#aprender"
                 className="text-sm font-medium text-felines-accent hover:text-felines-accent-hover"
               >
                 Aprender mais sobre o tema →

@@ -6,6 +6,7 @@ import { getArticleBySlug, getReadingTimeMinutes, getRelatedArticles } from "@/l
 import ArticleProgressTracker from "@/components/ArticleProgressTracker";
 import ArticleLevelBadge from "@/components/ArticleLevelBadge";
 import FactChip from "@/components/FactChip";
+import OpenHelpModalButton from "@/components/OpenHelpModalButton";
 import ReadingProgressBar from "@/components/ReadingProgressBar";
 import ArticleNotFound from "@/components/ArticleNotFound";
 
@@ -29,7 +30,7 @@ export default async function ArticlePage({
       {/* Records this article as read for the signed-in user, if any */}
       <ArticleProgressTracker slug={article.slug} />
 
-      <Link href="/learn" className="text-sm text-felines-text-secondary hover:text-felines-accent">
+      <Link href="/#aprender" className="text-sm text-felines-text-secondary hover:text-felines-accent">
         ← Voltar ao guia
       </Link>
 
@@ -67,12 +68,9 @@ export default async function ArticlePage({
           >
             Ver colônias no mapa
           </Link>
-          <Link
-            href="/help"
-            className="rounded-full border border-felines-accent px-4 py-2 text-sm font-medium text-felines-accent transition-colors hover:bg-felines-accent hover:text-white"
-          >
+          <OpenHelpModalButton className="rounded-full border border-felines-accent px-4 py-2 text-sm font-medium text-felines-accent transition-colors hover:bg-felines-accent hover:text-white">
             Fazer um relato
-          </Link>
+          </OpenHelpModalButton>
         </div>
       </div>
 
