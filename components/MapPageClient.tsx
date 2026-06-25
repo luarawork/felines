@@ -7,12 +7,11 @@
 import { useState } from "react";
 import Link from "next/link";
 import MapShell from "@/components/MapShell";
-import WeatherBanner from "@/components/WeatherBanner";
 import ReportsList from "@/components/ReportsList";
 
 type ViewMode = "map" | "list";
 
-export default function MapPageClient() {
+export default function MapPageClient({ weatherBanner }: { weatherBanner: React.ReactNode }) {
   const [view, setView] = useState<ViewMode>("map");
 
   return (
@@ -29,7 +28,7 @@ export default function MapPageClient() {
               instead of beside it — both are wide enough that side-by-side
               corner placement overlaps on narrow screens. */}
           <div className="absolute left-4 right-4 top-[15.5rem] z-[1000] sm:left-auto sm:right-4 sm:top-4 sm:max-w-sm">
-            <WeatherBanner />
+            {weatherBanner}
           </div>
           <Link
             href="/colony/new"
