@@ -15,6 +15,7 @@ type ManagedCat = {
   name: string | null;
   photo_url: string | null;
   castrated: boolean;
+  last_seen: string | null;
 };
 
 export default function CatManager({ colonyId }: { colonyId: string }) {
@@ -55,7 +56,7 @@ export default function CatManager({ colonyId }: { colonyId: string }) {
 
       const { data: catRows } = await supabase
         .from("cats")
-        .select("id, name, photo_url, castrated")
+        .select("id, name, photo_url, castrated, last_seen")
         .eq("colony_id", colonyId)
         .order("created_at", { ascending: false });
 
@@ -104,7 +105,7 @@ export default function CatManager({ colonyId }: { colonyId: string }) {
         photo_url: photoUrl,
         last_seen: new Date().toISOString(),
       })
-      .select("id, name, photo_url, castrated")
+      .select("id, name, photo_url, castrated, last_seen")
       .single();
 
     setSubmitting(false);
@@ -135,6 +136,26 @@ export default function CatManager({ colonyId }: { colonyId: string }) {
 
     setCats((previous) =>
       previous.map((item) => (item.id === cat.id ? { ...item, castrated: !item.castrated } : item))
+    );
+    router.refresh();
+  }
+
+  // Marks a cat as seen right now, for quick day-to-day check-ins without
+  // opening a full edit form.
+  async function handleMarkSeenToday(catId: string) {
+    const now = new Date().toISOString();
+    const { error: updateError } = await supabase
+      .from("cats")
+      .update({ last_seen: now })
+      .eq("id", catId);
+
+    if (updateError) {
+      setError("Não foi possível marcar o gato como visto hoje.");
+      return;
+    }
+
+    setCats((previous) =>
+      previous.map((item) => (item.id === catId ? { ...item, last_seen: now } : item))
     );
     router.refresh();
   }
@@ -208,8 +229,19 @@ export default function CatManager({ colonyId }: { colonyId: string }) {
             >
               <span className="font-medium text-felines-text-primary">
                 {cat.name ?? "Sem nome"}
+                {cat.last_seen && (
+                  <span className="ml-2 text-xs font-normal text-felines-text-secondary">
+                    visto em {new Date(cat.last_seen).toLocaleDateString("pt-BR")}
+                  </span>
+                )}
               </span>
               <div className="flex items-center gap-3">
+                <button
+                  onClick={() => handleMarkSeenToday(cat.id)}
+                  className="text-felines-success hover:underline"
+                >
+                  Visto hoje
+                </button>
                 <button
                   onClick={() => handleToggleCastrated(cat)}
                   className="text-felines-accent hover:text-felines-accent-hover"
