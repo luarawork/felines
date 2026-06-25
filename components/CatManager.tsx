@@ -10,7 +10,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import { buildSafeStoragePath, validatePhotoFile } from "@/lib/storage";
-import { useColonyAccess } from "@/lib/useColonyAccess";
+import { useColonyAccessContext } from "@/components/ColonyAccessProvider";
 
 type ManagedCat = {
   id: string;
@@ -36,7 +36,7 @@ async function uploadCatPhoto(colonyId: string, photoFile: File): Promise<string
 
 export default function CatManager({ colonyId }: { colonyId: string }) {
   const router = useRouter();
-  const { session, canManage, checkingAccess } = useColonyAccess(colonyId);
+  const { session, canManage, checkingAccess } = useColonyAccessContext();
 
   const [cats, setCats] = useState<ManagedCat[]>([]);
 

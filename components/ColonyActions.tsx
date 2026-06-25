@@ -3,27 +3,18 @@
 // authenticated users can log a feeding or become a caretaker.
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
-import type { Session } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabaseClient";
 import AuthRequiredNotice from "@/components/AuthRequiredNotice";
+import { useColonyAccessContext } from "@/components/ColonyAccessProvider";
 
 export default function ColonyActions({ colonyId }: { colonyId: string }) {
   const router = useRouter();
-  const [session, setSession] = useState<Session | null>(null);
-  const [loadingSession, setLoadingSession] = useState(true);
+  const { session, checkingAccess, refreshAccess } = useColonyAccessContext();
   const [feedingLogged, setFeedingLogged] = useState(false);
   const [caretakerJoined, setCaretakerJoined] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
-
-  // Load the current auth session once, on mount, to decide which actions to show.
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      setSession(data.session);
-      setLoadingSession(false);
-    });
-  }, []);
 
   // Logs a feeding event for this colony by the signed-in user, and
   // mirrors it into the timeline so it actually shows up in the
@@ -51,8 +42,11 @@ export default function ColonyActions({ colonyId }: { colonyId: string }) {
     router.refresh();
   }
 
-  // Links the signed-in user as a caretaker of this colony, and logs
-  // it on the timeline too.
+  // Links the signed-in user as a caretaker of this colony, logs it on
+  // the timeline, and refreshes the shared access context so the edit
+  // controls in CatManager/EditColonyForm/TimelineEventForm unlock
+  // immediately — they used to only check access once on mount, so
+  // becoming a caretaker had no way to reach them without a full reload.
   async function handleBecomeCaretaker() {
     if (!session) return;
     setActionError(null);
@@ -73,10 +67,11 @@ export default function ColonyActions({ colonyId }: { colonyId: string }) {
     });
 
     setCaretakerJoined(true);
+    refreshAccess();
     router.refresh();
   }
 
-  if (loadingSession) return null;
+  if (checkingAccess) return null;
 
   if (!session) {
     return (

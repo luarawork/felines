@@ -18,6 +18,7 @@ import EmptyState from "@/components/EmptyState";
 import ThankYouButton from "@/components/ThankYouButton";
 import MarkCatSeenButton from "@/components/MarkCatSeenButton";
 import FlagButton from "@/components/FlagButton";
+import ColonyAccessProvider from "@/components/ColonyAccessProvider";
 
 type Cat = {
   id: string;
@@ -31,6 +32,7 @@ type TimelineEvent = {
   id: string;
   event_type: string;
   description: string | null;
+  photo_url: string | null;
   created_at: string;
 };
 
@@ -63,7 +65,7 @@ export default async function ColonyDetailPage({
 
   const { data: timelineEvents } = await supabase
     .from("timeline_events")
-    .select("id, event_type, description, created_at")
+    .select("id, event_type, description, photo_url, created_at")
     .eq("colony_id", id)
     .order("created_at", { ascending: false });
 
@@ -179,6 +181,14 @@ export default async function ColonyDetailPage({
               {event.description && (
                 <p className="text-sm text-felines-text-secondary">{event.description}</p>
               )}
+              {event.photo_url && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={event.photo_url}
+                  alt={event.event_type.replace(/_/g, " ")}
+                  className="mt-2 h-24 w-24 rounded-lg object-cover"
+                />
+              )}
               <p className="text-xs text-felines-text-secondary">
                 {new Date(event.created_at).toLocaleDateString("pt-BR")}
               </p>
@@ -245,32 +255,37 @@ export default async function ColonyDetailPage({
         </p>
       )}
 
-      {/* Available actions, scoped by the visitor's access level */}
-      <ColonyActions colonyId={colony.id} />
+      {/* Shared so becoming a caretaker (in ColonyActions) immediately
+          unlocks the edit controls below, instead of each independently
+          checking access once on mount and never finding out it changed. */}
+      <ColonyAccessProvider colonyId={colony.id}>
+        {/* Available actions, scoped by the visitor's access level */}
+        <ColonyActions colonyId={colony.id} />
 
-      <ColonyTabs
-        tabs={[
-          { id: "cats", label: "Gatos", content: catsSection },
-          { id: "timeline", label: "Linha do tempo", content: timelineSection },
-          {
-            id: "letter",
-            label: "Carta do cuidador",
-            content: <CaretakerLetters colonyId={colony.id} />,
-          },
-          {
-            id: "edit",
-            label: "Editar colônia",
-            content: (
-              <EditColonyForm
-                colonyId={colony.id}
-                initialNarrative={colony.narrative}
-                initialCastrationStatus={colony.castration_status}
-                initialCoverPhotoUrl={colony.cover_photo_url}
-              />
-            ),
-          },
-        ]}
-      />
+        <ColonyTabs
+          tabs={[
+            { id: "cats", label: "Gatos", content: catsSection },
+            { id: "timeline", label: "Linha do tempo", content: timelineSection },
+            {
+              id: "letter",
+              label: "Carta do cuidador",
+              content: <CaretakerLetters colonyId={colony.id} />,
+            },
+            {
+              id: "edit",
+              label: "Editar colônia",
+              content: (
+                <EditColonyForm
+                  colonyId={colony.id}
+                  initialNarrative={colony.narrative}
+                  initialCastrationStatus={colony.castration_status}
+                  initialCoverPhotoUrl={colony.cover_photo_url}
+                />
+              ),
+            },
+          ]}
+        />
+      </ColonyAccessProvider>
 
       <div className="mt-8">
         <FlagButton targetType="colony" targetId={colony.id} />

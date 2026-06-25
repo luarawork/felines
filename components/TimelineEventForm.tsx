@@ -1,13 +1,16 @@
 // Lets a colony's creator or a linked caretaker add an entry to the
 // collective timeline (e.g. a castration round, a health issue, a new
-// cat joining). Hidden for everyone else, since timeline_events can only
-// be inserted by an authenticated user per RLS.
+// cat joining), optionally with a photo — for updates that deserve a
+// picture but aren't meant to replace the colony's cover photo. Hidden
+// for everyone else, since timeline_events can only be inserted by an
+// authenticated user per RLS.
 "use client";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
-import { useColonyAccess } from "@/lib/useColonyAccess";
+import { buildSafeStoragePath, validatePhotoFile } from "@/lib/storage";
+import { useColonyAccessContext } from "@/components/ColonyAccessProvider";
 
 // Common timeline event types. The column has no check constraint, so
 // these are just suggestions to keep entries consistent.
@@ -17,15 +20,17 @@ const EVENT_TYPES = [
   { value: "new_cat", label: "Novo gato na colônia" },
   { value: "feeding_change", label: "Mudança na alimentação" },
   { value: "relocation", label: "Mudança de local" },
+  { value: "photo_update", label: "Foto da colônia" },
   { value: "other", label: "Outro" },
 ];
 
 export default function TimelineEventForm({ colonyId }: { colonyId: string }) {
   const router = useRouter();
-  const { session, canManage, checkingAccess } = useColonyAccess(colonyId);
+  const { session, canManage, checkingAccess } = useColonyAccessContext();
 
   const [eventType, setEventType] = useState(EVENT_TYPES[0].value);
   const [description, setDescription] = useState("");
+  const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
@@ -36,11 +41,37 @@ export default function TimelineEventForm({ colonyId }: { colonyId: string }) {
 
     if (!session) return;
 
+    if (photoFile) {
+      const photoError = validatePhotoFile(photoFile);
+      if (photoError) {
+        setError(photoError);
+        return;
+      }
+    }
+
     setSubmitting(true);
+
+    let photoUrl: string | null = null;
+    if (photoFile) {
+      const filePath = buildSafeStoragePath(`timeline/${colonyId}`, photoFile);
+      const { error: uploadError } = await supabase.storage
+        .from("colony-photos")
+        .upload(filePath, photoFile);
+
+      if (uploadError) {
+        setSubmitting(false);
+        setError("Não foi possível enviar a foto.");
+        return;
+      }
+
+      photoUrl = supabase.storage.from("colony-photos").getPublicUrl(filePath).data.publicUrl;
+    }
+
     const { error: insertError } = await supabase.from("timeline_events").insert({
       colony_id: colonyId,
       event_type: eventType,
       description: description.trim() || null,
+      photo_url: photoUrl,
       created_by: session.user.id,
     });
     setSubmitting(false);
@@ -51,6 +82,7 @@ export default function TimelineEventForm({ colonyId }: { colonyId: string }) {
     }
 
     setDescription("");
+    setPhotoFile(null);
     setSubmitted(true);
     router.refresh();
   }
@@ -99,14 +131,30 @@ export default function TimelineEventForm({ colonyId }: { colonyId: string }) {
             className="mt-1 w-full rounded-md border border-felines-border bg-white px-3 py-2 text-sm"
           />
         </div>
-        <button
-          type="submit"
-          disabled={submitting}
-          className="rounded-full bg-felines-accent px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-felines-accent-hover disabled:opacity-50"
-        >
-          {submitting ? "Adicionando..." : "Adicionar"}
-        </button>
       </div>
+
+      <div className="mt-3">
+        <label className="block text-xs font-medium text-felines-text-secondary">
+          Foto (opcional) — não altera a foto de capa da colônia
+        </label>
+        <input
+          type="file"
+          accept="image/*"
+          onChange={(formEvent) => {
+            setPhotoFile(formEvent.target.files?.[0] ?? null);
+            setSubmitted(false);
+          }}
+          className="mt-1 block text-sm text-felines-text-secondary"
+        />
+      </div>
+
+      <button
+        type="submit"
+        disabled={submitting}
+        className="mt-3 rounded-full bg-felines-accent px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-felines-accent-hover disabled:opacity-50"
+      >
+        {submitting ? "Adicionando..." : "Adicionar"}
+      </button>
 
       {error && <p className="mt-2 text-sm text-felines-emergency">{error}</p>}
       {submitted && <p className="mt-2 text-sm text-felines-success">Evento adicionado.</p>}

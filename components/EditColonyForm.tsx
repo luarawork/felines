@@ -8,7 +8,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import { buildSafeStoragePath, validatePhotoFile } from "@/lib/storage";
-import { useColonyAccess } from "@/lib/useColonyAccess";
+import { useColonyAccessContext } from "@/components/ColonyAccessProvider";
 
 type CastrationStatus = "none" | "partial" | "full";
 
@@ -24,7 +24,7 @@ export default function EditColonyForm({
   initialCoverPhotoUrl: string | null;
 }) {
   const router = useRouter();
-  const { session, canManage, checkingAccess } = useColonyAccess(colonyId);
+  const { session, canManage, checkingAccess } = useColonyAccessContext();
 
   const [narrative, setNarrative] = useState(initialNarrative ?? "");
   const [castrationStatus, setCastrationStatus] = useState<CastrationStatus>(
@@ -64,6 +64,19 @@ export default function EditColonyForm({
       }
 
       coverPhotoUrl = supabase.storage.from("colony-photos").getPublicUrl(filePath).data.publicUrl;
+
+      // Preserve the outgoing cover photo in the timeline instead of
+      // letting it just disappear — it's still part of the colony's
+      // history even after a newer photo takes its place.
+      if (initialCoverPhotoUrl && session) {
+        await supabase.from("timeline_events").insert({
+          colony_id: colonyId,
+          event_type: "cover_photo_changed",
+          description: "Foto de capa anterior da colônia.",
+          photo_url: initialCoverPhotoUrl,
+          created_by: session.user.id,
+        });
+      }
     }
 
     const { error: updateError } = await supabase
