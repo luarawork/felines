@@ -7,6 +7,7 @@ import { notFound } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import ReportButton from "@/components/ReportButton";
 import ColonyActions from "@/components/ColonyActions";
+import WeatherBanner from "@/components/WeatherBanner";
 
 type Cat = {
   id: string;
@@ -58,6 +59,10 @@ export default async function ColonyDetailPage({
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6">
+      <div className="mb-4">
+        <WeatherBanner />
+      </div>
+
       {/* Cover */}
       {colony.cover_photo_url ? (
         // eslint-disable-next-line @next/next/no-img-element
