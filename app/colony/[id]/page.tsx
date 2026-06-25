@@ -13,6 +13,7 @@ import CatManager from "@/components/CatManager";
 import CaretakerLetters from "@/components/CaretakerLetters";
 import TimelineEventForm from "@/components/TimelineEventForm";
 import ColonyTabs from "@/components/ColonyTabs";
+import EditColonyForm from "@/components/EditColonyForm";
 
 type Cat = {
   id: string;
@@ -177,6 +178,18 @@ export default async function ColonyDetailPage({
             id: "letter",
             label: "Carta do cuidador",
             content: <CaretakerLetters colonyId={colony.id} />,
+          },
+          {
+            id: "edit",
+            label: "Editar colônia",
+            content: (
+              <EditColonyForm
+                colonyId={colony.id}
+                initialNarrative={colony.narrative}
+                initialCastrationStatus={colony.castration_status}
+                initialCoverPhotoUrl={colony.cover_photo_url}
+              />
+            ),
           },
         ]}
       />
