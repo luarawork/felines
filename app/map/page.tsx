@@ -9,7 +9,7 @@ export default function MapPage() {
   return (
     <div className="relative h-[calc(100vh-65px)] w-full">
       <MapShell />
-      <div className="absolute left-4 right-4 top-4 z-[1000] sm:left-4 sm:right-auto sm:max-w-sm">
+      <div className="absolute right-4 top-4 z-[1000] max-w-sm sm:left-auto">
         <WeatherBanner />
       </div>
       <Link

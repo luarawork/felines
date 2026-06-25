@@ -2,9 +2,11 @@
 // Renders colony pins (terracotta), sighting pins (gray) and emergency
 // pins (red, pulsing) using Leaflet. Colony pins use the blurred
 // coordinates for anonymous users so exact locations stay protected by RLS.
+// Includes a search box (by colony name) and filters for pin type and
+// castration status, so a visitor can narrow down a busy map.
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
@@ -14,13 +16,15 @@ import { supabase } from "@/lib/supabaseClient";
 const NATAL_CENTER: [number, number] = [-5.7945, -35.211];
 const DEFAULT_ZOOM = 13;
 
+type CastrationStatus = "none" | "partial" | "full";
+
 type Colony = {
   id: string;
   name: string;
   narrative: string | null;
   latitude_blurred: number;
   longitude_blurred: number;
-  castration_status: "none" | "partial" | "full";
+  castration_status: CastrationStatus;
 };
 
 type EmergencyReport = {
@@ -29,6 +33,8 @@ type EmergencyReport = {
   latitude: number | null;
   longitude: number | null;
 };
+
+type PinType = "colony" | "sighting" | "emergency";
 
 // Builds a circular Leaflet divIcon with the given color. Emergency pins
 // get an extra CSS class that drives a pulsing animation (see globals.css).
@@ -55,16 +61,36 @@ const EMERGENCY_REPORT_TYPES = [
   "threat_to_colony",
 ];
 
-const CASTRATION_LABELS: Record<Colony["castration_status"], string> = {
+const CASTRATION_LABELS: Record<CastrationStatus, string> = {
   none: "Nenhum gato castrado",
   partial: "Castração parcial",
   full: "Colônia totalmente castrada",
 };
 
+const PIN_TYPE_OPTIONS: { value: PinType; label: string; color: string }[] = [
+  { value: "colony", label: "Colônias", color: "#C4704F" },
+  { value: "sighting", label: "Avistamentos", color: "#6B6B6B" },
+  { value: "emergency", label: "Emergências", color: "#C0392B" },
+];
+
+const CASTRATION_FILTER_OPTIONS: { value: CastrationStatus; label: string }[] = [
+  { value: "none", label: "Nenhum castrado" },
+  { value: "partial", label: "Parcial" },
+  { value: "full", label: "Total" },
+];
+
 export default function ColonyMap() {
   const [colonies, setColonies] = useState<Colony[]>([]);
   const [emergencies, setEmergencies] = useState<EmergencyReport[]>([]);
   const [sightings, setSightings] = useState<EmergencyReport[]>([]);
+
+  const [searchTerm, setSearchTerm] = useState("");
+  const [visiblePinTypes, setVisiblePinTypes] = useState<Set<PinType>>(
+    new Set(["colony", "sighting", "emergency"])
+  );
+  const [visibleCastrationStatuses, setVisibleCastrationStatuses] = useState<
+    Set<CastrationStatus>
+  >(new Set(["none", "partial", "full"]));
 
   // Load colonies (blurred coordinates) and open reports (emergencies and
   // sightings) from Supabase once the map mounts in the browser.
@@ -97,66 +123,149 @@ export default function ColonyMap() {
     loadMapData();
   }, []);
 
+  function togglePinType(type: PinType) {
+    setVisiblePinTypes((previous) => {
+      const next = new Set(previous);
+      if (next.has(type)) next.delete(type);
+      else next.add(type);
+      return next;
+    });
+  }
+
+  function toggleCastrationStatus(status: CastrationStatus) {
+    setVisibleCastrationStatuses((previous) => {
+      const next = new Set(previous);
+      if (next.has(status)) next.delete(status);
+      else next.add(status);
+      return next;
+    });
+  }
+
+  const filteredColonies = useMemo(() => {
+    if (!visiblePinTypes.has("colony")) return [];
+    const normalizedSearch = searchTerm.trim().toLowerCase();
+    return colonies.filter(
+      (colony) =>
+        visibleCastrationStatuses.has(colony.castration_status) &&
+        (normalizedSearch === "" || colony.name.toLowerCase().includes(normalizedSearch))
+    );
+  }, [colonies, searchTerm, visiblePinTypes, visibleCastrationStatuses]);
+
+  const filteredSightings = visiblePinTypes.has("sighting") ? sightings : [];
+  const filteredEmergencies = visiblePinTypes.has("emergency") ? emergencies : [];
+
   return (
-    <MapContainer
-      center={NATAL_CENTER}
-      zoom={DEFAULT_ZOOM}
-      className="h-full w-full"
-    >
-      <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-      />
+    <div className="relative h-full w-full">
+      <div className="absolute left-4 top-4 z-[1000] w-64 space-y-2 rounded-xl border border-felines-border bg-felines-surface p-3 shadow-lg">
+        <input
+          type="text"
+          value={searchTerm}
+          onChange={(formEvent) => setSearchTerm(formEvent.target.value)}
+          placeholder="Buscar colônia pelo nome"
+          className="w-full rounded-md border border-felines-border bg-white px-3 py-2 text-sm"
+        />
 
-      {colonies.map((colony) => (
-        <Marker
-          key={colony.id}
-          position={[colony.latitude_blurred, colony.longitude_blurred]}
-          icon={colonyIcon}
-        >
-          <Popup>
-            <strong>{colony.name}</strong>
-            <p className="mt-1 text-sm">{colony.narrative}</p>
-            <p className="mt-1 text-xs text-felines-text-secondary">
-              {CASTRATION_LABELS[colony.castration_status]}
-            </p>
-            <a
-              href={`/colony/${colony.id}`}
-              className="mt-2 inline-block text-xs font-medium text-felines-accent"
+        <div className="flex flex-wrap gap-2">
+          {PIN_TYPE_OPTIONS.map((option) => {
+            const isActive = visiblePinTypes.has(option.value);
+            return (
+              <button
+                key={option.value}
+                type="button"
+                onClick={() => togglePinType(option.value)}
+                className={`flex items-center gap-1 rounded-full border px-2 py-1 text-xs font-medium transition-colors ${
+                  isActive
+                    ? "border-felines-accent text-felines-text-primary"
+                    : "border-felines-border text-felines-text-secondary opacity-50"
+                }`}
+              >
+                <span
+                  className="h-2 w-2 rounded-full"
+                  style={{ background: option.color }}
+                />
+                {option.label}
+              </button>
+            );
+          })}
+        </div>
+
+        <div className="flex flex-wrap gap-2">
+          {CASTRATION_FILTER_OPTIONS.map((option) => {
+            const isActive = visibleCastrationStatuses.has(option.value);
+            return (
+              <button
+                key={option.value}
+                type="button"
+                onClick={() => toggleCastrationStatus(option.value)}
+                className={`rounded-full border px-2 py-1 text-xs font-medium transition-colors ${
+                  isActive
+                    ? "border-felines-success text-felines-text-primary"
+                    : "border-felines-border text-felines-text-secondary opacity-50"
+                }`}
+              >
+                {option.label}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      <MapContainer center={NATAL_CENTER} zoom={DEFAULT_ZOOM} className="h-full w-full">
+        <TileLayer
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        />
+
+        {filteredColonies.map((colony) => (
+          <Marker
+            key={colony.id}
+            position={[colony.latitude_blurred, colony.longitude_blurred]}
+            icon={colonyIcon}
+          >
+            <Popup>
+              <strong>{colony.name}</strong>
+              <p className="mt-1 text-sm">{colony.narrative}</p>
+              <p className="mt-1 text-xs text-felines-text-secondary">
+                {CASTRATION_LABELS[colony.castration_status]}
+              </p>
+              <a
+                href={`/colony/${colony.id}`}
+                className="mt-2 inline-block text-xs font-medium text-felines-accent"
+              >
+                Ver colônia →
+              </a>
+            </Popup>
+          </Marker>
+        ))}
+
+        {filteredSightings
+          .filter((report) => report.latitude != null && report.longitude != null)
+          .map((report) => (
+            <Marker
+              key={report.id}
+              position={[report.latitude as number, report.longitude as number]}
+              icon={sightingIcon}
             >
-              Ver colônia →
-            </a>
-          </Popup>
-        </Marker>
-      ))}
+              <Popup>
+                <strong>Avistamento de gato</strong>
+              </Popup>
+            </Marker>
+          ))}
 
-      {sightings
-        .filter((report) => report.latitude != null && report.longitude != null)
-        .map((report) => (
-          <Marker
-            key={report.id}
-            position={[report.latitude as number, report.longitude as number]}
-            icon={sightingIcon}
-          >
-            <Popup>
-              <strong>Avistamento de gato</strong>
-            </Popup>
-          </Marker>
-        ))}
-
-      {emergencies
-        .filter((report) => report.latitude != null && report.longitude != null)
-        .map((report) => (
-          <Marker
-            key={report.id}
-            position={[report.latitude as number, report.longitude as number]}
-            icon={emergencyIcon}
-          >
-            <Popup>
-              <strong>Alerta: {report.type.replace(/_/g, " ")}</strong>
-            </Popup>
-          </Marker>
-        ))}
-    </MapContainer>
+        {filteredEmergencies
+          .filter((report) => report.latitude != null && report.longitude != null)
+          .map((report) => (
+            <Marker
+              key={report.id}
+              position={[report.latitude as number, report.longitude as number]}
+              icon={emergencyIcon}
+            >
+              <Popup>
+                <strong>Alerta: {report.type.replace(/_/g, " ")}</strong>
+              </Popup>
+            </Marker>
+          ))}
+      </MapContainer>
+    </div>
   );
 }
