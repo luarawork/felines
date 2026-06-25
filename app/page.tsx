@@ -3,6 +3,7 @@
 // the everyday citizen who is curious or in conflict with stray cats, and
 // routes them to the map, the learning guide, or the emergency help flow.
 import Link from "next/link";
+import HelpFlow from "@/components/HelpFlow";
 
 // Entry cards shown below the hero, each pointing to a key flow in the app.
 const ENTRY_CARDS = [
@@ -19,7 +20,7 @@ const ENTRY_CARDS = [
       "Guias rápidos para entender o comportamento dos gatos de rua e como conviver bem com eles.",
   },
   {
-    href: "/help",
+    href: "#ajuda",
     title: "Não sabe o que fazer? Comece aqui",
     description:
       "Encontrou um gato ferido, filhote sozinho ou está em conflito com a vizinhança? A gente te orienta.",
@@ -87,6 +88,17 @@ export default function Home() {
             </div>
           ))}
         </div>
+      </section>
+
+      {/* Emergency / "what should I do" flow, merged into the home page */}
+      <section id="ajuda" className="mt-16">
+        <h2 className="text-2xl font-bold text-felines-text-primary sm:text-3xl">
+          Não sabe o que fazer? A gente te orienta.
+        </h2>
+        <p className="mt-3 text-base text-felines-text-secondary">
+          Responda duas perguntas rápidas e mostramos o que fazer agora.
+        </p>
+        <HelpFlow />
       </section>
     </div>
   );

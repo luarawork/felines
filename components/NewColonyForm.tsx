@@ -163,7 +163,7 @@ export default function NewColonyForm() {
         {(moreThanOneCat === false || seenFrequently === false) && (
           <p className="rounded-md bg-felines-warning/10 px-3 py-2 text-sm text-felines-text-primary">
             Isso pode ser um avistamento em vez de uma colônia.{" "}
-            <Link href="/help" className="font-medium text-felines-accent">
+            <Link href="/#ajuda" className="font-medium text-felines-accent">
               Quer registrar um avistamento em vez disso?
             </Link>
           </p>

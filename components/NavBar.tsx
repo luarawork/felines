@@ -15,7 +15,7 @@ import { getOpenReportsForMyColonies } from "@/lib/myColonyReports";
 const NAV_LINKS = [
   { href: "/", label: "Início" },
   { href: "/map", label: "Mapa" },
-  { href: "/help", label: "Ajuda" },
+  { href: "/#ajuda", label: "Ajuda" },
   { href: "/learn", label: "Aprender" },
 ];
 

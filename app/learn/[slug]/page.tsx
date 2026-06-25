@@ -68,7 +68,7 @@ export default async function ArticlePage({
             Ver colônias no mapa
           </Link>
           <Link
-            href="/help"
+            href="/#ajuda"
             className="rounded-full border border-felines-accent px-4 py-2 text-sm font-medium text-felines-accent transition-colors hover:bg-felines-accent hover:text-white"
           >
             Fazer um relato
