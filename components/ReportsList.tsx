@@ -1,6 +1,8 @@
 // Client component for /reports. Requires authentication to read (RLS
 // restricts report status to authenticated users). Lets any signed-in
-// user confirm a report (atomic increment via RPC) or mark it resolved.
+// user confirm a report (atomic increment via RPC, auto-resolving at 3
+// confirmations) but only the colony's caretaker/creator can manually
+// resolve it early.
 "use client";
 
 import { useEffect, useState } from "react";
@@ -17,6 +19,7 @@ type Report = {
   description: string | null;
   status: "open" | "resolved";
   confirmations: number;
+  sensitive: boolean;
   created_at: string;
 };
 
@@ -24,35 +27,48 @@ export default function ReportsList() {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [reports, setReports] = useState<Report[]>([]);
+  const [myColonyIds, setMyColonyIds] = useState<Set<string>>(new Set());
   const [showResolved, setShowResolved] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Loads the auth session, then the list of reports filtered by status.
+  // Loads the auth session, the list of reports filtered by status, and
+  // which colonies the current user can manage (to gate manual resolve).
   useEffect(() => {
     async function loadReports() {
       const { data: sessionData } = await supabase.auth.getSession();
-      setSession(sessionData.session);
+      const currentSession = sessionData.session;
+      setSession(currentSession);
 
-      if (!sessionData.session) {
+      if (!currentSession) {
         setLoading(false);
         return;
       }
 
       const query = supabase
         .from("reports")
-        .select("id, colony_id, type, description, status, confirmations, created_at")
+        .select("id, colony_id, type, description, status, confirmations, sensitive, created_at")
         .order("created_at", { ascending: false });
 
       const { data } = showResolved ? await query : await query.eq("status", "open");
-
       if (data) setReports(data as Report[]);
+
+      const [{ data: createdColonies }, { data: caretakerRows }] = await Promise.all([
+        supabase.from("colonies").select("id").eq("created_by", currentSession.user.id),
+        supabase.from("caretakers").select("colony_id").eq("user_id", currentSession.user.id),
+      ]);
+
+      const colonyIds = new Set<string>();
+      createdColonies?.forEach((row) => colonyIds.add(row.id));
+      caretakerRows?.forEach((row) => colonyIds.add(row.colony_id));
+      setMyColonyIds(colonyIds);
+
       setLoading(false);
     }
 
     loadReports();
   }, [showResolved]);
 
-  // Confirms a report (atomic increment) without changing its status.
+  // Confirms a report (atomic increment, auto-resolves at 3 confirmations).
   async function handleConfirm(reportId: string) {
     setError(null);
     const { error: rpcError } = await supabase.rpc("confirm_report", { p_report_id: reportId });
@@ -63,13 +79,20 @@ export default function ReportsList() {
     }
 
     setReports((previous) =>
-      previous.map((report) =>
-        report.id === reportId ? { ...report, confirmations: report.confirmations + 1 } : report
-      )
+      previous.map((report) => {
+        if (report.id !== reportId) return report;
+        const confirmations = report.confirmations + 1;
+        return {
+          ...report,
+          confirmations,
+          status: confirmations >= 3 ? ("resolved" as const) : report.status,
+        };
+      })
     );
   }
 
-  // Marks a report as resolved.
+  // Marks a report as resolved manually. Only available to the colony's
+  // creator/caretaker, checked both here and via the button's visibility.
   async function handleResolve(reportId: string) {
     setError(null);
     const { error: updateError } = await supabase
@@ -125,62 +148,72 @@ export default function ReportsList() {
         </div>
       ) : (
         <ul className="mt-4 space-y-3">
-          {reports.map((report) => (
-            <li
-              key={report.id}
-              className="rounded-xl border border-felines-border bg-felines-surface p-4"
-            >
-              <div className="flex flex-wrap items-start justify-between gap-2">
-                <div>
-                  <p className="font-semibold text-felines-text-primary">
-                    {getReportTypeLabel(report.type)}
-                    {report.status === "resolved" && (
-                      <span className="ml-2 text-xs font-normal text-felines-success">
-                        resolvido
-                      </span>
-                    )}
-                  </p>
-                  {report.description && (
-                    <p className="mt-1 text-sm text-felines-text-secondary">
-                      {report.description}
+          {reports.map((report) => {
+            const canManuallyResolve = !!report.colony_id && myColonyIds.has(report.colony_id);
+            return (
+              <li
+                key={report.id}
+                className="rounded-xl border border-felines-border bg-felines-surface p-4"
+              >
+                <div className="flex flex-wrap items-start justify-between gap-2">
+                  <div>
+                    <p className="font-semibold text-felines-text-primary">
+                      {getReportTypeLabel(report.type)}
+                      {report.sensitive && (
+                        <span className="ml-2 text-xs font-normal text-felines-emergency">
+                          sensível
+                        </span>
+                      )}
+                      {report.status === "resolved" && (
+                        <span className="ml-2 text-xs font-normal text-felines-success">
+                          resolvido
+                        </span>
+                      )}
                     </p>
-                  )}
-                  <p className="mt-1 text-xs text-felines-text-secondary">
-                    {new Date(report.created_at).toLocaleDateString("pt-BR")} ·{" "}
-                    {report.confirmations} confirmação(ões)
-                    {report.colony_id && (
-                      <>
-                        {" "}
-                        ·{" "}
-                        <Link
-                          href={`/colony/${report.colony_id}`}
-                          className="text-felines-accent"
-                        >
-                          ver colônia
-                        </Link>
-                      </>
+                    {report.description && (
+                      <p className="mt-1 text-sm text-felines-text-secondary">
+                        {report.description}
+                      </p>
                     )}
-                  </p>
-                </div>
-                {report.status === "open" && (
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => handleConfirm(report.id)}
-                      className="rounded-full border border-felines-accent px-3 py-1 text-xs font-medium text-felines-accent transition-colors hover:bg-felines-accent hover:text-white"
-                    >
-                      Confirmar
-                    </button>
-                    <button
-                      onClick={() => handleResolve(report.id)}
-                      className="rounded-full bg-felines-success px-3 py-1 text-xs font-medium text-white transition-colors hover:opacity-90"
-                    >
-                      Resolver
-                    </button>
+                    <p className="mt-1 text-xs text-felines-text-secondary">
+                      {new Date(report.created_at).toLocaleDateString("pt-BR")} ·{" "}
+                      {report.confirmations} de 3 confirmações
+                      {report.colony_id && (
+                        <>
+                          {" "}
+                          ·{" "}
+                          <Link
+                            href={`/colony/${report.colony_id}`}
+                            className="text-felines-accent"
+                          >
+                            ver colônia
+                          </Link>
+                        </>
+                      )}
+                    </p>
                   </div>
-                )}
-              </div>
-            </li>
-          ))}
+                  {report.status === "open" && (
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => handleConfirm(report.id)}
+                        className="rounded-full border border-felines-accent px-3 py-1 text-xs font-medium text-felines-accent transition-colors hover:bg-felines-accent hover:text-white"
+                      >
+                        Confirmar
+                      </button>
+                      {canManuallyResolve && (
+                        <button
+                          onClick={() => handleResolve(report.id)}
+                          className="rounded-full bg-felines-success px-3 py-1 text-xs font-medium text-white transition-colors hover:opacity-90"
+                        >
+                          Resolver
+                        </button>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </li>
+            );
+          })}
         </ul>
       )}
     </div>
