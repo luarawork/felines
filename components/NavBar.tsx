@@ -9,6 +9,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabaseClient";
+import { getOpenReportsForMyColonies } from "@/lib/myColonyReports";
 
 // Links shown in the main navigation, in display order.
 const NAV_LINKS = [
@@ -21,6 +22,7 @@ const NAV_LINKS = [
 export default function NavBar() {
   const router = useRouter();
   const [session, setSession] = useState<Session | null>(null);
+  const [myColonyReportCount, setMyColonyReportCount] = useState(0);
 
   // Track the auth session so the nav can show the right login/logout state,
   // and stay in sync if the user logs in/out in another tab.
@@ -33,6 +35,23 @@ export default function NavBar() {
 
     return () => subscription.subscription.unsubscribe();
   }, []);
+
+  // Loads how many open reports exist for colonies this user created or
+  // caretakes, shown as a small badge next to "Relatos" so caretakers
+  // notice new reports without having to check every colony manually.
+  useEffect(() => {
+    async function loadReportCount() {
+      if (!session) {
+        setMyColonyReportCount(0);
+        return;
+      }
+
+      const reports = await getOpenReportsForMyColonies(session.user.id);
+      setMyColonyReportCount(reports.length);
+    }
+
+    loadReportCount();
+  }, [session]);
 
   async function handleLogout() {
     await supabase.auth.signOut();
@@ -59,8 +78,16 @@ export default function NavBar() {
           {session ? (
             <>
               <li>
-                <Link href="/reports" className="transition-colors hover:text-felines-accent">
+                <Link
+                  href="/reports"
+                  className="flex items-center gap-1 transition-colors hover:text-felines-accent"
+                >
                   Relatos
+                  {myColonyReportCount > 0 && (
+                    <span className="rounded-full bg-felines-emergency px-1.5 py-0.5 text-xs font-bold text-white">
+                      {myColonyReportCount}
+                    </span>
+                  )}
                 </Link>
               </li>
               <li>
