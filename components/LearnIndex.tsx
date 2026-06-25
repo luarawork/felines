@@ -8,13 +8,16 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabaseClient";
-import type { Article, ArticleLevel } from "@/lib/articles";
+import { getReadingTimeMinutes, type Article, type ArticleLevel } from "@/lib/articles";
+import ArticleLevelBadge from "@/components/ArticleLevelBadge";
 import Quiz from "@/components/Quiz";
 
 const LEVEL_LABELS: Record<ArticleLevel, string> = {
   1: "Nível 1 · Primeiros passos",
   2: "Nível 2 · Agindo na prática",
-  3: "Nível 3 · Compromisso de longo prazo",
+  3: "Nível 3 · Situações específicas",
+  4: "Nível 4 · Convivência e conflito",
+  5: "Nível 5 · Compromisso de longo prazo",
 };
 
 export default function LearnIndex({ articles }: { articles: Article[] }) {
@@ -43,7 +46,7 @@ export default function LearnIndex({ articles }: { articles: Article[] }) {
     loadProgress();
   }, []);
 
-  const levels: ArticleLevel[] = [1, 2, 3];
+  const levels: ArticleLevel[] = [1, 2, 3, 4, 5];
   const progressPercent = Math.round((readSlugs.length / articles.length) * 100);
 
   return (
@@ -98,7 +101,13 @@ export default function LearnIndex({ articles }: { articles: Article[] }) {
                   href={`/learn/${article.slug}`}
                   className="rounded-xl border border-felines-border bg-felines-surface p-4 transition-colors hover:border-felines-accent"
                 >
-                  <p className="font-semibold text-felines-text-primary">
+                  <div className="flex items-center gap-2">
+                    <ArticleLevelBadge level={article.level} />
+                    <span className="text-xs text-felines-text-secondary">
+                      {getReadingTimeMinutes(article)} min
+                    </span>
+                  </div>
+                  <p className="mt-2 font-semibold text-felines-text-primary">
                     {article.title}
                     {readSlugs.includes(article.slug) && (
                       <span className="ml-2 text-xs font-normal text-felines-success">✓ lido</span>

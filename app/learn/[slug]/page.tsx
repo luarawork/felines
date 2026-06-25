@@ -1,10 +1,13 @@
 // /learn/:slug route for Felines.
-// Renders a single article's content, related articles from the same
-// level, and a CTA pointing to the map or the report flow.
-import { notFound } from "next/navigation";
+// Renders a single article's content, level badge, reading time, fact
+// chips, related articles, and a CTA pointing to the map or help flow.
 import Link from "next/link";
-import { ARTICLES, getArticleBySlug } from "@/lib/articles";
+import { getArticleBySlug, getReadingTimeMinutes, getRelatedArticles } from "@/lib/articles";
 import ArticleProgressTracker from "@/components/ArticleProgressTracker";
+import ArticleLevelBadge from "@/components/ArticleLevelBadge";
+import FactChip from "@/components/FactChip";
+import ReadingProgressBar from "@/components/ReadingProgressBar";
+import ArticleNotFound from "@/components/ArticleNotFound";
 
 export default async function ArticlePage({
   params,
@@ -14,14 +17,15 @@ export default async function ArticlePage({
   const { slug } = await params;
   const article = getArticleBySlug(slug);
 
-  if (!article) notFound();
+  if (!article) return <ArticleNotFound />;
 
-  const relatedArticles = ARTICLES.filter(
-    (candidate) => candidate.level === article.level && candidate.slug !== article.slug
-  );
+  const relatedArticles = getRelatedArticles(article);
+  const readingTime = getReadingTimeMinutes(article);
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-12 sm:px-6">
+      <ReadingProgressBar />
+
       {/* Records this article as read for the signed-in user, if any */}
       <ArticleProgressTracker slug={article.slug} />
 
@@ -29,7 +33,12 @@ export default async function ArticlePage({
         ← Voltar ao guia
       </Link>
 
-      <h1 className="mt-3 text-2xl font-bold text-felines-text-primary sm:text-3xl">
+      <div className="mt-3 flex items-center gap-2">
+        <ArticleLevelBadge level={article.level} />
+        <span className="text-xs text-felines-text-secondary">{readingTime} min de leitura</span>
+      </div>
+
+      <h1 className="mt-2 text-2xl font-bold text-felines-text-primary sm:text-3xl">
         {article.title}
       </h1>
 
@@ -40,6 +49,14 @@ export default async function ArticlePage({
           </p>
         ))}
       </div>
+
+      {article.factChips && article.factChips.length > 0 && (
+        <div className="mt-6 flex flex-wrap gap-2">
+          {article.factChips.map((fact) => (
+            <FactChip key={fact} text={fact} />
+          ))}
+        </div>
+      )}
 
       <div className="mt-10 rounded-xl border border-felines-border bg-felines-surface p-5">
         <p className="font-semibold text-felines-text-primary">Quer colocar isso em prática?</p>
@@ -69,7 +86,8 @@ export default async function ArticlePage({
                 href={`/learn/${related.slug}`}
                 className="rounded-xl border border-felines-border bg-felines-surface p-4 transition-colors hover:border-felines-accent"
               >
-                <p className="font-semibold text-felines-text-primary">{related.title}</p>
+                <ArticleLevelBadge level={related.level} />
+                <p className="mt-2 font-semibold text-felines-text-primary">{related.title}</p>
                 <p className="mt-1 text-sm text-felines-text-secondary">{related.summary}</p>
               </Link>
             ))}
