@@ -3,7 +3,7 @@
 // authenticated users can log a feeding or become a caretaker.
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import AuthRequiredNotice from "@/components/AuthRequiredNotice";
@@ -15,6 +15,24 @@ export default function ColonyActions({ colonyId }: { colonyId: string }) {
   const [feedingLogged, setFeedingLogged] = useState(false);
   const [caretakerJoined, setCaretakerJoined] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
+
+  // caretakerJoined used to only flip to true after clicking the button
+  // in this session, so an account that was already a caretaker before
+  // visiting (or linked in a previous session) still saw "Tornar-se
+  // cuidador". Check the actual link on mount/session change instead.
+  useEffect(() => {
+    async function checkExistingCaretaker() {
+      if (!session) return;
+      const { data } = await supabase
+        .from("caretakers")
+        .select("id")
+        .eq("colony_id", colonyId)
+        .eq("user_id", session.user.id)
+        .maybeSingle();
+      if (data) setCaretakerJoined(true);
+    }
+    checkExistingCaretaker();
+  }, [colonyId, session]);
 
   // Logs a feeding event for this colony by the signed-in user, and
   // mirrors it into the timeline so it actually shows up in the
