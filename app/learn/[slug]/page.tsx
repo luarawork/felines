@@ -4,7 +4,6 @@
 import Link from "next/link";
 import { getArticleBySlug, getReadingTimeMinutes, getRelatedArticles } from "@/lib/articles";
 import ArticleProgressTracker from "@/components/ArticleProgressTracker";
-import ArticleLevelBadge from "@/components/ArticleLevelBadge";
 import FactChip from "@/components/FactChip";
 import OpenHelpModalButton from "@/components/OpenHelpModalButton";
 import ReadingProgressBar from "@/components/ReadingProgressBar";
@@ -34,8 +33,7 @@ export default async function ArticlePage({
         ← Voltar ao guia
       </Link>
 
-      <div className="mt-3 flex items-center gap-2">
-        <ArticleLevelBadge level={article.level} />
+      <div className="mt-3">
         <span className="text-xs text-felines-text-secondary">{readingTime} min de leitura</span>
       </div>
 
@@ -84,8 +82,7 @@ export default async function ArticlePage({
                 href={`/learn/${related.slug}`}
                 className="rounded-xl border border-felines-border bg-felines-surface p-4 transition-colors hover:border-felines-accent"
               >
-                <ArticleLevelBadge level={related.level} />
-                <p className="mt-2 font-semibold text-felines-text-primary">{related.title}</p>
+                <p className="font-semibold text-felines-text-primary">{related.title}</p>
                 <p className="mt-1 text-sm text-felines-text-secondary">{related.summary}</p>
               </Link>
             ))}

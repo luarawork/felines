@@ -373,17 +373,24 @@ export default function ColonyMap() {
         </div>
 
         {session && (
-          <button
-            type="button"
-            onClick={() => setHeatMapOn((previous) => !previous)}
-            className={`w-full rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
-              heatMapOn
-                ? "border-felines-emergency bg-felines-emergency text-white"
-                : "border-felines-border text-felines-text-secondary"
-            }`}
-          >
-            {heatMapOn ? "Ocultar" : "Mostrar"} intensidade de necessidade
-          </button>
+          <div>
+            <button
+              type="button"
+              onClick={() => setHeatMapOn((previous) => !previous)}
+              className={`w-full rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
+                heatMapOn
+                  ? "border-felines-emergency bg-felines-emergency text-white"
+                  : "border-felines-border text-felines-text-secondary"
+              }`}
+            >
+              {heatMapOn ? "Ocultar" : "Mostrar"} colônias que precisam de atenção
+            </button>
+            {heatMapOn && (
+              <p className="mt-1 text-xs text-felines-text-secondary">
+                🟠 com relato aberto ou sem alimentação há 7+ dias · 🔴 os dois ao mesmo tempo
+              </p>
+            )}
+          </div>
         )}
       </div>
 

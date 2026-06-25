@@ -5,6 +5,7 @@
 import Link from "next/link";
 import LearnIndex from "@/components/LearnIndex";
 import OpenHelpModalButton from "@/components/OpenHelpModalButton";
+import RotatingQuickFacts from "@/components/RotatingQuickFacts";
 import { ARTICLES } from "@/lib/articles";
 
 // Entry cards shown below the hero, each pointing to a key flow in the app.
@@ -26,21 +27,6 @@ const ENTRY_CARDS: { href?: string; isHelp?: boolean; title: string; description
     title: "Não sabe o que fazer? Comece aqui",
     description:
       "Encontrou um gato ferido, filhote sozinho ou está em conflito com a vizinhança? A gente te orienta.",
-  },
-];
-
-// Real impact numbers used to build trust and context quickly — sources
-// kept inline since these are exactly the kind of claim a reader checks.
-const QUICK_FACTS = [
-  { value: "10 milhões", label: "de gatos de rua no Brasil (estimativa OMS)" },
-  { value: "480 milhões", label: "de gatos de rua no mundo (World Animal Foundation)" },
-  {
-    value: "185 mil",
-    label: "animais em ONGs — capacidade já esgotada (Instituto Pet Brasil)",
-  },
-  {
-    value: "40%",
-    label: "dos brasileiros já tiveram conflito com vizinhos envolvendo animais (IBGE)",
   },
 ];
 
@@ -90,16 +76,7 @@ export default function Home() {
       {/* Quick facts */}
       <section className="mt-16 rounded-xl border border-felines-border bg-felines-surface p-6 sm:p-8">
         <h2 className="text-xl font-bold text-felines-text-primary">Fatos rápidos</h2>
-        <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {QUICK_FACTS.map((fact) => (
-            <div key={fact.label} className="rounded-lg bg-felines-background p-4">
-              <p className="text-2xl font-bold text-felines-accent">{fact.value}</p>
-              <p className="mt-1 text-sm leading-relaxed text-felines-text-secondary">
-                {fact.label}
-              </p>
-            </div>
-          ))}
-        </div>
+        <RotatingQuickFacts />
       </section>
 
       {/* Educational guide, merged into the home page */}

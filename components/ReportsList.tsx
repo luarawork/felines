@@ -2,25 +2,31 @@
 // restricts report status to authenticated users). Lets any signed-in
 // user confirm a report (atomic increment via RPC, auto-resolving at 3
 // confirmations) but only the colony's caretaker/creator can manually
-// resolve it early.
+// resolve it early. Also where lost-cat reports live, with sighting
+// replies linked back to notify the owner in-app.
 "use client";
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabaseClient";
-import { getReportTypeLabel } from "@/lib/reportTypes";
+import { getReportTypeLabel, REPORT_TYPES } from "@/lib/reportTypes";
 import EmptyState from "@/components/EmptyState";
 import FlagButton from "@/components/FlagButton";
+import LostCatForm from "@/components/LostCatForm";
+import SightingReportButton from "@/components/SightingReportButton";
 
 type Report = {
   id: string;
   colony_id: string | null;
   type: string;
   description: string | null;
+  photo_url: string | null;
   status: "open" | "resolved";
   confirmations: number;
   sensitive: boolean;
+  created_by: string | null;
+  related_report_id: string | null;
   created_at: string;
 };
 
@@ -31,8 +37,11 @@ export default function ReportsList() {
   const [myColonyIds, setMyColonyIds] = useState<Set<string>>(new Set());
   const [confirmedReportIds, setConfirmedReportIds] = useState<Set<string>>(new Set());
   const [showResolved, setShowResolved] = useState(false);
+  const [typeFilter, setTypeFilter] = useState<string>("all");
   const [error, setError] = useState<string | null>(null);
   const [highlightedReportId, setHighlightedReportId] = useState<string | null>(null);
+  const [showLostCatForm, setShowLostCatForm] = useState(false);
+  const [reloadKey, setReloadKey] = useState(0);
 
   // Loads the auth session, the list of reports filtered by status, and
   // which colonies the current user can manage (to gate manual resolve).
@@ -49,7 +58,9 @@ export default function ReportsList() {
 
       const query = supabase
         .from("reports")
-        .select("id, colony_id, type, description, status, confirmations, sensitive, created_at")
+        .select(
+          "id, colony_id, type, description, photo_url, status, confirmations, sensitive, created_by, related_report_id, created_at"
+        )
         .order("created_at", { ascending: false });
 
       const { data } = showResolved ? await query : await query.eq("status", "open");
@@ -76,7 +87,7 @@ export default function ReportsList() {
     }
 
     loadReports();
-  }, [showResolved]);
+  }, [showResolved, reloadKey]);
 
   // If we arrived here via a map popup's "Ver relato" link
   // (/reports#report-<id>), scroll to that report and highlight it
@@ -155,20 +166,46 @@ export default function ReportsList() {
     );
   }
 
+  const filteredReports = reports.filter(
+    (report) => typeFilter === "all" || report.type === typeFilter
+  );
+
   return (
     <div className="mt-6">
-      <label className="flex items-center gap-2 text-sm text-felines-text-secondary">
-        <input
-          type="checkbox"
-          checked={showResolved}
-          onChange={(formEvent) => setShowResolved(formEvent.target.checked)}
-        />
-        Mostrar relatos já resolvidos
-      </label>
+      <div className="flex flex-wrap items-center gap-3">
+        <label className="flex items-center gap-2 text-sm text-felines-text-secondary">
+          <input
+            type="checkbox"
+            checked={showResolved}
+            onChange={(formEvent) => setShowResolved(formEvent.target.checked)}
+          />
+          Mostrar relatos já resolvidos
+        </label>
+
+        <select
+          value={typeFilter}
+          onChange={(formEvent) => setTypeFilter(formEvent.target.value)}
+          className="rounded-md border border-felines-border bg-white px-3 py-1.5 text-sm"
+        >
+          <option value="all">Todos os tipos</option>
+          {REPORT_TYPES.map((reportType) => (
+            <option key={reportType.value} value={reportType.value}>
+              {reportType.label}
+            </option>
+          ))}
+        </select>
+
+        <button
+          onClick={() => setShowLostCatForm(true)}
+          className="ml-auto rounded-full bg-felines-accent px-4 py-1.5 text-sm font-medium text-white transition-colors hover:bg-felines-accent-hover"
+        >
+          + Cadastrar gato perdido
+        </button>
+      </div>
 
       {error && <p className="mt-2 text-sm text-felines-emergency">{error}</p>}
 
-      {reports.length === 0 ? (
+      {filteredReports.length === 0 ? (
         <div className="mt-6">
           <EmptyState
             main="Nenhum relato aberto agora."
@@ -178,8 +215,14 @@ export default function ReportsList() {
         </div>
       ) : (
         <ul className="mt-4 space-y-3">
-          {reports.map((report) => {
+          {filteredReports.map((report) => {
             const canManuallyResolve = !!report.colony_id && myColonyIds.has(report.colony_id);
+            const isLostCat = report.type === "missing_cat";
+            const isOwnLostCat = isLostCat && report.created_by === session.user.id;
+            const sightings = isOwnLostCat
+              ? reports.filter((candidate) => candidate.related_report_id === report.id)
+              : [];
+
             return (
               <li
                 key={report.id}
@@ -191,43 +234,75 @@ export default function ReportsList() {
                 }`}
               >
                 <div className="flex flex-wrap items-start justify-between gap-2">
-                  <div>
-                    <p className="font-semibold text-felines-text-primary">
-                      {getReportTypeLabel(report.type)}
-                      {report.sensitive && (
-                        <span className="ml-2 text-xs font-normal text-felines-emergency">
-                          sensível
-                        </span>
-                      )}
-                      {report.status === "resolved" && (
-                        <span className="ml-2 text-xs font-normal text-felines-success">
-                          resolvido
-                        </span>
-                      )}
-                    </p>
-                    {report.description && (
-                      <p className="mt-1 text-sm text-felines-text-secondary">
-                        {report.description}
-                      </p>
+                  <div className="flex gap-3">
+                    {report.photo_url && (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={report.photo_url}
+                        alt={getReportTypeLabel(report.type)}
+                        className="h-16 w-16 flex-shrink-0 rounded-lg object-cover"
+                      />
                     )}
-                    <p className="mt-1 text-xs text-felines-text-secondary">
-                      {new Date(report.created_at).toLocaleDateString("pt-BR")} ·{" "}
-                      {report.confirmations} de 3 confirmações
-                      {report.colony_id && (
-                        <>
-                          {" "}
-                          ·{" "}
-                          <Link
-                            href={`/colony/${report.colony_id}`}
-                            className="text-felines-accent"
-                          >
-                            ver colônia
-                          </Link>
-                        </>
+                    <div>
+                      <p className="font-semibold text-felines-text-primary">
+                        {getReportTypeLabel(report.type)}
+                        {report.sensitive && (
+                          <span className="ml-2 text-xs font-normal text-felines-emergency">
+                            sensível
+                          </span>
+                        )}
+                        {report.status === "resolved" && (
+                          <span className="ml-2 text-xs font-normal text-felines-success">
+                            resolvido
+                          </span>
+                        )}
+                      </p>
+                      {report.description && (
+                        <p className="mt-1 text-sm text-felines-text-secondary">
+                          {report.description}
+                        </p>
                       )}
-                    </p>
-                    <div className="mt-2">
-                      <FlagButton targetType="report" targetId={report.id} />
+                      <p className="mt-1 text-xs text-felines-text-secondary">
+                        {new Date(report.created_at).toLocaleDateString("pt-BR")} ·{" "}
+                        {report.confirmations} de 3 confirmações
+                        {report.colony_id && (
+                          <>
+                            {" "}
+                            ·{" "}
+                            <Link
+                              href={`/colony/${report.colony_id}`}
+                              className="text-felines-accent"
+                            >
+                              ver colônia
+                            </Link>
+                          </>
+                        )}
+                      </p>
+
+                      {isLostCat && !isOwnLostCat && (
+                        <div className="mt-2">
+                          <SightingReportButton lostCatReportId={report.id} />
+                        </div>
+                      )}
+
+                      {isOwnLostCat && sightings.length > 0 && (
+                        <div className="mt-2 rounded-md bg-felines-success/10 p-2">
+                          <p className="text-xs font-medium text-felines-success">
+                            {sightings.length}{" "}
+                            {sightings.length === 1 ? "avistamento relatado" : "avistamentos relatados"}
+                          </p>
+                          {sightings.map((sighting) => (
+                            <p key={sighting.id} className="mt-1 text-xs text-felines-text-secondary">
+                              {sighting.description} ·{" "}
+                              {new Date(sighting.created_at).toLocaleDateString("pt-BR")}
+                            </p>
+                          ))}
+                        </div>
+                      )}
+
+                      <div className="mt-2">
+                        <FlagButton targetType="report" targetId={report.id} />
+                      </div>
                     </div>
                   </div>
                   {report.status === "open" && (
@@ -254,6 +329,31 @@ export default function ReportsList() {
             );
           })}
         </ul>
+      )}
+
+      {showLostCatForm && (
+        <div className="fixed inset-0 z-[2000] flex items-center justify-center bg-black/40 p-4">
+          <div className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-xl bg-felines-background p-6 shadow-xl">
+            <div className="flex items-start justify-between">
+              <h2 className="text-lg font-bold text-felines-text-primary">Gato perdido</h2>
+              <button
+                onClick={() => setShowLostCatForm(false)}
+                aria-label="Fechar"
+                className="flex-shrink-0 text-xl leading-none text-felines-text-secondary hover:text-felines-text-primary"
+              >
+                ×
+              </button>
+            </div>
+            <div className="mt-4">
+              <LostCatForm
+                onSubmitted={() => {
+                  setShowLostCatForm(false);
+                  setReloadKey((key) => key + 1);
+                }}
+              />
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

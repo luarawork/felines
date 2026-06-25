@@ -9,15 +9,16 @@ import Link from "next/link";
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabaseClient";
 import { getReadingTimeMinutes, type Article, type ArticleLevel } from "@/lib/articles";
-import ArticleLevelBadge from "@/components/ArticleLevelBadge";
 import Quiz from "@/components/Quiz";
 
+// Theme labels for each article level — the level number itself isn't
+// shown anywhere anymore, just the topic name.
 const LEVEL_LABELS: Record<ArticleLevel, string> = {
-  1: "Nível 1 · Primeiros passos",
-  2: "Nível 2 · Agindo na prática",
-  3: "Nível 3 · Situações específicas",
-  4: "Nível 4 · Convivência e conflito",
-  5: "Nível 5 · Compromisso de longo prazo",
+  1: "Primeiros passos",
+  2: "Agindo na prática",
+  3: "Situações específicas",
+  4: "Convivência e conflito",
+  5: "Compromisso de longo prazo",
 };
 
 export default function LearnIndex({ articles }: { articles: Article[] }) {
@@ -102,17 +103,16 @@ export default function LearnIndex({ articles }: { articles: Article[] }) {
                   className="rounded-xl border border-felines-border bg-felines-surface p-4 transition-colors hover:border-felines-accent"
                 >
                   <div className="flex items-center gap-2">
-                    <ArticleLevelBadge level={article.level} />
                     <span className="text-xs text-felines-text-secondary">
                       {getReadingTimeMinutes(article)} min
                     </span>
-                  </div>
-                  <p className="mt-2 font-semibold text-felines-text-primary">
-                    {article.title}
                     {readSlugs.includes(article.slug) && (
-                      <span className="ml-2 text-xs font-normal text-felines-success">✓ lido</span>
+                      <span className="rounded-full bg-felines-success/15 px-2 py-0.5 text-xs font-medium text-felines-success">
+                        Lido
+                      </span>
                     )}
-                  </p>
+                  </div>
+                  <p className="mt-2 font-semibold text-felines-text-primary">{article.title}</p>
                   <p className="mt-1 text-sm text-felines-text-secondary">{article.summary}</p>
                 </Link>
               ))}
