@@ -63,6 +63,26 @@ export default async function ColonyDetailPage({
     .eq("colony_id", id)
     .order("created_at", { ascending: false });
 
+  // caretakers.user_id references auth.users, not profiles, so PostgREST
+  // can't embed profiles in this query — fetched separately and merged.
+  const { data: caretakerRows } = await supabase
+    .from("caretakers")
+    .select("user_id")
+    .eq("colony_id", id);
+
+  const caretakerUserIds = (caretakerRows ?? []).map((row) => row.user_id);
+
+  const { data: caretakerProfiles } =
+    caretakerUserIds.length > 0
+      ? await supabase.from("profiles").select("id, display_name").in("id", caretakerUserIds)
+      : { data: [] };
+
+  const caretakers = caretakerUserIds.map((userId) => ({
+    userId,
+    displayName:
+      (caretakerProfiles ?? []).find((profile) => profile.id === userId)?.display_name ?? null,
+  }));
+
   const catsSection = (
     <>
       {!cats || cats.length === 0 ? (
@@ -157,6 +177,19 @@ export default async function ColonyDetailPage({
           <span className="mt-2 inline-block rounded-full bg-felines-success/10 px-3 py-1 text-xs font-medium text-felines-success">
             {CASTRATION_LABELS[colony.castration_status] ?? colony.castration_status}
           </span>
+          {caretakers.length > 0 && (
+            <p className="mt-2 text-xs text-felines-text-secondary">
+              Cuidado por:{" "}
+              {caretakers.map((caretaker, index) => (
+                <span key={caretaker.userId}>
+                  {index > 0 && ", "}
+                  <a href={`/u/${caretaker.userId}`} className="text-felines-accent">
+                    {caretaker.displayName || "Cuidador da comunidade"}
+                  </a>
+                </span>
+              ))}
+            </p>
+          )}
         </div>
         <ReportButton colonyId={colony.id} />
       </div>

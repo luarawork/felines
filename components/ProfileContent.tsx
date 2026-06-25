@@ -11,6 +11,7 @@ import { ARTICLES } from "@/lib/articles";
 import { supabase } from "@/lib/supabaseClient";
 import { getOpenReportsForMyColonies, type MyColonyReport } from "@/lib/myColonyReports";
 import { getReportTypeLabel } from "@/lib/reportTypes";
+import { ensureOwnProfile, getDisplayName, updateOwnDisplayName } from "@/lib/profile";
 
 type LinkedColony = { id: string; name: string };
 type FeedingRecord = { id: string; colony_id: string; created_at: string };
@@ -18,11 +19,15 @@ type FeedingRecord = { id: string; colony_id: string; created_at: string };
 export default function ProfileContent() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
+  const [userId, setUserId] = useState<string | null>(null);
   const [email, setEmail] = useState<string | null>(null);
   const [feedings, setFeedings] = useState<FeedingRecord[]>([]);
   const [linkedColonies, setLinkedColonies] = useState<LinkedColony[]>([]);
   const [readCount, setReadCount] = useState(0);
   const [myColonyReports, setMyColonyReports] = useState<MyColonyReport[]>([]);
+  const [displayName, setDisplayName] = useState("");
+  const [savingName, setSavingName] = useState(false);
+  const [nameSaved, setNameSaved] = useState(false);
 
   useEffect(() => {
     async function loadProfile() {
@@ -34,7 +39,12 @@ export default function ProfileContent() {
         return;
       }
 
+      setUserId(session.user.id);
       setEmail(session.user.email ?? null);
+
+      await ensureOwnProfile(session.user.id);
+      const currentDisplayName = await getDisplayName(session.user.id);
+      setDisplayName(currentDisplayName ?? "");
 
       const [{ data: feedingRows }, { data: caretakerRows }, { data: progressRows }] =
         await Promise.all([
@@ -75,6 +85,14 @@ export default function ProfileContent() {
     loadProfile();
   }, [router]);
 
+  async function handleSaveDisplayName() {
+    if (!userId) return;
+    setSavingName(true);
+    const success = await updateOwnDisplayName(userId, displayName);
+    setSavingName(false);
+    setNameSaved(success);
+  }
+
   if (loading) return null;
 
   const progressPercent = Math.round((readCount / ARTICLES.length) * 100);
@@ -82,6 +100,41 @@ export default function ProfileContent() {
   return (
     <div className="mt-6 space-y-8">
       <p className="text-sm text-felines-text-secondary">Conectado como {email}</p>
+
+      <section>
+        <h2 className="text-lg font-bold text-felines-text-primary">Nome de exibição</h2>
+        <p className="mt-1 text-sm text-felines-text-secondary">
+          Mostrado na sua{" "}
+          {userId ? (
+            <Link href={`/u/${userId}`} className="text-felines-accent">
+              página pública de cuidador
+            </Link>
+          ) : (
+            "página pública de cuidador"
+          )}{" "}
+          — seu e-mail nunca é exibido publicamente.
+        </p>
+        <div className="mt-2 flex flex-wrap gap-2">
+          <input
+            type="text"
+            value={displayName}
+            onChange={(formEvent) => {
+              setDisplayName(formEvent.target.value);
+              setNameSaved(false);
+            }}
+            maxLength={60}
+            placeholder="Como você quer ser chamado"
+            className="rounded-md border border-felines-border bg-white px-3 py-2 text-sm"
+          />
+          <button
+            onClick={handleSaveDisplayName}
+            disabled={savingName}
+            className="rounded-full bg-felines-accent px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-felines-accent-hover disabled:opacity-50"
+          >
+            {savingName ? "Salvando..." : nameSaved ? "Salvo" : "Salvar"}
+          </button>
+        </div>
+      </section>
 
       <section>
         <h2 className="text-lg font-bold text-felines-text-primary">
