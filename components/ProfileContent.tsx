@@ -12,6 +12,7 @@ import { supabase } from "@/lib/supabaseClient";
 import { getOpenReportsForMyColonies, type MyColonyReport } from "@/lib/myColonyReports";
 import { getReportTypeLabel } from "@/lib/reportTypes";
 import { ensureOwnProfile, getDisplayName, updateOwnDisplayName } from "@/lib/profile";
+import EmptyState from "@/components/EmptyState";
 
 type LinkedColony = { id: string; name: string };
 type FeedingRecord = { id: string; colony_id: string; created_at: string };
@@ -96,10 +97,23 @@ export default function ProfileContent() {
   if (loading) return null;
 
   const progressPercent = Math.round((readCount / ARTICLES.length) * 100);
+  const hasNoContributionsYet =
+    feedings.length === 0 &&
+    linkedColonies.length === 0 &&
+    myColonyReports.length === 0 &&
+    readCount === 0;
 
   return (
     <div className="mt-6 space-y-8">
       <p className="text-sm text-felines-text-secondary">Conectado como {email}</p>
+
+      {hasNoContributionsYet && (
+        <EmptyState
+          main="Sua jornada começa aqui."
+          sub="Cada colônia que você visita, cada relato que você faz — tudo fica registrado aqui."
+          ctas={[{ label: "Explorar o mapa →", href: "/map" }]}
+        />
+      )}
 
       <section>
         <h2 className="text-lg font-bold text-felines-text-primary">Nome de exibição</h2>

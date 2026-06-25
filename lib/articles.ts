@@ -15,6 +15,19 @@ export type Article = {
 
 export const ARTICLES: Article[] = [
   {
+    slug: "what-is-a-cat-colony",
+    level: 1,
+    title: "O que é uma colônia de gatos?",
+    summary:
+      "Antes de tudo: o que define uma colônia, e como diferenciar de um simples avistamento.",
+    body: [
+      "Uma colônia de gatos é um grupo de gatos de rua que vive de forma estável em um território fixo — geralmente um terreno, quintal, praça ou conjunto de quintais vizinhos.",
+      "Diferente de um avistamento isolado (um gato visto uma vez, de passagem), uma colônia tem gatos que voltam ao mesmo lugar repetidamente, muitas vezes com um ponto de alimentação ou abrigo reconhecível.",
+      "Colônias se formam onde há os três ingredientes básicos: comida disponível (lixo, alimentação intencional), abrigo (terrenos vazios, embaixo de carros, vãos de construção) e ausência de grandes predadores.",
+      "Identificar uma colônia (em vez de reportar só um avistamento) ajuda a comunidade a organizar castração, alimentação e cuidados de forma muito mais eficaz do que tentar ajudar gato por gato.",
+    ],
+  },
+  {
     slug: "por-que-existem-gatos-de-rua",
     level: 1,
     title: "Por que existem gatos de rua na minha vizinhança?",

@@ -14,6 +14,7 @@ import CaretakerLetters from "@/components/CaretakerLetters";
 import TimelineEventForm from "@/components/TimelineEventForm";
 import ColonyTabs from "@/components/ColonyTabs";
 import EditColonyForm from "@/components/EditColonyForm";
+import EmptyState from "@/components/EmptyState";
 
 type Cat = {
   id: string;
@@ -124,14 +125,32 @@ export default async function ColonyDetailPage({
     </>
   );
 
+  const mostRecentEventDate = timelineEvents?.[0]?.created_at
+    ? new Date(timelineEvents[0].created_at)
+    : null;
+  // This is a server component rendered fresh per request, not a
+  // client component re-rendered in place — Date.now() here just reads
+  // the request time once, it isn't a purity hazard in practice.
+  const now = Date.now(); // eslint-disable-line react-hooks/purity
+  const daysSinceLastUpdate = mostRecentEventDate
+    ? (now - mostRecentEventDate.getTime()) / (1000 * 60 * 60 * 24)
+    : null;
+  const hasNoRecentUpdates = daysSinceLastUpdate === null || daysSinceLastUpdate >= 7;
+
   const timelineSection = (
     <>
       <TimelineEventForm colonyId={colony.id} />
-      {!timelineEvents || timelineEvents.length === 0 ? (
-        <p className="mt-4 text-sm text-felines-text-secondary">
-          Nenhum evento registrado ainda.
-        </p>
-      ) : (
+
+      {hasNoRecentUpdates && (
+        <div className="mt-4">
+          <EmptyState
+            main="Nenhuma atualização recente — você sabe o que está acontecendo aqui?"
+            ctas={[{ label: "Relatar algo →", href: "#colony-report-button" }]}
+          />
+        </div>
+      )}
+
+      {!timelineEvents || timelineEvents.length === 0 ? null : (
         <ol className="mt-4 space-y-4 border-l border-felines-border pl-5">
           {(timelineEvents as TimelineEvent[]).map((event) => (
             <li key={event.id}>
@@ -191,7 +210,9 @@ export default async function ColonyDetailPage({
             </p>
           )}
         </div>
-        <ReportButton colonyId={colony.id} />
+        <div id="colony-report-button">
+          <ReportButton colonyId={colony.id} />
+        </div>
       </div>
 
       {colony.narrative && (

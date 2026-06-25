@@ -8,6 +8,7 @@ import Link from "next/link";
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabaseClient";
 import { getReportTypeLabel } from "@/lib/reportTypes";
+import EmptyState from "@/components/EmptyState";
 
 type Report = {
   id: string;
@@ -115,7 +116,13 @@ export default function ReportsList() {
       {error && <p className="mt-2 text-sm text-felines-emergency">{error}</p>}
 
       {reports.length === 0 ? (
-        <p className="mt-6 text-sm text-felines-text-secondary">Nenhum relato encontrado.</p>
+        <div className="mt-6">
+          <EmptyState
+            main="Nenhum relato aberto agora."
+            sub="Esse é um bom sinal. Continue de olho nas colônias perto de você."
+            ctas={[{ label: "Ir para o mapa →", href: "/map" }]}
+          />
+        </div>
       ) : (
         <ul className="mt-4 space-y-3">
           {reports.map((report) => (

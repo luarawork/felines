@@ -20,6 +20,7 @@ import "leaflet/dist/leaflet.css";
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabaseClient";
 import LocationBlurBadge, { type LocationAccessLevel } from "@/components/LocationBlurBadge";
+import EmptyState from "@/components/EmptyState";
 import ColonyClickTooltip, {
   hasSeenColonyClickTooltip,
   markColonyClickTooltipSeen,
@@ -107,6 +108,7 @@ const BLUR_RADIUS_METERS: Record<1 | 2, number> = {
 
 export default function ColonyMap() {
   const [colonies, setColonies] = useState<Colony[]>([]);
+  const [hasLoadedColonies, setHasLoadedColonies] = useState(false);
   const [emergencies, setEmergencies] = useState<EmergencyReport[]>([]);
   const [sightings, setSightings] = useState<EmergencyReport[]>([]);
 
@@ -153,6 +155,7 @@ export default function ColonyMap() {
         );
 
       if (colonyData) setColonies(colonyData as Colony[]);
+      setHasLoadedColonies(true);
 
       const { data: reportData } = await supabase
         .from("reports")
@@ -415,6 +418,28 @@ export default function ColonyMap() {
 
       {showColonyClickTooltip && (
         <ColonyClickTooltip onDismiss={() => setShowColonyClickTooltip(false)} />
+      )}
+
+      {hasLoadedColonies && filteredColonies.length === 0 && (
+        <div className="absolute bottom-6 left-1/2 z-[1000] w-[90%] max-w-md -translate-x-1/2">
+          {sightings.length > 0 ? (
+            <EmptyState
+              main="Pessoas avistaram gatos aqui, mas ninguém mapeou uma colônia ainda. Será que você pode ser essa pessoa?"
+              ctas={[{ label: "Cadastrar uma colônia →", href: "/colony/new" }]}
+            />
+          ) : (
+            <EmptyState
+              main="Nenhuma colônia mapeada aqui ainda — mas isso não significa que não existam."
+              ctas={[
+                { label: "Viu gatos por aqui? Seja o primeiro a mapear →", href: "/colony/new" },
+                {
+                  label: "Não tem certeza? Aprenda o que procurar primeiro →",
+                  href: "/learn/what-is-a-cat-colony",
+                },
+              ]}
+            />
+          )}
+        </div>
       )}
     </div>
   );
