@@ -120,6 +120,12 @@ export default function ColonyMap() {
             <p className="mt-1 text-xs text-felines-text-secondary">
               {CASTRATION_LABELS[colony.castration_status]}
             </p>
+            <a
+              href={`/colony/${colony.id}`}
+              className="mt-2 inline-block text-xs font-medium text-felines-accent"
+            >
+              Ver colônia →
+            </a>
           </Popup>
         </Marker>
       ))}
