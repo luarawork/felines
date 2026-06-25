@@ -11,10 +11,19 @@ import type { Session } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabaseClient";
 import MapMarkerPickerShell from "@/components/MapMarkerPickerShell";
 
-// Small random offset (roughly up to ~150m) applied to exact coordinates
-// to produce the blurred location shown to anonymous map visitors.
-function blurCoordinate(value: number) {
-  return value + (Math.random() - 0.5) * 0.0025;
+// Location blur protects cats from malicious users who could use exact
+// coordinates to find and harm animals. Both blur levels are computed
+// once, here, at registration time — never recomputed on the fly from
+// the client, so a colony's approximate pin stays stable across visits.
+// Wide blur (~500m) is shown to anonymous visitors.
+function blurCoordinateWide(value: number) {
+  return value + (Math.random() - 0.5) * 0.01;
+}
+
+// Closer blur (~100m) is shown to authenticated users who aren't (yet)
+// a caretaker of this colony.
+function blurCoordinateNear(value: number) {
+  return value + (Math.random() - 0.5) * 0.002;
 }
 
 export default function NewColonyForm() {
@@ -93,8 +102,10 @@ export default function NewColonyForm() {
         narrative: narrative.trim() || null,
         latitude,
         longitude,
-        latitude_blurred: blurCoordinate(latitude),
-        longitude_blurred: blurCoordinate(longitude),
+        latitude_blurred: blurCoordinateWide(latitude),
+        longitude_blurred: blurCoordinateWide(longitude),
+        latitude_blurred_near: blurCoordinateNear(latitude),
+        longitude_blurred_near: blurCoordinateNear(longitude),
         castration_status: castrationStatus,
         cover_photo_url: publicUrlData.publicUrl,
         created_by: session.user.id,

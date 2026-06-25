@@ -1,16 +1,25 @@
 // Interactive colony map for Felines, centered on Natal, RN.
 // Renders colony pins (terracotta), sighting pins (gray) and emergency
-// pins (red, pulsing) using Leaflet. Colony pins use the blurred
-// coordinates for anonymous users so exact locations stay protected by RLS.
-// Includes a search box (by colony name) and filters for pin type and
-// castration status, so a visitor can narrow down a busy map.
+// pins (red, pulsing) using Leaflet. Includes a search box (by colony
+// name) and filters for pin type and castration status.
+//
+// Colony pins use progressive location blur by access level:
+// Location blur protects cats from malicious users who could use exact
+// coordinates to find and harm animals.
+//   Level 1 (anonymous)      -> wide blur (~500m), precomputed at registration
+//   Level 2 (signed in)      -> closer blur (~100m), precomputed at registration
+//   Level 3 (linked caretaker/creator) -> exact location, via a security
+//     definer RPC that validates the caretaker link server-side — exact
+//     coordinates are never readable through a direct table select.
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
 import { MapContainer, TileLayer, Marker, Popup, ZoomControl } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+import type { Session } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabaseClient";
+import LocationBlurBadge, { type LocationAccessLevel } from "@/components/LocationBlurBadge";
 
 // Natal, RN map center and default zoom, per the Felines spec.
 const NATAL_CENTER: [number, number] = [-5.7945, -35.211];
@@ -24,7 +33,10 @@ type Colony = {
   narrative: string | null;
   latitude_blurred: number;
   longitude_blurred: number;
+  latitude_blurred_near: number | null;
+  longitude_blurred_near: number | null;
   castration_status: CastrationStatus;
+  created_by: string | null;
 };
 
 type EmergencyReport = {
@@ -84,6 +96,15 @@ export default function ColonyMap() {
   const [emergencies, setEmergencies] = useState<EmergencyReport[]>([]);
   const [sightings, setSightings] = useState<EmergencyReport[]>([]);
 
+  const [session, setSession] = useState<Session | null>(null);
+  // Colony ids the current user is a linked caretaker of (or created).
+  const [myColonyIds, setMyColonyIds] = useState<Set<string>>(new Set());
+  // Exact coordinates fetched via RPC, keyed by colony id — only ever
+  // populated for colonies the RPC confirms the user may see exactly.
+  const [exactCoordsByColonyId, setExactCoordsByColonyId] = useState<
+    Map<string, [number, number]>
+  >(new Map());
+
   const [searchTerm, setSearchTerm] = useState("");
   const [visiblePinTypes, setVisiblePinTypes] = useState<Set<PinType>>(
     new Set(["colony", "sighting", "emergency"])
@@ -92,13 +113,21 @@ export default function ColonyMap() {
     Set<CastrationStatus>
   >(new Set(["none", "partial", "full"]));
 
-  // Load colonies (blurred coordinates) and open reports (emergencies and
-  // sightings) from Supabase once the map mounts in the browser.
+  // Load colonies (blurred coordinates only — exact lat/long is not
+  // selectable here even for an authenticated session; the database
+  // grants block it for every role except via the RPC below) and open
+  // reports (emergencies and sightings) from Supabase once the map mounts.
   useEffect(() => {
     async function loadMapData() {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const currentSession = sessionData.session;
+      setSession(currentSession);
+
       const { data: colonyData } = await supabase
         .from("colonies")
-        .select("id, name, narrative, latitude_blurred, longitude_blurred, castration_status");
+        .select(
+          "id, name, narrative, latitude_blurred, longitude_blurred, latitude_blurred_near, longitude_blurred_near, castration_status, created_by"
+        );
 
       if (colonyData) setColonies(colonyData as Colony[]);
 
@@ -118,6 +147,43 @@ export default function ColonyMap() {
           (reportData as EmergencyReport[]).filter((r) => r.type === "sighting")
         );
       }
+
+      if (!currentSession || !colonyData) return;
+
+      // Candidate colonies for level 3: the user created them, or has a
+      // caretakers row for them. This is only a hint for which colonies
+      // to call the RPC for — the RPC itself re-validates server-side
+      // and is the only thing that actually returns exact coordinates.
+      const { data: caretakerRows } = await supabase
+        .from("caretakers")
+        .select("colony_id")
+        .eq("user_id", currentSession.user.id);
+
+      const candidateColonyIds = new Set<string>(
+        (caretakerRows ?? []).map((row) => row.colony_id)
+      );
+      (colonyData as Colony[]).forEach((colony) => {
+        if (colony.created_by === currentSession.user.id) candidateColonyIds.add(colony.id);
+      });
+      setMyColonyIds(candidateColonyIds);
+
+      const exactCoordsEntries = await Promise.all(
+        Array.from(candidateColonyIds).map(async (colonyId) => {
+          const { data: exactLocationRows } = await supabase.rpc("get_colony_exact_location", {
+            p_colony_id: colonyId,
+          });
+          const exactLocation = exactLocationRows?.[0];
+          if (!exactLocation) return null;
+          return [colonyId, [exactLocation.latitude, exactLocation.longitude]] as [
+            string,
+            [number, number],
+          ];
+        })
+      );
+
+      setExactCoordsByColonyId(
+        new Map(exactCoordsEntries.filter((entry): entry is [string, [number, number]] => entry !== null))
+      );
     }
 
     loadMapData();
@@ -139,6 +205,29 @@ export default function ColonyMap() {
       else next.add(status);
       return next;
     });
+  }
+
+  // Resolves which coordinates and access level to show for a colony,
+  // based on the current session and whether the RPC confirmed an exact
+  // location for it.
+  function resolveColonyPosition(colony: Colony): {
+    position: [number, number];
+    level: LocationAccessLevel;
+  } {
+    if (session && myColonyIds.has(colony.id)) {
+      const exactPosition = exactCoordsByColonyId.get(colony.id);
+      if (exactPosition) return { position: exactPosition, level: 3 };
+    }
+
+    if (session) {
+      const near: [number, number] = [
+        colony.latitude_blurred_near ?? colony.latitude_blurred,
+        colony.longitude_blurred_near ?? colony.longitude_blurred,
+      ];
+      return { position: near, level: 2 };
+    }
+
+    return { position: [colony.latitude_blurred, colony.longitude_blurred], level: 1 };
   }
 
   const filteredColonies = useMemo(() => {
@@ -222,27 +311,27 @@ export default function ColonyMap() {
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
 
-        {filteredColonies.map((colony) => (
-          <Marker
-            key={colony.id}
-            position={[colony.latitude_blurred, colony.longitude_blurred]}
-            icon={colonyIcon}
-          >
-            <Popup>
-              <strong>{colony.name}</strong>
-              <p className="mt-1 text-sm">{colony.narrative}</p>
-              <p className="mt-1 text-xs text-felines-text-secondary">
-                {CASTRATION_LABELS[colony.castration_status]}
-              </p>
-              <a
-                href={`/colony/${colony.id}`}
-                className="mt-2 inline-block text-xs font-medium text-felines-accent"
-              >
-                Ver colônia →
-              </a>
-            </Popup>
-          </Marker>
-        ))}
+        {filteredColonies.map((colony) => {
+          const { position, level } = resolveColonyPosition(colony);
+          return (
+            <Marker key={colony.id} position={position} icon={colonyIcon}>
+              <Popup>
+                <strong>{colony.name}</strong>
+                <p className="mt-1 text-sm">{colony.narrative}</p>
+                <p className="mt-1 text-xs text-felines-text-secondary">
+                  {CASTRATION_LABELS[colony.castration_status]}
+                </p>
+                <LocationBlurBadge level={level} />
+                <a
+                  href={`/colony/${colony.id}`}
+                  className="mt-2 block text-xs font-medium text-felines-accent"
+                >
+                  Ver colônia →
+                </a>
+              </Popup>
+            </Marker>
+          );
+        })}
 
         {filteredSightings
           .filter((report) => report.latitude != null && report.longitude != null)
