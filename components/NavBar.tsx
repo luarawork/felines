@@ -59,6 +59,11 @@ export default function NavBar() {
           {session ? (
             <>
               <li>
+                <Link href="/reports" className="transition-colors hover:text-felines-accent">
+                  Relatos
+                </Link>
+              </li>
+              <li>
                 <Link href="/profile" className="transition-colors hover:text-felines-accent">
                   Perfil
                 </Link>
