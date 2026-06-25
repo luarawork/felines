@@ -7,11 +7,12 @@ import WeatherBanner from "@/components/WeatherBanner";
 
 export default function MapPage() {
   return (
-    // h-full (not a hardcoded "100vh minus navbar height") because the
-    // navbar wraps to 2-3 lines on narrow screens — its real height
-    // varies, and the parent <main> in the root layout already sizes
-    // itself correctly via flexbox, so this just needs to fill that.
-    <div className="relative h-full w-full">
+    // --navbar-height is set by NavBar via ResizeObserver, since the
+    // nav wraps to 2-3 lines on narrow screens and a hardcoded subtraction
+    // (or relying on percentage-height through the flex `<main>`, which
+    // doesn't reliably resolve since <body> only has min-height) doesn't
+    // track that. Falls back to 65px before the observer's first measurement.
+    <div className="relative h-[calc(100vh-var(--navbar-height,65px))] w-full">
       <MapShell />
       {/* On mobile the weather banner sits below the search/filter panel
           instead of beside it — both are wide enough that side-by-side

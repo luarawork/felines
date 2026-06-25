@@ -4,7 +4,7 @@
 // Mobile-responsive with a simple horizontal layout that wraps on small screens.
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { Session } from "@supabase/supabase-js";
@@ -26,6 +26,25 @@ export default function NavBar() {
   const { openHelpModal } = useHelpModal();
   const [session, setSession] = useState<Session | null>(null);
   const [myColonyReportCount, setMyColonyReportCount] = useState(0);
+  const headerRef = useRef<HTMLElement>(null);
+
+  // Exposes the nav's real rendered height as a CSS variable, since it
+  // wraps to 2-3 lines on narrow screens — pages that need to fill
+  // "the rest of the viewport" (like /map) can't safely assume a fixed
+  // height, but they can read this instead of guessing.
+  useEffect(() => {
+    const header = headerRef.current;
+    if (!header) return;
+
+    function updateHeight() {
+      document.documentElement.style.setProperty("--navbar-height", `${header!.offsetHeight}px`);
+    }
+
+    updateHeight();
+    const observer = new ResizeObserver(updateHeight);
+    observer.observe(header);
+    return () => observer.disconnect();
+  }, []);
 
   // Track the auth session so the nav can show the right login/logout state,
   // and stay in sync if the user logs in/out in another tab.
@@ -62,7 +81,7 @@ export default function NavBar() {
   }
 
   return (
-    <header className="border-b border-felines-border bg-felines-surface">
+    <header ref={headerRef} className="border-b border-felines-border bg-felines-surface">
       <nav
         className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6"
         aria-label="Navegação principal"
