@@ -14,7 +14,17 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { MapContainer, TileLayer, Marker, Popup, ZoomControl, Circle, Tooltip } from "react-leaflet";
+import Link from "next/link";
+import {
+  MapContainer,
+  TileLayer,
+  Marker,
+  Popup,
+  ZoomControl,
+  Circle,
+  Tooltip,
+  useMapEvents,
+} from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import type { Session } from "@supabase/supabase-js";
@@ -48,9 +58,33 @@ type Colony = {
 type EmergencyReport = {
   id: string;
   type: string;
+  // Anon's column grant on `reports` only covers id/type/colony_id/lat/long/status
+  // (see 0024_public_report_pins.sql) — description and created_at are
+  // only fetched when signed in, so these stay optional rather than
+  // breaking the anonymous map view by requesting an ungranted column.
+  description?: string | null;
   latitude: number | null;
   longitude: number | null;
+  created_at?: string;
 };
+
+// Mounts inside MapContainer purely to read the live Leaflet map instance
+// and report its visible bounds upward — react-leaflet has no prop for
+// "current bounds," only events, so this is the standard way to bridge
+// imperative map state into React state.
+function BoundsTracker({ onBoundsChange }: { onBoundsChange: (bounds: L.LatLngBounds) => void }) {
+  const map = useMapEvents({
+    moveend: () => onBoundsChange(map.getBounds()),
+    zoomend: () => onBoundsChange(map.getBounds()),
+  });
+
+  useEffect(() => {
+    onBoundsChange(map.getBounds());
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- only needs to run once map mounts, bounds updates flow through the events above
+  }, []);
+
+  return null;
+}
 
 type PinType = "colony" | "sighting" | "emergency";
 
@@ -109,8 +143,9 @@ const BLUR_RADIUS_METERS: Record<1 | 2, number> = {
   2: 600,
 };
 
-export default function ColonyMap() {
+export default function ColonyMap({ showListPanel = false }: { showListPanel?: boolean }) {
   const [colonies, setColonies] = useState<Colony[]>([]);
+  const [visibleBounds, setVisibleBounds] = useState<L.LatLngBounds | null>(null);
   const [hasLoadedColonies, setHasLoadedColonies] = useState(false);
   const [emergencies, setEmergencies] = useState<EmergencyReport[]>([]);
   const [sightings, setSightings] = useState<EmergencyReport[]>([]);
@@ -172,19 +207,23 @@ export default function ColonyMap() {
       // no_food_water have no dedicated pin color, but they still need
       // to show up somewhere instead of silently disappearing from the
       // map just because they were typed elsewhere.
+      const reportSelect: string = currentSession
+        ? "id, type, description, latitude, longitude, created_at"
+        : "id, type, latitude, longitude";
       const { data: reportData } = await supabase
         .from("reports")
-        .select("id, type, latitude, longitude")
+        .select(reportSelect)
         .eq("status", "open");
 
       if (reportData) {
+        const typedReportData = reportData as unknown as EmergencyReport[];
         setEmergencies(
-          (reportData as EmergencyReport[]).filter((r) =>
+          typedReportData.filter((r) =>
             EMERGENCY_REPORT_TYPES.includes(r.type)
           )
         );
         setSightings(
-          (reportData as EmergencyReport[]).filter(
+          typedReportData.filter(
             (r) => !EMERGENCY_REPORT_TYPES.includes(r.type)
           )
         );
@@ -317,6 +356,25 @@ export default function ColonyMap() {
   const filteredSightings = visiblePinTypes.has("sighting") ? sightings : [];
   const filteredEmergencies = visiblePinTypes.has("emergency") ? emergencies : [];
 
+  // What the activity panel shows: only items whose pin currently falls
+  // within the visible map area, so the list always matches what's on
+  // screen instead of dumping every report/colony in the whole city.
+  const panelColonies = useMemo(() => {
+    if (!showListPanel || !visibleBounds) return [];
+    return filteredColonies.filter((colony) =>
+      visibleBounds.contains(resolveColonyPosition(colony).position)
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- resolveColonyPosition depends on session/myColonyIds/exactCoordsByColonyId, already covered by filteredColonies recomputation
+  }, [showListPanel, visibleBounds, filteredColonies]);
+
+  function isInBounds(report: EmergencyReport) {
+    if (!visibleBounds || report.latitude == null || report.longitude == null) return false;
+    return visibleBounds.contains([report.latitude, report.longitude]);
+  }
+
+  const panelEmergencies = showListPanel ? filteredEmergencies.filter(isInBounds) : [];
+  const panelSightings = showListPanel ? filteredSightings.filter(isInBounds) : [];
+
   return (
     <div className="relative h-full w-full">
       <div className="absolute left-4 top-4 z-[1000] w-64 space-y-2 rounded-xl border border-felines-border bg-felines-surface p-3 shadow-lg">
@@ -400,6 +458,7 @@ export default function ColonyMap() {
         zoomControl={false}
         className="h-full w-full"
       >
+        <BoundsTracker onBoundsChange={setVisibleBounds} />
         <ZoomControl position="bottomleft" />
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -524,6 +583,71 @@ export default function ColonyMap() {
 
       {showColonyClickTooltip && (
         <ColonyClickTooltip onDismiss={() => setShowColonyClickTooltip(false)} />
+      )}
+
+      {showListPanel && (
+        <div className="absolute right-4 top-4 bottom-24 z-[999] flex w-72 flex-col rounded-xl border border-felines-border bg-felines-surface shadow-lg sm:w-80">
+          <div className="border-b border-felines-border p-3">
+            <h2 className="text-sm font-bold text-felines-text-primary">Atividade nesta área</h2>
+            <p className="text-xs text-felines-text-secondary">
+              Mova ou dê zoom no mapa para atualizar a lista.
+            </p>
+          </div>
+          <div className="flex-1 space-y-2 overflow-y-auto p-3">
+            {panelColonies.length === 0 && panelEmergencies.length === 0 && panelSightings.length === 0 ? (
+              <p className="text-sm text-felines-text-secondary">
+                Nenhuma colônia ou relato visível nesta área do mapa.
+              </p>
+            ) : (
+              <>
+                {panelEmergencies.map((report) => (
+                  <Link
+                    key={report.id}
+                    href={`/reports#report-${report.id}`}
+                    className="block rounded-md border border-felines-emergency/40 bg-felines-emergency/5 px-3 py-2 text-sm transition-colors hover:border-felines-emergency"
+                  >
+                    <span className="font-medium text-felines-text-primary">
+                      ⚠ {getReportTypeLabel(report.type)}
+                    </span>
+                    {report.description && (
+                      <p className="mt-1 line-clamp-2 text-xs text-felines-text-secondary">
+                        {report.description}
+                      </p>
+                    )}
+                  </Link>
+                ))}
+                {panelColonies.map((colony) => (
+                  <Link
+                    key={colony.id}
+                    href={`/colony/${colony.id}`}
+                    className="block rounded-md border border-felines-border px-3 py-2 text-sm transition-colors hover:border-felines-accent"
+                  >
+                    <span className="font-medium text-felines-text-primary">{colony.name}</span>
+                    <p className="mt-1 text-xs text-felines-text-secondary">
+                      {CASTRATION_LABELS[colony.castration_status]}
+                    </p>
+                  </Link>
+                ))}
+                {panelSightings.map((report) => (
+                  <Link
+                    key={report.id}
+                    href={`/reports#report-${report.id}`}
+                    className="block rounded-md border border-felines-border px-3 py-2 text-sm transition-colors hover:border-felines-accent"
+                  >
+                    <span className="font-medium text-felines-text-primary">
+                      {getReportTypeLabel(report.type)}
+                    </span>
+                    {report.description && (
+                      <p className="mt-1 line-clamp-2 text-xs text-felines-text-secondary">
+                        {report.description}
+                      </p>
+                    )}
+                  </Link>
+                ))}
+              </>
+            )}
+          </div>
+        </div>
       )}
 
       {hasLoadedColonies && visiblePinTypes.has("colony") && filteredColonies.length === 0 && (
