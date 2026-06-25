@@ -21,6 +21,7 @@ import type { Session } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabaseClient";
 import LocationBlurBadge, { BADGE_TEXT, type LocationAccessLevel } from "@/components/LocationBlurBadge";
 import EmptyState from "@/components/EmptyState";
+import { getReportTypeLabel } from "@/lib/reportTypes";
 import ColonyClickTooltip, {
   hasSeenColonyClickTooltip,
   markColonyClickTooltipSeen,
@@ -100,10 +101,12 @@ const CASTRATION_FILTER_OPTIONS: { value: CastrationStatus; label: string }[] = 
 // approximation is visually obvious even to someone who doesn't know
 // the colony's real address — a single precise-looking pin doesn't
 // communicate "somewhere around here" on its own. No circle for level 3
-// (exact location, no blur applied).
+// (exact location, no blur applied). Levels 1 and 2 use the same visual
+// radius — the privacy protection comes from the blurred center point,
+// not from the circle looking bigger or smaller.
 const BLUR_RADIUS_METERS: Record<1 | 2, number> = {
   1: 600,
-  2: 150,
+  2: 600,
 };
 
 export default function ColonyMap() {
@@ -164,11 +167,15 @@ export default function ColonyMap() {
       if (colonyData) setColonies(colonyData as Colony[]);
       setHasLoadedColonies(true);
 
+      // Fetch every open report with a location, not just sightings and
+      // the emergency types — types like missing_cat, new_kitten, and
+      // no_food_water have no dedicated pin color, but they still need
+      // to show up somewhere instead of silently disappearing from the
+      // map just because they were typed elsewhere.
       const { data: reportData } = await supabase
         .from("reports")
         .select("id, type, latitude, longitude")
-        .eq("status", "open")
-        .in("type", [...EMERGENCY_REPORT_TYPES, "sighting"]);
+        .eq("status", "open");
 
       if (reportData) {
         setEmergencies(
@@ -177,7 +184,9 @@ export default function ColonyMap() {
           )
         );
         setSightings(
-          (reportData as EmergencyReport[]).filter((r) => r.type === "sighting")
+          (reportData as EmergencyReport[]).filter(
+            (r) => !EMERGENCY_REPORT_TYPES.includes(r.type)
+          )
         );
       }
 
@@ -474,7 +483,7 @@ export default function ColonyMap() {
               icon={sightingIcon}
             >
               <Popup>
-                <strong>Avistamento de gato</strong>
+                <strong>{getReportTypeLabel(report.type)}</strong>
               </Popup>
             </Marker>
           ))}
@@ -498,7 +507,7 @@ export default function ColonyMap() {
         <ColonyClickTooltip onDismiss={() => setShowColonyClickTooltip(false)} />
       )}
 
-      {hasLoadedColonies && filteredColonies.length === 0 && (
+      {hasLoadedColonies && visiblePinTypes.has("colony") && filteredColonies.length === 0 && (
         <div className="absolute bottom-6 left-1/2 z-[1000] w-[90%] max-w-md -translate-x-1/2">
           {sightings.length > 0 ? (
             <EmptyState

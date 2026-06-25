@@ -29,6 +29,7 @@ export default function ReportsList() {
   const [loading, setLoading] = useState(true);
   const [reports, setReports] = useState<Report[]>([]);
   const [myColonyIds, setMyColonyIds] = useState<Set<string>>(new Set());
+  const [confirmedReportIds, setConfirmedReportIds] = useState<Set<string>>(new Set());
   const [showResolved, setShowResolved] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -53,15 +54,22 @@ export default function ReportsList() {
       const { data } = showResolved ? await query : await query.eq("status", "open");
       if (data) setReports(data as Report[]);
 
-      const [{ data: createdColonies }, { data: caretakerRows }] = await Promise.all([
-        supabase.from("colonies").select("id").eq("created_by", currentSession.user.id),
-        supabase.from("caretakers").select("colony_id").eq("user_id", currentSession.user.id),
-      ]);
+      const [{ data: createdColonies }, { data: caretakerRows }, { data: myConfirmations }] =
+        await Promise.all([
+          supabase.from("colonies").select("id").eq("created_by", currentSession.user.id),
+          supabase.from("caretakers").select("colony_id").eq("user_id", currentSession.user.id),
+          supabase
+            .from("report_confirmations")
+            .select("report_id")
+            .eq("user_id", currentSession.user.id),
+        ]);
 
       const colonyIds = new Set<string>();
       createdColonies?.forEach((row) => colonyIds.add(row.id));
       caretakerRows?.forEach((row) => colonyIds.add(row.colony_id));
       setMyColonyIds(colonyIds);
+
+      setConfirmedReportIds(new Set((myConfirmations ?? []).map((row) => row.report_id)));
 
       setLoading(false);
     }
@@ -90,6 +98,7 @@ export default function ReportsList() {
         };
       })
     );
+    setConfirmedReportIds((previous) => new Set(previous).add(reportId));
   }
 
   // Marks a report as resolved manually. Only available to the colony's
@@ -200,9 +209,10 @@ export default function ReportsList() {
                     <div className="flex gap-2">
                       <button
                         onClick={() => handleConfirm(report.id)}
-                        className="rounded-full border border-felines-accent px-3 py-1 text-xs font-medium text-felines-accent transition-colors hover:bg-felines-accent hover:text-white"
+                        disabled={confirmedReportIds.has(report.id)}
+                        className="rounded-full border border-felines-accent px-3 py-1 text-xs font-medium text-felines-accent transition-colors hover:bg-felines-accent hover:text-white disabled:opacity-50"
                       >
-                        Confirmar
+                        {confirmedReportIds.has(report.id) ? "Você já confirmou" : "Confirmar"}
                       </button>
                       {canManuallyResolve && (
                         <button
