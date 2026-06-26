@@ -1,7 +1,9 @@
-// Client component for the /profile page.
-// Redirects anonymous visitors to /login, and otherwise loads the
-// signed-in user's feedings (contribution history), linked colonies
-// (via caretakers), and knowledge progress.
+// Client component for /profile.
+// Redirects anonymous visitors to /login, and otherwise renders the
+// signed-in user's profile in the same editorial, full-bleed section
+// style as the home page: a light header, a colonies grid, a dark
+// unified activity timeline, and a knowledge section with progress and
+// the personalization quiz.
 "use client";
 
 import { useEffect, useState } from "react";
@@ -22,25 +24,28 @@ import { buildSafeStoragePath, validatePhotoFile } from "@/lib/storage";
 import EmptyState from "@/components/EmptyState";
 import PhotoUploadButton from "@/components/PhotoUploadButton";
 import Quiz from "@/components/Quiz";
+import Reveal from "@/components/Reveal";
 
 type LinkedColony = { id: string; name: string };
 type FeedingRecord = { id: string; colony_id: string; created_at: string };
 type ConfirmationRecord = { confirmedAt: string; reportType: string; reportStatus: string };
 type ThankYouRecord = { id: string; colonyName: string; createdAt: string; otherPartyName: string };
+type ActivityItem = { id: string; date: string; icon: string; label: string; href?: string };
 
 export default function ProfileContent() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [userId, setUserId] = useState<string | null>(null);
   const [email, setEmail] = useState<string | null>(null);
+  const [memberSince, setMemberSince] = useState<string | null>(null);
   const [feedings, setFeedings] = useState<FeedingRecord[]>([]);
   const [linkedColonies, setLinkedColonies] = useState<LinkedColony[]>([]);
-  const [readCount, setReadCount] = useState(0);
+  const [readSlugs, setReadSlugs] = useState<string[]>([]);
   const [myColonyReports, setMyColonyReports] = useState<MyColonyReport[]>([]);
   const [ownReports, setOwnReports] = useState<OwnReport[]>([]);
   const [displayName, setDisplayName] = useState("");
   const [savingName, setSavingName] = useState(false);
-  const [nameSaved, setNameSaved] = useState(false);
+  const [editingName, setEditingName] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [avatarError, setAvatarError] = useState<string | null>(null);
@@ -62,6 +67,7 @@ export default function ProfileContent() {
 
       setUserId(session.user.id);
       setEmail(session.user.email ?? null);
+      setMemberSince(session.user.created_at ?? null);
 
       await ensureOwnProfile(session.user.id);
       const currentDisplayName = await getDisplayName(session.user.id);
@@ -95,7 +101,7 @@ export default function ProfileContent() {
       }
 
       if (progressRows) {
-        setReadCount(new Set(progressRows.map((row) => row.article_slug)).size);
+        setReadSlugs(Array.from(new Set(progressRows.map((row) => row.article_slug))));
       }
 
       const reports = await getOpenReportsForMyColonies(session.user.id);
@@ -184,7 +190,7 @@ export default function ProfileContent() {
     setSavingName(true);
     const success = await updateOwnDisplayName(userId, displayName);
     setSavingName(false);
-    setNameSaved(success);
+    if (success) setEditingName(false);
   }
 
   async function handleAvatarChange(file: File | null) {
@@ -221,6 +227,7 @@ export default function ProfileContent() {
 
   if (loading) return null;
 
+  const readCount = readSlugs.length;
   const progressPercent = Math.round((readCount / ARTICLES.length) * 100);
   const hasNoContributionsYet =
     feedings.length === 0 &&
@@ -229,284 +236,308 @@ export default function ProfileContent() {
     ownReports.length === 0 &&
     readCount === 0;
 
+  // One combined, chronological feed instead of five separate lists —
+  // feedings, reports, confirmations, and thanks are all "things you
+  // did," so they read more like a life story when merged together.
+  const activity: ActivityItem[] = [
+    ...feedings.map((feeding) => ({
+      id: `feed-${feeding.id}`,
+      date: feeding.created_at,
+      icon: "🍽️",
+      label: "Alimentação registrada",
+      href: `/colony/${feeding.colony_id}`,
+    })),
+    ...ownReports.map((report) => ({
+      id: `report-${report.id}`,
+      date: report.created_at,
+      icon: "🚨",
+      label: `Relato enviado: ${getReportTypeLabel(report.type)}`,
+      href: report.colony_id ? `/colony/${report.colony_id}` : undefined,
+    })),
+    ...confirmationsGiven.map((confirmation, index) => ({
+      id: `confirm-${index}-${confirmation.confirmedAt}`,
+      date: confirmation.confirmedAt,
+      icon: "✅",
+      label: `Confirmou: ${getReportTypeLabel(confirmation.reportType)}`,
+    })),
+    ...thanksSent.map((thanks) => ({
+      id: `thanks-sent-${thanks.id}`,
+      date: thanks.createdAt,
+      icon: "🙏",
+      label: `Você agradeceu ${thanks.otherPartyName} (${thanks.colonyName})`,
+    })),
+    ...thanksReceived.map((thanks) => ({
+      id: `thanks-received-${thanks.id}`,
+      date: thanks.createdAt,
+      icon: "🙏",
+      label: `${thanks.otherPartyName} te agradeceu (${thanks.colonyName})`,
+    })),
+  ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+  const colonyOpenReportCounts = new Map<string, number>();
+  myColonyReports.forEach((report) => {
+    colonyOpenReportCounts.set(report.colony_id, (colonyOpenReportCounts.get(report.colony_id) ?? 0) + 1);
+  });
+
   return (
-    <div className="mt-6 space-y-8">
-      <p className="text-sm text-felines-text-secondary">Conectado como {email}</p>
+    <div>
+      {/* Header */}
+      <section className="bg-felines-background py-16">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6">
+          <Reveal>
+            <div className="flex flex-wrap items-center gap-5">
+              {avatarUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={avatarUrl}
+                  alt="Sua foto de perfil"
+                  className="h-20 w-20 rounded-full object-cover shadow-[0_2px_8px_rgba(0,0,0,0.10)]"
+                />
+              ) : (
+                <div className="h-20 w-20 rounded-full bg-felines-border" />
+              )}
 
-      {hasNoContributionsYet && (
-        <EmptyState
-          main="Sua jornada começa aqui."
-          sub="Cada colônia que você visita, cada relato que você faz — tudo fica registrado aqui."
-          ctas={[{ label: "Explorar o mapa →", href: "/map" }]}
-        />
-      )}
-
-      <section>
-        <h2 className="text-lg font-bold text-felines-text-primary">Foto e nome de exibição</h2>
-        <p className="mt-1 text-sm text-felines-text-secondary">
-          Mostrados na sua{" "}
-          {userId ? (
-            <Link href={`/u/${userId}`} className="text-felines-accent">
-              página pública de cuidador
-            </Link>
-          ) : (
-            "página pública de cuidador"
-          )}{" "}
-          — seu e-mail nunca é exibido publicamente.
-        </p>
-
-        <div className="mt-3 flex items-center gap-3">
-          {avatarUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={avatarUrl} alt="Sua foto de perfil" className="h-16 w-16 rounded-full object-cover" />
-          ) : (
-            <div className="h-16 w-16 rounded-full bg-felines-border" />
-          )}
-          <div>
-            <PhotoUploadButton
-              label="Escolher foto"
-              file={null}
-              onChange={(file) => handleAvatarChange(file)}
-            />
-            {uploadingAvatar && <p className="text-xs text-felines-text-secondary">Enviando...</p>}
-            {avatarError && <p className="text-xs text-felines-emergency">{avatarError}</p>}
-          </div>
-        </div>
-
-        <div className="mt-3 flex flex-wrap gap-2">
-          <input
-            type="text"
-            value={displayName}
-            onChange={(formEvent) => {
-              setDisplayName(formEvent.target.value);
-              setNameSaved(false);
-            }}
-            maxLength={60}
-            placeholder="Como você quer ser chamado"
-            className="rounded-md border border-felines-border bg-white px-3 py-2 text-sm"
-          />
-          <button
-            onClick={handleSaveDisplayName}
-            disabled={savingName}
-            className="rounded-full bg-felines-accent px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-felines-accent-hover disabled:opacity-50"
-          >
-            {savingName ? "Salvando..." : nameSaved ? "Salvo" : "Salvar"}
-          </button>
-        </div>
-      </section>
-
-      <section>
-        <h2 className="text-lg font-bold text-felines-text-primary">
-          Relatos das suas colônias
-        </h2>
-        {myColonyReports.length === 0 ? (
-          <p className="mt-2 text-sm text-felines-text-secondary">
-            Nenhum relato aberto nas colônias que você criou ou cuida.
-          </p>
-        ) : (
-          <ul className="mt-3 space-y-2">
-            {myColonyReports.map((report) => (
-              <li
-                key={report.id}
-                className="rounded-md border border-felines-border px-3 py-2 text-sm"
-              >
-                <p className="font-medium text-felines-text-primary">
-                  {getReportTypeLabel(report.type)} ·{" "}
-                  <Link href={`/colony/${report.colony_id}`} className="text-felines-accent">
-                    {report.colony_name}
-                  </Link>
-                </p>
-                {report.description && (
-                  <p className="text-felines-text-secondary">{report.description}</p>
+              <div>
+                {editingName ? (
+                  <div className="flex flex-wrap items-center gap-2">
+                    <input
+                      type="text"
+                      value={displayName}
+                      onChange={(formEvent) => setDisplayName(formEvent.target.value)}
+                      maxLength={60}
+                      placeholder="Como você quer ser chamado"
+                      autoFocus
+                      className="rounded-md border border-felines-border bg-white px-3 py-2 text-sm"
+                    />
+                    <button
+                      onClick={handleSaveDisplayName}
+                      disabled={savingName}
+                      className="rounded-full bg-felines-accent px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-felines-accent-hover disabled:opacity-50"
+                    >
+                      {savingName ? "Salvando..." : "Salvar"}
+                    </button>
+                  </div>
+                ) : (
+                  <h1 className="text-3xl font-bold leading-tight text-felines-text-primary sm:text-[40px]">
+                    {displayName || "Sem nome de exibição"}{" "}
+                    <button
+                      onClick={() => setEditingName(true)}
+                      className="ml-1 text-sm font-medium text-felines-accent align-middle"
+                    >
+                      Editar
+                    </button>
+                  </h1>
                 )}
-                <p className="text-xs text-felines-text-secondary">
-                  {new Date(report.created_at).toLocaleDateString("pt-BR")} ·{" "}
-                  <Link href="/reports" className="text-felines-accent">
-                    confirmar ou resolver
-                  </Link>
-                </p>
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
-
-      <section>
-        <h2 className="text-lg font-bold text-felines-text-primary">Relatos enviados</h2>
-        {ownReports.length === 0 ? (
-          <p className="mt-2 text-sm text-felines-text-secondary">
-            Você ainda não enviou nenhum relato.
-          </p>
-        ) : (
-          <ul className="mt-3 space-y-2">
-            {ownReports.map((report) => (
-              <li
-                key={report.id}
-                className="rounded-md border border-felines-border px-3 py-2 text-sm"
-              >
-                <p className="font-medium text-felines-text-primary">
-                  {getReportTypeLabel(report.type)} ·{" "}
-                  {report.colony_id ? (
-                    <Link href={`/colony/${report.colony_id}`} className="text-felines-accent">
-                      {report.colony_name}
+                {memberSince && (
+                  <p className="mt-1 text-xs uppercase tracking-[0.1em] text-felines-text-secondary">
+                    Membro desde{" "}
+                    {new Date(memberSince).toLocaleDateString("pt-BR", {
+                      month: "long",
+                      year: "numeric",
+                    })}
+                  </p>
+                )}
+                <p className="mt-1 text-sm text-felines-text-secondary">
+                  {email} ·{" "}
+                  {userId && (
+                    <Link href={`/u/${userId}`} className="text-felines-accent">
+                      ver página pública
                     </Link>
-                  ) : (
-                    <span className="text-felines-text-secondary">Avistamento geral</span>
                   )}
                 </p>
-                <p className="text-xs text-felines-text-secondary">
-                  {report.status === "resolved" ? "resolvido" : "aberto"} ·{" "}
-                  {new Date(report.created_at).toLocaleDateString("pt-BR")}
-                </p>
-              </li>
-            ))}
-          </ul>
-        )}
+                <div className="mt-2">
+                  <PhotoUploadButton
+                    label="Trocar foto"
+                    file={null}
+                    onChange={(file) => handleAvatarChange(file)}
+                  />
+                  {uploadingAvatar && (
+                    <p className="mt-1 text-xs text-felines-text-secondary">Enviando...</p>
+                  )}
+                  {avatarError && <p className="mt-1 text-xs text-felines-emergency">{avatarError}</p>}
+                </div>
+              </div>
+            </div>
+          </Reveal>
+
+          {hasNoContributionsYet && (
+            <div className="mt-10">
+              <EmptyState
+                main="Sua jornada começa aqui."
+                sub="Cada colônia que você visita, cada relato que você faz — tudo fica registrado aqui."
+                ctas={[{ label: "Explorar o mapa →", href: "/map" }]}
+              />
+            </div>
+          )}
+        </div>
       </section>
 
-      <section>
-        <h2 className="text-lg font-bold text-felines-text-primary">Colônias vinculadas</h2>
-        {linkedColonies.length === 0 ? (
-          <p className="mt-2 text-sm text-felines-text-secondary">
-            Você ainda não é cuidador de nenhuma colônia.
-          </p>
-        ) : (
-          <ul className="mt-3 space-y-2">
-            {linkedColonies.map((colony) => (
-              <li key={colony.id}>
+      {/* Linked colonies */}
+      <section className="bg-felines-surface py-16">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6">
+          <Reveal>
+            <p className="text-xs font-semibold uppercase tracking-[0.1em] text-felines-accent">
+              Suas colônias
+            </p>
+            <h2 className="mt-3 text-3xl font-bold leading-tight text-felines-text-primary">
+              Colônias vinculadas
+            </h2>
+          </Reveal>
+
+          {linkedColonies.length === 0 ? (
+            <p className="mt-6 text-sm text-felines-text-secondary">
+              Você ainda não é cuidador de nenhuma colônia.
+            </p>
+          ) : (
+            <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {linkedColonies.map((colony, index) => {
+                const openCount = colonyOpenReportCounts.get(colony.id) ?? 0;
+                return (
+                  <Reveal key={colony.id} delayMs={index * 80}>
+                    <Link
+                      href={`/colony/${colony.id}`}
+                      className="block h-full rounded-2xl border border-felines-border bg-felines-background p-5 shadow-[0_2px_8px_rgba(0,0,0,0.05)] transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_8px_24px_rgba(0,0,0,0.10)]"
+                    >
+                      <p className="font-semibold text-felines-text-primary">{colony.name}</p>
+                      {openCount > 0 ? (
+                        <p className="mt-2 inline-block rounded-full bg-felines-warning-light px-2 py-0.5 text-xs font-medium text-felines-warning">
+                          {openCount} {openCount === 1 ? "relato aberto" : "relatos abertos"}
+                        </p>
+                      ) : (
+                        <p className="mt-2 text-xs text-felines-text-secondary">Sem relatos abertos</p>
+                      )}
+                    </Link>
+                  </Reveal>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* Unified activity timeline — dark section */}
+      <section className="bg-felines-dark py-16">
+        <div className="mx-auto max-w-3xl px-4 sm:px-6">
+          <Reveal>
+            <p className="text-xs font-semibold uppercase tracking-[0.1em] text-felines-text-secondary-on-dark">
+              Sua jornada
+            </p>
+            <h2 className="mt-3 text-3xl font-bold leading-tight text-white">
+              Histórico de contribuições
+            </h2>
+          </Reveal>
+
+          {activity.length === 0 ? (
+            <p className="mt-6 text-sm text-felines-text-secondary-on-dark">
+              Você ainda não tem nenhuma contribuição registrada.
+            </p>
+          ) : (
+            <ol className="mt-8 space-y-4 border-l-2 border-felines-accent pl-5">
+              {activity.map((item, index) => (
+                <Reveal key={item.id} delayMs={Math.min(index, 8) * 60}>
+                  <li>
+                    {item.href ? (
+                      <Link
+                        href={item.href}
+                        className="block rounded-xl border border-felines-border-on-dark bg-felines-dark-accent p-4 transition-all duration-200 hover:-translate-y-0.5"
+                      >
+                        <span className="text-sm text-white">
+                          {item.icon} {item.label}
+                        </span>
+                        <p className="mt-1 text-xs text-felines-text-secondary-on-dark">
+                          {new Date(item.date).toLocaleDateString("pt-BR")}
+                        </p>
+                      </Link>
+                    ) : (
+                      <div className="rounded-xl border border-felines-border-on-dark bg-felines-dark-accent p-4">
+                        <span className="text-sm text-white">
+                          {item.icon} {item.label}
+                        </span>
+                        <p className="mt-1 text-xs text-felines-text-secondary-on-dark">
+                          {new Date(item.date).toLocaleDateString("pt-BR")}
+                        </p>
+                      </div>
+                    )}
+                  </li>
+                </Reveal>
+              ))}
+            </ol>
+          )}
+        </div>
+      </section>
+
+      {/* Knowledge — progress, article badges, quiz */}
+      <section className="bg-felines-background py-16">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6">
+          <Reveal>
+            <p className="text-xs font-semibold uppercase tracking-[0.1em] text-felines-accent">
+              Conhecimento
+            </p>
+            <h2 className="mt-3 text-3xl font-bold leading-tight text-felines-text-primary">
+              Progresso no guia
+            </h2>
+          </Reveal>
+
+          <Reveal delayMs={100}>
+            <div className="mt-6 h-3 w-full max-w-xl rounded-full bg-felines-border">
+              <div
+                className="h-3 rounded-full bg-felines-success transition-all duration-700 ease-out"
+                style={{ width: `${progressPercent}%` }}
+              />
+            </div>
+            <p className="mt-2 text-sm text-felines-text-secondary">
+              {readCount} de {ARTICLES.length} artigos lidos
+            </p>
+          </Reveal>
+
+          <div className="mt-6 flex flex-wrap gap-2">
+            {ARTICLES.map((article) => {
+              const isRead = readSlugs.includes(article.slug);
+              return (
                 <Link
-                  href={`/colony/${colony.id}`}
-                  className="text-sm font-medium text-felines-accent"
+                  key={article.slug}
+                  href={`/learn/${article.slug}`}
+                  title={article.title}
+                  className={`flex h-10 w-10 items-center justify-center rounded-lg text-sm font-semibold transition-transform duration-150 hover:scale-110 ${
+                    isRead
+                      ? "bg-felines-accent text-white"
+                      : "border-2 border-felines-border text-felines-text-secondary"
+                  }`}
                 >
-                  {colony.name}
+                  {article.title[0]}
                 </Link>
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
-
-      <section>
-        <h2 className="text-lg font-bold text-felines-text-primary">Histórico de contribuições</h2>
-        {feedings.length === 0 ? (
-          <p className="mt-2 text-sm text-felines-text-secondary">
-            Você ainda não registrou nenhuma alimentação.
-          </p>
-        ) : (
-          <ul className="mt-3 space-y-2">
-            {feedings.map((feeding) => (
-              <li key={feeding.id} className="text-sm text-felines-text-secondary">
-                Alimentação registrada em{" "}
-                {new Date(feeding.created_at).toLocaleDateString("pt-BR")}
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
-
-      <section>
-        <h2 className="text-lg font-bold text-felines-text-primary">Confirmações dadas</h2>
-        {confirmationsGiven.length === 0 ? (
-          <p className="mt-2 text-sm text-felines-text-secondary">
-            Você ainda não confirmou nenhum relato.
-          </p>
-        ) : (
-          <ul className="mt-3 space-y-2">
-            {confirmationsGiven.map((confirmation) => (
-              <li
-                key={confirmation.confirmedAt + confirmation.reportType}
-                className="flex items-center justify-between rounded-md border border-felines-border px-3 py-2 text-sm"
-              >
-                <span className="text-felines-text-primary">
-                  {getReportTypeLabel(confirmation.reportType)}
-                </span>
-                <span className="text-xs text-felines-text-secondary">
-                  {confirmation.reportStatus === "resolved" ? "resolvido" : "aberto"} ·{" "}
-                  {new Date(confirmation.confirmedAt).toLocaleDateString("pt-BR")}
-                </span>
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
-
-      <section>
-        <h2 className="text-lg font-bold text-felines-text-primary">Agradecimentos</h2>
-        <div className="mt-3 grid gap-4 sm:grid-cols-2">
-          <div>
-            <p className="text-sm font-medium text-felines-text-secondary">Enviados</p>
-            {thanksSent.length === 0 ? (
-              <p className="mt-1 text-sm text-felines-text-secondary">
-                Você ainda não agradeceu nenhum cuidador.
-              </p>
-            ) : (
-              <ul className="mt-2 space-y-2">
-                {thanksSent.map((thanks) => (
-                  <li key={thanks.id} className="text-sm text-felines-text-secondary">
-                    Você agradeceu {thanks.otherPartyName} ({thanks.colonyName}) em{" "}
-                    {new Date(thanks.createdAt).toLocaleDateString("pt-BR")}
-                  </li>
-                ))}
-              </ul>
-            )}
+              );
+            })}
           </div>
-          <div>
-            <p className="text-sm font-medium text-felines-text-secondary">Recebidos</p>
-            {thanksReceived.length === 0 ? (
-              <p className="mt-1 text-sm text-felines-text-secondary">
-                Você ainda não recebeu nenhum agradecimento.
-              </p>
-            ) : (
-              <ul className="mt-2 space-y-2">
-                {thanksReceived.map((thanks) => (
-                  <li key={thanks.id} className="text-sm text-felines-text-secondary">
-                    {thanks.otherPartyName} te agradeceu ({thanks.colonyName}) em{" "}
-                    {new Date(thanks.createdAt).toLocaleDateString("pt-BR")}
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
+
+          {readCount >= 3 && !showQuiz && !quizSkipped && (
+            <Reveal delayMs={150}>
+              <div className="mt-8 max-w-xl rounded-2xl bg-gradient-to-br from-felines-accent to-felines-accent-hover p-6">
+                <p className="text-lg font-semibold text-white">Que tipo de vizinho você é? →</p>
+                <button
+                  onClick={() => setShowQuiz(true)}
+                  className="mt-3 rounded-full bg-white px-4 py-1.5 text-sm font-semibold text-felines-accent transition-opacity hover:opacity-90"
+                >
+                  Descobrir
+                </button>
+                <button
+                  onClick={() => setQuizSkipped(true)}
+                  className="ml-3 text-sm text-white/80 hover:text-white"
+                >
+                  Fazer isso depois
+                </button>
+              </div>
+            </Reveal>
+          )}
+          {showQuiz && (
+            <Quiz
+              onSkip={() => {
+                setShowQuiz(false);
+                setQuizSkipped(true);
+              }}
+            />
+          )}
         </div>
-      </section>
-
-      <section>
-        <h2 className="text-lg font-bold text-felines-text-primary">Progresso no guia</h2>
-        <div className="mt-3 h-2 w-full rounded-full bg-felines-border">
-          <div
-            className="h-2 rounded-full bg-felines-success transition-all"
-            style={{ width: `${progressPercent}%` }}
-          />
-        </div>
-        <p className="mt-1 text-sm text-felines-text-secondary">
-          {readCount} de {ARTICLES.length} artigos lidos
-        </p>
-
-        {readCount >= 3 && !showQuiz && !quizSkipped && (
-          <div className="mt-4 rounded-xl bg-gradient-to-br from-felines-accent to-felines-accent-hover p-5">
-            <p className="font-semibold text-white">Que tipo de vizinho você é? →</p>
-            <button
-              onClick={() => setShowQuiz(true)}
-              className="mt-2 rounded-full bg-white px-4 py-1.5 text-sm font-semibold text-felines-accent transition-opacity hover:opacity-90"
-            >
-              Descobrir
-            </button>
-            <button
-              onClick={() => setQuizSkipped(true)}
-              className="ml-3 text-sm text-white/80 hover:text-white"
-            >
-              Fazer isso depois
-            </button>
-          </div>
-        )}
-        {showQuiz && (
-          <Quiz
-            onSkip={() => {
-              setShowQuiz(false);
-              setQuizSkipped(true);
-            }}
-          />
-        )}
       </section>
     </div>
   );
