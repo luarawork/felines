@@ -13,7 +13,8 @@ import Reveal from "@/components/Reveal";
 import CountUpStat from "@/components/CountUpStat";
 import CatHeroIllustration from "@/components/CatHeroIllustration";
 import MapPreviewIllustration from "@/components/MapPreviewIllustration";
-import { ARTICLES, getReadingTimeMinutes } from "@/lib/articles";
+import ArticleCard from "@/components/ArticleCard";
+import { ARTICLES } from "@/lib/articles";
 
 const STATS: { value: string; label: string }[] = [
   { value: "10M", label: "gatos de rua no Brasil" },
@@ -211,18 +212,7 @@ export default function Home() {
           <div className="space-y-3">
             {previewArticles.map((article, index) => (
               <Reveal key={article.slug} delayMs={index * 100}>
-                <Link
-                  href={`/learn/${article.slug}`}
-                  className="block rounded-2xl border border-felines-border-on-dark bg-felines-dark-accent p-5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(0,0,0,0.25)]"
-                >
-                  <p className="font-semibold text-white">{article.title}</p>
-                  <p className="mt-1 text-sm text-felines-text-secondary-on-dark">
-                    {article.summary}
-                  </p>
-                  <p className="mt-2 text-xs font-semibold uppercase tracking-[0.1em] text-felines-accent">
-                    {getReadingTimeMinutes(article)} min de leitura
-                  </p>
-                </Link>
+                <ArticleCard article={article} isDark />
               </Reveal>
             ))}
           </div>

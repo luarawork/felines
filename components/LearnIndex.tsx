@@ -11,7 +11,8 @@ import Link from "next/link";
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabaseClient";
 import Reveal from "@/components/Reveal";
-import { getReadingTimeMinutes, type Article, type ArticleLevel } from "@/lib/articles";
+import ArticleCard from "@/components/ArticleCard";
+import type { Article, ArticleLevel } from "@/lib/articles";
 
 const LEVEL_LABELS: Record<ArticleLevel, string> = {
   1: "Primeiros passos",
@@ -102,43 +103,11 @@ export default function LearnIndex({
               <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {levelArticles.map((article, articleIndex) => (
                   <Reveal key={article.slug} delayMs={articleIndex * 80}>
-                    <Link
-                      href={`/learn/${article.slug}`}
-                      className={
-                        isDark
-                          ? "block h-full rounded-2xl border border-felines-border-on-dark bg-felines-dark-accent p-5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(0,0,0,0.25)]"
-                          : "block h-full rounded-2xl border border-felines-border bg-felines-surface p-5 shadow-[0_2px_8px_rgba(0,0,0,0.05)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(0,0,0,0.10)]"
-                      }
-                    >
-                      <div className="flex items-start justify-between gap-2">
-                        <p
-                          className={`font-semibold ${
-                            isDark ? "text-white" : "text-felines-text-primary"
-                          }`}
-                        >
-                          {article.title}
-                        </p>
-                        {readSlugs.includes(article.slug) && (
-                          <span className="flex-shrink-0 rounded-full bg-felines-success/15 px-2 py-0.5 text-xs font-medium text-felines-success">
-                            Lido
-                          </span>
-                        )}
-                      </div>
-                      <p
-                        className={`mt-1 text-sm ${
-                          isDark ? "text-felines-text-secondary-on-dark" : "text-felines-text-secondary"
-                        }`}
-                      >
-                        {article.summary}
-                      </p>
-                      <p
-                        className={`mt-2 text-xs ${
-                          isDark ? "text-felines-text-secondary-on-dark" : "text-felines-text-secondary"
-                        }`}
-                      >
-                        {getReadingTimeMinutes(article)} min de leitura
-                      </p>
-                    </Link>
+                    <ArticleCard
+                      article={article}
+                      isDark={isDark}
+                      isRead={readSlugs.includes(article.slug)}
+                    />
                   </Reveal>
                 ))}
               </div>
