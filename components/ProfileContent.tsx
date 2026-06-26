@@ -9,7 +9,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ARTICLES } from "@/lib/articles";
 import { supabase } from "@/lib/supabaseClient";
-import { getOpenReportsForMyColonies, type MyColonyReport } from "@/lib/myColonyReports";
+import { getOpenReportsForMyColonies, getOwnReports, type MyColonyReport, type OwnReport } from "@/lib/myColonyReports";
 import { getReportTypeLabel } from "@/lib/reportTypes";
 import {
   ensureOwnProfile,
@@ -35,6 +35,7 @@ export default function ProfileContent() {
   const [linkedColonies, setLinkedColonies] = useState<LinkedColony[]>([]);
   const [readCount, setReadCount] = useState(0);
   const [myColonyReports, setMyColonyReports] = useState<MyColonyReport[]>([]);
+  const [ownReports, setOwnReports] = useState<OwnReport[]>([]);
   const [displayName, setDisplayName] = useState("");
   const [savingName, setSavingName] = useState(false);
   const [nameSaved, setNameSaved] = useState(false);
@@ -95,6 +96,8 @@ export default function ProfileContent() {
 
       const reports = await getOpenReportsForMyColonies(session.user.id);
       setMyColonyReports(reports);
+
+      setOwnReports(await getOwnReports(session.user.id));
 
       const [{ data: confirmationRows }, { data: sentRows }, { data: receivedRows }] =
         await Promise.all([
@@ -219,6 +222,7 @@ export default function ProfileContent() {
     feedings.length === 0 &&
     linkedColonies.length === 0 &&
     myColonyReports.length === 0 &&
+    ownReports.length === 0 &&
     readCount === 0;
 
   return (
@@ -317,6 +321,39 @@ export default function ProfileContent() {
                   <Link href="/reports" className="text-felines-accent">
                     confirmar ou resolver
                   </Link>
+                </p>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+
+      <section>
+        <h2 className="text-lg font-bold text-felines-text-primary">Relatos enviados</h2>
+        {ownReports.length === 0 ? (
+          <p className="mt-2 text-sm text-felines-text-secondary">
+            Você ainda não enviou nenhum relato.
+          </p>
+        ) : (
+          <ul className="mt-3 space-y-2">
+            {ownReports.map((report) => (
+              <li
+                key={report.id}
+                className="rounded-md border border-felines-border px-3 py-2 text-sm"
+              >
+                <p className="font-medium text-felines-text-primary">
+                  {getReportTypeLabel(report.type)} ·{" "}
+                  {report.colony_id ? (
+                    <Link href={`/colony/${report.colony_id}`} className="text-felines-accent">
+                      {report.colony_name}
+                    </Link>
+                  ) : (
+                    <span className="text-felines-text-secondary">Avistamento geral</span>
+                  )}
+                </p>
+                <p className="text-xs text-felines-text-secondary">
+                  {report.status === "resolved" ? "resolvido" : "aberto"} ·{" "}
+                  {new Date(report.created_at).toLocaleDateString("pt-BR")}
                 </p>
               </li>
             ))}

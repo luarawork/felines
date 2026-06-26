@@ -12,6 +12,15 @@ export type MyColonyReport = {
   created_at: string;
 };
 
+export type OwnReport = {
+  id: string;
+  colony_id: string | null;
+  colony_name: string | null;
+  type: string;
+  status: "open" | "resolved";
+  created_at: string;
+};
+
 // Returns the ids of colonies the user created or is a linked caretaker of.
 async function getMyColonyIds(userId: string): Promise<string[]> {
   const [{ data: createdColonies }, { data: caretakerLinks }] = await Promise.all([
@@ -46,6 +55,30 @@ export async function getOpenReportsForMyColonies(userId: string): Promise<MyCol
     colony_name: (row.colonies as unknown as { name: string } | null)?.name ?? "Colônia",
     type: row.type,
     description: row.description,
+    created_at: row.created_at,
+  }));
+}
+
+// Returns every report the user submitted themselves — on any colony,
+// including ones they don't manage, and including reports they made
+// while signed in but with no colony attached (a general sighting).
+// `reports_select_authenticated` already grants authenticated users
+// select on every row, so no RLS change is needed for this query.
+export async function getOwnReports(userId: string): Promise<OwnReport[]> {
+  const { data } = await supabase
+    .from("reports")
+    .select("id, colony_id, type, status, created_at, colonies(name)")
+    .eq("created_by", userId)
+    .order("created_at", { ascending: false });
+
+  if (!data) return [];
+
+  return data.map((row) => ({
+    id: row.id,
+    colony_id: row.colony_id,
+    colony_name: (row.colonies as unknown as { name: string } | null)?.name ?? null,
+    type: row.type,
+    status: row.status,
     created_at: row.created_at,
   }));
 }
