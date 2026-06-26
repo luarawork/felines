@@ -5,6 +5,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { Session } from "@supabase/supabase-js";
@@ -84,8 +85,15 @@ export default function NavBar() {
         className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3 sm:px-6"
         aria-label="Navegação principal"
       >
-        <Link href="/" className="text-xl font-bold text-felines-accent">
-          Felines 🐾
+        <Link href="/" className="flex-shrink-0">
+          <Image
+            src="/logo.png"
+            alt="Felines"
+            width={150}
+            height={100}
+            priority
+            className="h-10 w-auto"
+          />
         </Link>
 
         <ul className="hidden items-center gap-6 text-sm font-medium text-felines-text-secondary sm:flex">
