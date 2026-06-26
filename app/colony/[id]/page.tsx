@@ -19,6 +19,18 @@ import ThankYouButton from "@/components/ThankYouButton";
 import MarkCatSeenButton from "@/components/MarkCatSeenButton";
 import FlagButton from "@/components/FlagButton";
 import ColonyAccessProvider from "@/components/ColonyAccessProvider";
+import FactChip from "@/components/FactChip";
+
+// Contextual facts shown on every colony page — general background on
+// stray cats in Brazil, not specific to this particular colony, but
+// relevant enough to give a first-time visitor some grounding right
+// where they land.
+const COLONY_FACT_CHIPS: string[] = [
+  "📊 10 milhões de gatos de rua vivem nas ruas do Brasil (OMS)",
+  "📊 Apenas 7.400 estão em abrigos formais (Índice de Abandono Animal)",
+  "📊 40% dos brasileiros já tiveram conflito com vizinhos envolvendo animais (IBGE)",
+  "📊 TNR é o único método com eficácia comprovada para estabilizar colônias (OMS)",
+];
 
 type Cat = {
   id: string;
@@ -266,6 +278,14 @@ export default async function ColonyDetailPage({
           {colony.narrative}
         </p>
       )}
+
+      <div className="mt-4 flex gap-2 overflow-x-auto pb-1 sm:flex-wrap sm:overflow-visible">
+        {COLONY_FACT_CHIPS.map((fact) => (
+          <span key={fact} className="flex-shrink-0">
+            <FactChip text={fact} />
+          </span>
+        ))}
+      </div>
 
       {/* Shared so becoming a caretaker (in ColonyActions) immediately
           unlocks the edit controls below, instead of each independently

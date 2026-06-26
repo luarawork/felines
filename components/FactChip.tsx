@@ -4,8 +4,15 @@
 export default function FactChip({ text }: { text: string }) {
   return (
     <span
-      className="inline-block rounded-full border px-3 py-1 text-sm"
-      style={{ background: "#F9F6F2", borderColor: "#E8E4DF" }}
+      className="inline-block border"
+      style={{
+        background: "#F9F6F2",
+        borderColor: "#E8E4DF",
+        borderWidth: "1px",
+        borderRadius: "20px",
+        padding: "4px 12px",
+        fontSize: "14px",
+      }}
     >
       {text}
     </span>
