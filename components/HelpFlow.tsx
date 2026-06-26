@@ -41,7 +41,7 @@ type Situation = {
 const SITUATIONS: Situation[] = [
   {
     key: "injured",
-    label: "Gato ferido ou doente",
+    label: "🤕 Gato ferido ou doente",
     reportType: "injured_sick",
     guidance: [
       "Mantenha distância e evite tocar o gato sem proteção — animais feridos podem morder por dor ou medo.",
@@ -53,7 +53,7 @@ const SITUATIONS: Situation[] = [
   },
   {
     key: "kitten",
-    label: "Filhote sozinho",
+    label: "🐾 Filhote sozinho",
     reportType: "new_kitten",
     guidance: [
       "Filhotes sozinhos nem sempre estão abandonados — a mãe pode estar caçando comida nas proximidades.",
@@ -64,7 +64,7 @@ const SITUATIONS: Situation[] = [
   },
   {
     key: "abuse",
-    label: "Suspeita de envenenamento ou maus-tratos",
+    label: "⚠️ Suspeita de envenenamento ou maus-tratos",
     reportType: "suspected_abuse",
     guidance: [
       "Documente o máximo possível: fotos, vídeos com data visível, localização e horário aproximado.",
@@ -77,7 +77,7 @@ const SITUATIONS: Situation[] = [
   },
   {
     key: "disease",
-    label: "Surto de doença na colônia",
+    label: "🦠 Surto de doença na colônia",
     reportType: "disease_outbreak",
     guidance: [
       "Evite contato direto com gatos doentes e não permita que outros animais domésticos se aproximem.",
@@ -87,7 +87,7 @@ const SITUATIONS: Situation[] = [
   },
   {
     key: "conflict",
-    label: "Estou em conflito com os gatos",
+    label: "🏠 Estou em conflito com os gatos",
     reportType: null,
     guidance: [
       "Cheiro, barulho e sujeira costumam vir de colônias sem cuidado — castração e alimentação controlada reduzem muito esses problemas.",
@@ -98,7 +98,7 @@ const SITUATIONS: Situation[] = [
   },
   {
     key: "missing",
-    label: "Gato desaparecido",
+    label: "🔍 Gato desaparecido",
     reportType: "missing_cat",
     guidance: [
       "Avise os cuidadores de colônias próximas — eles costumam reconhecer os gatos da região.",
@@ -108,7 +108,7 @@ const SITUATIONS: Situation[] = [
   },
   {
     key: "threat",
-    label: "Obra ou risco de despejo perto de uma colônia",
+    label: "🏗️ Obra ou risco de despejo perto de uma colônia",
     reportType: "threat_to_colony",
     guidance: [
       "Identifique prazos (início de obra, data de despejo) o quanto antes — isso define a urgência da ação.",
@@ -118,7 +118,7 @@ const SITUATIONS: Situation[] = [
   },
   {
     key: "other",
-    label: "Outro motivo",
+    label: "❓ Outro motivo",
     reportType: "sighting",
     guidance: [
       "Conte com o guia de aprendizado do Felines para entender melhor o comportamento dos gatos de rua.",
