@@ -215,12 +215,12 @@ export default function Home() {
                   href={`/learn/${article.slug}`}
                   className="block rounded-2xl border border-felines-border-on-dark bg-felines-dark-accent p-5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(0,0,0,0.25)]"
                 >
-                  <p className="text-xs font-semibold uppercase tracking-[0.1em] text-felines-accent">
-                    {getReadingTimeMinutes(article)} min de leitura
-                  </p>
-                  <p className="mt-1 font-semibold text-white">{article.title}</p>
+                  <p className="font-semibold text-white">{article.title}</p>
                   <p className="mt-1 text-sm text-felines-text-secondary-on-dark">
                     {article.summary}
+                  </p>
+                  <p className="mt-2 text-xs font-semibold uppercase tracking-[0.1em] text-felines-accent">
+                    {getReadingTimeMinutes(article)} min de leitura
                   </p>
                 </Link>
               </Reveal>
@@ -279,6 +279,26 @@ export default function Home() {
           a single dense list, so each topic gets the same visual
           weight as the rest of the page. */}
       <LearnIndex articles={ARTICLES} startDark />
+
+      <footer className="border-t border-felines-border bg-felines-background py-8">
+        <div className="mx-auto flex max-w-6xl flex-col items-center gap-2 px-4 text-center text-sm text-felines-text-secondary sm:px-6">
+          <p>
+            Desenhado, codificado e publicado por{" "}
+            <a
+              href="https://luara.work/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-medium text-felines-accent"
+            >
+              © 2026 Luara Oliveira
+            </a>
+          </p>
+          {/* TODO: link to product documentation once it's published */}
+          <a href="#" className="font-medium text-felines-accent">
+            Saiba mais sobre esse produto
+          </a>
+        </div>
+      </footer>
     </div>
   );
 }

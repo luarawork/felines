@@ -415,57 +415,6 @@ export default function ProfileContent() {
         </div>
       </section>
 
-      {/* Unified activity timeline — dark section */}
-      <section className="bg-felines-dark py-16">
-        <div className="mx-auto max-w-3xl px-4 sm:px-6">
-          <Reveal>
-            <p className="text-xs font-semibold uppercase tracking-[0.1em] text-felines-text-secondary-on-dark">
-              Sua jornada
-            </p>
-            <h2 className="mt-3 text-3xl font-bold leading-tight text-white">
-              Histórico de contribuições
-            </h2>
-          </Reveal>
-
-          {activity.length === 0 ? (
-            <p className="mt-6 text-sm text-felines-text-secondary-on-dark">
-              Você ainda não tem nenhuma contribuição registrada.
-            </p>
-          ) : (
-            <ol className="mt-8 space-y-4 border-l-2 border-felines-accent pl-5">
-              {activity.map((item, index) => (
-                <Reveal key={item.id} delayMs={Math.min(index, 8) * 60}>
-                  <li>
-                    {item.href ? (
-                      <Link
-                        href={item.href}
-                        className="block rounded-xl border border-felines-border-on-dark bg-felines-dark-accent p-4 transition-all duration-200 hover:-translate-y-0.5"
-                      >
-                        <span className="text-sm text-white">
-                          {item.icon} {item.label}
-                        </span>
-                        <p className="mt-1 text-xs text-felines-text-secondary-on-dark">
-                          {new Date(item.date).toLocaleDateString("pt-BR")}
-                        </p>
-                      </Link>
-                    ) : (
-                      <div className="rounded-xl border border-felines-border-on-dark bg-felines-dark-accent p-4">
-                        <span className="text-sm text-white">
-                          {item.icon} {item.label}
-                        </span>
-                        <p className="mt-1 text-xs text-felines-text-secondary-on-dark">
-                          {new Date(item.date).toLocaleDateString("pt-BR")}
-                        </p>
-                      </div>
-                    )}
-                  </li>
-                </Reveal>
-              ))}
-            </ol>
-          )}
-        </div>
-      </section>
-
       {/* Knowledge — progress, article badges, quiz */}
       <section className="bg-felines-background py-16">
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
@@ -497,14 +446,13 @@ export default function ProfileContent() {
                 <Link
                   key={article.slug}
                   href={`/learn/${article.slug}`}
-                  title={article.title}
-                  className={`flex h-10 w-10 items-center justify-center rounded-lg text-sm font-semibold transition-transform duration-150 hover:scale-110 ${
+                  className={`rounded-full px-3 py-1.5 text-sm font-medium transition-transform duration-150 hover:-translate-y-0.5 ${
                     isRead
                       ? "bg-felines-accent text-white"
                       : "border-2 border-felines-border text-felines-text-secondary"
                   }`}
                 >
-                  {article.title[0]}
+                  {article.title}
                 </Link>
               );
             })}
@@ -512,30 +460,100 @@ export default function ProfileContent() {
 
           {readCount >= 3 && !showQuiz && !quizSkipped && (
             <Reveal delayMs={150}>
-              <div className="mt-8 max-w-xl rounded-2xl bg-gradient-to-br from-felines-accent to-felines-accent-hover p-6">
-                <p className="text-lg font-semibold text-white">Que tipo de vizinho você é? →</p>
-                <button
-                  onClick={() => setShowQuiz(true)}
-                  className="mt-3 rounded-full bg-white px-4 py-1.5 text-sm font-semibold text-felines-accent transition-opacity hover:opacity-90"
-                >
-                  Descobrir
-                </button>
-                <button
-                  onClick={() => setQuizSkipped(true)}
-                  className="ml-3 text-sm text-white/80 hover:text-white"
-                >
-                  Fazer isso depois
-                </button>
+              <div className="mt-10 max-w-2xl rounded-2xl bg-gradient-to-br from-felines-accent to-felines-accent-hover p-8 shadow-[0_8px_24px_rgba(196,112,79,0.35)]">
+                <span className="text-4xl">🐾</span>
+                <p className="mt-3 text-2xl font-bold leading-tight text-white">
+                  Que tipo de vizinho você é? →
+                </p>
+                <p className="mt-1 text-sm text-white/80">
+                  3 perguntas rápidas, sem resposta errada.
+                </p>
+                <div className="mt-5 flex items-center gap-4">
+                  <button
+                    onClick={() => setShowQuiz(true)}
+                    className="rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-felines-accent transition-transform duration-150 hover:-translate-y-0.5"
+                  >
+                    Descobrir
+                  </button>
+                  <button
+                    onClick={() => setQuizSkipped(true)}
+                    className="text-sm text-white/80 hover:text-white"
+                  >
+                    Fazer isso depois
+                  </button>
+                </div>
               </div>
             </Reveal>
           )}
+
           {showQuiz && (
-            <Quiz
-              onSkip={() => {
-                setShowQuiz(false);
-                setQuizSkipped(true);
-              }}
-            />
+            <div
+              className="fixed inset-0 z-[2000] flex items-center justify-center bg-black/40 p-4"
+              onClick={() => setShowQuiz(false)}
+            >
+              <div
+                className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-2xl bg-felines-background p-2 shadow-xl"
+                onClick={(event) => event.stopPropagation()}
+              >
+                <Quiz
+                  onSkip={() => {
+                    setShowQuiz(false);
+                    setQuizSkipped(true);
+                  }}
+                />
+              </div>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* Unified activity timeline — dark section, last on the page */}
+      <section className="bg-felines-dark py-16">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6">
+          <Reveal>
+            <p className="text-xs font-semibold uppercase tracking-[0.1em] text-felines-text-secondary-on-dark">
+              Sua jornada
+            </p>
+            <h2 className="mt-3 text-3xl font-bold leading-tight text-white">
+              Histórico de contribuições
+            </h2>
+          </Reveal>
+
+          {activity.length === 0 ? (
+            <p className="mt-6 text-sm text-felines-text-secondary-on-dark">
+              Você ainda não tem nenhuma contribuição registrada.
+            </p>
+          ) : (
+            <ol className="mt-8 max-w-3xl space-y-4 border-l-2 border-felines-accent pl-5">
+              {activity.map((item, index) => (
+                <Reveal key={item.id} delayMs={Math.min(index, 8) * 60}>
+                  <li>
+                    {item.href ? (
+                      <Link
+                        href={item.href}
+                        className="block rounded-xl border border-felines-border-on-dark bg-felines-dark-accent p-4 transition-all duration-200 hover:-translate-y-0.5"
+                      >
+                        <span className="text-sm text-white">
+                          {item.icon} {item.label}
+                        </span>
+                        <p className="mt-1 text-xs text-felines-text-secondary-on-dark">
+                          {new Date(item.date).toLocaleDateString("pt-BR")}
+                        </p>
+                      </Link>
+                    ) : (
+                      <div className="rounded-xl border border-felines-border-on-dark bg-felines-dark-accent p-4">
+                        <span className="text-sm text-white">
+                          {item.icon} {item.label}
+                        </span>
+                        <p className="mt-1 text-xs text-felines-text-secondary-on-dark">
+                          {new Date(item.date).toLocaleDateString("pt-BR")}
+                        </p>
+                      </div>
+                    )}
+                  </li>
+                </Reveal>
+              ))}
+            </ol>
           )}
         </div>
       </section>

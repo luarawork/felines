@@ -14,8 +14,10 @@
   /* Felines brand palette */
   --color-felines-background: #f9f6f2;
   --color-felines-surface: #ffffff;
-  --color-felines-dark: #2d1810;
-  --color-felines-dark-accent: #3d2318;
+  /* Caramel-cat brown, used for dark/alternating sections instead of
+     a near-black brown — warmer, on-theme with a caramel cat's coat. */
+  --color-felines-dark: #6b4226;
+  --color-felines-dark-accent: #8c5e3a;
 
   --color-felines-text-primary: #2d2d2d;
   --color-felines-text-primary-on-dark: #ffffff;
@@ -23,7 +25,7 @@
   --color-felines-text-secondary-on-dark: #c4a090;
 
   --color-felines-border: #e8e4df;
-  --color-felines-border-on-dark: #4d3020;
+  --color-felines-border-on-dark: #7a5234;
 
   --color-felines-accent: #c4704f;
   --color-felines-accent-hover: #a85a3a;

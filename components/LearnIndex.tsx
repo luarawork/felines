@@ -59,7 +59,11 @@ export default function LearnIndex({
     loadProgress();
   }, []);
 
-  const levels: ArticleLevel[] = [1, 2, 3, 4, 5];
+  // "Convivência e conflito" goes second, right after the introductory
+  // level — the primary audience is people who currently dislike or
+  // are in conflict with stray cats, so the content that turns them
+  // into collaborators should show up early, not buried fourth.
+  const levels: ArticleLevel[] = [1, 4, 2, 3, 5];
   const renderedLevels = levels.filter((level) =>
     articles.some((article) => article.level === level)
   );
@@ -106,33 +110,33 @@ export default function LearnIndex({
                           : "block h-full rounded-2xl border border-felines-border bg-felines-surface p-5 shadow-[0_2px_8px_rgba(0,0,0,0.05)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(0,0,0,0.10)]"
                       }
                     >
-                      <div className="flex items-center gap-2">
-                        <span
-                          className={`text-xs ${
-                            isDark ? "text-felines-text-secondary-on-dark" : "text-felines-text-secondary"
+                      <div className="flex items-start justify-between gap-2">
+                        <p
+                          className={`font-semibold ${
+                            isDark ? "text-white" : "text-felines-text-primary"
                           }`}
                         >
-                          {getReadingTimeMinutes(article)} min
-                        </span>
+                          {article.title}
+                        </p>
                         {readSlugs.includes(article.slug) && (
-                          <span className="rounded-full bg-felines-success/15 px-2 py-0.5 text-xs font-medium text-felines-success">
+                          <span className="flex-shrink-0 rounded-full bg-felines-success/15 px-2 py-0.5 text-xs font-medium text-felines-success">
                             Lido
                           </span>
                         )}
                       </div>
-                      <p
-                        className={`mt-2 font-semibold ${
-                          isDark ? "text-white" : "text-felines-text-primary"
-                        }`}
-                      >
-                        {article.title}
-                      </p>
                       <p
                         className={`mt-1 text-sm ${
                           isDark ? "text-felines-text-secondary-on-dark" : "text-felines-text-secondary"
                         }`}
                       >
                         {article.summary}
+                      </p>
+                      <p
+                        className={`mt-2 text-xs ${
+                          isDark ? "text-felines-text-secondary-on-dark" : "text-felines-text-secondary"
+                        }`}
+                      >
+                        {getReadingTimeMinutes(article)} min de leitura
                       </p>
                     </Link>
                   </Reveal>
