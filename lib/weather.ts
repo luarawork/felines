@@ -1,7 +1,15 @@
 // Weather lookup for Felines, using the OpenWeatherMap current-weather API.
 // Used to surface care alerts for street cat colonies (extreme heat or
-// heavy rain affect food/water availability and shelter needs). Runs
-// server-side so the API key never reaches the browser.
+// heavy rain affect food/water availability and shelter needs).
+//
+// SECURITY NOTE: this key is genuinely public today. WeatherBanner calls
+// this from a server component, but lib/notifications.ts also calls it
+// from NavBar.tsx ("use client"), which means this fetch — and the
+// NEXT_PUBLIC_WEATHER_API_KEY appid in the URL — runs in the browser for
+// that call site. Fixing this properly means moving the extreme-weather
+// check in lib/notifications.ts behind a server action, not just renaming
+// this env var (renaming it would silently break that client call site
+// instead of fixing the leak). See checkExtremeWeatherForCaretaker().
 const NATAL_COORDS = { lat: -5.7945, lon: -35.211 };
 
 export type WeatherSnapshot = {
