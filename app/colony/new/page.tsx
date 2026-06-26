@@ -8,10 +8,10 @@ export default function NewColonyPage() {
   return (
     <div className="mx-auto max-w-2xl px-4 py-12 sm:px-6">
       <h1 className="text-2xl font-bold text-felines-text-primary sm:text-3xl">
-        Cadastrar colônia
+        Coloque essa colônia no mapa
       </h1>
       <p className="mt-2 text-sm text-felines-text-secondary">
-        Ajude outras pessoas a encontrarem e cuidarem desta colônia.
+        Com isso, qualquer vizinho consegue encontrar e ajudar a cuidar dela também.
       </p>
       <NewColonyForm />
     </div>

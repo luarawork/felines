@@ -61,7 +61,7 @@ export default function TimelineEventForm({ colonyId }: { colonyId: string }) {
 
       if (uploadError) {
         setSubmitting(false);
-        setError("Não foi possível enviar a foto.");
+        setError("A foto não subiu. Tenta de novo?");
         return;
       }
 
@@ -78,7 +78,7 @@ export default function TimelineEventForm({ colonyId }: { colonyId: string }) {
     setSubmitting(false);
 
     if (insertError) {
-      setError("Não foi possível adicionar o evento.");
+      setError("O evento não foi adicionado. Tenta de novo?");
       return;
     }
 

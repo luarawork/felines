@@ -18,7 +18,7 @@ export default function SignupForm() {
     setError(null);
 
     if (!email.includes("@") || password.length < 6) {
-      setError("Informe um e-mail válido e uma senha com pelo menos 6 caracteres.");
+      setError("Coloca um e-mail válido e uma senha com pelo menos 6 caracteres.");
       return;
     }
 
@@ -27,7 +27,7 @@ export default function SignupForm() {
     setSubmitting(false);
 
     if (signUpError) {
-      setError("Não foi possível criar a conta. Tente novamente.");
+      setError("Não consegui criar sua conta. Tenta de novo?");
       return;
     }
 
@@ -37,7 +37,7 @@ export default function SignupForm() {
   if (submitted) {
     return (
       <p className="mt-6 rounded-lg border border-felines-success bg-felines-success/10 px-4 py-3 text-sm text-felines-success">
-        Confira seu e-mail para confirmar a conta antes de entrar.
+        Quase lá! Confira seu e-mail e confirme a conta pra poder entrar.
       </p>
     );
   }
@@ -79,11 +79,11 @@ export default function SignupForm() {
         disabled={submitting}
         className="w-full rounded-full bg-felines-accent px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-felines-accent-hover disabled:opacity-50"
       >
-        {submitting ? "Criando conta..." : "Criar conta"}
+        {submitting ? "Criando conta..." : "Criar minha conta"}
       </button>
 
       <p className="text-center text-sm text-felines-text-secondary">
-        Já tem conta?{" "}
+        Já tem conta por aqui?{" "}
         <Link href="/login" className="font-medium text-felines-accent-hover">
           Entrar
         </Link>

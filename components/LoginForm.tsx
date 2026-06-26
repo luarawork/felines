@@ -22,7 +22,7 @@ export default function LoginForm() {
     setError(null);
 
     if (!email.includes("@") || password.length < 6) {
-      setError("Informe um e-mail válido e uma senha com pelo menos 6 caracteres.");
+      setError("Coloca um e-mail válido e uma senha com pelo menos 6 caracteres.");
       return;
     }
 
@@ -34,7 +34,7 @@ export default function LoginForm() {
     setSubmitting(false);
 
     if (signInError) {
-      setError("E-mail ou senha incorretos.");
+      setError("E-mail ou senha não bateram. Tenta de novo?");
       return;
     }
 

@@ -210,7 +210,7 @@ export default function ProfileContent() {
 
     if (uploadError) {
       setUploadingAvatar(false);
-      setAvatarError("Não foi possível enviar a foto.");
+      setAvatarError("A foto não subiu. Tenta de novo?");
       return;
     }
 
@@ -219,7 +219,7 @@ export default function ProfileContent() {
     setUploadingAvatar(false);
 
     if (!success) {
-      setAvatarError("Não foi possível salvar a foto.");
+      setAvatarError("A foto não foi salva. Tenta de novo?");
       return;
     }
 
@@ -384,13 +384,13 @@ export default function ProfileContent() {
               Suas colônias
             </p>
             <h2 className="mt-3 text-3xl font-bold leading-tight text-felines-text-primary">
-              Colônias vinculadas
+              As colônias que você cuida
             </h2>
           </Reveal>
 
           {linkedColonies.length === 0 ? (
             <p className="mt-6 text-sm text-felines-text-secondary">
-              Você ainda não é cuidador de nenhuma colônia.
+              Você ainda não cuida de nenhuma colônia.
             </p>
           ) : (
             <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -524,13 +524,13 @@ export default function ProfileContent() {
               Sua jornada
             </p>
             <h2 className="mt-3 text-3xl font-bold leading-tight text-white">
-              Histórico de contribuições
+              O que você já fez
             </h2>
           </Reveal>
 
           {activity.length === 0 ? (
             <p className="mt-6 text-sm text-felines-text-secondary-on-dark">
-              Você ainda não tem nenhuma contribuição registrada.
+              Ainda não tem nada registrado por aqui. Toda alimentação, relato ou agradecimento vai aparecer aqui.
             </p>
           ) : (
             <ol className="mt-8 max-w-3xl space-y-4 border-l-2 border-felines-accent pl-5">

@@ -8,9 +8,11 @@ import ReportsList from "@/components/ReportsList";
 export default function ReportsPage() {
   return (
     <div className="mx-auto max-w-3xl px-4 py-12 sm:px-6">
-      <h1 className="text-2xl font-bold text-felines-text-primary sm:text-3xl">Relatos</h1>
+      <h1 className="text-2xl font-bold text-felines-text-primary sm:text-3xl">
+        O que estão relatando
+      </h1>
       <p className="mt-2 text-sm text-felines-text-secondary">
-        Confirme relatos que você também viu e marque como resolvidos os que já foram atendidos.
+        Confirme o que você também viu e marque como resolvido o que já foi cuidado.
       </p>
       <ReportsList />
     </div>

@@ -111,7 +111,7 @@ export default function ReportsList() {
     const { error: rpcError } = await supabase.rpc("confirm_report", { p_report_id: reportId });
 
     if (rpcError) {
-      setError("Não foi possível confirmar o relato.");
+      setError("Não consegui confirmar esse relato agora.");
       return;
     }
 
@@ -139,7 +139,7 @@ export default function ReportsList() {
       .eq("id", reportId);
 
     if (updateError) {
-      setError("Não foi possível marcar o relato como resolvido.");
+      setError("Não consegui marcar como resolvido agora.");
       return;
     }
 
@@ -315,9 +315,10 @@ export default function ReportsList() {
                       <button
                         onClick={() => handleConfirm(report.id)}
                         disabled={confirmedReportIds.has(report.id)}
+                        title="Confirme se você também viu isso — com 3 confirmações, o relato se resolve sozinho"
                         className="rounded-full border border-felines-accent px-3 py-1 text-xs font-medium text-felines-accent transition-colors hover:bg-felines-accent hover:text-white disabled:opacity-50"
                       >
-                        {confirmedReportIds.has(report.id) ? "Você já confirmou" : "Confirmar"}
+                        {confirmedReportIds.has(report.id) ? "Você já confirmou" : "Eu também vi"}
                       </button>
                       {canManuallyResolve && (
                         <button

@@ -75,7 +75,7 @@ export default function CatManager({ colonyId }: { colonyId: string }) {
     setError(null);
 
     if (!name.trim()) {
-      setError("Informe o nome do gato.");
+      setError("Dá um nome pro gato antes de continuar.");
       return;
     }
     if (!session) return;
@@ -87,7 +87,7 @@ export default function CatManager({ colonyId }: { colonyId: string }) {
       photoUrl = await uploadCatPhoto(colonyId, photoFile);
       if (!photoUrl) {
         setSubmitting(false);
-        setError("Não foi possível enviar a foto do gato.");
+        setError("A foto do gato não subiu. Tenta de novo?");
         return;
       }
     }
@@ -107,7 +107,7 @@ export default function CatManager({ colonyId }: { colonyId: string }) {
     setSubmitting(false);
 
     if (insertError || !newCat) {
-      setError("Não foi possível adicionar o gato.");
+      setError("O gato não foi adicionado. Tenta de novo?");
       return;
     }
 
@@ -126,7 +126,7 @@ export default function CatManager({ colonyId }: { colonyId: string }) {
       .eq("id", cat.id);
 
     if (updateError) {
-      setError("Não foi possível atualizar o gato.");
+      setError("Não consegui atualizar o gato agora.");
       return;
     }
 
@@ -146,7 +146,7 @@ export default function CatManager({ colonyId }: { colonyId: string }) {
       .eq("id", catId);
 
     if (updateError) {
-      setError("Não foi possível marcar o gato como visto hoje.");
+      setError("Não consegui marcar como visto hoje.");
       return;
     }
 
@@ -161,7 +161,7 @@ export default function CatManager({ colonyId }: { colonyId: string }) {
     const { error: deleteError } = await supabase.from("cats").delete().eq("id", catId);
 
     if (deleteError) {
-      setError("Não foi possível remover o gato.");
+      setError("Não consegui remover o gato agora.");
       return;
     }
 
@@ -180,7 +180,7 @@ export default function CatManager({ colonyId }: { colonyId: string }) {
   // for the cat currently being edited.
   async function handleSaveEdit(catId: string) {
     if (!editName.trim()) {
-      setError("Informe o nome do gato.");
+      setError("Dá um nome pro gato antes de continuar.");
       return;
     }
 
@@ -191,7 +191,7 @@ export default function CatManager({ colonyId }: { colonyId: string }) {
       const uploadedUrl = await uploadCatPhoto(colonyId, editPhotoFile);
       if (!uploadedUrl) {
         setSavingEdit(false);
-        setError("Não foi possível enviar a nova foto do gato.");
+        setError("A nova foto não subiu. Tenta de novo?");
         return;
       }
       photoUrl = uploadedUrl;
@@ -205,7 +205,7 @@ export default function CatManager({ colonyId }: { colonyId: string }) {
     setSavingEdit(false);
 
     if (updateError) {
-      setError("Não foi possível salvar as alterações do gato.");
+      setError("As alterações não foram salvas. Tenta de novo?");
       return;
     }
 
@@ -224,7 +224,7 @@ export default function CatManager({ colonyId }: { colonyId: string }) {
 
   return (
     <section className="mt-10 rounded-xl border border-felines-border bg-felines-surface p-5">
-      <h2 className="text-lg font-bold text-felines-text-primary">Gerenciar gatos</h2>
+      <h2 className="text-lg font-bold text-felines-text-primary">Os gatos dessa colônia</h2>
 
       <form onSubmit={handleAddCat} className="mt-4 space-y-3">
         <div>
@@ -264,7 +264,7 @@ export default function CatManager({ colonyId }: { colonyId: string }) {
           disabled={submitting}
           className="rounded-full bg-felines-accent px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-felines-accent-hover disabled:opacity-50"
         >
-          {submitting ? "Adicionando..." : "Adicionar gato"}
+          {submitting ? "Adicionando..." : "Adicionar esse gato"}
         </button>
       </form>
 

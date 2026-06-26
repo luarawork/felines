@@ -68,7 +68,7 @@ export default function EditColonyForm({
 
       if (uploadError) {
         setSubmitting(false);
-        setError("Não foi possível enviar a nova foto.");
+        setError("A nova foto não subiu. Tenta de novo?");
         return;
       }
 
@@ -101,7 +101,7 @@ export default function EditColonyForm({
     setSubmitting(false);
 
     if (updateError) {
-      setError("Não foi possível salvar as alterações.");
+      setError("As alterações não foram salvas. Tenta de novo?");
       return;
     }
 

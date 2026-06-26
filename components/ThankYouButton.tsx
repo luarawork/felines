@@ -70,7 +70,7 @@ export default function ThankYouButton({
     await supabase.from("timeline_events").insert({
       colony_id: colonyId,
       event_type: "thank_you",
-      description: `${senderDisplayName} agradeceu ${caretakerDisplayName} por cuidar desta colônia.`,
+      description: `${senderDisplayName} agradeceu ${caretakerDisplayName} por cuidar dessa colônia.`,
       created_by: userId,
     });
 

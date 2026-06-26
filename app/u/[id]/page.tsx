@@ -77,11 +77,11 @@ export default async function CaretakerPublicPage({
           <div className="h-16 w-16 rounded-full bg-felines-border" />
         )}
         <h1 className="text-2xl font-bold text-felines-text-primary sm:text-3xl">
-          {profile.display_name || "Cuidador da comunidade Felines"}
+          {profile.display_name || "Alguém da comunidade"}
         </h1>
       </div>
       <p className="mt-2 text-sm text-felines-text-secondary">
-        Cuida de {colonies.length} {colonies.length === 1 ? "colônia" : "colônias"} no Felines.
+        Cuida de {colonies.length} {colonies.length === 1 ? "colônia" : "colônias"}.
       </p>
 
       {colonies.length > 0 && (
@@ -100,7 +100,7 @@ export default async function CaretakerPublicPage({
       )}
 
       <section className="mt-10">
-        <h2 className="text-lg font-bold text-felines-text-primary">Relatos feitos</h2>
+        <h2 className="text-lg font-bold text-felines-text-primary">Relatos que fez</h2>
         {!madeReportRows || madeReportRows.length === 0 ? (
           <p className="mt-2 text-sm text-felines-text-secondary">Nenhum relato ainda.</p>
         ) : (

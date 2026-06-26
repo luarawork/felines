@@ -52,19 +52,19 @@ export const NEIGHBOR_PROFILES: Record<
   observer: {
     title: "O Observador",
     description:
-      "Você quer entender antes de agir — e isso já é um ótimo primeiro passo. Observar com atenção é o que permite identificar quando algo realmente precisa de ajuda.",
-    firstAction: "Comece visitando o mapa para ver as colônias mapeadas perto de você.",
+      "Você prefere entender antes de agir. Isso já é um ótimo primeiro passo — quem observa com atenção é quem nota quando algo realmente precisa de ajuda.",
+    firstAction: "Comece dando uma olhada no mapa pra ver quais colônias já estão mapeadas perto de você.",
   },
   backup: {
     title: "O Apoio",
     description:
-      "Você não precisa assumir uma colônia inteira para fazer diferença — pequenas ações de apoio, no momento certo, já ajudam muito quem já cuida.",
-    firstAction: "Apoie um cuidador já existente: registre um relato quando notar algo, ou ofereça ração quando puder.",
+      "Você não precisa adotar uma colônia inteira pra fazer diferença. Um apoio pontual, na hora certa, já ajuda bastante quem está cuidando todos os dias.",
+    firstAction: "Apoie um cuidador que já existe: registre um relato quando notar algo, ou ofereça ração quando puder.",
   },
   guardian: {
     title: "O Guardião",
     description:
-      "Você está pronto para um papel mais constante — e colônias inteiras dependem exatamente de pessoas dispostas a isso.",
-    firstAction: "Veja as colônias já mapeadas e considere se tornar cuidador de uma delas.",
+      "Você está pronto pra um papel mais constante. E colônias inteiras só se sustentam porque alguém topa fazer exatamente isso.",
+    firstAction: "Veja as colônias já mapeadas e veja se alguma delas faz sentido pra você cuidar.",
   },
 };

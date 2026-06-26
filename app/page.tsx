@@ -17,10 +17,10 @@ import ArticleCard from "@/components/ArticleCard";
 import { ARTICLES } from "@/lib/articles";
 
 const STATS: { value: string; label: string }[] = [
-  { value: "10M", label: "gatos de rua no Brasil" },
-  { value: "480M", label: "gatos de rua no mundo" },
-  { value: "185K", label: "animais em ONGs — capacidade esgotada" },
-  { value: "40%", label: "dos brasileiros já tiveram conflito com vizinhos por animais" },
+  { value: "10M", label: "gatos vivem nas ruas só no Brasil" },
+  { value: "480M", label: "gatos de rua existem no mundo" },
+  { value: "185K", label: "já vivem em ONGs sem mais espaço" },
+  { value: "40%", label: "das pessoas já brigaram com um vizinho por causa de um bichano" },
 ];
 
 const ENTRY_CARDS: {
@@ -34,30 +34,30 @@ const ENTRY_CARDS: {
   {
     href: "/map",
     icon: "🗺️",
-    label: "Explore",
-    title: "Explorar o mapa",
-    description: "Veja as colônias mapeadas perto de você e entenda quem cuida delas.",
+    label: "Explorar",
+    title: "Veja quem já está cuidando",
+    description: "Cada colônia no mapa tem uma história e, na maioria das vezes, alguém de olho nela.",
   },
   {
     href: "#aprender",
     icon: "📖",
-    label: "Aprenda",
-    title: "Comecar a aprender",
-    description: "Guias rápidos para entender o comportamento dos gatos de rua.",
+    label: "Entender",
+    title: "Aprenda o básico em 5 minutos",
+    description: "Por que os gatos ficam, o que funciona de verdade e o que só piora as coisas.",
   },
   {
     isHelp: true,
     icon: "🐾",
-    label: "Não sabe por onde começar?",
-    title: "Comece aqui",
-    description: "Gato ferido, filhote sozinho ou conflito com a vizinhança? A gente te orienta.",
+    label: "Agir agora",
+    title: "Achou um gato e não sabe o que fazer?",
+    description: "Conta pra gente o que está acontecendo. A gente te diz o próximo passo.",
   },
 ];
 
 const MAP_FEATURES = [
-  "Localização aproximada das colônias, protegendo a privacidade dos gatos",
-  "Avistamentos e emergências da comunidade em tempo real",
-  "Status de castração e cuidadores vinculados a cada colônia",
+  "A localização exata fica protegida — você vê a área, não o endereço",
+  "Avistamentos e emergências aparecem assim que alguém relata",
+  "Cada colônia mostra se já tem cuidador e como está a castração",
 ];
 
 export default function Home() {
@@ -79,8 +79,8 @@ export default function Home() {
           </Reveal>
           <Reveal delayMs={120}>
             <p className="mx-auto mt-5 max-w-[520px] text-lg leading-relaxed text-felines-text-secondary lg:mx-0">
-              Felines conecta vizinhos de Natal aos cuidadores de colônias de gatos de rua, com
-              informação clara para quem quer entender e ajudar — sem precisar ser especialista.
+              O Felines conecta você a quem já cuida dos gatos perto de você — e explica o que
+              fazer quando ainda não tem ninguém cuidando. Sem precisar ser especialista.
             </p>
           </Reveal>
           <Reveal delayMs={240}>
@@ -118,7 +118,7 @@ export default function Home() {
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
           <Reveal>
             <p className="text-center text-xs font-semibold uppercase tracking-[0.1em] text-felines-text-secondary-on-dark lg:text-left">
-              O tamanho do problema
+              Por que isso importa
             </p>
           </Reveal>
           <div className="mt-8 grid grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-4">
@@ -148,7 +148,7 @@ export default function Home() {
               Como podemos ajudar
             </p>
             <h2 className="mt-3 text-3xl font-bold leading-tight text-felines-text-primary sm:text-[40px]">
-              Seja qual for o motivo que te trouxe aqui, você está no lugar certo.
+              Não importa por que você chegou até aqui. Tem um caminho certo pra você.
             </h2>
           </Reveal>
 
@@ -206,8 +206,8 @@ export default function Home() {
               Entenda antes de agir.
             </h2>
             <p className="mt-4 max-w-md text-base leading-relaxed text-felines-text-secondary-on-dark">
-              Artigos curtos e diretos sobre comportamento de gatos de rua, castração e como agir
-              em cada situação — sem precisar virar especialista antes de ajudar.
+              Textos curtos sobre como os gatos de rua vivem, por que castração funciona e o que
+              fazer em cada situação. Sem enrolação, sem precisar virar especialista.
             </p>
             <Link
               href="#aprender"
@@ -263,11 +263,11 @@ export default function Home() {
       <section className="bg-felines-background py-20">
         <Reveal className="mx-auto max-w-3xl px-4 text-center sm:px-6">
           <p className="text-2xl font-semibold leading-relaxed text-felines-text-primary sm:text-3xl">
-            “Colônias castradas e cuidadas por vizinhos próximos são, de longe, a forma mais
-            estável de conviver com gatos de rua — sem conflito e sem crescimento descontrolado.”
+            “Uma colônia castrada e com gente de olho nela é, de longe, a forma mais tranquila de
+            conviver com gatos de rua. Sem conflito, sem crescer sem controle.”
           </p>
           <p className="mt-4 text-sm font-medium uppercase tracking-[0.1em] text-felines-text-secondary">
-            Pesquisa de campo · TNR no Brasil
+            Pesquisa de campo sobre TNR
           </p>
         </Reveal>
       </section>

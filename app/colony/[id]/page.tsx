@@ -22,14 +22,13 @@ import ColonyAccessProvider from "@/components/ColonyAccessProvider";
 import FactChip from "@/components/FactChip";
 
 // Contextual facts shown on every colony page — general background on
-// stray cats in Brazil, not specific to this particular colony, but
-// relevant enough to give a first-time visitor some grounding right
-// where they land.
+// street cats, not specific to this particular colony, but relevant
+// enough to give a first-time visitor some grounding right where they land.
 const COLONY_FACT_CHIPS: string[] = [
-  "📊 10 milhões de gatos de rua vivem nas ruas do Brasil (OMS)",
-  "📊 Apenas 7.400 estão em abrigos formais (Índice de Abandono Animal)",
-  "📊 40% dos brasileiros já tiveram conflito com vizinhos envolvendo animais (IBGE)",
-  "📊 TNR é o único método com eficácia comprovada para estabilizar colônias (OMS)",
+  "📊 Existem cerca de 480 milhões de gatos de rua no mundo",
+  "📊 Abrigos formais já recebem mais gatos do que conseguem cuidar",
+  "📊 4 em cada 10 pessoas já brigaram com um vizinho por causa de animais",
+  "📊 TNR é o único método com eficácia comprovada para estabilizar colônias",
 ];
 
 type Cat = {
@@ -49,9 +48,9 @@ type TimelineEvent = {
 };
 
 const CASTRATION_LABELS: Record<string, string> = {
-  none: "Nenhum gato castrado ainda",
-  partial: "Castração parcial em andamento",
-  full: "Colônia totalmente castrada",
+  none: "Ninguém castrado ainda",
+  partial: "Castração em andamento",
+  full: "Todo mundo castrado",
 };
 
 export default async function ColonyDetailPage({
@@ -110,7 +109,7 @@ export default async function ColonyDetailPage({
     <>
       {!cats || cats.length === 0 ? (
         <p className="text-sm text-felines-text-secondary">
-          Ainda não há gatos cadastrados nesta colônia.
+          Ainda não tem nenhum gato cadastrado aqui.
         </p>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
@@ -139,14 +138,14 @@ export default async function ColonyDetailPage({
                   {cat.name ?? "Sem nome"}
                 </p>
                 <p className="text-xs text-felines-text-secondary">
-                  {cat.castrated ? "Castrado" : "Não castrado"}
+                  {cat.castrated ? "Já castrado" : "Ainda não castrado"}
                   {cat.last_seen &&
                     ` · Visto em ${new Date(cat.last_seen).toLocaleDateString("pt-BR")}`}
                 </p>
                 {isStale && (
                   <>
                     <p className="mt-1 text-xs text-felines-warning">
-                      Não visto recentemente — você sabe onde {cat.name ?? "ele"} está?
+                      Ninguém viu {cat.name ?? "ele"} há um tempo. Sabe se ele está bem?
                     </p>
                     <MarkCatSeenButton catId={cat.id} catName={cat.name ?? "esse gato"} />
                   </>
@@ -179,9 +178,9 @@ export default async function ColonyDetailPage({
       {hasNoTimelineEntriesEver && (
         <div className="mt-4">
           <EmptyState
-            main="Essa colônia ainda não tem nenhuma entrada na linha do tempo."
-            sub="Alimentações, gatos novos, rodadas de castração — qualquer atualização ajuda quem visitar essa página depois."
-            ctas={[{ label: "Relatar algo →", href: "#colony-report-button" }]}
+            main="A linha do tempo dessa colônia ainda está em branco."
+            sub="Alimentação, gato novo, castração — qualquer atualização ajuda quem passar por aqui depois."
+            ctas={[{ label: "Contar algo →", href: "#colony-report-button" }]}
           />
         </div>
       )}
@@ -189,8 +188,8 @@ export default async function ColonyDetailPage({
       {hasStaleUpdates && (
         <div className="mt-4">
           <EmptyState
-            main="Nenhuma atualização recente — você sabe o que está acontecendo aqui?"
-            ctas={[{ label: "Relatar algo →", href: "#colony-report-button" }]}
+            main="Faz um tempo que ninguém atualiza essa colônia. Sabe o que está acontecendo aqui?"
+            ctas={[{ label: "Contar algo →", href: "#colony-report-button" }]}
           />
         </div>
       )}
@@ -234,7 +233,7 @@ export default async function ColonyDetailPage({
         // eslint-disable-next-line @next/next/no-img-element
         <img
           src={colony.cover_photo_url}
-          alt={`Foto da colônia ${colony.name}`}
+          alt={`Foto de capa da colônia ${colony.name}`}
           className="h-40 w-full rounded-xl object-cover sm:h-56"
         />
       ) : (
@@ -251,12 +250,12 @@ export default async function ColonyDetailPage({
           </span>
           {caretakers.length > 0 && (
             <div className="mt-2 flex flex-wrap items-center gap-x-1 gap-y-1 text-xs text-felines-text-secondary">
-              <span>Cuidado por:</span>
+              <span>Quem cuida:</span>
               {caretakers.map((caretaker, index) => (
                 <span key={caretaker.userId} className="flex items-center gap-1">
                   {index > 0 && <span>,</span>}
                   <a href={`/u/${caretaker.userId}`} className="text-felines-accent-hover">
-                    {caretaker.displayName || "Cuidador da comunidade"}
+                    {caretaker.displayName || "Alguém da comunidade"}
                   </a>
                   <ThankYouButton
                     colonyId={colony.id}
@@ -300,12 +299,12 @@ export default async function ColonyDetailPage({
             { id: "timeline", label: "Linha do tempo", content: timelineSection },
             {
               id: "letter",
-              label: "Carta do cuidador",
+              label: "Carta de quem cuidou antes",
               content: <CaretakerLetters colonyId={colony.id} />,
             },
             {
               id: "edit",
-              label: "Editar colônia",
+              label: "Editar",
               content: (
                 <EditColonyForm
                   colonyId={colony.id}

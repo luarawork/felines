@@ -53,7 +53,7 @@ export default function ReportButton({ colonyId }: { colonyId: string }) {
     setSubmitting(false);
 
     if (insertError) {
-      setError("Não foi possível enviar o relato. Tente novamente.");
+      setError("O relato não foi enviado. Tenta de novo?");
       return;
     }
 
@@ -66,7 +66,7 @@ export default function ReportButton({ colonyId }: { colonyId: string }) {
         onClick={() => setOpen(true)}
         className="rounded-full border border-felines-emergency px-4 py-2 text-sm font-medium text-felines-emergency transition-colors hover:bg-felines-emergency hover:text-white"
       >
-        Fazer um relato
+        Contar o que está acontecendo
       </button>
 
       {open && (
@@ -83,7 +83,7 @@ export default function ReportButton({ colonyId }: { colonyId: string }) {
           >
             <div className="flex items-start justify-between">
               <h2 id="report-modal-title" className="text-lg font-bold text-felines-text-primary">
-                Fazer um relato
+                Contar o que está acontecendo
               </h2>
               <button
                 onClick={handleClose}
@@ -97,7 +97,7 @@ export default function ReportButton({ colonyId }: { colonyId: string }) {
             {submitted ? (
               <div className="mt-4">
                 <p className="rounded-lg border border-felines-success bg-felines-success/10 px-4 py-3 text-sm text-felines-success">
-                  Relato enviado. Obrigado por ajudar a colônia.
+                  Relato enviado. Valeu por ajudar essa colônia.
                 </p>
                 {!isLoggedIn && <CreateAccountInvite />}
               </div>
@@ -147,7 +147,7 @@ export default function ReportButton({ colonyId }: { colonyId: string }) {
                     disabled={submitting}
                     className="rounded-full bg-felines-emergency px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
                   >
-                    {submitting ? "Enviando..." : "Enviar relato"}
+                    {submitting ? "Enviando..." : "Enviar"}
                   </button>
                   <button
                     type="button"

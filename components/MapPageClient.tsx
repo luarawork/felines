@@ -28,7 +28,7 @@ export default function MapPageClient({ weatherBanner }: { weatherBanner: React.
         href="/colony/new"
         className="absolute bottom-6 right-6 z-[1000] rounded-full bg-felines-accent px-5 py-3 text-sm font-medium text-white shadow-lg transition-colors hover:bg-felines-accent-hover"
       >
-        + Cadastrar colônia
++ Colocar uma colônia no mapa
       </Link>
     </div>
   );

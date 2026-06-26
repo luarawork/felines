@@ -37,8 +37,7 @@ export default function ColonyClickTooltip({ onDismiss }: { onDismiss: () => voi
         onDismiss();
       }}
     >
-      Esta é uma colônia de gatos. Toque para saber mais sobre quem vive aqui e o que você pode
-      fazer para ajudar.
+      Essa bolinha é uma colônia de gatos. Toque pra ver quem vive ali e como você pode ajudar.
     </div>
   );
 }

@@ -45,14 +45,14 @@ export default function ColonyActions({ colonyId }: { colonyId: string }) {
       .insert({ colony_id: colonyId, user_id: session.user.id });
 
     if (error) {
-      setActionError("Não foi possível registrar a alimentação.");
+      setActionError("A alimentação não foi registrada. Tenta de novo?");
       return;
     }
 
     await supabase.from("timeline_events").insert({
       colony_id: colonyId,
       event_type: "feeding",
-      description: "Alimentação registrada.",
+      description: "Alguém alimentou a colônia.",
       created_by: session.user.id,
     });
 
@@ -73,14 +73,14 @@ export default function ColonyActions({ colonyId }: { colonyId: string }) {
       .insert({ colony_id: colonyId, user_id: session.user.id });
 
     if (error) {
-      setActionError("Não foi possível vincular você como cuidador.");
+      setActionError("Não foi possível te vincular como cuidador. Tenta de novo?");
       return;
     }
 
     await supabase.from("timeline_events").insert({
       colony_id: colonyId,
       event_type: "new_caretaker",
-      description: "Um novo cuidador se vinculou a esta colônia.",
+      description: "Um novo cuidador passou a olhar por essa colônia.",
       created_by: session.user.id,
     });
 
@@ -106,14 +106,14 @@ export default function ColonyActions({ colonyId }: { colonyId: string }) {
         disabled={feedingLogged}
         className="rounded-full bg-felines-accent px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-felines-accent-hover disabled:opacity-50"
       >
-        {feedingLogged ? "Alimentação registrada" : "Registrar alimentação"}
+        {feedingLogged ? "Alimentação registrada ✓" : "Alimentei essa colônia hoje"}
       </button>
       <button
         onClick={handleBecomeCaretaker}
         disabled={caretakerJoined}
         className="rounded-full border border-felines-accent px-4 py-2 text-sm font-medium text-felines-accent transition-colors hover:bg-felines-accent hover:text-white disabled:opacity-50"
       >
-        {caretakerJoined ? "Você é cuidador" : "Tornar-se cuidador"}
+        {caretakerJoined ? "Você cuida dessa colônia" : "Quero cuidar dessa colônia"}
       </button>
       {actionError && <p className="text-xs text-felines-emergency">{actionError}</p>}
     </div>

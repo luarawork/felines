@@ -44,10 +44,10 @@ const SITUATIONS: Situation[] = [
     label: "🤕 Gato ferido ou doente",
     reportType: "injured_sick",
     guidance: [
-      "Mantenha distância e evite tocar o gato sem proteção — animais feridos podem morder por dor ou medo.",
-      "Se possível, cubra a área com uma caixa ou toalha para evitar que ele se machuque mais ou fuja.",
+      "Mantenha distância e evite tocar sem proteção. Um animal com dor pode morder até sendo manso.",
+      "Se conseguir, cubra ele com uma caixa ou toalha. Isso evita que se machuque mais ou fuja.",
     ],
-    alert: "Encontre uma clínica veterinária ou abrigo de emergência perto de você.",
+    alert: "Procure uma clínica veterinária ou abrigo de emergência perto de você.",
     relatedArticleSlug: "found-injured-cat-step-by-step",
     relatedArticleLabel: "Veja o passo a passo completo",
   },
@@ -56,8 +56,8 @@ const SITUATIONS: Situation[] = [
     label: "🐾 Filhote sozinho",
     reportType: "new_kitten",
     guidance: [
-      "Filhotes sozinhos nem sempre estão abandonados — a mãe pode estar caçando comida nas proximidades.",
-      "Observe de uma distância segura por algumas horas antes de qualquer intervenção.",
+      "Filhote sozinho nem sempre é filhote abandonado. A mãe pode estar só caçando comida por aí.",
+      "Observe de uma distância segura por algumas horas antes de fazer qualquer coisa.",
     ],
     relatedArticleSlug: "found-a-kitten-alone",
     relatedArticleLabel: "Veja o guia completo antes de agir",
@@ -67,11 +67,11 @@ const SITUATIONS: Situation[] = [
     label: "⚠️ Suspeita de envenenamento ou maus-tratos",
     reportType: "suspected_abuse",
     guidance: [
-      "Documente o máximo possível: fotos, vídeos com data visível, localização e horário aproximado.",
-      "Não confronte diretamente quem você suspeita — priorize sua segurança e a do animal.",
+      "Documente tudo que puder: fotos, vídeos com data visível, local e horário aproximado.",
+      "Não confronte quem você suspeita. Sua segurança e a do animal vêm primeiro.",
     ],
     alert:
-      "Procure também contatar: Disque Denúncia 181 (anônimo) ou Emergência 190. Maus-tratos a animais são crime previsto na Lei 9.605/98.",
+      "Você também pode ligar pro Disque Denúncia 181 (anônimo) ou pra Emergência 190. Maus-tratos a animais são crime pela Lei 9.605/98.",
     relatedArticleSlug: "how-to-report-animal-abuse",
     relatedArticleLabel: "Saiba como denunciar corretamente",
   },
@@ -80,18 +80,18 @@ const SITUATIONS: Situation[] = [
     label: "🦠 Surto de doença na colônia",
     reportType: "disease_outbreak",
     guidance: [
-      "Evite contato direto com gatos doentes e não permita que outros animais domésticos se aproximem.",
-      "Anote quantos gatos parecem afetados e quais sintomas você observou.",
+      "Evite contato direto com gatos doentes, e não deixe outros bichos domésticos se aproximarem.",
+      "Anote quantos gatos parecem afetados e quais sintomas você está vendo.",
     ],
-    alert: "Contate o Centro de Controle de Zoonoses (CCZ) da sua cidade.",
+    alert: "Contate o centro de controle de zoonoses da sua região.",
   },
   {
     key: "conflict",
     label: "🏠 Estou em conflito com os gatos",
     reportType: null,
     guidance: [
-      "Cheiro, barulho e sujeira costumam vir de colônias sem cuidado — castração e alimentação controlada reduzem muito esses problemas.",
-      "Evite remover ou afugentar os gatos: isso geralmente atrai novos gatos para o território vazio.",
+      "Cheiro, barulho e sujeira costumam vir de colônias sem ninguém cuidando — castração e alimentação controlada resolvem boa parte disso.",
+      "Remover ou afugentar os gatos quase sempre atrai um grupo novo pro mesmo lugar.",
     ],
     relatedArticleSlug: "cats-bothering-your-building",
     relatedArticleLabel: "Veja o que realmente funciona",
@@ -101,28 +101,28 @@ const SITUATIONS: Situation[] = [
     label: "🔍 Gato desaparecido",
     reportType: "missing_cat",
     guidance: [
-      "Avise os cuidadores de colônias próximas — eles costumam reconhecer os gatos da região.",
-      "Espalhe uma foto recente e características marcantes (cor, porte, coleira) na vizinhança.",
+      "Avise os cuidadores de colônias próximas. Eles costumam reconhecer os gatos da região.",
+      "Espalhe uma foto recente e características marcantes (cor, porte, coleira) pela vizinhança.",
     ],
-    alert: "Confira as colônias próximas no mapa — gatos costumam ficar a poucos quarteirões.",
+    alert: "Dá uma olhada nas colônias próximas no mapa — gatos costumam ficar a poucos quarteirões de casa.",
   },
   {
     key: "threat",
     label: "🏗️ Obra ou risco de despejo perto de uma colônia",
     reportType: "threat_to_colony",
     guidance: [
-      "Identifique prazos (início de obra, data de despejo) o quanto antes — isso define a urgência da ação.",
-      "Procure o cuidador responsável pela colônia, se houver um cadastrado no mapa.",
+      "Descubra os prazos (início da obra, data do despejo) o quanto antes. Isso define quanto tempo você tem.",
+      "Procure o cuidador responsável pela colônia, se já tiver um cadastrado no mapa.",
     ],
-    alert: "Avise cuidadores e vizinhos da região para que a comunidade possa agir junto.",
+    alert: "Avise cuidadores e vizinhos da região — junto, é mais fácil agir a tempo.",
   },
   {
     key: "other",
     label: "❓ Outro motivo",
     reportType: "sighting",
     guidance: [
-      "Conte com o guia de aprendizado do Felines para entender melhor o comportamento dos gatos de rua.",
-      "Se você avistou algo relevante, registre um relato para que a comunidade tenha visibilidade.",
+      "Dá uma olhada no nosso guia pra entender melhor o comportamento dos gatos de rua.",
+      "Se você viu algo que vale registrar, conta pra gente — isso ajuda quem está de olho na região.",
     ],
   },
 ];
@@ -166,7 +166,7 @@ export default function HelpFlow({ onClose }: { onClose?: () => void }) {
       {step === 1 && (
         <div>
           <h2 className="text-lg font-semibold text-felines-text-primary">
-            1. O que está acontecendo?
+            O que está acontecendo?
           </h2>
           <div className="mt-4 grid gap-3 sm:grid-cols-2">
             {SITUATIONS.map((option) => (
@@ -218,8 +218,8 @@ export default function HelpFlow({ onClose }: { onClose?: () => void }) {
                 {!isLoggedIn && !missingCatGuestConfirmed ? (
                   <div className="rounded-md bg-felines-warning/10 px-3 py-3 text-sm text-felines-text-primary">
                     <p>
-                      ⚠️ Relatar um gato perdido exige uma conta, pra comunidade saber com quem
-                      falar se o gato for encontrado.
+                      ⚠️ Pra cadastrar um gato perdido, você precisa de uma conta. Assim, quem
+                      encontrar o gato sabe com quem falar.
                     </p>
                     <div className="mt-3 flex flex-wrap gap-3">
                       <Link
@@ -244,7 +244,7 @@ export default function HelpFlow({ onClose }: { onClose?: () => void }) {
           ) : (
             <>
               <h2 className="mt-3 text-lg font-semibold text-felines-text-primary">
-                2. Onde você está?
+                Onde fica?
               </h2>
               {situation.reportType && !isLoggedIn && <AnonymousReportNotice />}
               <p className="mt-2 text-xs text-felines-text-secondary">
@@ -299,7 +299,9 @@ export default function HelpFlow({ onClose }: { onClose?: () => void }) {
                   {submitted && (
                     <div className="flex flex-col gap-1">
                       <div className="flex items-center gap-3">
-                        <p className="text-sm text-felines-success">Relato registrado, obrigado.</p>
+                        <p className="text-sm text-felines-success">
+                          Relato registrado. Valeu por avisar.
+                        </p>
                         {onClose && (
                           <button
                             onClick={onClose}
@@ -316,13 +318,13 @@ export default function HelpFlow({ onClose }: { onClose?: () => void }) {
                     href="/#aprender"
                     className="text-sm font-medium text-felines-accent hover:text-felines-accent-hover"
                   >
-                    Aprender mais sobre o tema →
+                    Entender melhor isso →
                   </Link>
                   <Link
                     href="/map"
                     className="text-sm font-medium text-felines-text-secondary hover:text-felines-accent"
                   >
-                    Ver mapa de colônias →
+                    Ver colônias no mapa →
                   </Link>
                 </div>
               </div>

@@ -14,11 +14,10 @@ export default async function WeatherBanner() {
 
   if (weather.isExtremeHeat) {
     alertMessage =
-      "Calor intenso hoje — gatos de rua precisam de água fresca à sombra com mais frequência.";
+      "Calor forte hoje. Os gatos de rua vão precisar de água fresca na sombra com mais frequência.";
     alertColorClass = "border-felines-warning bg-felines-warning/10 text-felines-text-primary";
   } else if (weather.isHeavyRain) {
-    alertMessage =
-      "Chuva forte prevista — verifique se a colônia tem abrigo seco disponível.";
+    alertMessage = "Chuva forte a caminho. Vale checar se a colônia tem um abrigo seco por perto.";
     alertColorClass = "border-felines-accent bg-felines-accent/10 text-felines-text-primary";
   }
 
@@ -27,7 +26,7 @@ export default async function WeatherBanner() {
       className={`flex flex-wrap items-center gap-3 rounded-xl border px-4 py-3 text-sm ${alertColorClass}`}
     >
       <span className="font-medium">
-        Natal agora: {roundedTemp}°C, {weather.description}
+        Agora: {roundedTemp}°C, {weather.description}
       </span>
       {alertMessage && <span>{alertMessage}</span>}
     </div>

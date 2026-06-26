@@ -72,7 +72,7 @@ export default function CaretakerLetters({ colonyId }: { colonyId: string }) {
     setSaving(false);
 
     if (updateError) {
-      setError("Não foi possível salvar a carta.");
+      setError("A carta não foi salva. Tenta de novo?");
       return;
     }
 
@@ -90,13 +90,13 @@ export default function CaretakerLetters({ colonyId }: { colonyId: string }) {
   return (
     <div>
       <p className="text-sm text-felines-text-secondary">
-        Histórico, hábitos dos gatos e dicas deixadas por quem já cuidou desta colônia.
+        Histórico, hábitos dos gatos e dicas de quem já passou por aqui antes.
       </p>
 
       {ownCaretakerId && (
         <div className="mt-4 rounded-xl border border-felines-border bg-felines-surface p-4">
           <label className="block text-sm font-medium text-felines-text-primary">
-            Sua carta
+            Deixe sua marca pro próximo cuidador
           </label>
           <textarea
             value={draft}
@@ -106,7 +106,7 @@ export default function CaretakerLetters({ colonyId }: { colonyId: string }) {
             }}
             rows={4}
             maxLength={2000}
-            placeholder="Conte o que um próximo cuidador precisaria saber sobre esta colônia."
+            placeholder="O que você gostaria que a próxima pessoa soubesse sobre essa colônia?"
             className="mt-2 w-full rounded-md border border-felines-border bg-white px-3 py-2 text-sm"
           />
           {error && <p className="mt-2 text-sm text-felines-emergency">{error}</p>}
@@ -122,7 +122,7 @@ export default function CaretakerLetters({ colonyId }: { colonyId: string }) {
 
       {!session && letters.length === 0 && (
         <p className="mt-4 text-sm text-felines-text-secondary">
-          Nenhuma carta deixada ainda nesta colônia.
+          Ninguém deixou uma carta por aqui ainda.
         </p>
       )}
 

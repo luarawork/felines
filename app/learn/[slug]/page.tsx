@@ -42,11 +42,20 @@ export default async function ArticlePage({
       </h1>
 
       <div className="mt-6 space-y-4">
-        {article.body.map((paragraph) => (
-          <p key={paragraph} className="text-base leading-relaxed text-felines-text-secondary">
-            {paragraph}
-          </p>
-        ))}
+        {article.body.map((paragraph) =>
+          paragraph.startsWith("### ") ? (
+            <h3
+              key={paragraph}
+              className="!mt-8 text-xl font-bold text-felines-text-primary"
+            >
+              {paragraph.slice(4)}
+            </h3>
+          ) : (
+            <p key={paragraph} className="text-base leading-relaxed text-felines-text-secondary">
+              {paragraph}
+            </p>
+          )
+        )}
       </div>
 
       {article.factChips && article.factChips.length > 0 && (

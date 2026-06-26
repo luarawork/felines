@@ -8,15 +8,23 @@ export default function AuthRequiredNotice() {
   return (
     <div className="rounded-lg border border-felines-border bg-felines-surface px-4 py-3 text-sm text-felines-text-secondary">
       <p>
-        Para fazer isso, você precisa de uma conta rápida — isso ajuda a comunidade saber com
-        quem entrar em contato.
+        Pra fazer isso, você precisa de uma conta. É rápido — e ajuda quem cuida da colônia a
+        saber com quem falar.
       </p>
-      <Link
-        href="/signup"
-        className="mt-2 inline-block rounded-full bg-felines-accent px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-felines-accent-hover"
-      >
-        Criar conta
-      </Link>
+      <div className="mt-2 flex flex-wrap gap-2">
+        <Link
+          href="/signup"
+          className="inline-block rounded-full bg-felines-accent px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-felines-accent-hover"
+        >
+          Criar conta
+        </Link>
+        <Link
+          href="/login"
+          className="inline-block rounded-full px-4 py-2 text-sm font-medium text-felines-text-secondary transition-colors hover:text-felines-text-primary"
+        >
+          Já tenho conta
+        </Link>
+      </div>
     </div>
   );
 }

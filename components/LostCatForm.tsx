@@ -35,7 +35,7 @@ export default function LostCatForm({ onSubmitted }: { onSubmitted?: () => void 
     setError(null);
 
     if (!photoFile) {
-      setError("A foto do gato é obrigatória.");
+      setError("A foto do gato é obrigatória — sem ela, fica difícil alguém reconhecer ele na rua.");
       return;
     }
     const photoError = validatePhotoFile(photoFile);
@@ -57,7 +57,7 @@ export default function LostCatForm({ onSubmitted }: { onSubmitted?: () => void 
 
     if (uploadError) {
       setSubmitting(false);
-      setError("Não foi possível enviar a foto. Tente novamente.");
+      setError("A foto não subiu. Tenta de novo?");
       return;
     }
 
@@ -76,7 +76,7 @@ export default function LostCatForm({ onSubmitted }: { onSubmitted?: () => void 
     setSubmitting(false);
 
     if (insertError) {
-      setError("Não foi possível registrar o gato perdido. Tente novamente.");
+      setError("O gato perdido não foi cadastrado. Tenta de novo?");
       return;
     }
 
@@ -89,8 +89,8 @@ export default function LostCatForm({ onSubmitted }: { onSubmitted?: () => void 
     return (
       <div>
         <p className="mb-3 text-sm text-felines-text-secondary">
-          Para cadastrar um gato perdido você precisa de uma conta — assim quem avistar o gato
-          consegue te avisar.
+          Pra cadastrar um gato perdido, você precisa de uma conta. Assim, quem encontrar ele sabe
+          como te avisar.
         </p>
         <AuthRequiredNotice />
       </div>
@@ -104,7 +104,7 @@ export default function LostCatForm({ onSubmitted }: { onSubmitted?: () => void 
           htmlFor="lost-cat-description"
           className="block text-xs font-medium text-felines-text-secondary"
         >
-          Sobre o gato (nome, cor, características)
+          Como ele é (nome, cor, jeitão)
         </label>
         <textarea
           id="lost-cat-description"
@@ -127,7 +127,7 @@ export default function LostCatForm({ onSubmitted }: { onSubmitted?: () => void 
 
       <div>
         <label className="block text-xs font-medium text-felines-text-secondary">
-          Onde ele foi visto pela última vez
+          Onde foi a última vez que você viu ele
         </label>
         <p className="mt-1 text-xs text-felines-text-secondary">
           Toque ou arraste o pino até o local.
@@ -147,7 +147,7 @@ export default function LostCatForm({ onSubmitted }: { onSubmitted?: () => void 
         disabled={submitting}
         className="rounded-full bg-felines-accent px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-felines-accent-hover disabled:opacity-50"
       >
-        {submitting ? "Cadastrando..." : "Cadastrar gato perdido"}
+        {submitting ? "Cadastrando..." : "Avisar que ele está perdido"}
       </button>
     </form>
   );

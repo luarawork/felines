@@ -65,23 +65,23 @@ export default function NewColonyForm() {
     setError(null);
 
     if (moreThanOneCat === null || seenFrequently === null || hasCareSigns === null) {
-      setError("Responda as perguntas de validação antes de continuar.");
+      setError("Responda as 4 perguntas ali acima antes de continuar.");
       return;
     }
     if (!moreThanOneCat || !seenFrequently) {
-      setError("Isso pode ser um avistamento em vez de uma colônia. Veja a sugestão acima.");
+      setError("Isso soa mais como um avistamento. Dá uma olhada na sugestão acima.");
       return;
     }
     if (!canPhotoNow) {
-      setError("É necessário poder fotografar o local agora para cadastrar a colônia.");
+      setError("Pra cadastrar, você precisa conseguir fotografar o local agora.");
       return;
     }
     if (!name.trim()) {
-      setError("Informe um nome para a colônia.");
+      setError("Dê um nome pra essa colônia.");
       return;
     }
     if (!photoFile) {
-      setError("Envie uma foto da colônia.");
+      setError("Falta a foto da colônia.");
       return;
     }
     const photoError = validatePhotoFile(photoFile);
@@ -90,7 +90,7 @@ export default function NewColonyForm() {
       return;
     }
     if (!position) {
-      setError("Clique no mapa para marcar a localização exata da colônia.");
+      setError("Toque no mapa pra marcar onde essa colônia fica.");
       return;
     }
     if (!session) return;
@@ -104,7 +104,7 @@ export default function NewColonyForm() {
 
     if (uploadError) {
       setSubmitting(false);
-      setError("Não foi possível enviar a foto. Tente novamente.");
+      setError("A foto não subiu. Tenta de novo?");
       return;
     }
 
@@ -135,7 +135,7 @@ export default function NewColonyForm() {
     setSubmitting(false);
 
     if (insertError || !colony) {
-      setError("Não foi possível cadastrar a colônia. Tente novamente.");
+      setError("Algo deu errado e a colônia não foi cadastrada. Tenta de novo?");
       return;
     }
 
@@ -158,23 +158,23 @@ export default function NewColonyForm() {
       {/* Validation questions */}
       <fieldset className="space-y-4 rounded-xl border border-felines-border bg-felines-surface p-4">
         <legend className="text-sm font-semibold text-felines-text-primary">
-          Antes de cadastrar
+          Antes de continuar, 4 perguntas rápidas
         </legend>
 
         <ValidationQuestion
-          question="Há mais de um gato nesse local?"
+          question="Tem mais de um gato nesse lugar?"
           value={moreThanOneCat}
           onChange={setMoreThanOneCat}
         />
         <ValidationQuestion
-          question="Você os vê com frequência no mesmo lugar?"
+          question="Você vê eles ali com frequência, sempre no mesmo lugar?"
           value={seenFrequently}
           onChange={setSeenFrequently}
         />
 
         {(moreThanOneCat === false || seenFrequently === false) && (
           <div className="rounded-md bg-felines-warning/10 px-3 py-2 text-sm text-felines-text-primary">
-            <p>Isso parece mais um avistamento do que uma colônia. Quer relatar rapidinho?</p>
+            <p>Pelo que você descreveu, isso parece mais um avistamento do que uma colônia.</p>
             <button
               type="button"
               onClick={() => setShowSightingForm(true)}
@@ -186,12 +186,12 @@ export default function NewColonyForm() {
         )}
 
         <ValidationQuestion
-          question="Há sinais de que alguém já cuida deles? (potes de comida, água, abrigos pequenos)"
+          question="Já tem sinais de que alguém cuida deles? (potes de comida, água, abrigo pequeno)"
           value={hasCareSigns}
           onChange={setHasCareSigns}
         />
         <ValidationQuestion
-          question="Você consegue fotografar o local agora? (obrigatório para cadastrar)"
+          question="Você consegue tirar uma foto do local agora? É obrigatório pra cadastrar."
           value={canPhotoNow}
           onChange={setCanPhotoNow}
         />
@@ -228,7 +228,7 @@ export default function NewColonyForm() {
           onChange={(formEvent) => setNarrative(formEvent.target.value)}
           rows={4}
           maxLength={1000}
-          placeholder="Conte um pouco sobre a história e os hábitos dessa colônia."
+          placeholder="Como você conheceu esses gatos? O que eles costumam fazer?"
           className="mt-1 w-full rounded-md border border-felines-border bg-white px-3 py-2 text-sm"
         />
       </div>
@@ -239,7 +239,7 @@ export default function NewColonyForm() {
           htmlFor="new-colony-castration"
           className="block text-sm font-medium text-felines-text-primary"
         >
-          Situação de castração
+          Quantos já são castrados?
         </label>
         <select
           id="new-colony-castration"
@@ -249,16 +249,16 @@ export default function NewColonyForm() {
           }
           className="mt-1 w-full rounded-md border border-felines-border bg-white px-3 py-2 text-sm"
         >
-          <option value="none">Nenhum gato castrado</option>
-          <option value="partial">Castração parcial</option>
-          <option value="full">Colônia totalmente castrada</option>
+          <option value="none">Nenhum ainda</option>
+          <option value="partial">Alguns sim, outros não</option>
+          <option value="full">Todos castrados</option>
         </select>
       </div>
 
       {/* Photo upload */}
       <div>
         <label className="block text-sm font-medium text-felines-text-primary">
-          Foto da colônia
+          Uma foto do local
         </label>
         <div className="mt-1">
           <PhotoUploadButton label="Escolher foto" file={photoFile} onChange={setPhotoFile} />
@@ -268,10 +268,10 @@ export default function NewColonyForm() {
       {/* Map marker placement */}
       <div>
         <label className="block text-sm font-medium text-felines-text-primary">
-          Localização exata
+          Onde exatamente
         </label>
         <p className="mt-1 text-xs text-felines-text-secondary">
-          Toque ou arraste o pino no mapa até o local exato da colônia.
+          Toque ou arraste o pino até o ponto certo no mapa.
         </p>
         <div className="mt-2 h-64 w-full overflow-hidden rounded-xl border border-felines-border">
           <MapMarkerPickerShell
@@ -288,7 +288,7 @@ export default function NewColonyForm() {
         disabled={submitting}
         className="w-full rounded-full bg-felines-accent px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-felines-accent-hover disabled:opacity-50"
       >
-        {submitting ? "Cadastrando..." : "Cadastrar colônia"}
+        {submitting ? "Colocando no mapa..." : "Colocar no mapa"}
       </button>
     </form>
 

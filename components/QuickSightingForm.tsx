@@ -50,7 +50,7 @@ export default function QuickSightingForm({
 
       if (uploadError) {
         setSubmitting(false);
-        setError("Não foi possível enviar a foto.");
+        setError("A foto não subiu. Tenta de novo?");
         return;
       }
 
@@ -72,7 +72,7 @@ export default function QuickSightingForm({
     setSubmitting(false);
 
     if (insertError) {
-      setError("Não foi possível enviar o avistamento. Tente novamente.");
+      setError("O avistamento não foi enviado. Tenta de novo?");
       return;
     }
 
