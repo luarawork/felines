@@ -88,22 +88,27 @@ function BoundsTracker({ onBoundsChange }: { onBoundsChange: (bounds: L.LatLngBo
 
 type PinType = "colony" | "sighting" | "emergency";
 
-// Builds a circular Leaflet divIcon with the given color. Emergency pins
-// get an extra CSS class that drives a pulsing animation (see globals.css).
-function buildPinIcon(color: string, pulsing = false) {
+// Builds a circular Leaflet divIcon with the given color and size.
+// Emergency pins get an extra CSS class that drives a pulsing animation
+// (see globals.css). An optional centered icon (e.g. a paw print)
+// distinguishes colony pins from the otherwise-identical-shaped sighting
+// pin at a glance, beyond just color.
+function buildPinIcon(color: string, size: number, pulsing = false, icon = "") {
   return L.divIcon({
     className: "",
     html: `<span class="${
       pulsing ? "felines-pin felines-pin-pulse" : "felines-pin"
-    }" style="background:${color}"></span>`,
-    iconSize: [18, 18],
-    iconAnchor: [9, 9],
+    }" style="background:${color};width:${size}px;height:${size}px;display:flex;align-items:center;justify-content:center;font-size:${Math.round(
+      size * 0.55
+    )}px;line-height:1;">${icon}</span>`,
+    iconSize: [size, size],
+    iconAnchor: [size / 2, size / 2],
   });
 }
 
-const colonyIcon = buildPinIcon("#C4704F");
-const sightingIcon = buildPinIcon("#6B6B6B");
-const emergencyIcon = buildPinIcon("#C0392B", true);
+const colonyIcon = buildPinIcon("#C4704F", 36, false, "🐾");
+const sightingIcon = buildPinIcon("#6B6B6B", 24);
+const emergencyIcon = buildPinIcon("#C0392B", 36, true);
 
 const EMERGENCY_REPORT_TYPES = [
   "injured_sick",
