@@ -5,13 +5,13 @@
 // section below. Alternates light/dark section backgrounds and uses
 // scroll-reveal + count-up motion for an editorial, Meow-Metrics-style
 // feel rather than a dense informational page.
+import Image from "next/image";
 import Link from "next/link";
 import FirstVisitBanner from "@/components/FirstVisitBanner";
 import LearnIndex from "@/components/LearnIndex";
 import OpenHelpModalButton from "@/components/OpenHelpModalButton";
 import Reveal from "@/components/Reveal";
 import CountUpStat from "@/components/CountUpStat";
-import CatHeroIllustration from "@/components/CatHeroIllustration";
 import MapPreviewIllustration from "@/components/MapPreviewIllustration";
 import ArticleCard from "@/components/ArticleCard";
 import { ARTICLES } from "@/lib/articles";
@@ -102,7 +102,14 @@ export default function Home() {
         </div>
         <Reveal delayMs={150} className="w-full flex-1">
           <div className="mx-auto max-w-sm drop-shadow-xl lg:max-w-none">
-            <CatHeroIllustration />
+            <Image
+              src="/images/hero-cat.png"
+              alt="Ilustração de um gato de rua sentado, olhando para o lado"
+              width={1254}
+              height={1254}
+              priority
+              className="h-auto w-full"
+            />
           </div>
         </Reveal>
       </section>

@@ -87,10 +87,10 @@ export default function NavBar() {
       >
         <Link href="/" className="flex-shrink-0">
           <Image
-            src="/logo.png"
+            src="/images/logo.png"
             alt="Felines"
             width={150}
-            height={66}
+            height={60}
             priority
             className="h-10 w-auto"
           />
