@@ -274,18 +274,11 @@ export default function Home() {
         </Reveal>
       </section>
 
-      {/* Educational guide, merged into the home page */}
-      <section id="aprender" className="bg-felines-background pb-20">
-        <div className="mx-auto max-w-6xl px-4 sm:px-6">
-          <h2 className="text-3xl font-bold leading-tight text-felines-text-primary sm:text-[40px]">
-            Guia de aprendizado
-          </h2>
-          <p className="mt-3 max-w-2xl text-base text-felines-text-secondary">
-            Conteúdo curto e direto para entender os gatos de rua da sua região.
-          </p>
-          <LearnIndex articles={ARTICLES} />
-        </div>
-      </section>
+      {/* Educational guide, merged into the home page as its own
+          sequence of alternating sections — one per theme — instead of
+          a single dense list, so each topic gets the same visual
+          weight as the rest of the page. */}
+      <LearnIndex articles={ARTICLES} startDark />
     </div>
   );
 }

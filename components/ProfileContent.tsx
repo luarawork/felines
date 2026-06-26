@@ -21,6 +21,7 @@ import {
 import { buildSafeStoragePath, validatePhotoFile } from "@/lib/storage";
 import EmptyState from "@/components/EmptyState";
 import PhotoUploadButton from "@/components/PhotoUploadButton";
+import Quiz from "@/components/Quiz";
 
 type LinkedColony = { id: string; name: string };
 type FeedingRecord = { id: string; colony_id: string; created_at: string };
@@ -43,6 +44,8 @@ export default function ProfileContent() {
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [avatarError, setAvatarError] = useState<string | null>(null);
+  const [showQuiz, setShowQuiz] = useState(false);
+  const [quizSkipped, setQuizSkipped] = useState(false);
   const [confirmationsGiven, setConfirmationsGiven] = useState<ConfirmationRecord[]>([]);
   const [thanksSent, setThanksSent] = useState<ThankYouRecord[]>([]);
   const [thanksReceived, setThanksReceived] = useState<ThankYouRecord[]>([]);
@@ -478,6 +481,32 @@ export default function ProfileContent() {
         <p className="mt-1 text-sm text-felines-text-secondary">
           {readCount} de {ARTICLES.length} artigos lidos
         </p>
+
+        {readCount >= 3 && !showQuiz && !quizSkipped && (
+          <div className="mt-4 rounded-xl bg-gradient-to-br from-felines-accent to-felines-accent-hover p-5">
+            <p className="font-semibold text-white">Que tipo de vizinho você é? →</p>
+            <button
+              onClick={() => setShowQuiz(true)}
+              className="mt-2 rounded-full bg-white px-4 py-1.5 text-sm font-semibold text-felines-accent transition-opacity hover:opacity-90"
+            >
+              Descobrir
+            </button>
+            <button
+              onClick={() => setQuizSkipped(true)}
+              className="ml-3 text-sm text-white/80 hover:text-white"
+            >
+              Fazer isso depois
+            </button>
+          </div>
+        )}
+        {showQuiz && (
+          <Quiz
+            onSkip={() => {
+              setShowQuiz(false);
+              setQuizSkipped(true);
+            }}
+          />
+        )}
       </section>
     </div>
   );
