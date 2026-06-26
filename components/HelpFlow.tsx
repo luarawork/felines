@@ -10,7 +10,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient";
 import AnonymousReportNotice from "@/components/AnonymousReportNotice";
-import AddressAutocomplete from "@/components/AddressAutocomplete";
+import MapMarkerPickerShell from "@/components/MapMarkerPickerShell";
 import CreateAccountInvite from "@/components/CreateAccountInvite";
 import LostCatForm from "@/components/LostCatForm";
 
@@ -130,8 +130,7 @@ const SITUATIONS: Situation[] = [
 export default function HelpFlow({ onClose }: { onClose?: () => void }) {
   const [step, setStep] = useState<1 | 2>(1);
   const [situation, setSituation] = useState<Situation | null>(null);
-  const [location, setLocation] = useState("");
-  const [locationCoords, setLocationCoords] = useState<{ lat: number; lon: number } | null>(null);
+  const [locationCoords, setLocationCoords] = useState<[number, number] | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(true);
@@ -145,15 +144,14 @@ export default function HelpFlow({ onClose }: { onClose?: () => void }) {
     supabase.auth.getSession().then(({ data }) => setIsLoggedIn(!!data.session));
   }, []);
 
-  // Sends a report using the situation's report type and the free-text location.
+  // Sends a report using the situation's report type and the marked location.
   async function handleSubmitReport() {
     if (!situation?.reportType) return;
     setSubmitting(true);
     const { error } = await supabase.from("reports").insert({
       type: situation.reportType,
-      description: location ? `Localização informada: ${location}` : null,
-      latitude: locationCoords?.lat ?? null,
-      longitude: locationCoords?.lon ?? null,
+      latitude: locationCoords?.[0] ?? null,
+      longitude: locationCoords?.[1] ?? null,
       status: "open",
     });
     setSubmitting(false);
@@ -249,14 +247,13 @@ export default function HelpFlow({ onClose }: { onClose?: () => void }) {
                 2. Onde você está?
               </h2>
               {situation.reportType && !isLoggedIn && <AnonymousReportNotice />}
-              <div className="mt-2">
-                <AddressAutocomplete
-                  value={location}
-                  onChange={(newValue) => {
-                    setLocation(newValue);
-                    setLocationCoords(null);
-                  }}
-                  onSelectLocation={(lat, lon) => setLocationCoords({ lat, lon })}
+              <p className="mt-2 text-xs text-felines-text-secondary">
+                Toque ou arraste o pino até o local.
+              </p>
+              <div className="mt-2 h-48 w-full overflow-hidden rounded-xl border border-felines-border">
+                <MapMarkerPickerShell
+                  position={locationCoords}
+                  onPick={(lat, lng) => setLocationCoords([lat, lng])}
                 />
               </div>
 

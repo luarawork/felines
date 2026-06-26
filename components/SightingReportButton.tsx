@@ -8,12 +8,11 @@
 
 import { useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
-import AddressAutocomplete from "@/components/AddressAutocomplete";
+import MapMarkerPickerShell from "@/components/MapMarkerPickerShell";
 
 export default function SightingReportButton({ lostCatReportId }: { lostCatReportId: string }) {
   const [open, setOpen] = useState(false);
-  const [location, setLocation] = useState("");
-  const [locationCoords, setLocationCoords] = useState<{ lat: number; lon: number } | null>(null);
+  const [locationCoords, setLocationCoords] = useState<[number, number] | null>(null);
   const [note, setNote] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -30,8 +29,8 @@ export default function SightingReportButton({ lostCatReportId }: { lostCatRepor
         ? `Possível avistamento do gato perdido: ${note.trim()}`
         : "Possível avistamento do gato perdido.",
       related_report_id: lostCatReportId,
-      latitude: locationCoords?.lat ?? null,
-      longitude: locationCoords?.lon ?? null,
+      latitude: locationCoords?.[0] ?? null,
+      longitude: locationCoords?.[1] ?? null,
       status: "open",
       created_by: sessionData.session?.user.id ?? null,
     });
@@ -61,14 +60,12 @@ export default function SightingReportButton({ lostCatReportId }: { lostCatRepor
       className="mt-2 max-w-xs rounded-md border border-felines-border bg-white p-3"
     >
       <label className="block text-xs font-medium text-felines-text-secondary">Onde você viu</label>
-      <AddressAutocomplete
-        value={location}
-        onChange={(newValue) => {
-          setLocation(newValue);
-          setLocationCoords(null);
-        }}
-        onSelectLocation={(lat, lon) => setLocationCoords({ lat, lon })}
-      />
+      <div className="mt-1 h-40 w-full overflow-hidden rounded-md border border-felines-border">
+        <MapMarkerPickerShell
+          position={locationCoords}
+          onPick={(lat, lng) => setLocationCoords([lat, lng])}
+        />
+      </div>
       <label className="mt-2 block text-xs font-medium text-felines-text-secondary">
         Nota (opcional)
       </label>
