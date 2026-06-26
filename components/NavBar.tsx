@@ -11,6 +11,7 @@ import { useRouter } from "next/navigation";
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabaseClient";
 import { getAvatarUrl } from "@/lib/profile";
+import { checkExtremeWeatherForCaretaker, getUnreadCount } from "@/lib/notifications";
 import { useHelpModal } from "@/components/HelpModalProvider";
 
 // Links shown in the main navigation, in display order. "Aprender" was
@@ -25,6 +26,7 @@ export default function NavBar() {
   const { openHelpModal } = useHelpModal();
   const [session, setSession] = useState<Session | null>(null);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [unreadCount, setUnreadCount] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
   const headerRef = useRef<HTMLElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -64,6 +66,17 @@ export default function NavBar() {
   useEffect(() => {
     if (!session) return;
     getAvatarUrl(session.user.id).then(setAvatarUrl);
+  }, [session]);
+
+  // Checks the current weather against the extreme thresholds and
+  // creates a notification per colony the user cares for (deduped per
+  // day), then refreshes the unread badge. Runs once per session, on
+  // whichever page the user happens to load first.
+  useEffect(() => {
+    if (!session) return;
+    checkExtremeWeatherForCaretaker(session.user.id).finally(() => {
+      getUnreadCount(session.user.id).then(setUnreadCount);
+    });
   }, [session]);
 
   // Closes the avatar dropdown when clicking outside it.
@@ -130,7 +143,7 @@ export default function NavBar() {
                 aria-label="Menu da conta"
                 aria-haspopup="true"
                 aria-expanded={menuOpen}
-                className="flex h-11 w-11 items-center justify-center overflow-hidden rounded-full bg-felines-accent-light text-sm font-semibold text-felines-accent-hover transition-colors hover:bg-felines-accent hover:text-white"
+                className="relative flex h-11 w-11 items-center justify-center overflow-hidden rounded-full border border-felines-border bg-felines-accent-light text-sm font-semibold text-felines-accent-hover transition-colors hover:bg-felines-accent hover:text-white"
               >
                 {avatarUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
@@ -138,15 +151,32 @@ export default function NavBar() {
                 ) : (
                   initial
                 )}
+                {unreadCount > 0 && (
+                  <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-felines-emergency text-[10px] font-bold text-white">
+                    {unreadCount > 9 ? "9+" : unreadCount}
+                  </span>
+                )}
               </button>
               {menuOpen && (
-                <div className="absolute right-0 mt-2 w-44 rounded-xl border border-felines-border bg-white py-1 text-sm shadow-[0_8px_24px_rgba(0,0,0,0.10)]">
+                <div className="absolute right-0 mt-2 w-48 rounded-xl border border-felines-border bg-white py-1 text-sm shadow-[0_8px_24px_rgba(0,0,0,0.10)]">
                   <Link
                     href="/profile"
                     onClick={() => setMenuOpen(false)}
                     className="block px-4 py-2 text-felines-text-primary hover:bg-felines-background"
                   >
                     Meu perfil
+                  </Link>
+                  <Link
+                    href="/notifications"
+                    onClick={() => setMenuOpen(false)}
+                    className="flex items-center justify-between px-4 py-2 text-felines-text-primary hover:bg-felines-background"
+                  >
+                    Notificações
+                    {unreadCount > 0 && (
+                      <span className="rounded-full bg-felines-emergency px-1.5 py-0.5 text-xs font-bold text-white">
+                        {unreadCount}
+                      </span>
+                    )}
                   </Link>
                   <button
                     onClick={handleLogout}

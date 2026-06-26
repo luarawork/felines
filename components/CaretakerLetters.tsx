@@ -6,11 +6,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabaseClient";
 
 type CaretakerLetter = {
   id: string;
+  userId: string;
   letter: string | null;
   created_at: string;
 };
@@ -19,12 +21,14 @@ type LetterHistoryEntry = {
   id: string;
   description: string | null;
   created_at: string;
+  userId: string;
 };
 
 export default function CaretakerLetters({ colonyId }: { colonyId: string }) {
   const [session, setSession] = useState<Session | null>(null);
   const [letters, setLetters] = useState<CaretakerLetter[]>([]);
   const [history, setHistory] = useState<LetterHistoryEntry[]>([]);
+  const [authorNames, setAuthorNames] = useState<Record<string, string>>({});
   const [ownCaretakerId, setOwnCaretakerId] = useState<string | null>(null);
   const [draft, setDraft] = useState("");
   const [loading, setLoading] = useState(true);
@@ -46,7 +50,7 @@ export default function CaretakerLetters({ colonyId }: { colonyId: string }) {
           .order("created_at", { ascending: false }),
         supabase
           .from("timeline_events")
-          .select("id, description, created_at")
+          .select("id, description, created_at, created_by")
           .eq("colony_id", colonyId)
           .eq("event_type", "caretaker_letter_updated")
           .order("created_at", { ascending: false }),
@@ -56,7 +60,12 @@ export default function CaretakerLetters({ colonyId }: { colonyId: string }) {
         setLetters(
           caretakerRows
             .filter((row) => row.letter && row.letter.trim().length > 0)
-            .map((row) => ({ id: row.id, letter: row.letter, created_at: row.created_at }))
+            .map((row) => ({
+              id: row.id,
+              userId: row.user_id,
+              letter: row.letter,
+              created_at: row.created_at,
+            }))
         );
 
         if (currentSession) {
@@ -68,7 +77,33 @@ export default function CaretakerLetters({ colonyId }: { colonyId: string }) {
         }
       }
 
-      if (historyRows) setHistory(historyRows as LetterHistoryEntry[]);
+      const historyWithAuthor = (historyRows ?? [])
+        .filter((row) => row.created_by)
+        .map((row) => ({
+          id: row.id,
+          description: row.description,
+          created_at: row.created_at,
+          userId: row.created_by as string,
+        }));
+      setHistory(historyWithAuthor);
+
+      // Names for both the current letters and the history entries —
+      // one batched lookup instead of one query per author.
+      const authorIds = new Set<string>([
+        ...(caretakerRows ?? []).map((row) => row.user_id),
+        ...historyWithAuthor.map((row) => row.userId),
+      ]);
+      if (authorIds.size > 0) {
+        const { data: profiles } = await supabase
+          .from("profiles")
+          .select("id, display_name")
+          .in("id", Array.from(authorIds));
+        const names: Record<string, string> = {};
+        (profiles ?? []).forEach((profile) => {
+          names[profile.id] = profile.display_name || "Alguém da comunidade";
+        });
+        setAuthorNames(names);
+      }
 
       setLoading(false);
     }
@@ -103,20 +138,36 @@ export default function CaretakerLetters({ colonyId }: { colonyId: string }) {
         description: draft.trim() || "(carta removida)",
         created_by: session.user.id,
       })
-      .select("id, description, created_at")
+      .select("id, description, created_at, created_by")
       .single();
 
     setSaving(false);
     setSaved(true);
 
     if (historyRow) {
-      setHistory((previous) => [historyRow as LetterHistoryEntry, ...previous]);
+      setHistory((previous) => [
+        {
+          id: historyRow.id,
+          description: historyRow.description,
+          created_at: historyRow.created_at,
+          userId: historyRow.created_by,
+        },
+        ...previous,
+      ]);
     }
 
     setLetters((previous) => {
       const withoutOwn = previous.filter((letter) => letter.id !== ownCaretakerId);
       return draft.trim()
-        ? [{ id: ownCaretakerId, letter: draft.trim(), created_at: new Date().toISOString() }, ...withoutOwn]
+        ? [
+            {
+              id: ownCaretakerId,
+              userId: session.user.id,
+              letter: draft.trim(),
+              created_at: new Date().toISOString(),
+            },
+            ...withoutOwn,
+          ]
         : withoutOwn;
     });
   }
@@ -175,7 +226,10 @@ export default function CaretakerLetters({ colonyId }: { colonyId: string }) {
                   {letter.letter}
                 </p>
                 <p className="mt-2 text-xs text-felines-text-secondary">
-                  {new Date(letter.created_at).toLocaleDateString("pt-BR")}
+                  <Link href={`/u/${letter.userId}`} className="text-felines-accent-hover">
+                    {authorNames[letter.userId] ?? "Alguém da comunidade"}
+                  </Link>{" "}
+                  · {new Date(letter.created_at).toLocaleDateString("pt-BR")}
                 </p>
               </li>
             ))}
@@ -195,7 +249,10 @@ export default function CaretakerLetters({ colonyId }: { colonyId: string }) {
                   {entry.description}
                 </p>
                 <p className="mt-2 text-xs text-felines-text-secondary">
-                  {new Date(entry.created_at).toLocaleDateString("pt-BR")}
+                  <Link href={`/u/${entry.userId}`} className="text-felines-accent-hover">
+                    {authorNames[entry.userId] ?? "Alguém da comunidade"}
+                  </Link>{" "}
+                  · {new Date(entry.created_at).toLocaleDateString("pt-BR")}
                 </p>
               </li>
             ))}

@@ -154,6 +154,24 @@ summary:focus-visible,
   transform: translateY(0);
 }
 
+@keyframes felines-step-in {
+  from {
+    opacity: 0;
+    transform: translateX(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Used for the quiz's question-to-question transition — a keyframe
+   instead of a class-toggle transition, since the step is a fresh
+   element each time (key={animKey}) and needs to animate in on mount. */
+.felines-step-in {
+  animation: felines-step-in 250ms ease;
+}
+
 @keyframes felines-help-pulse {
   0%,
   100% {

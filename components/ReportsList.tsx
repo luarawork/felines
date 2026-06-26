@@ -12,7 +12,7 @@ import type { Session } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabaseClient";
 import { getReportTypeLabel, REPORT_TYPES } from "@/lib/reportTypes";
 import EmptyState from "@/components/EmptyState";
-import FlagButton from "@/components/FlagButton";
+import FlagButton, { getFlagReasonLabel } from "@/components/FlagButton";
 import SightingReportButton from "@/components/SightingReportButton";
 
 type Report = {
@@ -29,6 +29,17 @@ type Report = {
   created_at: string;
 };
 
+type Flag = {
+  id: string;
+  target_type: "colony" | "report";
+  target_id: string;
+  reason: string;
+  details: string | null;
+  created_at: string;
+  targetLabel: string;
+  targetHref: string | null;
+};
+
 export default function ReportsList() {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
@@ -39,6 +50,7 @@ export default function ReportsList() {
   const [typeFilter, setTypeFilter] = useState<string>("all");
   const [error, setError] = useState<string | null>(null);
   const [highlightedReportId, setHighlightedReportId] = useState<string | null>(null);
+  const [flags, setFlags] = useState<Flag[]>([]);
 
   // Loads the auth session, the list of reports filtered by status, and
   // which colonies the current user can manage (to gate manual resolve).
@@ -79,6 +91,48 @@ export default function ReportsList() {
       setMyColonyIds(colonyIds);
 
       setConfirmedReportIds(new Set((myConfirmations ?? []).map((row) => row.report_id)));
+
+      const { data: flagRows } = await supabase
+        .from("flags")
+        .select("id, target_type, target_id, reason, details, created_at")
+        .order("created_at", { ascending: false });
+
+      if (flagRows && flagRows.length > 0) {
+        const colonyFlagIds = flagRows
+          .filter((flag) => flag.target_type === "colony")
+          .map((flag) => flag.target_id);
+        const reportFlagIds = flagRows
+          .filter((flag) => flag.target_type === "report")
+          .map((flag) => flag.target_id);
+
+        const [{ data: flaggedColonies }, { data: flaggedReports }] = await Promise.all([
+          colonyFlagIds.length > 0
+            ? supabase.from("colonies").select("id, name").in("id", colonyFlagIds)
+            : Promise.resolve({ data: [] as { id: string; name: string }[] }),
+          reportFlagIds.length > 0
+            ? supabase.from("reports").select("id, type").in("id", reportFlagIds)
+            : Promise.resolve({ data: [] as { id: string; type: string }[] }),
+        ]);
+
+        setFlags(
+          flagRows.map((flag) => {
+            if (flag.target_type === "colony") {
+              const colony = (flaggedColonies ?? []).find((row) => row.id === flag.target_id);
+              return {
+                ...flag,
+                targetLabel: colony ? `Colônia: ${colony.name}` : "Colônia",
+                targetHref: `/colony/${flag.target_id}`,
+              };
+            }
+            const report = (flaggedReports ?? []).find((row) => row.id === flag.target_id);
+            return {
+              ...flag,
+              targetLabel: report ? `Relato: ${getReportTypeLabel(report.type)}` : "Relato",
+              targetHref: `#report-${flag.target_id}`,
+            };
+          })
+        );
+      }
 
       setLoading(false);
     }
@@ -335,6 +389,39 @@ export default function ReportsList() {
             );
           })}
         </ul>
+      )}
+
+      {flags.length > 0 && (
+        <div className="mt-10">
+          <h2 className="text-lg font-bold text-felines-text-primary">
+            Possíveis informações falsas sinalizadas
+          </h2>
+          <ul className="mt-3 space-y-2">
+            {flags.map((flag) => (
+              <li
+                key={flag.id}
+                className="rounded-md border border-felines-warning/40 bg-felines-warning/5 px-3 py-2 text-sm"
+              >
+                <p className="font-medium text-felines-text-primary">
+                  {flag.targetHref ? (
+                    <Link href={flag.targetHref} className="text-felines-accent-hover">
+                      {flag.targetLabel}
+                    </Link>
+                  ) : (
+                    flag.targetLabel
+                  )}{" "}
+                  · {getFlagReasonLabel(flag.reason)}
+                </p>
+                {flag.details && (
+                  <p className="mt-1 text-felines-text-secondary">{flag.details}</p>
+                )}
+                <p className="mt-1 text-xs text-felines-text-secondary">
+                  {new Date(flag.created_at).toLocaleDateString("pt-BR")}
+                </p>
+              </li>
+            ))}
+          </ul>
+        </div>
       )}
     </div>
   );

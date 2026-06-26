@@ -8,12 +8,16 @@
 import { useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 
-const FLAG_REASONS: { value: string; label: string }[] = [
+export const FLAG_REASONS: { value: string; label: string }[] = [
   { value: "fake_location", label: "Localização falsa" },
   { value: "harmful_content", label: "Conteúdo nocivo" },
   { value: "spam", label: "Spam" },
   { value: "other", label: "Outro" },
 ];
+
+export function getFlagReasonLabel(value: string): string {
+  return FLAG_REASONS.find((reason) => reason.value === value)?.label ?? value;
+}
 
 export default function FlagButton({
   targetType,

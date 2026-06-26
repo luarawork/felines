@@ -462,59 +462,80 @@ export default function ProfileContent() {
             })}
           </div>
 
-          {readCount >= 3 && !showQuiz && !quizSkipped && (
-            <Reveal delayMs={150}>
-              <div className="mt-10 max-w-2xl rounded-2xl bg-gradient-to-br from-felines-accent to-felines-accent-hover p-8 shadow-[0_8px_24px_rgba(196,112,79,0.35)]">
-                <span className="text-4xl" aria-hidden="true">
-                  🐾
-                </span>
-                <p className="mt-3 text-2xl font-bold leading-tight text-white">
-                  Que tipo de vizinho você é? →
-                </p>
-                <p className="mt-1 text-sm text-white/80">
-                  3 perguntas rápidas, sem resposta errada.
-                </p>
-                <div className="mt-5 flex items-center gap-4">
-                  <button
-                    onClick={() => setShowQuiz(true)}
-                    className="rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-felines-accent-hover transition-transform duration-150 hover:-translate-y-0.5"
-                  >
-                    Descobrir
-                  </button>
-                  <button
-                    onClick={() => setQuizSkipped(true)}
-                    className="text-sm text-white/80 hover:text-white"
-                  >
-                    Fazer isso depois
-                  </button>
-                </div>
-              </div>
-            </Reveal>
-          )}
-
-          {showQuiz && (
-            <div
-              className="fixed inset-0 z-[2000] flex items-center justify-center bg-black/40 p-4"
-              onClick={() => setShowQuiz(false)}
-            >
-              <div
-                role="dialog"
-                aria-modal="true"
-                aria-label="Quiz: que tipo de vizinho você é?"
-                className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-2xl bg-felines-background p-2 shadow-xl"
-                onClick={(event) => event.stopPropagation()}
-              >
-                <Quiz
-                  onSkip={() => {
-                    setShowQuiz(false);
-                    setQuizSkipped(true);
-                  }}
-                />
-              </div>
-            </div>
-          )}
         </div>
       </section>
+
+      {/* Quiz — its own section, separate from the article progress above */}
+      {readCount >= 3 && (
+        <section className="bg-felines-dark py-16">
+          <div className="mx-auto max-w-6xl px-4 sm:px-6">
+            <Reveal>
+              <p className="text-xs font-semibold uppercase tracking-[0.1em] text-felines-text-secondary-on-dark">
+                Descubra seu perfil
+              </p>
+              <h2 className="mt-3 text-3xl font-bold leading-tight text-white">
+                Que tipo de vizinho você é?
+              </h2>
+            </Reveal>
+
+            {!showQuiz && !quizSkipped && (
+              <Reveal delayMs={100}>
+                <div className="mt-6 max-w-2xl rounded-2xl bg-gradient-to-br from-felines-accent to-felines-accent-hover p-8 shadow-[0_8px_24px_rgba(196,112,79,0.35)]">
+                  <span className="text-4xl" aria-hidden="true">
+                    🐾
+                  </span>
+                  <p className="mt-3 text-2xl font-bold leading-tight text-white">
+                    Descubra em 3 perguntas rápidas
+                  </p>
+                  <p className="mt-1 text-sm text-white/80">Não existe resposta errada.</p>
+                  <div className="mt-5 flex items-center gap-4">
+                    <button
+                      onClick={() => setShowQuiz(true)}
+                      className="rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-felines-accent-hover transition-transform duration-150 hover:-translate-y-0.5"
+                    >
+                      Descobrir
+                    </button>
+                    <button
+                      onClick={() => setQuizSkipped(true)}
+                      className="text-sm text-white/80 hover:text-white"
+                    >
+                      Fazer isso depois
+                    </button>
+                  </div>
+                </div>
+              </Reveal>
+            )}
+
+            {quizSkipped && !showQuiz && (
+              <p className="mt-6 text-sm text-felines-text-secondary-on-dark">
+                Sem problema. Você pode fazer o quiz quando quiser.
+              </p>
+            )}
+
+            {showQuiz && (
+              <div
+                className="fixed inset-0 z-[2000] flex items-center justify-center bg-black/40 p-4"
+                onClick={() => setShowQuiz(false)}
+              >
+                <div
+                  role="dialog"
+                  aria-modal="true"
+                  aria-label="Quiz: que tipo de vizinho você é?"
+                  className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-2xl bg-felines-background p-2 shadow-xl"
+                  onClick={(event) => event.stopPropagation()}
+                >
+                  <Quiz
+                    onSkip={() => {
+                      setShowQuiz(false);
+                      setQuizSkipped(true);
+                    }}
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+        </section>
+      )}
 
       {/* Unified activity timeline — dark section, last on the page */}
       <section className="bg-felines-dark py-16">

@@ -279,7 +279,7 @@ export default function Home() {
       <LearnIndex articles={ARTICLES} startDark />
 
       <footer className="border-t border-felines-border bg-felines-background py-8">
-        <div className="mx-auto flex max-w-6xl flex-col items-center gap-2 px-4 text-center text-sm text-felines-text-secondary sm:px-6">
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-2 px-4 text-sm text-felines-text-secondary sm:px-6">
           <p>
             Desenhado, codificado e publicado por{" "}
             <a

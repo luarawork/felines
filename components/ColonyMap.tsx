@@ -36,6 +36,7 @@ import ColonyClickTooltip, {
   hasSeenColonyClickTooltip,
   markColonyClickTooltipSeen,
 } from "@/components/ColonyClickTooltip";
+import ColonyInterestModal from "@/components/ColonyInterestModal";
 
 // Natal, RN map center and default zoom, per the Felines spec.
 const NATAL_CENTER: [number, number] = [-5.7945, -35.211];
@@ -177,6 +178,7 @@ export default function ColonyMap() {
   >(new Set(["none", "partial", "full"]));
 
   const [showColonyClickTooltip, setShowColonyClickTooltip] = useState(false);
+  const [interestColonyId, setInterestColonyId] = useState<string | null>(null);
 
   // Heat map: highlights colonies that likely need attention (open
   // reports and/or no recent feeding check-in). Needs `reports` and
@@ -487,15 +489,19 @@ export default function ColonyMap() {
               <LocationBlurBadge level={level} />
               {/* The colony page's name and narrative can describe the
                   location in plain language (street names, landmarks),
-                  so this link is only shown to signed-in visitors —
-                  anonymous visitors get the blurred pin and nothing more. */}
+                  so this is only offered to signed-in visitors —
+                  anonymous visitors get the blurred pin and nothing more.
+                  The detail page is meant for people who'd realistically
+                  look after the colony, so a short interest check comes
+                  before the link, instead of going straight there. */}
               {session && (
-                <a
-                  href={`/colony/${colony.id}`}
+                <button
+                  type="button"
+                  onClick={() => setInterestColonyId(colony.id)}
                   className="mt-2 block text-xs font-medium text-felines-accent-hover"
                 >
                   Ver colônia →
-                </a>
+                </button>
               )}
             </Popup>
           );
@@ -595,6 +601,13 @@ export default function ColonyMap() {
         <ColonyClickTooltip onDismiss={() => setShowColonyClickTooltip(false)} />
       )}
 
+      {interestColonyId && (
+        <ColonyInterestModal
+          colonyId={interestColonyId}
+          onClose={() => setInterestColonyId(null)}
+        />
+      )}
+
       {/* Always on screen — positioned below the weather banner on both
           layouts (it sits lower, full-width, on mobile, and top-right on
           desktop) so the two never overlap. The on/off toggle lives in
@@ -606,7 +619,12 @@ export default function ColonyMap() {
         }`}
       >
         <div className="border-b border-felines-border p-3">
-          <h2 className="text-sm font-bold text-felines-text-primary">Atividade nesta área</h2>
+          <Link
+            href="/reports"
+            className="text-sm font-bold text-felines-text-primary hover:text-felines-accent-hover"
+          >
+            Atividade nesta área →
+          </Link>
           <p className="text-xs text-felines-text-secondary">
             Mova ou dê zoom no mapa para atualizar a lista.
           </p>

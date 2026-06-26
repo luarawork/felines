@@ -21,9 +21,10 @@ import ThankYouButton from "@/components/ThankYouButton";
 import MarkCatSeenButton from "@/components/MarkCatSeenButton";
 import FlagButton from "@/components/FlagButton";
 import ColonyAccessProvider from "@/components/ColonyAccessProvider";
-import FactChip from "@/components/FactChip";
 import Reveal from "@/components/Reveal";
+import RotatingSingleFact from "@/components/RotatingSingleFact";
 import TimelinePhoto from "@/components/TimelinePhoto";
+import Link from "next/link";
 
 // Contextual facts shown on every colony page — general background on
 // street cats, not specific to this particular colony, but relevant
@@ -49,6 +50,7 @@ type TimelineEvent = {
   description: string | null;
   photo_url: string | null;
   created_at: string;
+  created_by: string | null;
 };
 
 const CASTRATION_LABELS: Record<string, string> = {
@@ -80,28 +82,43 @@ export default async function ColonyDetailPage({
 
   const { data: timelineEvents } = await supabase
     .from("timeline_events")
-    .select("id, event_type, description, photo_url, created_at")
+    .select("id, event_type, description, photo_url, created_at, created_by")
     .eq("colony_id", id)
     .order("created_at", { ascending: false });
 
-  // caretakers.user_id references auth.users, not profiles, so PostgREST
-  // can't embed profiles in this query — fetched separately and merged.
+  // caretakers.user_id and timeline_events.created_by both reference
+  // auth.users, not profiles, so PostgREST can't embed profiles in
+  // either query — every author id across both is resolved in one
+  // batched lookup instead.
   const { data: caretakerRows } = await supabase
     .from("caretakers")
     .select("user_id")
     .eq("colony_id", id);
 
   const caretakerUserIds = (caretakerRows ?? []).map((row) => row.user_id);
+  const timelineAuthorIds = (timelineEvents ?? [])
+    .map((event) => event.created_by)
+    .filter((authorId): authorId is string => !!authorId);
 
-  const { data: caretakerProfiles } =
-    caretakerUserIds.length > 0
-      ? await supabase.from("profiles").select("id, display_name").in("id", caretakerUserIds)
+  const allAuthorIds = Array.from(new Set([...caretakerUserIds, ...timelineAuthorIds]));
+
+  const { data: authorProfiles } =
+    allAuthorIds.length > 0
+      ? await supabase.from("profiles").select("id, display_name, avatar_url").in("id", allAuthorIds)
       : { data: [] };
+
+  function authorName(userId: string) {
+    return (authorProfiles ?? []).find((profile) => profile.id === userId)?.display_name || "Alguém da comunidade";
+  }
+
+  function authorAvatar(userId: string) {
+    return (authorProfiles ?? []).find((profile) => profile.id === userId)?.avatar_url ?? null;
+  }
 
   const caretakers = caretakerUserIds.map((userId) => ({
     userId,
-    displayName:
-      (caretakerProfiles ?? []).find((profile) => profile.id === userId)?.display_name ?? null,
+    displayName: authorName(userId),
+    avatarUrl: authorAvatar(userId),
   }));
 
   // This is a server component rendered fresh per request, not a
@@ -216,6 +233,14 @@ export default async function ColonyDetailPage({
                     <TimelinePhoto src={event.photo_url} alt={event.event_type.replace(/_/g, " ")} />
                   )}
                   <p className="mt-1 text-xs text-felines-text-secondary">
+                    {event.created_by && (
+                      <>
+                        <Link href={`/u/${event.created_by}`} className="text-felines-accent-hover">
+                          {authorName(event.created_by)}
+                        </Link>{" "}
+                        ·{" "}
+                      </>
+                    )}
                     {new Date(event.created_at).toLocaleDateString("pt-BR")}
                   </p>
                 </div>
@@ -229,77 +254,24 @@ export default async function ColonyDetailPage({
 
   return (
     <div>
-      {/* Hero */}
-      <div className="relative h-72 w-full sm:h-80">
-        {colony.cover_photo_url ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={colony.cover_photo_url}
-            alt={`Foto de capa da colônia ${colony.name}`}
-            className="absolute inset-0 h-full w-full object-cover"
-          />
-        ) : (
-          <div className="absolute inset-0 h-full w-full bg-felines-dark" />
-        )}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
-        <div className="absolute inset-x-0 bottom-0 mx-auto max-w-4xl px-4 pb-6 sm:px-6">
-          <h1 className="text-3xl font-bold leading-tight text-white sm:text-[40px]">
-            {colony.name}
-          </h1>
-          <span className="mt-2 inline-block rounded-full bg-white/90 px-3 py-1 text-xs font-medium text-felines-text-primary">
-            {CASTRATION_LABELS[colony.castration_status] ?? colony.castration_status}
-          </span>
-        </div>
-      </div>
-
-      <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6">
-        <div className="mb-6">
-          <WeatherBanner />
-        </div>
-
-        <Reveal>
-          {caretakers.length > 0 && (
-            <div className="flex flex-wrap items-center gap-x-1 gap-y-1 text-sm text-felines-text-secondary">
-              <span>Quem cuida:</span>
-              {caretakers.map((caretaker, index) => (
-                <span key={caretaker.userId} className="flex items-center gap-1">
-                  {index > 0 && <span>,</span>}
-                  <a href={`/u/${caretaker.userId}`} className="text-felines-accent-hover">
-                    {caretaker.displayName || "Alguém da comunidade"}
-                  </a>
-                  <ThankYouButton
-                    colonyId={colony.id}
-                    caretakerUserId={caretaker.userId}
-                    caretakerDisplayName={caretaker.displayName || "o cuidador"}
-                  />
-                </span>
-              ))}
-            </div>
+      {/* Shared across the whole page (not just the action card below)
+          so the "Editar" button in the hero itself only renders once
+          access is confirmed, same as everything else gated by it. */}
+      <ColonyAccessProvider colonyId={colony.id}>
+        {/* Hero */}
+        <div className="relative h-72 w-full sm:h-80">
+          {colony.cover_photo_url ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={colony.cover_photo_url}
+              alt={`Foto de capa da colônia ${colony.name}`}
+              className="absolute inset-0 h-full w-full object-cover"
+            />
+          ) : (
+            <div className="absolute inset-0 h-full w-full bg-felines-dark" />
           )}
-
-          {colony.narrative && (
-            <p className="mt-4 max-w-2xl text-base leading-relaxed text-felines-text-secondary">
-              {colony.narrative}
-            </p>
-          )}
-
-          <div className="mt-4 flex gap-2 overflow-x-auto pb-1 sm:flex-wrap sm:overflow-visible">
-            {COLONY_FACT_CHIPS.map((fact) => (
-              <span key={fact} className="flex-shrink-0">
-                <FactChip text={fact} />
-              </span>
-            ))}
-          </div>
-        </Reveal>
-
-        {/* Shared so becoming a caretaker (in ColonyActions) immediately
-            unlocks the edit controls below, instead of each independently
-            checking access once on mount and never finding out it changed. */}
-        <ColonyAccessProvider colonyId={colony.id}>
-          {/* Available actions, scoped by the visitor's access level */}
-          <ColonyActions colonyId={colony.id} />
-
-          <div className="mt-4 flex justify-end">
+          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+          <div className="absolute right-4 top-4">
             <EditColonyButton
               colonyId={colony.id}
               initialName={colony.name}
@@ -308,6 +280,72 @@ export default async function ColonyDetailPage({
               initialCoverPhotoUrl={colony.cover_photo_url}
             />
           </div>
+          <div className="absolute inset-x-0 bottom-0 mx-auto max-w-4xl px-4 pb-6 sm:px-6">
+            <h1 className="text-3xl font-bold leading-tight text-white sm:text-[40px]">
+              {colony.name}
+            </h1>
+            <span className="mt-2 inline-block rounded-full bg-white/90 px-3 py-1 text-xs font-medium text-felines-text-primary">
+              {CASTRATION_LABELS[colony.castration_status] ?? colony.castration_status}
+            </span>
+          </div>
+        </div>
+
+        <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6">
+          <div className="mb-6">
+            <WeatherBanner />
+          </div>
+
+          {caretakers.length > 0 && (
+            <Reveal>
+              <p className="text-xs font-semibold uppercase tracking-[0.1em] text-felines-accent-hover">
+                Quem cuida
+              </p>
+              <div className="mt-3 flex flex-wrap gap-4">
+                {caretakers.map((caretaker) => (
+                  <div key={caretaker.userId} className="flex flex-col items-center gap-1.5 text-center">
+                    <Link href={`/u/${caretaker.userId}`}>
+                      {caretaker.avatarUrl ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={caretaker.avatarUrl}
+                          alt={caretaker.displayName}
+                          className="h-16 w-16 rounded-full border border-felines-border object-cover"
+                        />
+                      ) : (
+                        <div className="h-16 w-16 rounded-full border border-felines-border bg-felines-accent-light" />
+                      )}
+                    </Link>
+                    <Link
+                      href={`/u/${caretaker.userId}`}
+                      className="max-w-[80px] truncate text-xs font-medium text-felines-text-primary hover:text-felines-accent-hover"
+                    >
+                      {caretaker.displayName}
+                    </Link>
+                    <ThankYouButton
+                      colonyId={colony.id}
+                      caretakerUserId={caretaker.userId}
+                      caretakerDisplayName={caretaker.displayName}
+                    />
+                  </div>
+                ))}
+              </div>
+            </Reveal>
+          )}
+
+          <Reveal delayMs={80}>
+            {colony.narrative && (
+              <p className="mt-6 max-w-2xl text-base leading-relaxed text-felines-text-secondary">
+                {colony.narrative}
+              </p>
+            )}
+
+            <div className="mt-4">
+              <RotatingSingleFact facts={COLONY_FACT_CHIPS} />
+            </div>
+          </Reveal>
+
+          {/* Available actions, scoped by the visitor's access level */}
+          <ColonyActions colonyId={colony.id} />
 
           <ColonyTabs
             tabs={[
@@ -320,12 +358,12 @@ export default async function ColonyDetailPage({
               },
             ]}
           />
-        </ColonyAccessProvider>
 
-        <div className="mt-8">
-          <FlagButton targetType="colony" targetId={colony.id} />
+          <div className="mt-8">
+            <FlagButton targetType="colony" targetId={colony.id} />
+          </div>
         </div>
-      </div>
+      </ColonyAccessProvider>
     </div>
   );
 }
