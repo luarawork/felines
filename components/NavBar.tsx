@@ -90,7 +90,7 @@ export default function NavBar() {
             src="/images/logo.png"
             alt="Felines"
             width={150}
-            height={60}
+            height={48}
             priority
             className="h-10 w-auto"
           />
