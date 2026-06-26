@@ -51,6 +51,7 @@ export default function ReportsList() {
   const [error, setError] = useState<string | null>(null);
   const [highlightedReportId, setHighlightedReportId] = useState<string | null>(null);
   const [flags, setFlags] = useState<Flag[]>([]);
+  const [authorNames, setAuthorNames] = useState<Record<string, string>>({});
 
   // Loads the auth session, the list of reports filtered by status, and
   // which colonies the current user can manage (to gate manual resolve).
@@ -91,6 +92,24 @@ export default function ReportsList() {
       setMyColonyIds(colonyIds);
 
       setConfirmedReportIds(new Set((myConfirmations ?? []).map((row) => row.report_id)));
+
+      // reports.created_by references auth.users, not profiles, so it
+      // can't be embedded in the reports query above — resolved here in
+      // one batched lookup instead of one query per report.
+      const authorIds = Array.from(
+        new Set((data ?? []).map((report) => report.created_by).filter((id): id is string => !!id))
+      );
+      if (authorIds.length > 0) {
+        const { data: profiles } = await supabase
+          .from("profiles")
+          .select("id, display_name")
+          .in("id", authorIds);
+        const names: Record<string, string> = {};
+        (profiles ?? []).forEach((profile) => {
+          names[profile.id] = profile.display_name || "Alguém da comunidade";
+        });
+        setAuthorNames(names);
+      }
 
       const { data: flagRows } = await supabase
         .from("flags")
@@ -322,7 +341,14 @@ export default function ReportsList() {
                         </p>
                       )}
                       <p className="mt-1 text-xs text-felines-text-secondary">
-                        {new Date(report.created_at).toLocaleDateString("pt-BR")} ·{" "}
+                        {report.created_by ? (
+                          <Link href={`/u/${report.created_by}`} className="text-felines-accent-hover">
+                            {authorNames[report.created_by] ?? "Alguém da comunidade"}
+                          </Link>
+                        ) : (
+                          "Relato anônimo"
+                        )}{" "}
+                        · {new Date(report.created_at).toLocaleDateString("pt-BR")} ·{" "}
                         {report.confirmations} de 3 confirmações
                         {report.colony_id && (
                           <>
