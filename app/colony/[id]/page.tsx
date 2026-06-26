@@ -255,7 +255,7 @@ export default async function ColonyDetailPage({
               {caretakers.map((caretaker, index) => (
                 <span key={caretaker.userId} className="flex items-center gap-1">
                   {index > 0 && <span>,</span>}
-                  <a href={`/u/${caretaker.userId}`} className="text-felines-accent">
+                  <a href={`/u/${caretaker.userId}`} className="text-felines-accent-hover">
                     {caretaker.displayName || "Cuidador da comunidade"}
                   </a>
                   <ThankYouButton

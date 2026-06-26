@@ -3,8 +3,9 @@
 // and forms) without needing a dedicated /help route.
 "use client";
 
-import { createContext, useContext, useState } from "react";
+import { createContext, useCallback, useContext, useState } from "react";
 import HelpFlow from "@/components/HelpFlow";
+import { useEscapeToClose } from "@/lib/useEscapeToClose";
 
 type HelpModalContextValue = {
   openHelpModal: () => void;
@@ -22,17 +23,28 @@ export function useHelpModal(): HelpModalContextValue {
 
 export default function HelpModalProvider({ children }: { children: React.ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
+  const close = useCallback(() => setIsOpen(false), []);
+  useEscapeToClose(isOpen, close);
 
   return (
     <HelpModalContext.Provider value={{ openHelpModal: () => setIsOpen(true) }}>
       {children}
 
       {isOpen && (
-        <div className="fixed inset-0 z-[2000] flex items-center justify-center bg-black/40 p-4">
-          <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-xl bg-felines-background p-6 shadow-xl">
+        <div
+          className="fixed inset-0 z-[2000] flex items-center justify-center bg-black/40 p-4"
+          onClick={close}
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="help-modal-title"
+            className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-xl bg-felines-background p-6 shadow-xl"
+            onClick={(event) => event.stopPropagation()}
+          >
             <div className="flex items-start justify-between">
               <div>
-                <h2 className="text-2xl font-bold text-felines-text-primary">
+                <h2 id="help-modal-title" className="text-2xl font-bold text-felines-text-primary">
                   Não sabe o que fazer? A gente te orienta.
                 </h2>
                 <p className="mt-2 text-sm text-felines-text-secondary">
@@ -40,14 +52,14 @@ export default function HelpModalProvider({ children }: { children: React.ReactN
                 </p>
               </div>
               <button
-                onClick={() => setIsOpen(false)}
+                onClick={close}
                 aria-label="Fechar"
-                className="flex-shrink-0 text-2xl leading-none text-felines-text-secondary hover:text-felines-text-primary"
+                className="flex h-11 w-11 flex-shrink-0 items-center justify-center text-2xl leading-none text-felines-text-secondary hover:text-felines-text-primary"
               >
                 ×
               </button>
             </div>
-            <HelpFlow onClose={() => setIsOpen(false)} />
+            <HelpFlow onClose={close} />
           </div>
         </div>
       )}

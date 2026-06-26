@@ -66,10 +66,14 @@ export default function SightingReportButton({ lostCatReportId }: { lostCatRepor
           onPick={(lat, lng) => setLocationCoords([lat, lng])}
         />
       </div>
-      <label className="mt-2 block text-xs font-medium text-felines-text-secondary">
+      <label
+        htmlFor="sighting-note"
+        className="mt-2 block text-xs font-medium text-felines-text-secondary"
+      >
         Nota (opcional)
       </label>
       <textarea
+        id="sighting-note"
         value={note}
         onChange={(formEvent) => setNote(formEvent.target.value)}
         rows={2}

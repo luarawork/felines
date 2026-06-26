@@ -101,8 +101,11 @@ export default function TimelineEventForm({ colonyId }: { colonyId: string }) {
 
       <div className="mt-3 flex flex-wrap items-end gap-3">
         <div>
-          <label className="block text-xs font-medium text-felines-text-secondary">Tipo</label>
+          <label htmlFor="timeline-event-type" className="block text-xs font-medium text-felines-text-secondary">
+            Tipo
+          </label>
           <select
+            id="timeline-event-type"
             value={eventType}
             onChange={(formEvent) => {
               setEventType(formEvent.target.value);
@@ -118,10 +121,14 @@ export default function TimelineEventForm({ colonyId }: { colonyId: string }) {
           </select>
         </div>
         <div className="flex-1">
-          <label className="block text-xs font-medium text-felines-text-secondary">
+          <label
+            htmlFor="timeline-event-description"
+            className="block text-xs font-medium text-felines-text-secondary"
+          >
             Descrição (opcional)
           </label>
           <input
+            id="timeline-event-description"
             type="text"
             value={description}
             onChange={(formEvent) => {

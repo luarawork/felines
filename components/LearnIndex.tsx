@@ -86,7 +86,7 @@ export default function LearnIndex({
               <Reveal>
                 <p
                   className={`text-xs font-semibold uppercase tracking-[0.1em] ${
-                    isDark ? "text-felines-text-secondary-on-dark" : "text-felines-accent"
+                    isDark ? "text-felines-text-secondary-on-dark" : "text-felines-accent-hover"
                   }`}
                 >
                   {LEVEL_LABELS[level]}
@@ -129,7 +129,7 @@ export default function LearnIndex({
               lastSectionWasDark ? "text-felines-text-secondary" : "text-felines-text-secondary-on-dark"
             }`}
           >
-            <Link href="/login?returnTo=/%23aprender" className="font-medium text-felines-accent">
+            <Link href="/login?returnTo=/%23aprender" className="font-medium text-felines-accent-hover">
               Entre na sua conta
             </Link>{" "}
             para acompanhar seu progresso de leitura no seu perfil.

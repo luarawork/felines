@@ -169,7 +169,7 @@ export default function ReportsList() {
   if (!session) {
     return (
       <p className="mt-8 rounded-lg border border-felines-border bg-felines-surface px-4 py-3 text-sm text-felines-text-secondary">
-        <Link href="/login?returnTo=/reports" className="font-medium text-felines-accent">
+        <Link href="/login?returnTo=/reports" className="font-medium text-felines-accent-hover">
           Entre na sua conta
         </Link>{" "}
         para ver e confirmar relatos.
@@ -194,6 +194,7 @@ export default function ReportsList() {
         </label>
 
         <select
+          aria-label="Filtrar por tipo de relato"
           value={typeFilter}
           onChange={(formEvent) => setTypeFilter(formEvent.target.value)}
           className="rounded-md border border-felines-border bg-white px-3 py-1.5 text-sm"
@@ -275,7 +276,7 @@ export default function ReportsList() {
                             ·{" "}
                             <Link
                               href={`/colony/${report.colony_id}`}
-                              className="text-felines-accent"
+                              className="text-felines-accent-hover"
                             >
                               ver colônia
                             </Link>

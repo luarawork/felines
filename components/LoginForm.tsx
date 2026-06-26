@@ -44,8 +44,11 @@ export default function LoginForm() {
   return (
     <form onSubmit={handleSubmit} className="mt-6 space-y-4">
       <div>
-        <label className="block text-sm font-medium text-felines-text-primary">E-mail</label>
+        <label htmlFor="login-email" className="block text-sm font-medium text-felines-text-primary">
+          E-mail
+        </label>
         <input
+          id="login-email"
           type="email"
           value={email}
           onChange={(formEvent) => setEmail(formEvent.target.value)}
@@ -54,8 +57,11 @@ export default function LoginForm() {
         />
       </div>
       <div>
-        <label className="block text-sm font-medium text-felines-text-primary">Senha</label>
+        <label htmlFor="login-password" className="block text-sm font-medium text-felines-text-primary">
+          Senha
+        </label>
         <input
+          id="login-password"
           type="password"
           value={password}
           onChange={(formEvent) => setPassword(formEvent.target.value)}
@@ -77,7 +83,7 @@ export default function LoginForm() {
 
       <p className="text-center text-sm text-felines-text-secondary">
         Não tem conta?{" "}
-        <Link href="/signup" className="font-medium text-felines-accent">
+        <Link href="/signup" className="font-medium text-felines-accent-hover">
           Cadastre-se
         </Link>
       </p>

@@ -26,9 +26,14 @@ export default function RootLayout({
   return (
     <html lang="pt-BR" className={`${inter.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col bg-felines-background text-felines-text-primary">
+        <a href="#main-content" className="felines-skip-link">
+          Pular para o conteúdo
+        </a>
         <HelpModalProvider>
           <NavBar />
-          <main className="flex-1">{children}</main>
+          <main id="main-content" className="flex-1">
+            {children}
+          </main>
         </HelpModalProvider>
       </body>
     </html>

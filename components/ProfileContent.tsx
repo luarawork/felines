@@ -25,6 +25,7 @@ import EmptyState from "@/components/EmptyState";
 import PhotoUploadButton from "@/components/PhotoUploadButton";
 import Quiz from "@/components/Quiz";
 import Reveal from "@/components/Reveal";
+import { useEscapeToClose } from "@/lib/useEscapeToClose";
 
 type LinkedColony = { id: string; name: string };
 type FeedingRecord = { id: string; colony_id: string; created_at: string };
@@ -225,6 +226,8 @@ export default function ProfileContent() {
     setAvatarUrl(publicUrl);
   }
 
+  useEscapeToClose(showQuiz, () => setShowQuiz(false));
+
   if (loading) return null;
 
   const readCount = readSlugs.length;
@@ -302,6 +305,7 @@ export default function ProfileContent() {
                   <div className="flex flex-wrap items-center gap-2">
                     <input
                       type="text"
+                      aria-label="Nome de exibição"
                       value={displayName}
                       onChange={(formEvent) => setDisplayName(formEvent.target.value)}
                       maxLength={60}
@@ -322,7 +326,7 @@ export default function ProfileContent() {
                     {displayName || "Sem nome de exibição"}{" "}
                     <button
                       onClick={() => setEditingName(true)}
-                      className="ml-1 text-sm font-medium text-felines-accent align-middle"
+                      className="ml-1 text-sm font-medium text-felines-accent-hover align-middle"
                     >
                       Editar
                     </button>
@@ -340,7 +344,7 @@ export default function ProfileContent() {
                 <p className="mt-1 text-sm text-felines-text-secondary">
                   {email} ·{" "}
                   {userId && (
-                    <Link href={`/u/${userId}`} className="text-felines-accent">
+                    <Link href={`/u/${userId}`} className="text-felines-accent-hover">
                       ver página pública
                     </Link>
                   )}
@@ -376,7 +380,7 @@ export default function ProfileContent() {
       <section className="bg-felines-surface py-16">
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
           <Reveal>
-            <p className="text-xs font-semibold uppercase tracking-[0.1em] text-felines-accent">
+            <p className="text-xs font-semibold uppercase tracking-[0.1em] text-felines-accent-hover">
               Suas colônias
             </p>
             <h2 className="mt-3 text-3xl font-bold leading-tight text-felines-text-primary">
@@ -419,7 +423,7 @@ export default function ProfileContent() {
       <section className="bg-felines-background py-16">
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
           <Reveal>
-            <p className="text-xs font-semibold uppercase tracking-[0.1em] text-felines-accent">
+            <p className="text-xs font-semibold uppercase tracking-[0.1em] text-felines-accent-hover">
               Conhecimento
             </p>
             <h2 className="mt-3 text-3xl font-bold leading-tight text-felines-text-primary">
@@ -461,7 +465,9 @@ export default function ProfileContent() {
           {readCount >= 3 && !showQuiz && !quizSkipped && (
             <Reveal delayMs={150}>
               <div className="mt-10 max-w-2xl rounded-2xl bg-gradient-to-br from-felines-accent to-felines-accent-hover p-8 shadow-[0_8px_24px_rgba(196,112,79,0.35)]">
-                <span className="text-4xl">🐾</span>
+                <span className="text-4xl" aria-hidden="true">
+                  🐾
+                </span>
                 <p className="mt-3 text-2xl font-bold leading-tight text-white">
                   Que tipo de vizinho você é? →
                 </p>
@@ -471,7 +477,7 @@ export default function ProfileContent() {
                 <div className="mt-5 flex items-center gap-4">
                   <button
                     onClick={() => setShowQuiz(true)}
-                    className="rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-felines-accent transition-transform duration-150 hover:-translate-y-0.5"
+                    className="rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-felines-accent-hover transition-transform duration-150 hover:-translate-y-0.5"
                   >
                     Descobrir
                   </button>
@@ -492,6 +498,9 @@ export default function ProfileContent() {
               onClick={() => setShowQuiz(false)}
             >
               <div
+                role="dialog"
+                aria-modal="true"
+                aria-label="Quiz: que tipo de vizinho você é?"
                 className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-2xl bg-felines-background p-2 shadow-xl"
                 onClick={(event) => event.stopPropagation()}
               >

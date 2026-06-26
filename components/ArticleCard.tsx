@@ -1,8 +1,9 @@
 // Single shared card used for every article preview across the site —
 // home's "Entenda antes de agir" strip, the learn theme sections, and
-// anywhere else an article gets previewed. One layout (title,
-// description, reading time, in that order) so cards never look
-// different depending on which section happens to render them.
+// anywhere else an article gets previewed. Same visual hierarchy
+// everywhere: a clearly dominant title, a quieter description below
+// it, and reading time set apart as the least prominent, caption-style
+// detail — instead of three lines of near-equal weight.
 import Link from "next/link";
 import type { Article } from "@/lib/articles";
 import { getReadingTimeMinutes } from "@/lib/articles";
@@ -26,9 +27,13 @@ export default function ArticleCard({
       }
     >
       <div className="flex items-start justify-between gap-2">
-        <p className={`font-semibold ${isDark ? "text-white" : "text-felines-text-primary"}`}>
+        <h3
+          className={`text-lg font-bold leading-snug ${
+            isDark ? "text-white" : "text-felines-text-primary"
+          }`}
+        >
           {article.title}
-        </p>
+        </h3>
         {isRead && (
           <span className="flex-shrink-0 rounded-full bg-felines-success/15 px-2 py-0.5 text-xs font-medium text-felines-success">
             Lido
@@ -36,15 +41,17 @@ export default function ArticleCard({
         )}
       </div>
       <p
-        className={`mt-1 text-sm ${
+        className={`mt-2 text-sm leading-relaxed ${
           isDark ? "text-felines-text-secondary-on-dark" : "text-felines-text-secondary"
         }`}
       >
         {article.summary}
       </p>
       <p
-        className={`mt-2 text-xs ${
-          isDark ? "text-felines-text-secondary-on-dark" : "text-felines-text-secondary"
+        className={`mt-4 border-t pt-3 text-xs uppercase tracking-[0.06em] ${
+          isDark
+            ? "border-felines-border-on-dark text-felines-text-secondary-on-dark"
+            : "border-felines-border text-felines-text-secondary"
         }`}
       >
         {getReadingTimeMinutes(article)} min de leitura

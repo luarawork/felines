@@ -123,10 +123,14 @@ export default function EditColonyForm({
   return (
     <form onSubmit={handleSubmit} className="max-w-xl space-y-4">
       <div>
-        <label className="block text-sm font-medium text-felines-text-primary">
+        <label
+          htmlFor="edit-colony-name"
+          className="block text-sm font-medium text-felines-text-primary"
+        >
           Nome da colônia
         </label>
         <input
+          id="edit-colony-name"
           type="text"
           value={name}
           onChange={(formEvent) => setName(formEvent.target.value)}
@@ -136,8 +140,14 @@ export default function EditColonyForm({
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-felines-text-primary">Narrativa</label>
+        <label
+          htmlFor="edit-colony-narrative"
+          className="block text-sm font-medium text-felines-text-primary"
+        >
+          Narrativa
+        </label>
         <textarea
+          id="edit-colony-narrative"
           value={narrative}
           onChange={(formEvent) => setNarrative(formEvent.target.value)}
           rows={4}
@@ -147,10 +157,14 @@ export default function EditColonyForm({
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-felines-text-primary">
+        <label
+          htmlFor="edit-colony-castration"
+          className="block text-sm font-medium text-felines-text-primary"
+        >
           Situação de castração
         </label>
         <select
+          id="edit-colony-castration"
           value={castrationStatus}
           onChange={(formEvent) => setCastrationStatus(formEvent.target.value as CastrationStatus)}
           className="mt-1 w-full rounded-md border border-felines-border bg-white px-3 py-2 text-sm"

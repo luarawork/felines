@@ -81,6 +81,42 @@ body {
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
 }
 
+/* ---------------------------------------------------------
+   Accessibility baseline.
+   --------------------------------------------------------- */
+
+/* Visible keyboard focus indicator on every interactive element,
+   site-wide — a global selector instead of a class applied piecemeal,
+   so newly added buttons/links never silently ship without one. */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+summary:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid #c4704f;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Lets keyboard users jump past the nav straight to the page content.
+   Visually hidden until focused, per the standard skip-link pattern. */
+.felines-skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 2500;
+  background: #ffffff;
+  color: #2d2d2d;
+  padding: 10px 16px;
+  border-radius: 0 0 8px 0;
+}
+
+.felines-skip-link:focus {
+  left: 0;
+}
+
 /* Leaflet requires explicit height on its container to render correctly */
 .leaflet-container {
   width: 100%;

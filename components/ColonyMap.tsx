@@ -389,6 +389,7 @@ export default function ColonyMap() {
       <div className="absolute left-4 top-4 z-[1000] w-64 space-y-2 rounded-xl border border-felines-border bg-felines-surface p-3 shadow-lg">
         <input
           type="text"
+          aria-label="Buscar colônia pelo nome"
           value={searchTerm}
           onChange={(formEvent) => setSearchTerm(formEvent.target.value)}
           placeholder="Buscar colônia pelo nome"
@@ -491,7 +492,7 @@ export default function ColonyMap() {
               {session && (
                 <a
                   href={`/colony/${colony.id}`}
-                  className="mt-2 block text-xs font-medium text-felines-accent"
+                  className="mt-2 block text-xs font-medium text-felines-accent-hover"
                 >
                   Ver colônia →
                 </a>
@@ -561,7 +562,7 @@ export default function ColonyMap() {
                 <strong>{getReportTypeLabel(report.type)}</strong>
                 <a
                   href={`/reports#report-${report.id}`}
-                  className="mt-2 block text-xs font-medium text-felines-accent"
+                  className="mt-2 block text-xs font-medium text-felines-accent-hover"
                 >
                   Ver relato →
                 </a>
@@ -581,7 +582,7 @@ export default function ColonyMap() {
                 <strong>Alerta: {report.type.replace(/_/g, " ")}</strong>
                 <a
                   href={`/reports#report-${report.id}`}
-                  className="mt-2 block text-xs font-medium text-felines-accent"
+                  className="mt-2 block text-xs font-medium text-felines-accent-hover"
                 >
                   Ver relato →
                 </a>
@@ -671,7 +672,7 @@ export default function ColonyMap() {
             onClick={() => setListExpanded((previous) => !previous)}
             aria-expanded={listExpanded}
             aria-label={listExpanded ? "Ocultar lista de atividades" : "Mostrar lista de atividades"}
-            className="flex w-full items-center justify-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium text-felines-text-secondary transition-colors hover:text-felines-accent"
+            className="flex w-full items-center justify-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium text-felines-text-secondary transition-colors hover:text-felines-accent-hover"
           >
             <span>{listExpanded ? "Ocultar lista" : "Mostrar lista"}</span>
             <span aria-hidden="true">{listExpanded ? "▲" : "▼"}</span>

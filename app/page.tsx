@@ -138,7 +138,7 @@ export default function Home() {
       <section className="bg-felines-background py-20">
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
           <Reveal>
-            <p className="text-xs font-semibold uppercase tracking-[0.1em] text-felines-accent">
+            <p className="text-xs font-semibold uppercase tracking-[0.1em] text-felines-accent-hover">
               Como podemos ajudar
             </p>
             <h2 className="mt-3 text-3xl font-bold leading-tight text-felines-text-primary sm:text-[40px]">
@@ -150,8 +150,10 @@ export default function Home() {
             {ENTRY_CARDS.map((card, index) => {
               const content = (
                 <>
-                  <span className="text-4xl">{card.icon}</span>
-                  <p className="mt-4 text-xs font-semibold uppercase tracking-[0.1em] text-felines-accent">
+                  <span className="text-4xl" aria-hidden="true">
+                    {card.icon}
+                  </span>
+                  <p className="mt-4 text-xs font-semibold uppercase tracking-[0.1em] text-felines-accent-hover">
                     {card.label}
                   </p>
                   <h3 className="mt-2 text-xl font-semibold text-felines-text-primary">
@@ -160,7 +162,7 @@ export default function Home() {
                   <p className="mt-2 text-sm leading-relaxed text-felines-text-secondary">
                     {card.description}
                   </p>
-                  <span className="mt-4 inline-block text-sm font-medium text-felines-accent transition-transform duration-200 group-hover:translate-x-0.5">
+                  <span className="mt-4 inline-block text-sm font-medium text-felines-accent-hover transition-transform duration-200 group-hover:translate-x-0.5">
                     Saiba mais →
                   </span>
                 </>
@@ -278,13 +280,13 @@ export default function Home() {
               href="https://luara.work/"
               target="_blank"
               rel="noopener noreferrer"
-              className="font-medium text-felines-accent"
+              className="font-medium text-felines-accent-hover"
             >
               © 2026 Luara Oliveira
             </a>
           </p>
           {/* TODO: link to product documentation once it's published */}
-          <a href="#" className="font-medium text-felines-accent">
+          <a href="#" className="font-medium text-felines-accent-hover">
             Saiba mais sobre esse produto
           </a>
         </div>

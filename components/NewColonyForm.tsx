@@ -14,6 +14,7 @@ import { buildSafeStoragePath, validatePhotoFile } from "@/lib/storage";
 import AuthRequiredNotice from "@/components/AuthRequiredNotice";
 import PhotoUploadButton from "@/components/PhotoUploadButton";
 import QuickSightingForm from "@/components/QuickSightingForm";
+import { useEscapeToClose } from "@/lib/useEscapeToClose";
 
 // Location blur protects cats from malicious users who could use exact
 // coordinates to find and harm animals. Both blur levels are computed
@@ -56,6 +57,8 @@ export default function NewColonyForm() {
       setCheckingSession(false);
     });
   }, []);
+
+  useEscapeToClose(showSightingForm, () => setShowSightingForm(false));
 
   async function handleSubmit(formEvent: React.FormEvent) {
     formEvent.preventDefault();
@@ -196,10 +199,14 @@ export default function NewColonyForm() {
 
       {/* Name and narrative */}
       <div>
-        <label className="block text-sm font-medium text-felines-text-primary">
+        <label
+          htmlFor="new-colony-name"
+          className="block text-sm font-medium text-felines-text-primary"
+        >
           Nome da colônia
         </label>
         <input
+          id="new-colony-name"
           type="text"
           value={name}
           onChange={(formEvent) => setName(formEvent.target.value)}
@@ -209,8 +216,14 @@ export default function NewColonyForm() {
         />
       </div>
       <div>
-        <label className="block text-sm font-medium text-felines-text-primary">Narrativa</label>
+        <label
+          htmlFor="new-colony-narrative"
+          className="block text-sm font-medium text-felines-text-primary"
+        >
+          Narrativa
+        </label>
         <textarea
+          id="new-colony-narrative"
           value={narrative}
           onChange={(formEvent) => setNarrative(formEvent.target.value)}
           rows={4}
@@ -222,10 +235,14 @@ export default function NewColonyForm() {
 
       {/* Castration status */}
       <div>
-        <label className="block text-sm font-medium text-felines-text-primary">
+        <label
+          htmlFor="new-colony-castration"
+          className="block text-sm font-medium text-felines-text-primary"
+        >
           Situação de castração
         </label>
         <select
+          id="new-colony-castration"
           value={castrationStatus}
           onChange={(formEvent) =>
             setCastrationStatus(formEvent.target.value as "none" | "partial" | "full")
@@ -276,17 +293,26 @@ export default function NewColonyForm() {
     </form>
 
     {showSightingForm && (
-        <div className="fixed inset-0 z-[2000] flex items-center justify-center bg-black/40 p-4">
-          <div className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-xl bg-felines-background p-6 shadow-xl">
+        <div
+          className="fixed inset-0 z-[2000] flex items-center justify-center bg-black/40 p-4"
+          onClick={() => setShowSightingForm(false)}
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="sighting-modal-title"
+            className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-xl bg-felines-background p-6 shadow-xl"
+            onClick={(event) => event.stopPropagation()}
+          >
             <div className="flex items-start justify-between">
-              <h2 className="text-lg font-bold text-felines-text-primary">
+              <h2 id="sighting-modal-title" className="text-lg font-bold text-felines-text-primary">
                 Relatar avistamento
               </h2>
               <button
                 type="button"
                 onClick={() => setShowSightingForm(false)}
                 aria-label="Fechar"
-                className="flex-shrink-0 text-xl leading-none text-felines-text-secondary hover:text-felines-text-primary"
+                className="flex h-11 w-11 flex-shrink-0 items-center justify-center text-xl leading-none text-felines-text-secondary hover:text-felines-text-primary"
               >
                 ×
               </button>

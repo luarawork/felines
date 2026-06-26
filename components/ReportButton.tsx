@@ -10,6 +10,7 @@ import { supabase } from "@/lib/supabaseClient";
 import { REPORT_TYPES } from "@/lib/reportTypes";
 import AnonymousReportNotice from "@/components/AnonymousReportNotice";
 import CreateAccountInvite from "@/components/CreateAccountInvite";
+import { useEscapeToClose } from "@/lib/useEscapeToClose";
 
 export default function ReportButton({ colonyId }: { colonyId: string }) {
   const [open, setOpen] = useState(false);
@@ -29,6 +30,8 @@ export default function ReportButton({ colonyId }: { colonyId: string }) {
     setSubmitted(false);
     setError(null);
   }
+
+  useEscapeToClose(open, handleClose);
 
   // Validates and submits the report to Supabase.
   async function handleSubmit(formEvent: React.FormEvent) {
@@ -67,14 +70,25 @@ export default function ReportButton({ colonyId }: { colonyId: string }) {
       </button>
 
       {open && (
-        <div className="fixed inset-0 z-[2000] flex items-center justify-center bg-black/40 p-4">
-          <div className="w-full max-w-sm rounded-xl bg-felines-background p-5 shadow-xl">
+        <div
+          className="fixed inset-0 z-[2000] flex items-center justify-center bg-black/40 p-4"
+          onClick={handleClose}
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="report-modal-title"
+            className="w-full max-w-sm rounded-xl bg-felines-background p-5 shadow-xl"
+            onClick={(event) => event.stopPropagation()}
+          >
             <div className="flex items-start justify-between">
-              <h2 className="text-lg font-bold text-felines-text-primary">Fazer um relato</h2>
+              <h2 id="report-modal-title" className="text-lg font-bold text-felines-text-primary">
+                Fazer um relato
+              </h2>
               <button
                 onClick={handleClose}
                 aria-label="Fechar"
-                className="flex-shrink-0 text-xl leading-none text-felines-text-secondary hover:text-felines-text-primary"
+                className="flex h-11 w-11 flex-shrink-0 items-center justify-center text-xl leading-none text-felines-text-secondary hover:text-felines-text-primary"
               >
                 ×
               </button>
@@ -91,10 +105,14 @@ export default function ReportButton({ colonyId }: { colonyId: string }) {
               <form onSubmit={handleSubmit} className="mt-4">
                 {!isLoggedIn && <AnonymousReportNotice />}
 
-                <label className="block text-xs font-medium text-felines-text-secondary">
+                <label
+                  htmlFor="report-type"
+                  className="block text-xs font-medium text-felines-text-secondary"
+                >
                   Tipo de relato
                 </label>
                 <select
+                  id="report-type"
                   value={type}
                   onChange={(formEvent) => setType(formEvent.target.value)}
                   className="mt-1 w-full rounded-md border border-felines-border bg-white px-3 py-2 text-sm"
@@ -106,10 +124,14 @@ export default function ReportButton({ colonyId }: { colonyId: string }) {
                   ))}
                 </select>
 
-                <label className="mt-3 block text-xs font-medium text-felines-text-secondary">
+                <label
+                  htmlFor="report-description"
+                  className="mt-3 block text-xs font-medium text-felines-text-secondary"
+                >
                   Descrição (opcional)
                 </label>
                 <textarea
+                  id="report-description"
                   value={description}
                   onChange={(formEvent) => setDescription(formEvent.target.value)}
                   maxLength={500}

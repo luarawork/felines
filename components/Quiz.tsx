@@ -80,7 +80,7 @@ export default function Quiz({ onSkip }: { onSkip?: () => void }) {
                     onClick={() => selectAnswer(questionIndex, option.profile)}
                     className={`block w-full rounded-md border px-3 py-2 text-left text-sm transition-colors ${
                       isSelected
-                        ? "border-felines-accent text-felines-accent"
+                        ? "border-felines-accent text-felines-accent-hover"
                         : "border-felines-border"
                     }`}
                   >

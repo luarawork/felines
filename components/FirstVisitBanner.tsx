@@ -35,7 +35,7 @@ export default function FirstVisitBanner() {
       <button
         onClick={dismiss}
         aria-label="Fechar"
-        className="flex-shrink-0 text-lg leading-none text-felines-text-secondary hover:text-felines-text-primary"
+        className="flex h-11 w-11 flex-shrink-0 items-center justify-center text-lg leading-none text-felines-text-secondary hover:text-felines-text-primary"
       >
         ×
       </button>

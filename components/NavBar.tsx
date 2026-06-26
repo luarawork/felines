@@ -111,7 +111,9 @@ export default function NavBar() {
               <button
                 onClick={() => setMenuOpen((previous) => !previous)}
                 aria-label="Menu da conta"
-                className="flex h-9 w-9 items-center justify-center rounded-full bg-felines-accent-light text-sm font-semibold text-felines-accent transition-colors hover:bg-felines-accent hover:text-white"
+                aria-haspopup="true"
+                aria-expanded={menuOpen}
+                className="flex h-11 w-11 items-center justify-center rounded-full bg-felines-accent-light text-sm font-semibold text-felines-accent-hover transition-colors hover:bg-felines-accent hover:text-white"
               >
                 {initial}
               </button>

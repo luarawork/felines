@@ -228,10 +228,11 @@ export default function CatManager({ colonyId }: { colonyId: string }) {
 
       <form onSubmit={handleAddCat} className="mt-4 space-y-3">
         <div>
-          <label className="block text-xs font-medium text-felines-text-secondary">
+          <label htmlFor="new-cat-name" className="block text-xs font-medium text-felines-text-secondary">
             Nome do gato
           </label>
           <input
+            id="new-cat-name"
             type="text"
             value={name}
             onChange={(formEvent) => setName(formEvent.target.value)}
@@ -278,10 +279,14 @@ export default function CatManager({ colonyId }: { colonyId: string }) {
                 className="space-y-2 rounded-md border border-felines-accent px-3 py-3 text-sm"
               >
                 <div>
-                  <label className="block text-xs font-medium text-felines-text-secondary">
+                  <label
+                    htmlFor={`edit-cat-name-${cat.id}`}
+                    className="block text-xs font-medium text-felines-text-secondary"
+                  >
                     Nome
                   </label>
                   <input
+                    id={`edit-cat-name-${cat.id}`}
                     type="text"
                     value={editName}
                     onChange={(formEvent) => setEditName(formEvent.target.value)}

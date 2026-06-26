@@ -66,10 +66,11 @@ export default function FlagButton({
       onSubmit={handleSubmit}
       className="mt-2 max-w-xs rounded-md border border-felines-border bg-felines-surface p-3"
     >
-      <p className="text-xs font-medium text-felines-text-primary">
+      <label htmlFor="flag-reason" className="text-xs font-medium text-felines-text-primary">
         Por que você está sinalizando isso?
-      </p>
+      </label>
       <select
+        id="flag-reason"
         value={reason}
         onChange={(formEvent) => setReason(formEvent.target.value)}
         className="mt-1 w-full rounded-md border border-felines-border bg-white px-2 py-1 text-xs"
@@ -81,6 +82,7 @@ export default function FlagButton({
         ))}
       </select>
       <textarea
+        aria-label="Detalhes adicionais da denúncia"
         value={details}
         onChange={(formEvent) => setDetails(formEvent.target.value)}
         placeholder="Detalhes (opcional)"

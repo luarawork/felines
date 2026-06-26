@@ -108,10 +108,14 @@ export default function QuickSightingForm({
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-felines-text-primary">
+        <label
+          htmlFor="quick-sighting-description"
+          className="block text-sm font-medium text-felines-text-primary"
+        >
           Descrição (opcional)
         </label>
         <textarea
+          id="quick-sighting-description"
           value={description}
           onChange={(formEvent) => setDescription(formEvent.target.value)}
           rows={3}

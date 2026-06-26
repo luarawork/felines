@@ -100,10 +100,14 @@ export default function LostCatForm({ onSubmitted }: { onSubmitted?: () => void 
   return (
     <form onSubmit={handleSubmit} className="space-y-3">
       <div>
-        <label className="block text-xs font-medium text-felines-text-secondary">
+        <label
+          htmlFor="lost-cat-description"
+          className="block text-xs font-medium text-felines-text-secondary"
+        >
           Sobre o gato (nome, cor, características)
         </label>
         <textarea
+          id="lost-cat-description"
           value={description}
           onChange={(formEvent) => setDescription(formEvent.target.value)}
           rows={3}

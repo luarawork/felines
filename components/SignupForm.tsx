@@ -45,8 +45,11 @@ export default function SignupForm() {
   return (
     <form onSubmit={handleSubmit} className="mt-6 space-y-4">
       <div>
-        <label className="block text-sm font-medium text-felines-text-primary">E-mail</label>
+        <label htmlFor="signup-email" className="block text-sm font-medium text-felines-text-primary">
+          E-mail
+        </label>
         <input
+          id="signup-email"
           type="email"
           value={email}
           onChange={(formEvent) => setEmail(formEvent.target.value)}
@@ -55,8 +58,11 @@ export default function SignupForm() {
         />
       </div>
       <div>
-        <label className="block text-sm font-medium text-felines-text-primary">Senha</label>
+        <label htmlFor="signup-password" className="block text-sm font-medium text-felines-text-primary">
+          Senha
+        </label>
         <input
+          id="signup-password"
           type="password"
           value={password}
           onChange={(formEvent) => setPassword(formEvent.target.value)}
@@ -78,7 +84,7 @@ export default function SignupForm() {
 
       <p className="text-center text-sm text-felines-text-secondary">
         Já tem conta?{" "}
-        <Link href="/login" className="font-medium text-felines-accent">
+        <Link href="/login" className="font-medium text-felines-accent-hover">
           Entrar
         </Link>
       </p>
