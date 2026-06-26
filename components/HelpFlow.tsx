@@ -135,6 +135,11 @@ export default function HelpFlow({ onClose }: { onClose?: () => void }) {
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(true);
+  // Lets a signed-out visitor explicitly choose to continue into
+  // LostCatForm anyway (which then shows its own AuthRequiredNotice),
+  // instead of only finding out login is required after already
+  // opening the form.
+  const [missingCatGuestConfirmed, setMissingCatGuestConfirmed] = useState(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => setIsLoggedIn(!!data.session));
@@ -172,6 +177,7 @@ export default function HelpFlow({ onClose }: { onClose?: () => void }) {
                 onClick={() => {
                   setSituation(option);
                   setStep(2);
+                  setMissingCatGuestConfirmed(false);
                 }}
                 className="rounded-xl border border-felines-border bg-felines-surface px-4 py-3 text-left text-sm font-medium text-felines-text-primary transition-colors hover:border-felines-accent"
               >
@@ -211,7 +217,30 @@ export default function HelpFlow({ onClose }: { onClose?: () => void }) {
                 </p>
               )}
               <div className="mt-5">
-                <LostCatForm onSubmitted={onClose} />
+                {!isLoggedIn && !missingCatGuestConfirmed ? (
+                  <div className="rounded-md bg-felines-warning/10 px-3 py-3 text-sm text-felines-text-primary">
+                    <p>
+                      ⚠️ Relatar um gato perdido exige uma conta, pra comunidade saber com quem
+                      falar se o gato for encontrado.
+                    </p>
+                    <div className="mt-3 flex flex-wrap gap-3">
+                      <Link
+                        href="/login?returnTo=/help"
+                        className="rounded-full bg-felines-accent px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-felines-accent-hover"
+                      >
+                        Entrar
+                      </Link>
+                      <button
+                        onClick={() => setMissingCatGuestConfirmed(true)}
+                        className="text-sm font-medium text-felines-text-secondary hover:text-felines-accent"
+                      >
+                        Continuar sem conta
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <LostCatForm onSubmitted={onClose} />
+                )}
               </div>
             </div>
           ) : (
