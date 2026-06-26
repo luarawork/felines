@@ -26,7 +26,10 @@ export default function RootLayout({
   return (
     <html lang="pt-BR" className={`${inter.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col bg-felines-background text-felines-text-primary">
-        <a href="#main-content" className="felines-skip-link">
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[2500] focus:rounded-md focus:bg-white focus:px-4 focus:py-2 focus:text-felines-text-primary focus:shadow-lg"
+        >
           Pular para o conteúdo
         </a>
         <HelpModalProvider>

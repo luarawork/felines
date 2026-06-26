@@ -100,23 +100,6 @@ summary:focus-visible,
   border-radius: 4px;
 }
 
-/* Lets keyboard users jump past the nav straight to the page content.
-   Visually hidden until focused, per the standard skip-link pattern. */
-.felines-skip-link {
-  position: absolute;
-  left: -9999px;
-  top: 0;
-  z-index: 2500;
-  background: #ffffff;
-  color: #2d2d2d;
-  padding: 10px 16px;
-  border-radius: 0 0 8px 0;
-}
-
-.felines-skip-link:focus {
-  left: 0;
-}
-
 /* Leaflet requires explicit height on its container to render correctly */
 .leaflet-container {
   width: 100%;
