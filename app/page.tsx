@@ -101,14 +101,13 @@ export default function Home() {
           </Reveal>
         </div>
         <Reveal delayMs={150} className="w-full flex-1">
-          <div className="mx-auto max-w-sm drop-shadow-xl lg:max-w-none">
+          <div className="relative mx-auto aspect-square w-full max-w-sm overflow-hidden rounded-full drop-shadow-xl lg:max-w-md">
             <Image
               src="/images/hero-cat.png"
               alt="Ilustração de um gato de rua sentado, olhando para o lado"
-              width={1254}
-              height={1254}
+              fill
               priority
-              className="h-auto w-full"
+              className="object-cover"
             />
           </div>
         </Reveal>
