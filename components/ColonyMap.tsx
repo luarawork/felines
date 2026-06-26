@@ -106,9 +106,9 @@ function buildPinIcon(color: string, size: number, pulsing = false, icon = "") {
   });
 }
 
-const colonyIcon = buildPinIcon("#C4704F", 36, false, "🐾");
-const sightingIcon = buildPinIcon("#6B6B6B", 24);
-const emergencyIcon = buildPinIcon("#C0392B", 36, true);
+const colonyIcon = buildPinIcon("#C4704F", 22, false, "🐾");
+const sightingIcon = buildPinIcon("#6B6B6B", 14);
+const emergencyIcon = buildPinIcon("#C0392B", 22, true);
 
 const EMERGENCY_REPORT_TYPES = [
   "injured_sick",
