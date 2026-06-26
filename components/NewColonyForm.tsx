@@ -11,8 +11,8 @@ import type { Session } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabaseClient";
 import MapMarkerPickerShell from "@/components/MapMarkerPickerShell";
 import { buildSafeStoragePath, validatePhotoFile } from "@/lib/storage";
-import AddressAutocomplete from "@/components/AddressAutocomplete";
 import AuthRequiredNotice from "@/components/AuthRequiredNotice";
+import PhotoUploadButton from "@/components/PhotoUploadButton";
 import QuickSightingForm from "@/components/QuickSightingForm";
 
 // Location blur protects cats from malicious users who could use exact
@@ -46,7 +46,6 @@ export default function NewColonyForm() {
   const [castrationStatus, setCastrationStatus] = useState<"none" | "partial" | "full">("none");
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [position, setPosition] = useState<[number, number] | null>(null);
-  const [addressText, setAddressText] = useState("");
 
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -244,31 +243,19 @@ export default function NewColonyForm() {
         <label className="block text-sm font-medium text-felines-text-primary">
           Foto da colônia
         </label>
-        <input
-          type="file"
-          accept="image/*"
-          onChange={(formEvent) => setPhotoFile(formEvent.target.files?.[0] ?? null)}
-          required
-          className="mt-1 w-full text-sm text-felines-text-secondary"
-        />
+        <div className="mt-1">
+          <PhotoUploadButton label="Escolher foto" file={photoFile} onChange={setPhotoFile} />
+        </div>
       </div>
 
-      {/* Address + map marker placement */}
+      {/* Map marker placement */}
       <div>
         <label className="block text-sm font-medium text-felines-text-primary">
           Localização exata
         </label>
         <p className="mt-1 text-xs text-felines-text-secondary">
-          Digite o endereço — o pino no mapa vai marcar onde ele fica. Você ainda pode ajustar
-          clicando no mapa.
+          Toque ou arraste o pino no mapa até o local exato da colônia.
         </p>
-        <div className="mt-2">
-          <AddressAutocomplete
-            value={addressText}
-            onChange={setAddressText}
-            onSelectLocation={(lat, lon) => setPosition([lat, lon])}
-          />
-        </div>
         <div className="mt-2 h-64 w-full overflow-hidden rounded-xl border border-felines-border">
           <MapMarkerPickerShell
             position={position}
@@ -306,7 +293,6 @@ export default function NewColonyForm() {
             </div>
             <div className="mt-4">
               <QuickSightingForm
-                initialAddress={addressText}
                 initialPosition={position}
                 onClose={() => setShowSightingForm(false)}
               />

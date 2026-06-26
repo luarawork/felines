@@ -10,20 +10,18 @@ import { useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient";
 import { buildSafeStoragePath, validatePhotoFile } from "@/lib/storage";
-import AddressAutocomplete from "@/components/AddressAutocomplete";
+import MapMarkerPickerShell from "@/components/MapMarkerPickerShell";
+import PhotoUploadButton from "@/components/PhotoUploadButton";
 
 export default function QuickSightingForm({
-  initialAddress,
   initialPosition,
   onClose,
 }: {
-  initialAddress?: string;
   initialPosition?: [number, number] | null;
   onClose?: () => void;
 }) {
   const [description, setDescription] = useState("");
   const [photoFile, setPhotoFile] = useState<File | null>(null);
-  const [address, setAddress] = useState(initialAddress ?? "");
   const [position, setPosition] = useState<[number, number] | null>(initialPosition ?? null);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -104,12 +102,9 @@ export default function QuickSightingForm({
         <label className="block text-sm font-medium text-felines-text-primary">
           Foto (opcional)
         </label>
-        <input
-          type="file"
-          accept="image/*"
-          onChange={(formEvent) => setPhotoFile(formEvent.target.files?.[0] ?? null)}
-          className="mt-1 w-full text-sm text-felines-text-secondary"
-        />
+        <div className="mt-1">
+          <PhotoUploadButton label="Escolher foto" file={photoFile} onChange={setPhotoFile} />
+        </div>
       </div>
 
       <div>
@@ -128,15 +123,11 @@ export default function QuickSightingForm({
 
       <div>
         <label className="block text-sm font-medium text-felines-text-primary">Localização</label>
-        <div className="mt-1">
-          <AddressAutocomplete
-            value={address}
-            onChange={(newValue) => {
-              setAddress(newValue);
-              setPosition(null);
-            }}
-            onSelectLocation={(lat, lon) => setPosition([lat, lon])}
-          />
+        <p className="mt-1 text-xs text-felines-text-secondary">
+          Toque ou arraste o pino até onde você viu o gato.
+        </p>
+        <div className="mt-2 h-48 w-full overflow-hidden rounded-xl border border-felines-border">
+          <MapMarkerPickerShell position={position} onPick={(lat, lng) => setPosition([lat, lng])} />
         </div>
       </div>
 

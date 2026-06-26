@@ -1,0 +1,54 @@
+// Styled replacement for a bare <input type="file">, used everywhere a
+// photo can be attached (colony, cat, profile, report forms). Browsers
+// render native file inputs wildly differently and they're easy to miss
+// visually — a labeled button with an upload icon makes "you can add a
+// photo here" obvious at a glance.
+"use client";
+
+import { useId } from "react";
+
+export default function PhotoUploadButton({
+  label,
+  file,
+  onChange,
+}: {
+  label: string;
+  file: File | null;
+  onChange: (file: File | null) => void;
+}) {
+  const inputId = useId();
+
+  return (
+    <div>
+      <input
+        id={inputId}
+        type="file"
+        accept="image/*"
+        onChange={(formEvent) => onChange(formEvent.target.files?.[0] ?? null)}
+        className="sr-only"
+      />
+      <label
+        htmlFor={inputId}
+        className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-felines-border bg-felines-surface px-4 py-2 text-sm font-medium text-felines-text-primary transition-colors hover:border-felines-accent"
+      >
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+          <polyline points="17 8 12 3 7 8" />
+          <line x1="12" y1="3" x2="12" y2="15" />
+        </svg>
+        {label}
+      </label>
+      {file && <p className="mt-1 text-xs text-felines-success">Selecionada: {file.name}</p>}
+    </div>
+  );
+}

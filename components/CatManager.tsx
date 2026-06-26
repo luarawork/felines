@@ -11,6 +11,7 @@ import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import { buildSafeStoragePath, validatePhotoFile } from "@/lib/storage";
 import { useColonyAccessContext } from "@/components/ColonyAccessProvider";
+import PhotoUploadButton from "@/components/PhotoUploadButton";
 
 type ManagedCat = {
   id: string;
@@ -243,15 +244,9 @@ export default function CatManager({ colonyId }: { colonyId: string }) {
           <label className="block text-xs font-medium text-felines-text-secondary">
             Foto do gato (opcional)
           </label>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={(formEvent) => setPhotoFile(formEvent.target.files?.[0] ?? null)}
-            className="mt-1 block text-sm text-felines-text-secondary"
-          />
-          {photoFile && (
-            <p className="mt-1 text-xs text-felines-success">Selecionada: {photoFile.name}</p>
-          )}
+          <div className="mt-1">
+            <PhotoUploadButton label="Escolher foto" file={photoFile} onChange={setPhotoFile} />
+          </div>
         </div>
 
         <label className="flex items-center gap-2 text-sm text-felines-text-secondary">
@@ -298,12 +293,13 @@ export default function CatManager({ colonyId }: { colonyId: string }) {
                   <label className="block text-xs font-medium text-felines-text-secondary">
                     Substituir foto (opcional)
                   </label>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={(formEvent) => setEditPhotoFile(formEvent.target.files?.[0] ?? null)}
-                    className="mt-1 block text-sm text-felines-text-secondary"
-                  />
+                  <div className="mt-1">
+                    <PhotoUploadButton
+                      label="Escolher foto"
+                      file={editPhotoFile}
+                      onChange={setEditPhotoFile}
+                    />
+                  </div>
                 </div>
                 <div className="flex gap-3">
                   <button

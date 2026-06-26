@@ -9,8 +9,9 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import { buildSafeStoragePath, validatePhotoFile } from "@/lib/storage";
-import AddressAutocomplete from "@/components/AddressAutocomplete";
+import MapMarkerPickerShell from "@/components/MapMarkerPickerShell";
 import AuthRequiredNotice from "@/components/AuthRequiredNotice";
+import PhotoUploadButton from "@/components/PhotoUploadButton";
 
 export default function LostCatForm({ onSubmitted }: { onSubmitted?: () => void }) {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -18,8 +19,7 @@ export default function LostCatForm({ onSubmitted }: { onSubmitted?: () => void 
 
   const [description, setDescription] = useState("");
   const [photoFile, setPhotoFile] = useState<File | null>(null);
-  const [location, setLocation] = useState("");
-  const [locationCoords, setLocationCoords] = useState<{ lat: number; lon: number } | null>(null);
+  const [locationCoords, setLocationCoords] = useState<[number, number] | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -67,8 +67,8 @@ export default function LostCatForm({ onSubmitted }: { onSubmitted?: () => void 
       type: "missing_cat",
       description: description.trim() || null,
       photo_url: photoUrl,
-      latitude: locationCoords?.lat ?? null,
-      longitude: locationCoords?.lon ?? null,
+      latitude: locationCoords?.[0] ?? null,
+      longitude: locationCoords?.[1] ?? null,
       status: "open",
       created_by: session.user.id,
     });
@@ -116,26 +116,22 @@ export default function LostCatForm({ onSubmitted }: { onSubmitted?: () => void 
         <label className="block text-xs font-medium text-felines-text-secondary">
           Foto do gato (obrigatória)
         </label>
-        <input
-          type="file"
-          accept="image/*"
-          onChange={(formEvent) => setPhotoFile(formEvent.target.files?.[0] ?? null)}
-          className="mt-1 block text-sm text-felines-text-secondary"
-        />
+        <div className="mt-1">
+          <PhotoUploadButton label="Escolher foto" file={photoFile} onChange={setPhotoFile} />
+        </div>
       </div>
 
       <div>
         <label className="block text-xs font-medium text-felines-text-secondary">
           Onde ele foi visto pela última vez
         </label>
-        <div className="mt-1">
-          <AddressAutocomplete
-            value={location}
-            onChange={(newValue) => {
-              setLocation(newValue);
-              setLocationCoords(null);
-            }}
-            onSelectLocation={(lat, lon) => setLocationCoords({ lat, lon })}
+        <p className="mt-1 text-xs text-felines-text-secondary">
+          Toque ou arraste o pino até o local.
+        </p>
+        <div className="mt-2 h-48 w-full overflow-hidden rounded-xl border border-felines-border">
+          <MapMarkerPickerShell
+            position={locationCoords}
+            onPick={(lat, lng) => setLocationCoords([lat, lng])}
           />
         </div>
       </div>

@@ -11,6 +11,7 @@ import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import { buildSafeStoragePath, validatePhotoFile } from "@/lib/storage";
 import { useColonyAccessContext } from "@/components/ColonyAccessProvider";
+import PhotoUploadButton from "@/components/PhotoUploadButton";
 
 // Common timeline event types. The column has no check constraint, so
 // these are just suggestions to keep entries consistent.
@@ -137,15 +138,16 @@ export default function TimelineEventForm({ colonyId }: { colonyId: string }) {
         <label className="block text-xs font-medium text-felines-text-secondary">
           Foto (opcional) — não altera a foto de capa da colônia
         </label>
-        <input
-          type="file"
-          accept="image/*"
-          onChange={(formEvent) => {
-            setPhotoFile(formEvent.target.files?.[0] ?? null);
-            setSubmitted(false);
-          }}
-          className="mt-1 block text-sm text-felines-text-secondary"
-        />
+        <div className="mt-1">
+          <PhotoUploadButton
+            label="Escolher foto"
+            file={photoFile}
+            onChange={(file) => {
+              setPhotoFile(file);
+              setSubmitted(false);
+            }}
+          />
+        </div>
       </div>
 
       <button

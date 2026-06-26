@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import { buildSafeStoragePath, validatePhotoFile } from "@/lib/storage";
 import { useColonyAccessContext } from "@/components/ColonyAccessProvider";
+import PhotoUploadButton from "@/components/PhotoUploadButton";
 
 type CastrationStatus = "none" | "partial" | "full";
 
@@ -164,12 +165,9 @@ export default function EditColonyForm({
         <label className="block text-sm font-medium text-felines-text-primary">
           Substituir foto de capa (opcional)
         </label>
-        <input
-          type="file"
-          accept="image/*"
-          onChange={(formEvent) => setPhotoFile(formEvent.target.files?.[0] ?? null)}
-          className="mt-1 text-sm text-felines-text-secondary"
-        />
+        <div className="mt-1">
+          <PhotoUploadButton label="Escolher foto" file={photoFile} onChange={setPhotoFile} />
+        </div>
       </div>
 
       {error && <p className="text-sm text-felines-emergency">{error}</p>}

@@ -20,6 +20,7 @@ import {
 } from "@/lib/profile";
 import { buildSafeStoragePath, validatePhotoFile } from "@/lib/storage";
 import EmptyState from "@/components/EmptyState";
+import PhotoUploadButton from "@/components/PhotoUploadButton";
 
 type LinkedColony = { id: string; name: string };
 type FeedingRecord = { id: string; colony_id: string; created_at: string };
@@ -259,11 +260,10 @@ export default function ProfileContent() {
             <div className="h-16 w-16 rounded-full bg-felines-border" />
           )}
           <div>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={(formEvent) => handleAvatarChange(formEvent.target.files?.[0] ?? null)}
-              className="block text-sm text-felines-text-secondary"
+            <PhotoUploadButton
+              label="Escolher foto"
+              file={null}
+              onChange={(file) => handleAvatarChange(file)}
             />
             {uploadingAvatar && <p className="text-xs text-felines-text-secondary">Enviando...</p>}
             {avatarError && <p className="text-xs text-felines-emergency">{avatarError}</p>}
