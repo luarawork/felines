@@ -1,7 +1,9 @@
 /*
  * Global stylesheet for Felines.
- * Defines the Tailwind v4 theme tokens (colors, fonts) used across the app,
- * based on the Felines brand palette.
+ * Defines the Tailwind v4 theme tokens (colors, fonts, motion) used
+ * across the app, based on the Felines brand palette — editorial, warm,
+ * trustworthy, in the spirit of Meow Metrics: generous white space,
+ * alternating light/dark sections, big bold type for impact moments.
  */
 @import "tailwindcss";
 
@@ -12,14 +14,29 @@
   /* Felines brand palette */
   --color-felines-background: #f9f6f2;
   --color-felines-surface: #ffffff;
+  --color-felines-dark: #2d1810;
+  --color-felines-dark-accent: #3d2318;
+
   --color-felines-text-primary: #2d2d2d;
+  --color-felines-text-primary-on-dark: #ffffff;
   --color-felines-text-secondary: #6b6b6b;
+  --color-felines-text-secondary-on-dark: #c4a090;
+
   --color-felines-border: #e8e4df;
+  --color-felines-border-on-dark: #4d3020;
+
   --color-felines-accent: #c4704f;
   --color-felines-accent-hover: #a85a3a;
+  --color-felines-accent-light: #fdf0eb;
+
   --color-felines-success: #6b8f6a;
+  --color-felines-success-light: #f0f7f0;
+
   --color-felines-warning: #e8a838;
+  --color-felines-warning-light: #fffbec;
+
   --color-felines-emergency: #c0392b;
+  --color-felines-emergency-light: #fef2f2;
 }
 
 @theme inline {
@@ -30,14 +47,29 @@
   /* Expose Felines palette as Tailwind utilities, e.g. bg-felines-accent */
   --color-felines-background: var(--color-felines-background);
   --color-felines-surface: var(--color-felines-surface);
+  --color-felines-dark: var(--color-felines-dark);
+  --color-felines-dark-accent: var(--color-felines-dark-accent);
+
   --color-felines-text-primary: var(--color-felines-text-primary);
+  --color-felines-text-primary-on-dark: var(--color-felines-text-primary-on-dark);
   --color-felines-text-secondary: var(--color-felines-text-secondary);
+  --color-felines-text-secondary-on-dark: var(--color-felines-text-secondary-on-dark);
+
   --color-felines-border: var(--color-felines-border);
+  --color-felines-border-on-dark: var(--color-felines-border-on-dark);
+
   --color-felines-accent: var(--color-felines-accent);
   --color-felines-accent-hover: var(--color-felines-accent-hover);
+  --color-felines-accent-light: var(--color-felines-accent-light);
+
   --color-felines-success: var(--color-felines-success);
+  --color-felines-success-light: var(--color-felines-success-light);
+
   --color-felines-warning: var(--color-felines-warning);
+  --color-felines-warning-light: var(--color-felines-warning-light);
+
   --color-felines-emergency: var(--color-felines-emergency);
+  --color-felines-emergency-light: var(--color-felines-emergency-light);
 }
 
 body {
@@ -60,6 +92,11 @@ body {
   border-radius: 50%;
   border: 2px solid #ffffff;
   box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.15);
+  transition: transform 200ms ease;
+}
+
+.felines-pin:hover {
+  transform: scale(1.2);
 }
 
 /* Pulsing animation for emergency pins, to draw the eye on the map */
@@ -76,5 +113,51 @@ body {
   }
   100% {
     box-shadow: 0 0 0 0 rgba(192, 57, 43, 0);
+  }
+}
+
+/* ---------------------------------------------------------
+   Motion utilities — scroll-reveal fade-ins and the "Get
+   help" pulse. Disabled under prefers-reduced-motion.
+   --------------------------------------------------------- */
+
+.felines-reveal {
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 500ms ease, transform 500ms ease;
+}
+
+.felines-reveal.felines-reveal-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@keyframes felines-help-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.03);
+  }
+}
+
+.felines-help-pulse {
+  animation: felines-help-pulse 3s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .felines-reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  .felines-help-pulse,
+  .felines-pin-pulse {
+    animation: none !important;
+  }
+  * {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
   }
 }
