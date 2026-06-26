@@ -150,19 +150,31 @@ export default async function ColonyDetailPage({
     </>
   );
 
+  const hasNoTimelineEntriesEver = !timelineEvents || timelineEvents.length === 0;
   const mostRecentEventDate = timelineEvents?.[0]?.created_at
     ? new Date(timelineEvents[0].created_at)
     : null;
   const daysSinceLastUpdate = mostRecentEventDate
     ? (now - mostRecentEventDate.getTime()) / (1000 * 60 * 60 * 24)
     : null;
-  const hasNoRecentUpdates = daysSinceLastUpdate === null || daysSinceLastUpdate >= 7;
+  const hasStaleUpdates =
+    !hasNoTimelineEntriesEver && daysSinceLastUpdate !== null && daysSinceLastUpdate >= 7;
 
   const timelineSection = (
     <>
       <TimelineEventForm colonyId={colony.id} />
 
-      {hasNoRecentUpdates && (
+      {hasNoTimelineEntriesEver && (
+        <div className="mt-4">
+          <EmptyState
+            main="Essa colônia ainda não tem nenhuma entrada na linha do tempo."
+            sub="Alimentações, gatos novos, rodadas de castração — qualquer atualização ajuda quem visitar essa página depois."
+            ctas={[{ label: "Relatar algo →", href: "#colony-report-button" }]}
+          />
+        </div>
+      )}
+
+      {hasStaleUpdates && (
         <div className="mt-4">
           <EmptyState
             main="Nenhuma atualização recente — você sabe o que está acontecendo aqui?"
@@ -277,6 +289,7 @@ export default async function ColonyDetailPage({
               content: (
                 <EditColonyForm
                   colonyId={colony.id}
+                  initialName={colony.name}
                   initialNarrative={colony.narrative}
                   initialCastrationStatus={colony.castration_status}
                   initialCoverPhotoUrl={colony.cover_photo_url}

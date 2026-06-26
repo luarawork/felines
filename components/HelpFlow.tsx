@@ -1,7 +1,9 @@
 // Two-step "what should I do" wizard for the /help page.
 // Step 1 asks what's happening, step 2 asks where, then shows tailored
 // educational guidance and, when relevant, a way to submit a report
-// directly from the flow (no login required).
+// directly from the flow — no login required, except for "Gato
+// desaparecido", which opens the full LostCatForm and does require an
+// account (so the owner can be identified for sighting replies).
 "use client";
 
 import { useEffect, useState } from "react";
@@ -9,6 +11,7 @@ import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient";
 import AnonymousReportNotice from "@/components/AnonymousReportNotice";
 import AddressAutocomplete from "@/components/AddressAutocomplete";
+import CreateAccountInvite from "@/components/CreateAccountInvite";
 import LostCatForm from "@/components/LostCatForm";
 
 type SituationKey =
@@ -268,16 +271,19 @@ export default function HelpFlow({ onClose }: { onClose?: () => void }) {
                     </button>
                   )}
                   {submitted && (
-                    <div className="flex items-center gap-3">
-                      <p className="text-sm text-felines-success">Relato registrado, obrigado.</p>
-                      {onClose && (
-                        <button
-                          onClick={onClose}
-                          className="text-sm font-medium text-felines-text-secondary hover:text-felines-accent"
-                        >
-                          Fechar
-                        </button>
-                      )}
+                    <div className="flex flex-col gap-1">
+                      <div className="flex items-center gap-3">
+                        <p className="text-sm text-felines-success">Relato registrado, obrigado.</p>
+                        {onClose && (
+                          <button
+                            onClick={onClose}
+                            className="text-sm font-medium text-felines-text-secondary hover:text-felines-accent"
+                          >
+                            Fechar
+                          </button>
+                        )}
+                      </div>
+                      {!isLoggedIn && <CreateAccountInvite />}
                     </div>
                   )}
                   <Link

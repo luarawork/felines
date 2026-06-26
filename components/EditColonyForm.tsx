@@ -14,11 +14,13 @@ type CastrationStatus = "none" | "partial" | "full";
 
 export default function EditColonyForm({
   colonyId,
+  initialName,
   initialNarrative,
   initialCastrationStatus,
   initialCoverPhotoUrl,
 }: {
   colonyId: string;
+  initialName: string;
   initialNarrative: string | null;
   initialCastrationStatus: CastrationStatus;
   initialCoverPhotoUrl: string | null;
@@ -26,6 +28,7 @@ export default function EditColonyForm({
   const router = useRouter();
   const { session, canManage, checkingAccess } = useColonyAccessContext();
 
+  const [name, setName] = useState(initialName);
   const [narrative, setNarrative] = useState(initialNarrative ?? "");
   const [castrationStatus, setCastrationStatus] = useState<CastrationStatus>(
     initialCastrationStatus
@@ -39,6 +42,11 @@ export default function EditColonyForm({
     formEvent.preventDefault();
     setError(null);
     setSaved(false);
+
+    if (!name.trim()) {
+      setError("Informe um nome para a colônia.");
+      return;
+    }
 
     if (photoFile) {
       const photoError = validatePhotoFile(photoFile);
@@ -82,6 +90,7 @@ export default function EditColonyForm({
     const { error: updateError } = await supabase
       .from("colonies")
       .update({
+        name: name.trim(),
         narrative: narrative.trim() || null,
         castration_status: castrationStatus,
         cover_photo_url: coverPhotoUrl,
@@ -112,6 +121,19 @@ export default function EditColonyForm({
 
   return (
     <form onSubmit={handleSubmit} className="max-w-xl space-y-4">
+      <div>
+        <label className="block text-sm font-medium text-felines-text-primary">
+          Nome da colônia
+        </label>
+        <input
+          type="text"
+          value={name}
+          onChange={(formEvent) => setName(formEvent.target.value)}
+          maxLength={100}
+          className="mt-1 w-full rounded-md border border-felines-border bg-white px-3 py-2 text-sm"
+        />
+      </div>
+
       <div>
         <label className="block text-sm font-medium text-felines-text-primary">Narrativa</label>
         <textarea

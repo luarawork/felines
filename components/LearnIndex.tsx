@@ -25,6 +25,7 @@ export default function LearnIndex({ articles }: { articles: Article[] }) {
   const [session, setSession] = useState<Session | null>(null);
   const [readSlugs, setReadSlugs] = useState<string[]>([]);
   const [showQuiz, setShowQuiz] = useState(false);
+  const [quizSkipped, setQuizSkipped] = useState(false);
 
   // Load auth session and, if signed in, the user's reading progress.
   useEffect(() => {
@@ -64,7 +65,7 @@ export default function LearnIndex({ articles }: { articles: Article[] }) {
               style={{ width: `${progressPercent}%` }}
             />
           </div>
-          {readSlugs.length >= 3 && !showQuiz && (
+          {readSlugs.length >= 3 && !showQuiz && !quizSkipped && (
             <div className="mt-3">
               <p className="text-sm text-felines-accent">
                 Você já leu {readSlugs.length} artigos — que tipo de vizinho você é?
@@ -77,7 +78,23 @@ export default function LearnIndex({ articles }: { articles: Article[] }) {
               </button>
             </div>
           )}
-          {showQuiz && <Quiz onSkip={() => setShowQuiz(false)} />}
+          {showQuiz && (
+            <Quiz
+              onSkip={() => {
+                setShowQuiz(false);
+                setQuizSkipped(true);
+              }}
+            />
+          )}
+          {quizSkipped && (
+            <p className="mt-3 text-sm text-felines-text-secondary">
+              Sem problema. Já que você está por aqui,{" "}
+              <Link href="/map" className="font-medium text-felines-accent">
+                que tal explorar o mapa
+              </Link>{" "}
+              de colônias perto de você?
+            </p>
+          )}
         </div>
       )}
 

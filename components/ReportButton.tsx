@@ -9,6 +9,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import { REPORT_TYPES } from "@/lib/reportTypes";
 import AnonymousReportNotice from "@/components/AnonymousReportNotice";
+import CreateAccountInvite from "@/components/CreateAccountInvite";
 
 export default function ReportButton({ colonyId }: { colonyId: string }) {
   const [open, setOpen] = useState(false);
@@ -80,9 +81,12 @@ export default function ReportButton({ colonyId }: { colonyId: string }) {
             </div>
 
             {submitted ? (
-              <p className="mt-4 rounded-lg border border-felines-success bg-felines-success/10 px-4 py-3 text-sm text-felines-success">
-                Relato enviado. Obrigado por ajudar a colônia.
-              </p>
+              <div className="mt-4">
+                <p className="rounded-lg border border-felines-success bg-felines-success/10 px-4 py-3 text-sm text-felines-success">
+                  Relato enviado. Obrigado por ajudar a colônia.
+                </p>
+                {!isLoggedIn && <CreateAccountInvite />}
+              </div>
             ) : (
               <form onSubmit={handleSubmit} className="mt-4">
                 {!isLoggedIn && <AnonymousReportNotice />}

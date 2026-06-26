@@ -143,6 +143,20 @@ export default function ReportsList() {
       return;
     }
 
+    // Sensitive reports always leave a timeline trace when resolved —
+    // confirm_report() already does this for the auto-resolve-at-3 path,
+    // but manual resolution skipped it entirely until now, so a
+    // caretaker resolving a sensitive report early left no record.
+    const resolvedReport = reports.find((report) => report.id === reportId);
+    if (resolvedReport?.sensitive && resolvedReport.colony_id && session) {
+      await supabase.from("timeline_events").insert({
+        colony_id: resolvedReport.colony_id,
+        event_type: "report_resolved",
+        description: `Relato sensível (${getReportTypeLabel(resolvedReport.type)}) resolvido manualmente.`,
+        created_by: session.user.id,
+      });
+    }
+
     setReports((previous) =>
       previous.map((report) =>
         report.id === reportId ? { ...report, status: "resolved" as const } : report

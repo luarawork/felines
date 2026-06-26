@@ -26,6 +26,10 @@ export const ARTICLES: Article[] = [
       "Colônias se formam onde há os três ingredientes básicos: comida disponível (lixo, alimentação intencional), abrigo (terrenos vazios, embaixo de carros, vãos de construção) e ausência de grandes predadores.",
       "Identificar uma colônia (em vez de reportar só um avistamento) ajuda a comunidade a organizar castração, alimentação e cuidados de forma muito mais eficaz do que tentar ajudar gato por gato.",
     ],
+    factChips: [
+      "📊 Estima-se que existam mais de 10 milhões de gatos de rua no Brasil",
+      "📊 Colônias se reformam em territórios vazios em poucos meses — identificar e cuidar é mais eficaz que remover",
+    ],
   },
   {
     slug: "por-que-existem-gatos-de-rua",
@@ -38,6 +42,10 @@ export const ARTICLES: Article[] = [
       "Remover os gatos de uma área sem resolver a causa (comida disponível, abrigo) costuma abrir espaço para que outra colônia ocupe o mesmo território rapidamente.",
       "A forma mais eficaz de reduzir o número de gatos de rua a longo prazo é a castração, não a remoção.",
     ],
+    factChips: [
+      "📊 Comida, abrigo e ausência de predadores são os 3 fatores que sustentam uma colônia",
+      "📊 Remover gatos sem resolver a causa costuma trazer um grupo novo, e maior, em poucos meses",
+    ],
   },
   {
     slug: "castracao-reduz-conflitos",
@@ -49,6 +57,10 @@ export const ARTICLES: Article[] = [
       "Gatos não castrados marcam território com urina de cheiro forte e brigam com frequência por fêmeas — isso é a maior fonte de reclamações da vizinhança.",
       "Depois da castração, o comportamento territorial cai drasticamente em poucas semanas, e a colônia para de crescer.",
       "Colônias castradas tendem a ser mais estáveis, silenciosas e fáceis de conviver com a comunidade ao redor.",
+    ],
+    factChips: [
+      "📊 O comportamento territorial cai drasticamente poucas semanas após a castração",
+      "📊 Colônias castradas têm menos brigas, menos miados noturnos e menos cheiro de urina",
     ],
   },
   {
@@ -98,6 +110,10 @@ export const ARTICLES: Article[] = [
       "Abaixe-se para ficar na altura do gato em vez de se inclinar por cima dele — isso reduz a sensação de ameaça. Estenda a mão devagar e deixe o gato decidir se aproximar de você, em vez de avançar sobre ele.",
       "Gatos ferais (nunca socializados com humanos) mantêm distância, não miam pedindo atenção e fogem ao menor movimento brusco. Gatos socializados ou semi-domesticados costumam miar, se aproximar sozinhos e tolerar mais contato.",
       "Nunca persiga, agarre ou encurrale um gato de rua — mesmo gatos socializados podem morder ou arranhar por medo quando se sentem sem rota de fuga.",
+    ],
+    factChips: [
+      "📊 Abaixar-se à altura do gato reduz a sensação de ameaça muito mais do que se inclinar sobre ele",
+      "📊 Gatos ferais mantêm distância e fogem ao menor movimento brusco — gatos socializados toleram mais contato",
     ],
   },
   {
@@ -151,6 +167,10 @@ export const ARTICLES: Article[] = [
       "Passo 4 — Procure o veterinário ou abrigo mais próximo: ligue antes se possível, avisando o tipo de ferimento, para que a equipe já se prepare. Muitas cidades têm clínicas populares ou ONGs com atendimento de urgência gratuito ou de baixo custo.",
       "Passo 5 — Não dê comida, água ou qualquer medicamento por conta própria: isso pode complicar uma anestesia necessária ou mascarar sintomas importantes para o diagnóstico veterinário.",
     ],
+    factChips: [
+      "📊 Cobrir a cabeça do gato suavemente com uma toalha tende a calmá-lo durante o transporte",
+      "📊 Gatos feridos perdem temperatura corporal rapidamente — mantê-los aquecidos é prioridade",
+    ],
   },
   {
     slug: "cats-bothering-your-building",
@@ -181,16 +201,9 @@ export const ARTICLES: Article[] = [
       "Apoiar financeiramente ou com ração os cuidadores já existentes da sua região tem mais impacto do que tentar cuidar sozinho.",
       "Indicar clínicas de castração popular ou campanhas de castração gratuita para os cuidadores da sua região é uma forma simples de contribuir.",
     ],
-  },
-  {
-    slug: "o-que-fazer-ao-encontrar-filhotes",
-    level: 2,
-    title: "O que fazer ao encontrar filhotes sozinhos",
-    summary: "Nem todo filhote sozinho está abandonado — saiba quando agir e quando esperar.",
-    body: [
-      "A mãe geralmente sai para caçar comida e volta poucas horas depois — observe de longe antes de intervir.",
-      "Só intervenha se os filhotes estiverem visivelmente doentes, feridos, muito frios ou em perigo imediato (via movimentada, por exemplo).",
-      "Se precisar remover os filhotes, contate uma ONG ou cuidador experiente antes — cuidados neonatais exigem conhecimento específico.",
+    factChips: [
+      "📊 Apoiar um cuidador já existente tem mais impacto do que tentar cuidar de uma colônia sozinho",
+      "📊 Reportar problemas pelo Felines ajuda cuidadores a agir mais rápido, mesmo sem você adotar nenhum gato",
     ],
   },
   {
@@ -202,6 +215,98 @@ export const ARTICLES: Article[] = [
       "Um cuidador garante alimentação regular, observa a saúde dos gatos e organiza a castração da colônia ao longo do tempo.",
       "Cuidadores costumam deixar uma 'carta' para o próximo cuidador, com o histórico da colônia, hábitos dos gatos e contatos úteis.",
       "Você pode se tornar cuidador de qualquer colônia já mapeada no Felines a partir da página da colônia.",
+    ],
+    factChips: [
+      "📊 Cuidadores podem deixar uma carta de transição com histórico e contatos para o próximo cuidador",
+      "📊 Qualquer colônia mapeada no Felines pode receber um novo cuidador vinculado a qualquer momento",
+    ],
+  },
+  {
+    slug: "living-with-a-cat-colony",
+    level: 4,
+    title: "Convivendo bem com uma colônia de gatos perto de você",
+    summary:
+      "Morar perto de uma colônia não precisa ser um problema — veja como tornar essa convivência tranquila para todo mundo.",
+    body: [
+      "A maior parte do atrito com colônias de gatos vem da falta de informação, não dos gatos em si: cheiro de urina, miados e brigas costumam ter uma causa identificável e tratável.",
+      "Se a colônia perto de você já tem um cuidador vinculado no Felines, converse diretamente com essa pessoa — ela pode ajustar pontos de alimentação, horários ou reforçar a castração, por exemplo.",
+      "Se não houver cuidador, considerar se tornar um (mesmo que parcialmente, dividindo tarefas com vizinhos) costuma resolver mais rápido do que reclamar para a administração do condomínio ou prefeitura.",
+      "Pequenos ajustes de rotina — comida em horário fixo e sem sobras expostas, água trocada com frequência, abrigo discreto — reduzem drasticamente o incômodo percebido pela vizinhança sem prejudicar os gatos.",
+      "Convivência saudável também significa respeitar o ritmo dos próprios gatos: eles não precisam ser tocados, adotados ou removidos para que a relação com a vizinhança funcione bem.",
+    ],
+    factChips: [
+      "📊 Boa parte do incômodo com colônias tem solução prática, sem precisar remover os gatos",
+      "📊 Falar com o cuidador responsável resolve mais rápido do que reclamar para a administração",
+    ],
+  },
+  {
+    slug: "small-actions-real-impact",
+    level: 2,
+    title: "Pequenas ações, impacto real",
+    summary:
+      "Você não precisa virar cuidador em tempo integral para fazer diferença na vida de uma colônia.",
+    body: [
+      "Confirmar um relato que você também viu, deixar uma doação pontual de ração para um cuidador conhecido, ou simplesmente avisar um cuidador sobre algo estranho na colônia já é uma contribuição real.",
+      "Compartilhar a localização de uma colônia no mapa do Felines com vizinhos ajuda a comunidade a se organizar mais rápido em caso de emergência.",
+      "Se você tem talento em algo específico — fotografia, design, contato com clínicas veterinárias — oferecer isso a um cuidador costuma valer mais do que tentar fazer tudo sozinho.",
+      "Ações pequenas e consistentes (uma vez por semana, por exemplo) tendem a ser mais sustentáveis e úteis do que um esforço grande e único que não se repete.",
+    ],
+    factChips: [
+      "📊 Confirmar relatos que você também testemunhou ajuda a comunidade a priorizar casos reais",
+      "📊 Contribuições pequenas e recorrentes tendem a durar mais do que um esforço único e grande",
+    ],
+  },
+  {
+    slug: "how-to-help-injured-cat",
+    level: 3,
+    title: "Como ajudar um gato ferido alem do primeiro socorro",
+    summary:
+      "Depois do resgate imediato, vem a parte que decide se o gato realmente se recupera: acompanhamento, custo e quem pode ajudar.",
+    body: [
+      "Depois dos primeiros socorros (veja o passo a passo de resgate), o maior obstáculo costuma ser o custo do tratamento veterinário — vale pesquisar clínicas populares, universidades com curso de veterinária e ONGs locais antes de assumir que não há opção acessível.",
+      "Muitas cidades têm campanhas de castração e atendimento popular subsidiado; alguns desses programas também atendem casos de ferimento ou doença em gatos de rua, não só castração.",
+      "Se você não pode arcar com o tratamento inteiro, procurar um cuidador já vinculado à colônia (pelo mapa do Felines) ou uma ONG local para dividir o custo ou a logística costuma ser mais eficaz do que desistir do caso.",
+      "Depois do tratamento, gatos que retornam à colônia precisam de acompanhamento por pelo menos algumas semanas — um cuidador vinculado pode registrar isso na linha do tempo da colônia para que a comunidade saiba que o caso está sendo seguido.",
+      "Vale lembrar: nem todo gato ferido precisa ser removido da colônia permanentemente. Sempre que possível, o objetivo é tratar e devolver ao território de origem, do mesmo jeito que no TNR.",
+    ],
+    factChips: [
+      "📊 Clínicas populares e universidades com curso de veterinária costumam ter atendimento de baixo custo",
+      "📊 Sempre que possível, o objetivo é tratar e devolver o gato ao território de origem",
+    ],
+  },
+  {
+    slug: "stray-cats-in-brazil-the-numbers",
+    level: 1,
+    title: "Gatos de rua no Brasil: o que os números mostram",
+    summary:
+      "Alguns dados ajudam a entender o tamanho real do problema — e por que castração em massa é a única saída sustentável.",
+    body: [
+      "Estimativas apontam mais de 10 milhões de gatos de rua no Brasil, parte de um total estimado de 480 milhões de gatos de rua no mundo.",
+      "ONGs e abrigos brasileiros já operam, em sua maioria, além da capacidade — o Instituto Pet Brasil estima cerca de 185 mil animais nessa situação, o que torna a remoção e o abrigamento em massa inviáveis como solução de longo prazo.",
+      "Segundo o IBGE, cerca de 40% dos brasileiros já enfrentaram algum tipo de conflito com vizinhos envolvendo animais — boa parte desses casos está relacionada a gatos de rua não castrados.",
+      "Esses números reforçam por que organizações como a OMS recomendam castração em massa (TNR) em vez de remoção: não há capacidade de abrigo suficiente para remover gatos de rua em escala, e a remoção isolada não resolve o problema de forma duradoura.",
+    ],
+    factChips: [
+      "📊 Mais de 10 milhões de gatos de rua no Brasil, e 480 milhões no mundo (OMS / World Animal Foundation)",
+      "📊 40% dos brasileiros já tiveram conflito com vizinhos envolvendo animais (IBGE)",
+    ],
+  },
+  {
+    slug: "common-myths-about-stray-cats",
+    level: 1,
+    title: "Mitos comuns sobre gatos de rua",
+    summary:
+      "Várias crenças populares sobre gatos de rua não se sustentam — e algumas até pioram a situação.",
+    body: [
+      "Mito: 'gato de rua é sempre doente ou perigoso'. Na realidade, a maioria dos gatos de rua evita contato humano por instinto, não por agressividade, e muitos estão tão saudáveis quanto um gato doméstico quando bem alimentados.",
+      "Mito: 'remover os gatos resolve o problema'. Como mostram décadas de tentativas em diversas cidades, território vazio é ocupado rapidamente por outra colônia — geralmente maior e ainda não castrada.",
+      "Mito: 'alimentar gatos de rua aumenta a população'. O que de fato aumenta a população é a falta de castração, não a alimentação. Colônias alimentadas e castradas tendem a ser estáveis, não crescentes.",
+      "Mito: 'filhote sozinho significa filhote abandonado'. Na maioria das vezes a mãe está por perto caçando comida — agir rápido sem observar pode separar um filhote saudável da mãe sem necessidade.",
+      "Mito: 'gato de rua não pode ser tocado de jeito nenhum'. Gatos socializados (que já tiveram contato humano) toleram aproximação gradual; o que varia é o nível de socialização de cada indivíduo, não uma regra fixa para todos.",
+    ],
+    factChips: [
+      "📊 Alimentar gatos de rua não aumenta a população — a falta de castração que aumenta",
+      "📊 A maioria dos filhotes 'abandonados' tem a mãe por perto, caçando comida",
     ],
   },
 ];

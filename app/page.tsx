@@ -3,6 +3,7 @@
 // the everyday citizen who is curious or in conflict with stray cats,
 // and merges in the full /learn guide as an anchored section below.
 import Link from "next/link";
+import FirstVisitBanner from "@/components/FirstVisitBanner";
 import LearnIndex from "@/components/LearnIndex";
 import OpenHelpModalButton from "@/components/OpenHelpModalButton";
 import RotatingQuickFacts from "@/components/RotatingQuickFacts";
@@ -33,6 +34,8 @@ const ENTRY_CARDS: { href?: string; isHelp?: boolean; title: string; description
 export default function Home() {
   return (
     <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-16">
+      <FirstVisitBanner />
+
       {/* Hero section */}
       <section className="mx-auto max-w-2xl text-center">
         <h1 className="text-3xl font-bold leading-tight text-felines-text-primary sm:text-4xl">

@@ -23,6 +23,8 @@ import EmptyState from "@/components/EmptyState";
 
 type LinkedColony = { id: string; name: string };
 type FeedingRecord = { id: string; colony_id: string; created_at: string };
+type ConfirmationRecord = { confirmedAt: string; reportType: string; reportStatus: string };
+type ThankYouRecord = { id: string; colonyName: string; createdAt: string; otherPartyName: string };
 
 export default function ProfileContent() {
   const router = useRouter();
@@ -39,6 +41,9 @@ export default function ProfileContent() {
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [avatarError, setAvatarError] = useState<string | null>(null);
+  const [confirmationsGiven, setConfirmationsGiven] = useState<ConfirmationRecord[]>([]);
+  const [thanksSent, setThanksSent] = useState<ThankYouRecord[]>([]);
+  const [thanksReceived, setThanksReceived] = useState<ThankYouRecord[]>([]);
 
   useEffect(() => {
     async function loadProfile() {
@@ -90,6 +95,76 @@ export default function ProfileContent() {
 
       const reports = await getOpenReportsForMyColonies(session.user.id);
       setMyColonyReports(reports);
+
+      const [{ data: confirmationRows }, { data: sentRows }, { data: receivedRows }] =
+        await Promise.all([
+          supabase
+            .from("report_confirmations")
+            .select("created_at, reports(type, status)")
+            .eq("user_id", session.user.id)
+            .order("created_at", { ascending: false }),
+          supabase
+            .from("thanks")
+            .select("id, created_at, colonies(name), caretaker_user_id")
+            .eq("sender_user_id", session.user.id)
+            .order("created_at", { ascending: false }),
+          supabase
+            .from("thanks")
+            .select("id, created_at, colonies(name), sender_user_id")
+            .eq("caretaker_user_id", session.user.id)
+            .order("created_at", { ascending: false }),
+        ]);
+
+      if (confirmationRows) {
+        setConfirmationsGiven(
+          confirmationRows
+            .map((row) => {
+              const report = row.reports as unknown as { type: string; status: string } | null;
+              return report
+                ? { confirmedAt: row.created_at, reportType: report.type, reportStatus: report.status }
+                : null;
+            })
+            .filter((row): row is ConfirmationRecord => row !== null)
+        );
+      }
+
+      // Both thanks queries need the other party's display name, which
+      // requires a separate profiles lookup since `thanks` only stores
+      // auth.users ids (profiles can't be embedded directly via PostgREST).
+      const otherPartyIds = new Set<string>();
+      (sentRows ?? []).forEach((row) => otherPartyIds.add(row.caretaker_user_id as string));
+      (receivedRows ?? []).forEach((row) => otherPartyIds.add(row.sender_user_id as string));
+
+      const { data: otherProfiles } =
+        otherPartyIds.size > 0
+          ? await supabase.from("profiles").select("id, display_name").in("id", Array.from(otherPartyIds))
+          : { data: [] };
+
+      function displayNameFor(id: string) {
+        return (otherProfiles ?? []).find((profile) => profile.id === id)?.display_name || "alguém da comunidade";
+      }
+
+      if (sentRows) {
+        setThanksSent(
+          sentRows.map((row) => ({
+            id: row.id,
+            colonyName: (row.colonies as unknown as { name: string } | null)?.name ?? "Colônia",
+            createdAt: row.created_at,
+            otherPartyName: displayNameFor(row.caretaker_user_id as string),
+          }))
+        );
+      }
+
+      if (receivedRows) {
+        setThanksReceived(
+          receivedRows.map((row) => ({
+            id: row.id,
+            colonyName: (row.colonies as unknown as { name: string } | null)?.name ?? "Colônia",
+            createdAt: row.created_at,
+            otherPartyName: displayNameFor(row.sender_user_id as string),
+          }))
+        );
+      }
 
       setLoading(false);
     }
@@ -287,6 +362,72 @@ export default function ProfileContent() {
             ))}
           </ul>
         )}
+      </section>
+
+      <section>
+        <h2 className="text-lg font-bold text-felines-text-primary">Confirmações dadas</h2>
+        {confirmationsGiven.length === 0 ? (
+          <p className="mt-2 text-sm text-felines-text-secondary">
+            Você ainda não confirmou nenhum relato.
+          </p>
+        ) : (
+          <ul className="mt-3 space-y-2">
+            {confirmationsGiven.map((confirmation) => (
+              <li
+                key={confirmation.confirmedAt + confirmation.reportType}
+                className="flex items-center justify-between rounded-md border border-felines-border px-3 py-2 text-sm"
+              >
+                <span className="text-felines-text-primary">
+                  {getReportTypeLabel(confirmation.reportType)}
+                </span>
+                <span className="text-xs text-felines-text-secondary">
+                  {confirmation.reportStatus === "resolved" ? "resolvido" : "aberto"} ·{" "}
+                  {new Date(confirmation.confirmedAt).toLocaleDateString("pt-BR")}
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+
+      <section>
+        <h2 className="text-lg font-bold text-felines-text-primary">Agradecimentos</h2>
+        <div className="mt-3 grid gap-4 sm:grid-cols-2">
+          <div>
+            <p className="text-sm font-medium text-felines-text-secondary">Enviados</p>
+            {thanksSent.length === 0 ? (
+              <p className="mt-1 text-sm text-felines-text-secondary">
+                Você ainda não agradeceu nenhum cuidador.
+              </p>
+            ) : (
+              <ul className="mt-2 space-y-2">
+                {thanksSent.map((thanks) => (
+                  <li key={thanks.id} className="text-sm text-felines-text-secondary">
+                    Você agradeceu {thanks.otherPartyName} ({thanks.colonyName}) em{" "}
+                    {new Date(thanks.createdAt).toLocaleDateString("pt-BR")}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+          <div>
+            <p className="text-sm font-medium text-felines-text-secondary">Recebidos</p>
+            {thanksReceived.length === 0 ? (
+              <p className="mt-1 text-sm text-felines-text-secondary">
+                Você ainda não recebeu nenhum agradecimento.
+              </p>
+            ) : (
+              <ul className="mt-2 space-y-2">
+                {thanksReceived.map((thanks) => (
+                  <li key={thanks.id} className="text-sm text-felines-text-secondary">
+                    {thanks.otherPartyName} te agradeceu ({thanks.colonyName}) em{" "}
+                    {new Date(thanks.createdAt).toLocaleDateString("pt-BR")}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </div>
       </section>
 
       <section>
