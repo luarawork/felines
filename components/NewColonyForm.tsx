@@ -13,7 +13,7 @@ import MapMarkerPickerShell from "@/components/MapMarkerPickerShell";
 import { buildSafeStoragePath, validatePhotoFile } from "@/lib/storage";
 import AddressAutocomplete from "@/components/AddressAutocomplete";
 import AuthRequiredNotice from "@/components/AuthRequiredNotice";
-import { useHelpModal } from "@/components/HelpModalProvider";
+import QuickSightingForm from "@/components/QuickSightingForm";
 
 // Location blur protects cats from malicious users who could use exact
 // coordinates to find and harm animals. Both blur levels are computed
@@ -32,9 +32,9 @@ function blurCoordinateNear(value: number) {
 
 export default function NewColonyForm() {
   const router = useRouter();
-  const { openHelpModal } = useHelpModal();
   const [session, setSession] = useState<Session | null>(null);
   const [checkingSession, setCheckingSession] = useState(true);
+  const [showSightingForm, setShowSightingForm] = useState(false);
 
   const [moreThanOneCat, setMoreThanOneCat] = useState<boolean | null>(null);
   const [seenFrequently, setSeenFrequently] = useState<boolean | null>(null);
@@ -151,6 +151,7 @@ export default function NewColonyForm() {
   }
 
   return (
+    <>
     <form onSubmit={handleSubmit} className="mt-6 space-y-6">
       {/* Validation questions */}
       <fieldset className="space-y-4 rounded-xl border border-felines-border bg-felines-surface p-4">
@@ -170,16 +171,16 @@ export default function NewColonyForm() {
         />
 
         {(moreThanOneCat === false || seenFrequently === false) && (
-          <p className="rounded-md bg-felines-warning/10 px-3 py-2 text-sm text-felines-text-primary">
-            Isso pode ser um avistamento em vez de uma colônia.{" "}
+          <div className="rounded-md bg-felines-warning/10 px-3 py-2 text-sm text-felines-text-primary">
+            <p>Isso parece mais um avistamento do que uma colônia. Quer relatar rapidinho?</p>
             <button
               type="button"
-              onClick={openHelpModal}
-              className="font-medium text-felines-accent underline"
+              onClick={() => setShowSightingForm(true)}
+              className="mt-2 rounded-full border border-felines-accent px-3 py-1 text-xs font-medium text-felines-accent transition-colors hover:bg-felines-accent hover:text-white"
             >
-              Quer registrar um avistamento em vez disso?
+              Relatar avistamento →
             </button>
-          </p>
+          </div>
         )}
 
         <ValidationQuestion
@@ -286,6 +287,34 @@ export default function NewColonyForm() {
         {submitting ? "Cadastrando..." : "Cadastrar colônia"}
       </button>
     </form>
+
+    {showSightingForm && (
+        <div className="fixed inset-0 z-[2000] flex items-center justify-center bg-black/40 p-4">
+          <div className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-xl bg-felines-background p-6 shadow-xl">
+            <div className="flex items-start justify-between">
+              <h2 className="text-lg font-bold text-felines-text-primary">
+                Relatar avistamento
+              </h2>
+              <button
+                type="button"
+                onClick={() => setShowSightingForm(false)}
+                aria-label="Fechar"
+                className="flex-shrink-0 text-xl leading-none text-felines-text-secondary hover:text-felines-text-primary"
+              >
+                ×
+              </button>
+            </div>
+            <div className="mt-4">
+              <QuickSightingForm
+                initialAddress={addressText}
+                initialPosition={position}
+                onClose={() => setShowSightingForm(false)}
+              />
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
 
