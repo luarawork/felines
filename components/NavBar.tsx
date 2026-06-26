@@ -10,6 +10,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabaseClient";
+import { getAvatarUrl } from "@/lib/profile";
 import { useHelpModal } from "@/components/HelpModalProvider";
 
 // Links shown in the main navigation, in display order. "Aprender" was
@@ -23,6 +24,7 @@ export default function NavBar() {
   const router = useRouter();
   const { openHelpModal } = useHelpModal();
   const [session, setSession] = useState<Session | null>(null);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const headerRef = useRef<HTMLElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -56,6 +58,13 @@ export default function NavBar() {
 
     return () => subscription.subscription.unsubscribe();
   }, []);
+
+  // Keeps the nav avatar in sync with whatever photo the user has set on
+  // /profile, instead of always showing just their initial.
+  useEffect(() => {
+    if (!session) return;
+    getAvatarUrl(session.user.id).then(setAvatarUrl);
+  }, [session]);
 
   // Closes the avatar dropdown when clicking outside it.
   useEffect(() => {
@@ -111,7 +120,7 @@ export default function NavBar() {
             onClick={openHelpModal}
             className="felines-help-pulse rounded-full bg-felines-accent px-4 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-felines-accent-hover"
           >
-            Preciso de ajuda 🐾
+            Preciso de ajuda
           </button>
 
           {session ? (
@@ -121,9 +130,14 @@ export default function NavBar() {
                 aria-label="Menu da conta"
                 aria-haspopup="true"
                 aria-expanded={menuOpen}
-                className="flex h-11 w-11 items-center justify-center rounded-full bg-felines-accent-light text-sm font-semibold text-felines-accent-hover transition-colors hover:bg-felines-accent hover:text-white"
+                className="flex h-11 w-11 items-center justify-center overflow-hidden rounded-full bg-felines-accent-light text-sm font-semibold text-felines-accent-hover transition-colors hover:bg-felines-accent hover:text-white"
               >
-                {initial}
+                {avatarUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={avatarUrl} alt="Sua foto de perfil" className="h-full w-full object-cover" />
+                ) : (
+                  initial
+                )}
               </button>
               {menuOpen && (
                 <div className="absolute right-0 mt-2 w-44 rounded-xl border border-felines-border bg-white py-1 text-sm shadow-[0_8px_24px_rgba(0,0,0,0.10)]">

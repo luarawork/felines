@@ -145,16 +145,12 @@ export default function NewColonyForm() {
   if (checkingSession) return null;
 
   if (!session) {
-    return (
-      <div className="mt-6">
-        <AuthRequiredNotice />
-      </div>
-    );
+    return <AuthRequiredNotice />;
   }
 
   return (
     <>
-    <form onSubmit={handleSubmit} className="mt-6 space-y-6">
+    <form onSubmit={handleSubmit} className="space-y-6">
       {/* Validation questions */}
       <fieldset className="space-y-4 rounded-xl border border-felines-border bg-felines-surface p-4">
         <legend className="text-sm font-semibold text-felines-text-primary">

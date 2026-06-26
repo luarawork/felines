@@ -13,18 +13,26 @@ import PhotoUploadButton from "@/components/PhotoUploadButton";
 
 type CastrationStatus = "none" | "partial" | "full";
 
+const CASTRATION_LABELS: Record<CastrationStatus, string> = {
+  none: "nenhum gato castrado",
+  partial: "castração parcial",
+  full: "colônia totalmente castrada",
+};
+
 export default function EditColonyForm({
   colonyId,
   initialName,
   initialNarrative,
   initialCastrationStatus,
   initialCoverPhotoUrl,
+  onSaved,
 }: {
   colonyId: string;
   initialName: string;
   initialNarrative: string | null;
   initialCastrationStatus: CastrationStatus;
   initialCoverPhotoUrl: string | null;
+  onSaved?: () => void;
 }) {
   const router = useRouter();
   const { session, canManage, checkingAccess } = useColonyAccessContext();
@@ -103,6 +111,23 @@ export default function EditColonyForm({
     if (updateError) {
       setError("As alterações não foram salvas. Tenta de novo?");
       return;
+    }
+
+    // Leaves a trace of what actually changed, so the timeline reflects
+    // edits to the colony's own info — not just cats, feedings and reports.
+    const changes: string[] = [];
+    if (name.trim() !== initialName) changes.push(`nome para "${name.trim()}"`);
+    if ((narrative.trim() || null) !== (initialNarrative ?? null)) changes.push("a narrativa");
+    if (castrationStatus !== initialCastrationStatus) {
+      changes.push(`status de castração para ${CASTRATION_LABELS[castrationStatus]}`);
+    }
+    if (changes.length > 0 && session) {
+      await supabase.from("timeline_events").insert({
+        colony_id: colonyId,
+        event_type: "colony_info_updated",
+        description: `Atualizou ${changes.join(", ")}.`,
+        created_by: session.user.id,
+      });
     }
 
     setPhotoFile(null);
@@ -186,13 +211,24 @@ export default function EditColonyForm({
 
       {error && <p className="text-sm text-felines-emergency">{error}</p>}
 
-      <button
-        type="submit"
-        disabled={submitting}
-        className="rounded-full bg-felines-accent px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-felines-accent-hover disabled:opacity-50"
-      >
-        {submitting ? "Salvando..." : saved ? "Salvo" : "Salvar alterações"}
-      </button>
+      <div className="flex items-center gap-3">
+        <button
+          type="submit"
+          disabled={submitting}
+          className="rounded-full bg-felines-accent px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-felines-accent-hover disabled:opacity-50"
+        >
+          {submitting ? "Salvando..." : saved ? "Salvo" : "Salvar alterações"}
+        </button>
+        {saved && onSaved && (
+          <button
+            type="button"
+            onClick={onSaved}
+            className="text-sm font-medium text-felines-text-secondary hover:text-felines-text-primary"
+          >
+            Fechar
+          </button>
+        )}
+      </div>
     </form>
   );
 }

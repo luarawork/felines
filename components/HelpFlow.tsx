@@ -280,6 +280,7 @@ export default function HelpFlow({ onClose }: { onClose?: () => void }) {
                 {situation.relatedArticleSlug && (
                   <Link
                     href={`/learn/${situation.relatedArticleSlug}`}
+                    onClick={onClose}
                     className="mt-3 inline-block text-sm font-medium text-felines-accent hover:text-felines-accent-hover"
                   >
                     {situation.relatedArticleLabel ?? "Saiba mais"} →
@@ -316,15 +317,17 @@ export default function HelpFlow({ onClose }: { onClose?: () => void }) {
                   )}
                   <Link
                     href="/#aprender"
-                    className="text-sm font-medium text-felines-accent hover:text-felines-accent-hover"
+                    onClick={onClose}
+                    className="rounded-full border border-felines-accent px-4 py-2 text-sm font-medium text-felines-accent transition-colors hover:bg-felines-accent hover:text-white"
                   >
-                    Entender melhor isso →
+                    Entender melhor isso
                   </Link>
                   <Link
                     href="/map"
-                    className="text-sm font-medium text-felines-text-secondary hover:text-felines-accent"
+                    onClick={onClose}
+                    className="rounded-full border border-felines-border px-4 py-2 text-sm font-medium text-felines-text-secondary transition-colors hover:border-felines-accent hover:text-felines-accent"
                   >
-                    Ver colônias no mapa →
+                    Ver colônias no mapa
                   </Link>
                 </div>
               </div>

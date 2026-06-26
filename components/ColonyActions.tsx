@@ -7,12 +7,14 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import AuthRequiredNotice from "@/components/AuthRequiredNotice";
+import ReportButton from "@/components/ReportButton";
 import { useColonyAccessContext } from "@/components/ColonyAccessProvider";
 
 export default function ColonyActions({ colonyId }: { colonyId: string }) {
   const router = useRouter();
   const { session, checkingAccess, refreshAccess } = useColonyAccessContext();
-  const [feedingLogged, setFeedingLogged] = useState(false);
+  const [foodLogged, setFoodLogged] = useState(false);
+  const [waterLogged, setWaterLogged] = useState(false);
   const [caretakerJoined, setCaretakerJoined] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
 
@@ -34,29 +36,35 @@ export default function ColonyActions({ colonyId }: { colonyId: string }) {
     checkExistingCaretaker();
   }, [colonyId, session]);
 
-  // Logs a feeding event for this colony by the signed-in user, and
-  // mirrors it into the timeline so it actually shows up in the
-  // colony's history — the feedings row alone is invisible to visitors.
-  async function handleLogFeeding() {
+  // Logs a feeding check-in (food or water) for this colony by the
+  // signed-in user, and mirrors it into the timeline so it actually
+  // shows up in the colony's history — the feedings row alone is
+  // invisible to visitors.
+  async function handleLogCheckIn(type: "food" | "water") {
     if (!session) return;
     setActionError(null);
     const { error } = await supabase
       .from("feedings")
-      .insert({ colony_id: colonyId, user_id: session.user.id });
+      .insert({ colony_id: colonyId, user_id: session.user.id, type });
 
     if (error) {
-      setActionError("A alimentação não foi registrada. Tenta de novo?");
+      setActionError(
+        type === "food"
+          ? "A alimentação não foi registrada. Tenta de novo?"
+          : "A água não foi registrada. Tenta de novo?"
+      );
       return;
     }
 
     await supabase.from("timeline_events").insert({
       colony_id: colonyId,
-      event_type: "feeding",
-      description: "Alguém alimentou a colônia.",
+      event_type: type === "food" ? "feeding" : "water",
+      description: type === "food" ? "Alguém alimentou a colônia." : "Alguém trocou a água da colônia.",
       created_by: session.user.id,
     });
 
-    setFeedingLogged(true);
+    if (type === "food") setFoodLogged(true);
+    else setWaterLogged(true);
     router.refresh();
   }
 
@@ -93,29 +101,50 @@ export default function ColonyActions({ colonyId }: { colonyId: string }) {
 
   if (!session) {
     return (
-      <div className="mt-6">
-        <AuthRequiredNotice />
+      <div id="colony-report-button" className="mt-6 rounded-2xl border border-felines-border bg-felines-surface p-5">
+        <p className="text-xs font-semibold uppercase tracking-[0.1em] text-felines-accent-hover">
+          O que você pode fazer aqui
+        </p>
+        <div className="mt-3">
+          <ReportButton colonyId={colonyId} />
+        </div>
+        <div className="mt-4">
+          <AuthRequiredNotice />
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="mt-6 flex flex-wrap gap-3">
-      <button
-        onClick={handleLogFeeding}
-        disabled={feedingLogged}
-        className="rounded-full bg-felines-accent px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-felines-accent-hover disabled:opacity-50"
-      >
-        {feedingLogged ? "Alimentação registrada ✓" : "Alimentei essa colônia hoje"}
-      </button>
-      <button
-        onClick={handleBecomeCaretaker}
-        disabled={caretakerJoined}
-        className="rounded-full border border-felines-accent px-4 py-2 text-sm font-medium text-felines-accent transition-colors hover:bg-felines-accent hover:text-white disabled:opacity-50"
-      >
-        {caretakerJoined ? "Você cuida dessa colônia" : "Quero cuidar dessa colônia"}
-      </button>
-      {actionError && <p className="text-xs text-felines-emergency">{actionError}</p>}
+    <div id="colony-report-button" className="mt-6 rounded-2xl border border-felines-border bg-felines-surface p-5">
+      <p className="text-xs font-semibold uppercase tracking-[0.1em] text-felines-accent-hover">
+        O que você pode fazer aqui
+      </p>
+      <div className="mt-3 flex flex-wrap gap-3">
+        <ReportButton colonyId={colonyId} />
+        <button
+          onClick={() => handleLogCheckIn("food")}
+          disabled={foodLogged}
+          className="rounded-full bg-felines-accent px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-felines-accent-hover disabled:opacity-50"
+        >
+          {foodLogged ? "Alimentação registrada ✓" : "Alimentei essa colônia hoje"}
+        </button>
+        <button
+          onClick={() => handleLogCheckIn("water")}
+          disabled={waterLogged}
+          className="rounded-full border border-felines-accent px-4 py-2 text-sm font-medium text-felines-accent transition-colors hover:bg-felines-accent hover:text-white disabled:opacity-50"
+        >
+          {waterLogged ? "Água registrada ✓" : "Coloquei água hoje"}
+        </button>
+        <button
+          onClick={handleBecomeCaretaker}
+          disabled={caretakerJoined}
+          className="rounded-full border border-felines-border px-4 py-2 text-sm font-medium text-felines-text-secondary transition-colors hover:border-felines-accent hover:text-felines-accent-hover disabled:opacity-50"
+        >
+          {caretakerJoined ? "Você cuida dessa colônia" : "Quero cuidar dessa colônia"}
+        </button>
+      </div>
+      {actionError && <p className="mt-2 text-xs text-felines-emergency">{actionError}</p>}
     </div>
   );
 }

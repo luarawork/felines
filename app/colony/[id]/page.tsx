@@ -9,14 +9,13 @@
 // page scannable instead of one long scroll.
 import { notFound } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
-import ReportButton from "@/components/ReportButton";
 import ColonyActions from "@/components/ColonyActions";
 import WeatherBanner from "@/components/WeatherBanner";
 import CatManager from "@/components/CatManager";
 import CaretakerLetters from "@/components/CaretakerLetters";
 import TimelineEventForm from "@/components/TimelineEventForm";
 import ColonyTabs from "@/components/ColonyTabs";
-import EditColonyForm from "@/components/EditColonyForm";
+import EditColonyButton from "@/components/EditColonyButton";
 import EmptyState from "@/components/EmptyState";
 import ThankYouButton from "@/components/ThankYouButton";
 import MarkCatSeenButton from "@/components/MarkCatSeenButton";
@@ -24,6 +23,7 @@ import FlagButton from "@/components/FlagButton";
 import ColonyAccessProvider from "@/components/ColonyAccessProvider";
 import FactChip from "@/components/FactChip";
 import Reveal from "@/components/Reveal";
+import TimelinePhoto from "@/components/TimelinePhoto";
 
 // Contextual facts shown on every colony page — general background on
 // street cats, not specific to this particular colony, but relevant
@@ -213,12 +213,7 @@ export default async function ColonyDetailPage({
                     </p>
                   )}
                   {event.photo_url && (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={event.photo_url}
-                      alt={event.event_type.replace(/_/g, " ")}
-                      className="mt-2 h-24 w-24 rounded-lg object-cover"
-                    />
+                    <TimelinePhoto src={event.photo_url} alt={event.event_type.replace(/_/g, " ")} />
                   )}
                   <p className="mt-1 text-xs text-felines-text-secondary">
                     {new Date(event.created_at).toLocaleDateString("pt-BR")}
@@ -263,31 +258,24 @@ export default async function ColonyDetailPage({
         </div>
 
         <Reveal>
-          <div className="flex flex-wrap items-start justify-between gap-4">
-            <div>
-              {caretakers.length > 0 && (
-                <div className="flex flex-wrap items-center gap-x-1 gap-y-1 text-sm text-felines-text-secondary">
-                  <span>Quem cuida:</span>
-                  {caretakers.map((caretaker, index) => (
-                    <span key={caretaker.userId} className="flex items-center gap-1">
-                      {index > 0 && <span>,</span>}
-                      <a href={`/u/${caretaker.userId}`} className="text-felines-accent-hover">
-                        {caretaker.displayName || "Alguém da comunidade"}
-                      </a>
-                      <ThankYouButton
-                        colonyId={colony.id}
-                        caretakerUserId={caretaker.userId}
-                        caretakerDisplayName={caretaker.displayName || "o cuidador"}
-                      />
-                    </span>
-                  ))}
-                </div>
-              )}
+          {caretakers.length > 0 && (
+            <div className="flex flex-wrap items-center gap-x-1 gap-y-1 text-sm text-felines-text-secondary">
+              <span>Quem cuida:</span>
+              {caretakers.map((caretaker, index) => (
+                <span key={caretaker.userId} className="flex items-center gap-1">
+                  {index > 0 && <span>,</span>}
+                  <a href={`/u/${caretaker.userId}`} className="text-felines-accent-hover">
+                    {caretaker.displayName || "Alguém da comunidade"}
+                  </a>
+                  <ThankYouButton
+                    colonyId={colony.id}
+                    caretakerUserId={caretaker.userId}
+                    caretakerDisplayName={caretaker.displayName || "o cuidador"}
+                  />
+                </span>
+              ))}
             </div>
-            <div id="colony-report-button">
-              <ReportButton colonyId={colony.id} />
-            </div>
-          </div>
+          )}
 
           {colony.narrative && (
             <p className="mt-4 max-w-2xl text-base leading-relaxed text-felines-text-secondary">
@@ -311,6 +299,16 @@ export default async function ColonyDetailPage({
           {/* Available actions, scoped by the visitor's access level */}
           <ColonyActions colonyId={colony.id} />
 
+          <div className="mt-4 flex justify-end">
+            <EditColonyButton
+              colonyId={colony.id}
+              initialName={colony.name}
+              initialNarrative={colony.narrative}
+              initialCastrationStatus={colony.castration_status}
+              initialCoverPhotoUrl={colony.cover_photo_url}
+            />
+          </div>
+
           <ColonyTabs
             tabs={[
               { id: "cats", label: "Gatos", content: catsSection },
@@ -319,19 +317,6 @@ export default async function ColonyDetailPage({
                 id: "letter",
                 label: "Carta de quem cuidou antes",
                 content: <CaretakerLetters colonyId={colony.id} />,
-              },
-              {
-                id: "edit",
-                label: "Editar",
-                content: (
-                  <EditColonyForm
-                    colonyId={colony.id}
-                    initialName={colony.name}
-                    initialNarrative={colony.narrative}
-                    initialCastrationStatus={colony.castration_status}
-                    initialCoverPhotoUrl={colony.cover_photo_url}
-                  />
-                ),
               },
             ]}
           />

@@ -15,9 +15,16 @@ type CaretakerLetter = {
   created_at: string;
 };
 
+type LetterHistoryEntry = {
+  id: string;
+  description: string | null;
+  created_at: string;
+};
+
 export default function CaretakerLetters({ colonyId }: { colonyId: string }) {
   const [session, setSession] = useState<Session | null>(null);
   const [letters, setLetters] = useState<CaretakerLetter[]>([]);
+  const [history, setHistory] = useState<LetterHistoryEntry[]>([]);
   const [ownCaretakerId, setOwnCaretakerId] = useState<string | null>(null);
   const [draft, setDraft] = useState("");
   const [loading, setLoading] = useState(true);
@@ -31,11 +38,19 @@ export default function CaretakerLetters({ colonyId }: { colonyId: string }) {
       const currentSession = sessionData.session;
       setSession(currentSession);
 
-      const { data: caretakerRows } = await supabase
-        .from("caretakers")
-        .select("id, user_id, letter, created_at")
-        .eq("colony_id", colonyId)
-        .order("created_at", { ascending: false });
+      const [{ data: caretakerRows }, { data: historyRows }] = await Promise.all([
+        supabase
+          .from("caretakers")
+          .select("id, user_id, letter, created_at")
+          .eq("colony_id", colonyId)
+          .order("created_at", { ascending: false }),
+        supabase
+          .from("timeline_events")
+          .select("id, description, created_at")
+          .eq("colony_id", colonyId)
+          .eq("event_type", "caretaker_letter_updated")
+          .order("created_at", { ascending: false }),
+      ]);
 
       if (caretakerRows) {
         setLetters(
@@ -53,6 +68,8 @@ export default function CaretakerLetters({ colonyId }: { colonyId: string }) {
         }
       }
 
+      if (historyRows) setHistory(historyRows as LetterHistoryEntry[]);
+
       setLoading(false);
     }
 
@@ -60,7 +77,7 @@ export default function CaretakerLetters({ colonyId }: { colonyId: string }) {
   }, [colonyId]);
 
   async function handleSave() {
-    if (!ownCaretakerId) return;
+    if (!ownCaretakerId || !session) return;
     setSaving(true);
     setError(null);
 
@@ -69,14 +86,33 @@ export default function CaretakerLetters({ colonyId }: { colonyId: string }) {
       .update({ letter: draft.trim() || null })
       .eq("id", ownCaretakerId);
 
-    setSaving(false);
-
     if (updateError) {
+      setSaving(false);
       setError("A carta não foi salva. Tenta de novo?");
       return;
     }
 
+    // Every save leaves a permanent trace in the timeline, instead of
+    // silently overwriting the previous version — that history is the
+    // whole point of a "carta de quem cuidou antes".
+    const { data: historyRow } = await supabase
+      .from("timeline_events")
+      .insert({
+        colony_id: colonyId,
+        event_type: "caretaker_letter_updated",
+        description: draft.trim() || "(carta removida)",
+        created_by: session.user.id,
+      })
+      .select("id, description, created_at")
+      .single();
+
+    setSaving(false);
     setSaved(true);
+
+    if (historyRow) {
+      setHistory((previous) => [historyRow as LetterHistoryEntry, ...previous]);
+    }
+
     setLetters((previous) => {
       const withoutOwn = previous.filter((letter) => letter.id !== ownCaretakerId);
       return draft.trim()
@@ -120,7 +156,7 @@ export default function CaretakerLetters({ colonyId }: { colonyId: string }) {
         </div>
       )}
 
-      {!session && letters.length === 0 && (
+      {letters.length === 0 && history.length === 0 && (
         <p className="mt-4 text-sm text-felines-text-secondary">
           Ninguém deixou uma carta por aqui ainda.
         </p>
@@ -144,6 +180,27 @@ export default function CaretakerLetters({ colonyId }: { colonyId: string }) {
               </li>
             ))}
         </ul>
+      )}
+
+      {history.length > 0 && (
+        <div className="mt-8">
+          <p className="text-sm font-medium text-felines-text-primary">Histórico de cartas</p>
+          <ul className="mt-3 space-y-3">
+            {history.map((entry) => (
+              <li
+                key={entry.id}
+                className="rounded-xl border border-felines-border px-4 py-3 text-sm"
+              >
+                <p className="leading-relaxed text-felines-text-secondary whitespace-pre-wrap">
+                  {entry.description}
+                </p>
+                <p className="mt-2 text-xs text-felines-text-secondary">
+                  {new Date(entry.created_at).toLocaleDateString("pt-BR")}
+                </p>
+              </li>
+            ))}
+          </ul>
+        </div>
       )}
     </div>
   );

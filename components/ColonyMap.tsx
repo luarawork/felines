@@ -106,7 +106,7 @@ function buildPinIcon(color: string, size: number, pulsing = false, icon = "") {
   });
 }
 
-const colonyIcon = buildPinIcon("#C4704F", 22, false, "🐾");
+const colonyIcon = buildPinIcon("#C4704F", 22);
 const sightingIcon = buildPinIcon("#6B6B6B", 14);
 const emergencyIcon = buildPinIcon("#C0392B", 22, true);
 
