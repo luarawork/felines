@@ -24,6 +24,7 @@ import ColonyAccessProvider from "@/components/ColonyAccessProvider";
 import Reveal from "@/components/Reveal";
 import RotatingSingleFact from "@/components/RotatingSingleFact";
 import TimelinePhoto from "@/components/TimelinePhoto";
+import ActionThanksButton from "@/components/ActionThanksButton";
 import Link from "next/link";
 
 // Contextual facts shown on every colony page — general background on
@@ -273,17 +274,20 @@ export default async function ColonyDetailPage({
                   {event.photo_url && (
                     <TimelinePhoto src={event.photo_url} alt={eventTypeLabel(event.event_type)} />
                   )}
-                  <p className="mt-1 text-xs text-felines-text-secondary">
-                    {event.created_by && (
-                      <>
-                        <Link href={`/u/${event.created_by}`} className="text-felines-accent-hover">
-                          {authorName(event.created_by)}
-                        </Link>{" "}
-                        ·{" "}
-                      </>
-                    )}
-                    {new Date(event.created_at).toLocaleDateString("pt-BR")}
-                  </p>
+                  <div className="mt-1 flex flex-wrap items-center justify-between gap-2">
+                    <p className="text-xs text-felines-text-secondary">
+                      {event.created_by && (
+                        <>
+                          <Link href={`/u/${event.created_by}`} className="text-felines-accent-hover">
+                            {authorName(event.created_by)}
+                          </Link>{" "}
+                          ·{" "}
+                        </>
+                      )}
+                      {new Date(event.created_at).toLocaleDateString("pt-BR")}
+                    </p>
+                    <ActionThanksButton timelineEventId={event.id} />
+                  </div>
                 </div>
               </li>
             </Reveal>

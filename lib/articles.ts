@@ -370,6 +370,29 @@ export const ARTICLES: Article[] = [
       "📊 A maioria dos filhotes \"abandonados\" tem a mãe por perto, caçando comida",
     ],
   },
+  {
+    slug: "feral-semi-feral-e-socializado",
+    level: 1,
+    title: "Feral, semi-feral ou socializado? O comportamento explica tudo",
+    summary: "Nem todo gato de rua reage do mesmo jeito — e essa diferença muda completamente como ajudar.",
+    body: [
+      "Você já deve ter visto um gato de rua que some no primeiro movimento brusco, e outro que vem direto pedir comida. Não é sorte nem personalidade aleatória: é o nível de socialização de cada um, e ele muda o que funciona ou não na hora de ajudar.",
+      "### Gato feral",
+      "Nunca teve contato próximo com humanos, ou teve tão pouco que não criou nenhuma confiança. Mantém distância segura, não mia pedindo atenção, evita olhar nos olhos, e foge ao menor sinal de aproximação. Não é \"selvagem\" ou agressivo por natureza — é cauteloso, porque humano sempre representou risco pra ele.",
+      "### Gato semi-feral",
+      "Teve algum contato humano, geralmente indireto — cresceu perto de um ponto de alimentação, ou foi cuidado a distância por alguém da vizinhança. Tolera presença humana a uma certa distância, pode se aproximar pra comer quando a pessoa se afasta um pouco, mas raramente aceita toque direto.",
+      "### Gato socializado",
+      "Já teve convívio próximo e positivo com pessoas — pode ter sido domiciliado antes, ou nascido de mãe socializada e exposto a humanos desde filhote. Mia pedindo atenção, se aproxima por conta própria, e tolera contato físico, carinho e até colo.",
+      "### Por que essa diferença importa na prática",
+      "Tentar tocar ou capturar um gato feral do mesmo jeito que se faria com um socializado costuma assustar o animal e gerar risco de mordida ou arranhão — não por maldade, mas por puro instinto de defesa. Já um gato socializado pode até sofrer mais perdendo o convívio humano do que ficando na rua, o que muda a prioridade de ajuda (buscar adoção em vez de só TNR, por exemplo).",
+      "### O nível de socialização não é fixo pra sempre",
+      "Um filhote feral pode se tornar socializado com exposição gradual e positiva a humanos, especialmente nas primeiras semanas de vida. Já um adulto feral raramente muda muito — e isso é normal, não é falha de ninguém.",
+    ],
+    factChips: [
+      "📊 O nível de socialização, não a espécie, é o que define como um gato de rua reage a humanos",
+      "📊 Filhotes têm uma janela de algumas semanas em que a socialização é mais fácil de desenvolver",
+    ],
+  },
 ];
 
 export function getArticleBySlug(slug: string): Article | undefined {

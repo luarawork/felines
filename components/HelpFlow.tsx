@@ -331,6 +331,13 @@ export default function HelpFlow({ onClose }: { onClose?: () => void }) {
                   >
                     Ver colônias no mapa
                   </Link>
+                  <Link
+                    href="/colony/new"
+                    onClick={onClose}
+                    className="rounded-full border border-felines-border px-4 py-2 text-sm font-medium text-felines-text-secondary transition-colors hover:border-felines-accent hover:text-felines-accent"
+                  >
+                    Colocar uma colônia no mapa
+                  </Link>
                 </div>
               </div>
             </>

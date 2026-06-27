@@ -1,4 +1,6 @@
-// Renders /map's map and the floating "+ Cadastrar colônia" action.
+// Renders /map's map and the floating "Colocar uma colônia no mapa" action
+// — same label and destination as the one offered inside the help modal,
+// since it's the same action just reachable from two places.
 // The activity panel (showing what's visible in the current map area)
 // and its own show/hide toggle live inside ColonyMap itself, since the
 // panel is always present on screen rather than swapped in and out.
@@ -38,7 +40,7 @@ export default function MapPageClient() {
         href="/colony/new"
         className="absolute bottom-6 right-6 z-[1000] rounded-full bg-felines-accent px-5 py-3 text-sm font-medium text-white shadow-lg transition-colors hover:bg-felines-accent-hover"
       >
-+ Colocar uma colônia no mapa
+        Colocar uma colônia no mapa
       </Link>
     </div>
   );
