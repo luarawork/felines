@@ -398,11 +398,11 @@ export default async function ColonyDetailPage({
                 content: <CaretakerLetters colonyId={colony.id} />,
               },
             ]}
-            footer={() => (
+            footer={
               <div className="mt-8">
                 <FlagButton targetType="colony" targetId={colony.id} />
               </div>
-            )}
+            }
           />
         </div>
       </ColonyAccessProvider>
