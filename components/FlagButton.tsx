@@ -23,7 +23,7 @@ export default function FlagButton({
   targetType,
   targetId,
 }: {
-  targetType: "colony" | "report";
+  targetType: "colony" | "report" | "profile";
   targetId: string;
 }) {
   const [open, setOpen] = useState(false);

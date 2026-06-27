@@ -73,15 +73,27 @@ type EmergencyReport = {
 // and report its visible bounds upward — react-leaflet has no prop for
 // "current bounds," only events, so this is the standard way to bridge
 // imperative map state into React state.
-function BoundsTracker({ onBoundsChange }: { onBoundsChange: (bounds: L.LatLngBounds) => void }) {
+function BoundsTracker({
+  onBoundsChange,
+  onCenterChange,
+}: {
+  onBoundsChange: (bounds: L.LatLngBounds) => void;
+  onCenterChange?: (lat: number, lon: number) => void;
+}) {
   const map = useMapEvents({
-    moveend: () => onBoundsChange(map.getBounds()),
+    moveend: () => {
+      onBoundsChange(map.getBounds());
+      const center = map.getCenter();
+      onCenterChange?.(center.lat, center.lng);
+    },
     zoomend: () => onBoundsChange(map.getBounds()),
   });
 
   useEffect(() => {
     onBoundsChange(map.getBounds());
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- only needs to run once map mounts, bounds updates flow through the events above
+    const center = map.getCenter();
+    onCenterChange?.(center.lat, center.lng);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- only needs to run once map mounts, bounds/center updates flow through the events above
   }, []);
 
   return null;
@@ -149,7 +161,14 @@ const BLUR_RADIUS_METERS: Record<1 | 2, number> = {
   2: 600,
 };
 
-export default function ColonyMap() {
+export default function ColonyMap({
+  onCenterChange,
+}: {
+  // Lets the page hosting the map (the weather banner specifically)
+  // know where the visitor is currently looking, instead of always
+  // showing the weather for the map's fixed initial center.
+  onCenterChange?: (lat: number, lon: number) => void;
+}) {
   const [colonies, setColonies] = useState<Colony[]>([]);
   const [visibleBounds, setVisibleBounds] = useState<L.LatLngBounds | null>(null);
   // The activity panel itself is always on screen; this only toggles
@@ -470,7 +489,7 @@ export default function ColonyMap() {
         zoomControl={false}
         className="h-full w-full"
       >
-        <BoundsTracker onBoundsChange={setVisibleBounds} />
+        <BoundsTracker onBoundsChange={setVisibleBounds} onCenterChange={onCenterChange} />
         <ZoomControl position="bottomleft" />
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -495,13 +514,25 @@ export default function ColonyMap() {
                   look after the colony, so a short interest check comes
                   before the link, instead of going straight there. */}
               {session && (
-                <button
-                  type="button"
-                  onClick={() => setInterestColonyId(colony.id)}
-                  className="mt-2 block text-xs font-medium text-felines-accent-hover"
-                >
-                  Ver colônia →
-                </button>
+                // Caretakers/creators already manage this colony, so the
+                // "are you interested in becoming a caretaker?" gate
+                // would be nonsensical for them — go straight to the page.
+                myColonyIds.has(colony.id) ? (
+                  <a
+                    href={`/colony/${colony.id}`}
+                    className="mt-2 block text-xs font-medium text-felines-accent-hover"
+                  >
+                    Ver colônia →
+                  </a>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => setInterestColonyId(colony.id)}
+                    className="mt-2 block text-xs font-medium text-felines-accent-hover"
+                  >
+                    Ver colônia →
+                  </button>
+                )
               )}
             </Popup>
           );
@@ -585,7 +616,7 @@ export default function ColonyMap() {
               icon={emergencyIcon}
             >
               <Popup>
-                <strong>Alerta: {report.type.replace(/_/g, " ")}</strong>
+                <strong>Alerta: {getReportTypeLabel(report.type)}</strong>
                 <a
                   href={`/reports#report-${report.id}`}
                   className="mt-2 block text-xs font-medium text-felines-accent-hover"

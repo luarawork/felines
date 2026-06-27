@@ -139,6 +139,20 @@ export default function NewColonyForm() {
       return;
     }
 
+    // The person registering a colony is, in practice, its first
+    // caretaker — without this row they'd show up as "not a caretaker"
+    // of their own colony (no entry in "Quem cuida", no caretaker badge
+    // on their profile/public page) despite colonies_update_caretaker
+    // already treating created_by as equivalent to a caretaker link.
+    await supabase.from("caretakers").insert({ colony_id: colony.id, user_id: session.user.id });
+
+    await supabase.from("timeline_events").insert({
+      colony_id: colony.id,
+      event_type: "colony_created",
+      description: "Colônia cadastrada no mapa.",
+      created_by: session.user.id,
+    });
+
     router.push(`/colony/${colony.id}`);
   }
 

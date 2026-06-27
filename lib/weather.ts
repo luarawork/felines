@@ -1,16 +1,15 @@
 // Weather lookup for Felines, using the OpenWeatherMap current-weather API.
 // Used to surface care alerts for street cat colonies (extreme heat or
-// heavy rain affect food/water availability and shelter needs).
+// heavy rain affect food/water availability and shelter needs). Takes
+// coordinates instead of hardcoding a single city, so the weather banner
+// can reflect the colony being viewed or the map's current location
+// instead of always showing Natal.
 //
-// SECURITY NOTE: this key is genuinely public today. WeatherBanner calls
-// this from a server component, but lib/notifications.ts also calls it
-// from NavBar.tsx ("use client"), which means this fetch — and the
-// NEXT_PUBLIC_WEATHER_API_KEY appid in the URL — runs in the browser for
-// that call site. Fixing this properly means moving the extreme-weather
-// check in lib/notifications.ts behind a server action, not just renaming
-// this env var (renaming it would silently break that client call site
-// instead of fixing the leak). See checkExtremeWeatherForCaretaker().
-const NATAL_COORDS = { lat: -5.7945, lon: -35.211 };
+// SECURITY NOTE: this key is genuinely public today — both WeatherBanner
+// (client-side, so it can refetch as the map moves) and
+// lib/notifications.ts call this directly, which means the
+// NEXT_PUBLIC_WEATHER_API_KEY appid in the URL runs in the browser.
+export const NATAL_COORDS = { lat: -5.7945, lon: -35.211 };
 
 export type WeatherSnapshot = {
   temperatureCelsius: number;
@@ -19,15 +18,16 @@ export type WeatherSnapshot = {
   isExtremeHeat: boolean;
 };
 
-// Fetches the current weather for Natal. Returns null if the API key is
-// missing or the request fails, so the UI can simply omit the banner.
-export async function getNatalWeather(): Promise<WeatherSnapshot | null> {
+// Fetches the current weather for the given coordinates. Returns null if
+// the API key is missing or the request fails, so the UI can simply omit
+// the banner.
+export async function getWeatherAt(lat: number, lon: number): Promise<WeatherSnapshot | null> {
   const apiKey = process.env.NEXT_PUBLIC_WEATHER_API_KEY;
   if (!apiKey) return null;
 
   try {
     const response = await fetch(
-      `https://api.openweathermap.org/data/2.5/weather?lat=${NATAL_COORDS.lat}&lon=${NATAL_COORDS.lon}&units=metric&lang=pt_br&appid=${apiKey}`,
+      `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&lang=pt_br&appid=${apiKey}`,
       { next: { revalidate: 1800 } } // cache for 30 minutes
     );
 

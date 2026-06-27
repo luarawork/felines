@@ -10,6 +10,7 @@ import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient";
 import { getReportTypeLabel } from "@/lib/reportTypes";
 import Reveal from "@/components/Reveal";
+import FlagButton from "@/components/FlagButton";
 
 export default async function CaretakerPublicPage({
   params,
@@ -89,6 +90,9 @@ export default async function CaretakerPublicPage({
                 <p className="mt-1 text-sm text-felines-text-secondary">
                   Cuida de {colonies.length} {colonies.length === 1 ? "colônia" : "colônias"}.
                 </p>
+                <div className="mt-2">
+                  <FlagButton targetType="profile" targetId={profile.id} />
+                </div>
               </div>
             </div>
           </Reveal>

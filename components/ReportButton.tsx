@@ -20,9 +20,13 @@ export default function ReportButton({ colonyId }: { colonyId: string }) {
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState(true);
+  const [userId, setUserId] = useState<string | null>(null);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => setIsLoggedIn(!!data.session));
+    supabase.auth.getSession().then(({ data }) => {
+      setIsLoggedIn(!!data.session);
+      setUserId(data.session?.user.id ?? null);
+    });
   }, []);
 
   function handleClose() {
@@ -49,6 +53,7 @@ export default function ReportButton({ colonyId }: { colonyId: string }) {
       type,
       description: description.trim() || null,
       status: "open",
+      created_by: userId,
     });
     setSubmitting(false);
 

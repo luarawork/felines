@@ -59,6 +59,45 @@ const CASTRATION_LABELS: Record<string, string> = {
   full: "Todo mundo castrado",
 };
 
+// timeline_events.event_type has no check constraint (see
+// TimelineEventForm), so values come from a few different places —
+// this just needs to cover every value any of them actually inserts.
+const EVENT_TYPE_LABELS: Record<string, string> = {
+  colony_created: "Colônia cadastrada",
+  feeding: "Alimentação registrada",
+  water: "Água registrada",
+  new_caretaker: "Novo cuidador",
+  new_cat: "Novo gato na colônia",
+  caretaker_letter_updated: "Carta de cuidador atualizada",
+  colony_info_updated: "Informações da colônia atualizadas",
+  cover_photo_changed: "Foto de capa trocada",
+  report_resolved: "Relato resolvido",
+  thank_you: "Agradecimento",
+  castration_round: "Rodada de castração",
+  health_issue: "Problema de saúde",
+  feeding_change: "Mudança na alimentação",
+  relocation: "Mudança de local",
+  photo_update: "Foto da colônia",
+  other: "Outra atualização",
+};
+
+function eventTypeLabel(eventType: string): string {
+  return EVENT_TYPE_LABELS[eventType] ?? eventType.replace(/_/g, " ");
+}
+
+// Castration status is a manual field set at registration/edit time, but
+// once cats are individually tracked, the count of cats actually marked
+// castrated is more trustworthy than that one static field — this shows
+// the live count whenever there's at least one cat registered, and only
+// falls back to the manual status for colonies with no cats yet.
+function resolveCastrationLabel(castrationStatus: string, cats: Cat[]): string {
+  if (cats.length === 0) return CASTRATION_LABELS[castrationStatus] ?? castrationStatus;
+  const castratedCount = cats.filter((cat) => cat.castrated).length;
+  if (castratedCount === 0) return "Nenhum gato castrado ainda";
+  if (castratedCount === cats.length) return "Todos os gatos castrados";
+  return `${castratedCount} de ${cats.length} gatos castrados`;
+}
+
 export default async function ColonyDetailPage({
   params,
 }: {
@@ -68,7 +107,9 @@ export default async function ColonyDetailPage({
 
   const { data: colony } = await supabase
     .from("colonies")
-    .select("id, name, narrative, castration_status, cover_photo_url")
+    .select(
+      "id, name, narrative, castration_status, cover_photo_url, latitude_blurred, longitude_blurred"
+    )
     .eq("id", id)
     .single();
 
@@ -222,7 +263,7 @@ export default async function ColonyDetailPage({
               <li>
                 <div className="rounded-xl border border-felines-border bg-felines-surface p-4">
                   <p className="text-sm font-medium text-felines-text-primary">
-                    {event.event_type.replace(/_/g, " ")}
+                    {eventTypeLabel(event.event_type)}
                   </p>
                   {event.description && (
                     <p className="mt-1 text-sm text-felines-text-secondary">
@@ -230,7 +271,7 @@ export default async function ColonyDetailPage({
                     </p>
                   )}
                   {event.photo_url && (
-                    <TimelinePhoto src={event.photo_url} alt={event.event_type.replace(/_/g, " ")} />
+                    <TimelinePhoto src={event.photo_url} alt={eventTypeLabel(event.event_type)} />
                   )}
                   <p className="mt-1 text-xs text-felines-text-secondary">
                     {event.created_by && (
@@ -285,14 +326,14 @@ export default async function ColonyDetailPage({
               {colony.name}
             </h1>
             <span className="mt-2 inline-block rounded-full bg-white/90 px-3 py-1 text-xs font-medium text-felines-text-primary">
-              {CASTRATION_LABELS[colony.castration_status] ?? colony.castration_status}
+              {resolveCastrationLabel(colony.castration_status, (cats as Cat[] | null) ?? [])}
             </span>
           </div>
         </div>
 
         <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6">
           <div className="mb-6">
-            <WeatherBanner />
+            <WeatherBanner lat={colony.latitude_blurred} lon={colony.longitude_blurred} />
           </div>
 
           {caretakers.length > 0 && (
@@ -357,11 +398,12 @@ export default async function ColonyDetailPage({
                 content: <CaretakerLetters colonyId={colony.id} />,
               },
             ]}
+            footer={() => (
+              <div className="mt-8">
+                <FlagButton targetType="colony" targetId={colony.id} />
+              </div>
+            )}
           />
-
-          <div className="mt-8">
-            <FlagButton targetType="colony" targetId={colony.id} />
-          </div>
         </div>
       </ColonyAccessProvider>
     </div>

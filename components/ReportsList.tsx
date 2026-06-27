@@ -31,7 +31,7 @@ type Report = {
 
 type Flag = {
   id: string;
-  target_type: "colony" | "report";
+  target_type: "colony" | "report" | "profile";
   target_id: string;
   reason: string;
   details: string | null;
@@ -123,15 +123,22 @@ export default function ReportsList() {
         const reportFlagIds = flagRows
           .filter((flag) => flag.target_type === "report")
           .map((flag) => flag.target_id);
+        const profileFlagIds = flagRows
+          .filter((flag) => flag.target_type === "profile")
+          .map((flag) => flag.target_id);
 
-        const [{ data: flaggedColonies }, { data: flaggedReports }] = await Promise.all([
-          colonyFlagIds.length > 0
-            ? supabase.from("colonies").select("id, name").in("id", colonyFlagIds)
-            : Promise.resolve({ data: [] as { id: string; name: string }[] }),
-          reportFlagIds.length > 0
-            ? supabase.from("reports").select("id, type").in("id", reportFlagIds)
-            : Promise.resolve({ data: [] as { id: string; type: string }[] }),
-        ]);
+        const [{ data: flaggedColonies }, { data: flaggedReports }, { data: flaggedProfiles }] =
+          await Promise.all([
+            colonyFlagIds.length > 0
+              ? supabase.from("colonies").select("id, name").in("id", colonyFlagIds)
+              : Promise.resolve({ data: [] as { id: string; name: string }[] }),
+            reportFlagIds.length > 0
+              ? supabase.from("reports").select("id, type").in("id", reportFlagIds)
+              : Promise.resolve({ data: [] as { id: string; type: string }[] }),
+            profileFlagIds.length > 0
+              ? supabase.from("profiles").select("id, display_name").in("id", profileFlagIds)
+              : Promise.resolve({ data: [] as { id: string; display_name: string | null }[] }),
+          ]);
 
         setFlags(
           flagRows.map((flag) => {
@@ -141,6 +148,14 @@ export default function ReportsList() {
                 ...flag,
                 targetLabel: colony ? `Colônia: ${colony.name}` : "Colônia",
                 targetHref: `/colony/${flag.target_id}`,
+              };
+            }
+            if (flag.target_type === "profile") {
+              const profile = (flaggedProfiles ?? []).find((row) => row.id === flag.target_id);
+              return {
+                ...flag,
+                targetLabel: `Perfil: ${profile?.display_name || "Alguém da comunidade"}`,
+                targetHref: `/u/${flag.target_id}`,
               };
             }
             const report = (flaggedReports ?? []).find((row) => row.id === flag.target_id);
@@ -392,14 +407,16 @@ export default function ReportsList() {
                   </div>
                   {report.status === "open" && (
                     <div className="flex gap-2">
-                      <button
-                        onClick={() => handleConfirm(report.id)}
-                        disabled={confirmedReportIds.has(report.id)}
-                        title="Confirme se você também viu isso — com 3 confirmações, o relato se resolve sozinho"
-                        className="rounded-full border border-felines-accent px-3 py-1 text-xs font-medium text-felines-accent transition-colors hover:bg-felines-accent hover:text-white disabled:opacity-50"
-                      >
-                        {confirmedReportIds.has(report.id) ? "Você já confirmou" : "Eu também vi"}
-                      </button>
+                      {report.created_by !== session.user.id && (
+                        <button
+                          onClick={() => handleConfirm(report.id)}
+                          disabled={confirmedReportIds.has(report.id)}
+                          title="Confirme se você também viu isso — com 3 confirmações, o relato se resolve sozinho"
+                          className="rounded-full border border-felines-accent px-3 py-1 text-xs font-medium text-felines-accent transition-colors hover:bg-felines-accent hover:text-white disabled:opacity-50"
+                        >
+                          {confirmedReportIds.has(report.id) ? "Você já confirmou" : "Eu também vi"}
+                        </button>
+                      )}
                       {canManuallyResolve && (
                         <button
                           onClick={() => handleResolve(report.id)}

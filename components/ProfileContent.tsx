@@ -28,6 +28,8 @@ import Reveal from "@/components/Reveal";
 import { useEscapeToClose } from "@/lib/useEscapeToClose";
 
 type LinkedColony = { id: string; name: string };
+type CreatedColonyRecord = { id: string; name: string; created_at: string };
+type CaretakerLinkRecord = { id: string; name: string; createdAt: string };
 type FeedingRecord = { id: string; colony_id: string; created_at: string };
 type ConfirmationRecord = { confirmedAt: string; reportType: string; reportStatus: string };
 type ThankYouRecord = { id: string; colonyName: string; createdAt: string; otherPartyName: string };
@@ -41,6 +43,8 @@ export default function ProfileContent() {
   const [memberSince, setMemberSince] = useState<string | null>(null);
   const [feedings, setFeedings] = useState<FeedingRecord[]>([]);
   const [linkedColonies, setLinkedColonies] = useState<LinkedColony[]>([]);
+  const [createdColonies, setCreatedColonies] = useState<CreatedColonyRecord[]>([]);
+  const [caretakerLinks, setCaretakerLinks] = useState<CaretakerLinkRecord[]>([]);
   const [readSlugs, setReadSlugs] = useState<string[]>([]);
   const [myColonyReports, setMyColonyReports] = useState<MyColonyReport[]>([]);
   const [ownReports, setOwnReports] = useState<OwnReport[]>([]);
@@ -75,7 +79,7 @@ export default function ProfileContent() {
       setDisplayName(currentDisplayName ?? "");
       setAvatarUrl(await getAvatarUrl(session.user.id));
 
-      const [{ data: feedingRows }, { data: caretakerRows }, { data: progressRows }] =
+      const [{ data: feedingRows }, { data: caretakerRows }, { data: progressRows }, { data: createdColonyRows }] =
         await Promise.all([
           supabase
             .from("feedings")
@@ -84,12 +88,16 @@ export default function ProfileContent() {
             .order("created_at", { ascending: false }),
           supabase
             .from("caretakers")
-            .select("colonies(id, name)")
+            .select("colonies(id, name), created_at")
             .eq("user_id", session.user.id),
           supabase
             .from("knowledge_progress")
             .select("article_slug")
             .eq("user_id", session.user.id),
+          supabase
+            .from("colonies")
+            .select("id, name, created_at")
+            .eq("created_by", session.user.id),
         ]);
 
       if (feedingRows) setFeedings(feedingRows as FeedingRecord[]);
@@ -99,7 +107,18 @@ export default function ProfileContent() {
           .map((row) => row.colonies as unknown as LinkedColony | null)
           .filter((colony): colony is LinkedColony => colony !== null);
         setLinkedColonies(colonies);
+
+        setCaretakerLinks(
+          caretakerRows
+            .map((row) => {
+              const colony = row.colonies as unknown as LinkedColony | null;
+              return colony ? { id: colony.id, name: colony.name, createdAt: row.created_at } : null;
+            })
+            .filter((row): row is { id: string; name: string; createdAt: string } => row !== null)
+        );
       }
+
+      if (createdColonyRows) setCreatedColonies(createdColonyRows as CreatedColonyRecord[]);
 
       if (progressRows) {
         setReadSlugs(Array.from(new Set(progressRows.map((row) => row.article_slug))));
@@ -239,10 +258,25 @@ export default function ProfileContent() {
     ownReports.length === 0 &&
     readCount === 0;
 
-  // One combined, chronological feed instead of five separate lists —
-  // feedings, reports, confirmations, and thanks are all "things you
-  // did," so they read more like a life story when merged together.
+  // One combined, chronological feed instead of seven separate lists —
+  // feedings, reports, confirmations, thanks, colony creation and
+  // becoming a caretaker are all "things you did," so they read more
+  // like a life story when merged together.
   const activity: ActivityItem[] = [
+    ...createdColonies.map((colony) => ({
+      id: `colony-created-${colony.id}`,
+      date: colony.created_at,
+      icon: "🐾",
+      label: `Colônia cadastrada: ${colony.name}`,
+      href: `/colony/${colony.id}`,
+    })),
+    ...caretakerLinks.map((link) => ({
+      id: `caretaker-${link.id}`,
+      date: link.createdAt,
+      icon: "🤝",
+      label: `Passou a cuidar de ${link.name}`,
+      href: `/colony/${link.id}`,
+    })),
     ...feedings.map((feeding) => ({
       id: `feed-${feeding.id}`,
       date: feeding.created_at,

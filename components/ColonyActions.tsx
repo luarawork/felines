@@ -97,6 +97,28 @@ export default function ColonyActions({ colonyId }: { colonyId: string }) {
     router.refresh();
   }
 
+  // Lets a caretaker step down. RLS only allows a caretaker row to be
+  // deleted by the caretaker themselves (caretakers_delete_own, 0009),
+  // so this can't be used to remove someone else's link.
+  async function handleStopCaretaking() {
+    if (!session) return;
+    setActionError(null);
+    const { error } = await supabase
+      .from("caretakers")
+      .delete()
+      .eq("colony_id", colonyId)
+      .eq("user_id", session.user.id);
+
+    if (error) {
+      setActionError("Não consegui te desvincular agora. Tenta de novo?");
+      return;
+    }
+
+    setCaretakerJoined(false);
+    refreshAccess();
+    router.refresh();
+  }
+
   if (checkingAccess) return null;
 
   if (!session) {
@@ -136,13 +158,21 @@ export default function ColonyActions({ colonyId }: { colonyId: string }) {
         >
           {waterLogged ? "Água registrada ✓" : "Coloquei água hoje"}
         </button>
-        <button
-          onClick={handleBecomeCaretaker}
-          disabled={caretakerJoined}
-          className="rounded-full border border-felines-border px-4 py-2 text-sm font-medium text-felines-text-secondary transition-colors hover:border-felines-accent hover:text-felines-accent-hover disabled:opacity-50"
-        >
-          {caretakerJoined ? "Você cuida dessa colônia" : "Quero cuidar dessa colônia"}
-        </button>
+        {caretakerJoined ? (
+          <button
+            onClick={handleStopCaretaking}
+            className="rounded-full border border-felines-border px-4 py-2 text-sm font-medium text-felines-text-secondary transition-colors hover:border-felines-emergency hover:text-felines-emergency"
+          >
+            Deixar de cuidar dessa colônia
+          </button>
+        ) : (
+          <button
+            onClick={handleBecomeCaretaker}
+            className="rounded-full border border-felines-border px-4 py-2 text-sm font-medium text-felines-text-secondary transition-colors hover:border-felines-accent hover:text-felines-accent-hover"
+          >
+            Quero cuidar dessa colônia
+          </button>
+        )}
       </div>
       {actionError && <p className="mt-2 text-xs text-felines-emergency">{actionError}</p>}
     </div>

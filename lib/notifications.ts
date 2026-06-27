@@ -1,10 +1,10 @@
-// Helpers for the `notifications` table — currently just extreme
-// weather alerts for caretakers, created client-side since this stack
-// has no scheduled job runner. De-duplication (one alert per colony per
-// day) happens here, by checking for an existing row from today before
-// inserting a new one.
+// Helpers for the `notifications` table — extreme weather alerts and
+// "cat unseen for a while" alerts for caretakers, created client-side
+// since this stack has no scheduled job runner. De-duplication (one
+// alert per colony/cat per day) happens here, by checking for an
+// existing row from today before inserting a new one.
 import { supabase } from "@/lib/supabaseClient";
-import { getNatalWeather } from "@/lib/weather";
+import { NATAL_COORDS, getWeatherAt } from "@/lib/weather";
 
 export type Notification = {
   id: string;
@@ -46,7 +46,7 @@ export async function markAllRead(userId: string): Promise<void> {
 // an approximation: every colony gets the same reading rather than a
 // lookup at its own coordinates.
 export async function checkExtremeWeatherForCaretaker(userId: string): Promise<void> {
-  const weather = await getNatalWeather();
+  const weather = await getWeatherAt(NATAL_COORDS.lat, NATAL_COORDS.lon);
   if (!weather) return;
 
   const isExtremeCold = weather.temperatureCelsius < 10;
@@ -90,5 +90,60 @@ export async function checkExtremeWeatherForCaretaker(userId: string): Promise<v
       type: "extreme_weather",
       message: `${message} ${colony.name}. Considere checar comida, água e abrigo.`,
     });
+  }
+}
+
+// Checks every cat in every colony the user cares for, and creates one
+// notification per cat that hasn't had a "last seen" update in 7+ days
+// — unless one was already created today for that cat. last_seen is
+// only ever set at registration or via "marcar como visto", so a stale
+// value is a real signal something might be wrong, not just inactivity.
+export async function checkStaleCatsForCaretaker(userId: string): Promise<void> {
+  const { data: caretakerRows } = await supabase
+    .from("caretakers")
+    .select("colonies(id, name)")
+    .eq("user_id", userId);
+
+  const colonies = (caretakerRows ?? [])
+    .map((row) => row.colonies as unknown as { id: string; name: string } | null)
+    .filter((colony): colony is { id: string; name: string } => colony !== null);
+
+  if (colonies.length === 0) return;
+
+  const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+  const todayStart = new Date();
+  todayStart.setHours(0, 0, 0, 0);
+
+  for (const colony of colonies) {
+    const { data: staleCats } = await supabase
+      .from("cats")
+      .select("id, name, last_seen")
+      .eq("colony_id", colony.id)
+      .or(`last_seen.is.null,last_seen.lt.${sevenDaysAgo.toISOString()}`);
+
+    for (const cat of staleCats ?? []) {
+      const { data: existing } = await supabase
+        .from("notifications")
+        .select("id")
+        .eq("user_id", userId)
+        .eq("colony_id", colony.id)
+        .eq("type", "cat_unseen")
+        .gte("created_at", todayStart.toISOString())
+        .ilike("message", `%${cat.id}%`)
+        .maybeSingle();
+
+      if (existing) continue;
+
+      await supabase.from("notifications").insert({
+        user_id: userId,
+        colony_id: colony.id,
+        type: "cat_unseen",
+        // The cat id is embedded (invisibly, for the reader) in the
+        // message so the dedupe check above can target this specific
+        // cat — `notifications` has no cat_id column, and adding one
+        // for a single notification type isn't worth a new migration.
+        message: `${cat.name ?? "Um gato"} de ${colony.name} não é visto há mais de 7 dias. Tudo bem com ele? (ref:${cat.id})`,
+      });
+    }
   }
 }

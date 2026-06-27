@@ -148,11 +148,13 @@ export default function HelpFlow({ onClose }: { onClose?: () => void }) {
   async function handleSubmitReport() {
     if (!situation?.reportType) return;
     setSubmitting(true);
+    const { data: sessionData } = await supabase.auth.getSession();
     const { error } = await supabase.from("reports").insert({
       type: situation.reportType,
       latitude: locationCoords?.[0] ?? null,
       longitude: locationCoords?.[1] ?? null,
       status: "open",
+      created_by: sessionData.session?.user.id ?? null,
     });
     setSubmitting(false);
     if (!error) {

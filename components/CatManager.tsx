@@ -111,6 +111,13 @@ export default function CatManager({ colonyId }: { colonyId: string }) {
       return;
     }
 
+    await supabase.from("timeline_events").insert({
+      colony_id: colonyId,
+      event_type: "new_cat",
+      description: `${name.trim()} foi adicionado à colônia.`,
+      created_by: session.user.id,
+    });
+
     setCats((previous) => [newCat as ManagedCat, ...previous]);
     setName("");
     setCastrated(false);

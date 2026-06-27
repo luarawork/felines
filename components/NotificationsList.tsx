@@ -55,7 +55,11 @@ export default function NotificationsList() {
           key={notification.id}
           className="rounded-xl border border-felines-border bg-felines-surface p-4"
         >
-          <p className="text-sm text-felines-text-primary">{notification.message}</p>
+          <p className="text-sm text-felines-text-primary">
+            {/* (ref:<cat id>) is a hidden marker checkStaleCatsForCaretaker
+                uses to dedupe per-cat — not meant for the reader. */}
+            {notification.message.replace(/\s*\(ref:[^)]+\)/, "")}
+          </p>
           <div className="mt-2 flex items-center gap-2 text-xs text-felines-text-secondary">
             <span>{new Date(notification.created_at).toLocaleDateString("pt-BR")}</span>
             {notification.colony_id && (

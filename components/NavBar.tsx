@@ -11,7 +11,7 @@ import { useRouter } from "next/navigation";
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabaseClient";
 import { getAvatarUrl } from "@/lib/profile";
-import { checkExtremeWeatherForCaretaker, getUnreadCount } from "@/lib/notifications";
+import { checkExtremeWeatherForCaretaker, checkStaleCatsForCaretaker, getUnreadCount } from "@/lib/notifications";
 import { useHelpModal } from "@/components/HelpModalProvider";
 
 // Links shown in the main navigation, in display order. "Aprender" was
@@ -69,12 +69,16 @@ export default function NavBar() {
   }, [session]);
 
   // Checks the current weather against the extreme thresholds and
-  // creates a notification per colony the user cares for (deduped per
-  // day), then refreshes the unread badge. Runs once per session, on
-  // whichever page the user happens to load first.
+  // whether any cat hasn't been seen in 7+ days, creating notifications
+  // for the colonies/cats the user cares for (deduped per day), then
+  // refreshes the unread badge. Runs once per session, on whichever
+  // page the user happens to load first.
   useEffect(() => {
     if (!session) return;
-    checkExtremeWeatherForCaretaker(session.user.id).finally(() => {
+    Promise.all([
+      checkExtremeWeatherForCaretaker(session.user.id),
+      checkStaleCatsForCaretaker(session.user.id),
+    ]).finally(() => {
       getUnreadCount(session.user.id).then(setUnreadCount);
     });
   }, [session]);

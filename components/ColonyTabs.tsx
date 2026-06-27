@@ -12,7 +12,17 @@ type Tab = {
   content: React.ReactNode;
 };
 
-export default function ColonyTabs({ tabs }: { tabs: Tab[] }) {
+export default function ColonyTabs({
+  tabs,
+  footer,
+}: {
+  tabs: Tab[];
+  // Rendered below the tab panels, remounted (via the key on its
+  // wrapper) every time the active tab changes — used so a form left
+  // open below the tabs (e.g. the "Sinalizar" flag form) doesn't stay
+  // open while the visitor is looking at an unrelated tab.
+  footer?: (activeTabId: string) => React.ReactNode;
+}) {
   const [activeTabId, setActiveTabId] = useState(tabs[0]?.id);
 
   return (
@@ -43,6 +53,8 @@ export default function ColonyTabs({ tabs }: { tabs: Tab[] }) {
           {tab.content}
         </div>
       ))}
+
+      {footer && <div key={activeTabId}>{footer(activeTabId)}</div>}
     </div>
   );
 }

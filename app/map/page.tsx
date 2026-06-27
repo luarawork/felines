@@ -1,12 +1,10 @@
 // /map route for Felines.
-// Stays a server component so WeatherBanner (an async server component
-// fetching live weather data) can render server-side; its output is then
-// passed down into MapPageClient, which handles the map/list toggle and
-// lazy-loads the Leaflet map (Leaflet relies on the browser DOM, so it
-// cannot run on the server).
+// MapPageClient handles the map/list toggle, lazy-loads the Leaflet map
+// (Leaflet relies on the browser DOM, so it can't run on the server), and
+// owns the weather banner — it needs to update as the map's visible
+// center moves, which only client-side state can track.
 import MapPageClient from "@/components/MapPageClient";
-import WeatherBanner from "@/components/WeatherBanner";
 
 export default function MapPage() {
-  return <MapPageClient weatherBanner={<WeatherBanner />} />;
+  return <MapPageClient />;
 }

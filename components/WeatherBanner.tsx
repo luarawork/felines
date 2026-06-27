@@ -1,10 +1,27 @@
-// Server component that shows the current weather in Natal along with a
-// care alert when conditions are likely to affect street cats (extreme
-// heat increases dehydration risk, heavy rain removes shelter/food access).
-import { getNatalWeather } from "@/lib/weather";
+// Shows the current weather at a given location along with a care alert
+// when conditions are likely to affect street cats (extreme heat increases
+// dehydration risk, heavy rain removes shelter/food access). Client-side
+// (not a server component) so it can refetch whenever lat/lon change —
+// used both for a colony's fixed location and for the map's current
+// visible area, which moves as the visitor pans/zooms.
+"use client";
 
-export default async function WeatherBanner() {
-  const weather = await getNatalWeather();
+import { useEffect, useState } from "react";
+import { NATAL_COORDS, getWeatherAt, type WeatherSnapshot } from "@/lib/weather";
+
+export default function WeatherBanner({
+  lat = NATAL_COORDS.lat,
+  lon = NATAL_COORDS.lon,
+}: {
+  lat?: number;
+  lon?: number;
+}) {
+  const [weather, setWeather] = useState<WeatherSnapshot | null>(null);
+
+  useEffect(() => {
+    getWeatherAt(lat, lon).then(setWeather);
+  }, [lat, lon]);
+
   if (!weather) return null;
 
   const roundedTemp = Math.round(weather.temperatureCelsius);
