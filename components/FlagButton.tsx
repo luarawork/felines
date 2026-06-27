@@ -22,9 +22,14 @@ export function getFlagReasonLabel(value: string): string {
 export default function FlagButton({
   targetType,
   targetId,
+  onDark = false,
 }: {
   targetType: "colony" | "report" | "profile";
   targetId: string;
+  // The trigger text needs a lighter color on this app's dark sections
+  // (bg-felines-dark) — the default felines-text-secondary gray was
+  // built for light backgrounds and is too low-contrast there.
+  onDark?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const [reason, setReason] = useState(FLAG_REASONS[0].value);
@@ -51,14 +56,20 @@ export default function FlagButton({
   }
 
   if (submitted) {
-    return <p className="text-xs text-felines-text-secondary">Sinalização enviada.</p>;
+    return (
+      <p className={`text-xs ${onDark ? "text-felines-text-secondary-on-dark" : "text-felines-text-secondary"}`}>
+        Sinalização enviada.
+      </p>
+    );
   }
 
   if (!open) {
     return (
       <button
         onClick={() => setOpen(true)}
-        className="text-xs text-felines-text-secondary underline hover:text-felines-emergency"
+        className={`text-xs underline hover:text-felines-emergency ${
+          onDark ? "text-felines-text-secondary-on-dark" : "text-felines-text-secondary"
+        }`}
       >
         Sinalizar
       </button>

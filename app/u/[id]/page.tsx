@@ -90,9 +90,6 @@ export default async function CaretakerPublicPage({
                 <p className="mt-1 text-sm text-felines-text-secondary">
                   Cuida de {colonies.length} {colonies.length === 1 ? "colônia" : "colônias"}.
                 </p>
-                <div className="mt-2">
-                  <FlagButton targetType="profile" targetId={profile.id} />
-                </div>
               </div>
             </div>
           </Reveal>
@@ -186,6 +183,10 @@ export default async function CaretakerPublicPage({
               ))}
             </ul>
           )}
+
+          <div className="mt-12">
+            <FlagButton targetType="profile" targetId={profile.id} onDark />
+          </div>
         </div>
       </section>
     </div>

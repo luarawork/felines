@@ -137,6 +137,19 @@ const CASTRATION_LABELS: Record<CastrationStatus, string> = {
   full: "Colônia totalmente castrada",
 };
 
+// Once a colony has cats individually registered, the live count is
+// more trustworthy than the manually-set castration_status field —
+// same logic as the colony detail page's resolveCastrationLabel.
+function resolveCastrationLabel(
+  castrationStatus: CastrationStatus,
+  catCounts?: { total: number; castrated: number }
+): string {
+  if (!catCounts || catCounts.total === 0) return CASTRATION_LABELS[castrationStatus];
+  if (catCounts.castrated === 0) return "Nenhum gato castrado ainda";
+  if (catCounts.castrated === catCounts.total) return "Todos os gatos castrados";
+  return `${catCounts.castrated} de ${catCounts.total} gatos castrados`;
+}
+
 const PIN_TYPE_OPTIONS: { value: PinType; label: string; color: string }[] = [
   { value: "colony", label: "Colônias", color: "#C4704F" },
   { value: "sighting", label: "Avistamentos", color: "#6B6B6B" },
@@ -198,6 +211,12 @@ export default function ColonyMap({
 
   const [showColonyClickTooltip, setShowColonyClickTooltip] = useState(false);
   const [interestColonyId, setInterestColonyId] = useState<string | null>(null);
+  // Per-colony castrated/total cat counts, so the popup can show the
+  // actual count instead of the manually-set castration_status field
+  // once a colony has cats registered (same logic as the colony page).
+  const [catCountsByColonyId, setCatCountsByColonyId] = useState<
+    Map<string, { total: number; castrated: number }>
+  >(new Map());
 
   // Heat map: highlights colonies that likely need attention (open
   // reports and/or no recent feeding check-in). Needs `reports` and
@@ -231,6 +250,19 @@ export default function ColonyMap({
 
       if (colonyData) setColonies(colonyData as Colony[]);
       setHasLoadedColonies(true);
+
+      // cats is public-readable (cats_select_public), so this is safe
+      // to fetch regardless of session — one query for every colony's
+      // cats instead of one query per pin.
+      const { data: catRows } = await supabase.from("cats").select("colony_id, castrated");
+      const counts = new Map<string, { total: number; castrated: number }>();
+      (catRows ?? []).forEach((cat) => {
+        const current = counts.get(cat.colony_id) ?? { total: 0, castrated: 0 };
+        current.total += 1;
+        if (cat.castrated) current.castrated += 1;
+        counts.set(cat.colony_id, current);
+      });
+      setCatCountsByColonyId(counts);
 
       // Fetch every open report with a location, not just sightings and
       // the emergency types — types like missing_cat, new_kitten, and
@@ -503,7 +535,7 @@ export default function ColonyMap({
               <strong>{colony.name}</strong>
               <p className="mt-1 text-sm">{colony.narrative}</p>
               <p className="mt-1 text-xs text-felines-text-secondary">
-                {CASTRATION_LABELS[colony.castration_status]}
+                {resolveCastrationLabel(colony.castration_status, catCountsByColonyId.get(colony.id))}
               </p>
               <LocationBlurBadge level={level} />
               {/* The colony page's name and narrative can describe the
@@ -692,7 +724,7 @@ export default function ColonyMap({
                   >
                     <span className="font-medium text-felines-text-primary">{colony.name}</span>
                     <p className="mt-1 text-xs text-felines-text-secondary">
-                      {CASTRATION_LABELS[colony.castration_status]}
+                      {resolveCastrationLabel(colony.castration_status, catCountsByColonyId.get(colony.id))}
                     </p>
                   </Link>
                 ))}
