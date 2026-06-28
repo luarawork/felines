@@ -566,6 +566,12 @@ export default async function ColonyDetailPage({
             <ShareStoryButton colonyId={colony.id} />
             <HelpRequestButton colonyId={colony.id} />
             <NeuteringRequestButton colonyId={colony.id} />
+            <Link
+              href="/resources"
+              className="rounded-full border border-felines-border px-4 py-2 text-sm font-medium text-felines-text-secondary transition-colors hover:border-felines-accent hover:text-felines-accent-hover"
+            >
+              Troca de recursos →
+            </Link>
           </div>
 
           <ColonyTabs

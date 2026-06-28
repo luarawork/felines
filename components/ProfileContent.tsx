@@ -404,7 +404,11 @@ export default function ProfileContent() {
                     <Link href={`/u/${userId}`} className="text-felines-accent-hover">
                       ver página pública
                     </Link>
-                  )}
+                  )}{" "}
+                  ·{" "}
+                  <Link href="/resources" className="text-felines-accent-hover">
+                    troca de recursos
+                  </Link>
                 </p>
                 <div className="mt-2">
                   <PhotoUploadButton
