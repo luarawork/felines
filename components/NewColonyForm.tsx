@@ -56,6 +56,21 @@ export default function NewColonyForm() {
       setSession(data.session);
       setCheckingSession(false);
     });
+
+    // Pre-fills the marker position when arriving from a suggested-colony
+    // popup on the map ("Cadastrar uma colônia aqui →", ?lat=...&lng=...).
+    // Read via window.location instead of useSearchParams so this client
+    // component doesn't force its page into a Suspense boundary just for
+    // an optional convenience prefill.
+    const params = new URLSearchParams(window.location.search);
+    const lat = parseFloat(params.get("lat") ?? "");
+    const lng = parseFloat(params.get("lng") ?? "");
+    if (!Number.isNaN(lat) && !Number.isNaN(lng)) {
+      // One-time read of the URL on mount, not state derived from
+      // props/state — outside what this lint rule covers.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setPosition([lat, lng]);
+    }
   }, []);
 
   useEscapeToClose(showSightingForm, () => setShowSightingForm(false));

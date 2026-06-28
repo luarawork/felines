@@ -32,6 +32,7 @@ import { supabase } from "@/lib/supabaseClient";
 import LocationBlurBadge, { BADGE_TEXT, type LocationAccessLevel } from "@/components/LocationBlurBadge";
 import EmptyState from "@/components/EmptyState";
 import { getReportTypeLabel } from "@/lib/reportTypes";
+import { submitReport } from "@/lib/submitReport";
 import ColonyClickTooltip, {
   hasSeenColonyClickTooltip,
   markColonyClickTooltipSeen,
@@ -54,6 +55,13 @@ type Colony = {
   longitude_blurred_near: number | null;
   castration_status: CastrationStatus;
   created_by: string | null;
+};
+
+type SuggestedColony = {
+  id: string;
+  latitude: number;
+  longitude: number;
+  sighting_count: number;
 };
 
 type EmergencyReport = {
@@ -116,7 +124,7 @@ function BoundsTracker({
   return null;
 }
 
-type PinType = "colony" | "sighting" | "emergency";
+type PinType = "colony" | "sighting" | "emergency" | "suggested";
 
 // Builds a circular Leaflet divIcon with the given color and size.
 // Emergency pins get an extra CSS class that drives a pulsing animation
@@ -139,6 +147,16 @@ function buildPinIcon(color: string, size: number, pulsing = false, icon = "") {
 const colonyIcon = buildPinIcon("#C4704F", 22);
 const sightingIcon = buildPinIcon("#6B6B6B", 14);
 const emergencyIcon = buildPinIcon("#C0392B", 22, true);
+
+// Distinct from buildPinIcon's solid-fill style: a dashed olive circle
+// signals "inferred, not confirmed" — this is a guess based on clustered
+// sightings, not a colony anyone has actually registered.
+const suggestedColonyIcon = L.divIcon({
+  className: "",
+  html: `<span style="display:flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:50%;background:rgba(107,143,106,0.2);border:3px dashed #6B8F6A;font-size:18px;line-height:1;">❓</span>`,
+  iconSize: [36, 36],
+  iconAnchor: [18, 18],
+});
 
 const EMERGENCY_REPORT_TYPES = [
   "injured_sick",
@@ -171,6 +189,7 @@ const PIN_TYPE_OPTIONS: { value: PinType; label: string; color: string }[] = [
   { value: "colony", label: "Colônias", color: "#C4704F" },
   { value: "sighting", label: "Avistamentos", color: "#6B6B6B" },
   { value: "emergency", label: "Emergências", color: "#C0392B" },
+  { value: "suggested", label: "Possíveis colônias", color: "#6B8F6A" },
 ];
 
 const CASTRATION_FILTER_OPTIONS: { value: CastrationStatus; label: string }[] = [
@@ -208,6 +227,7 @@ export default function ColonyMap({
   const [hasLoadedColonies, setHasLoadedColonies] = useState(false);
   const [emergencies, setEmergencies] = useState<EmergencyReport[]>([]);
   const [sightings, setSightings] = useState<EmergencyReport[]>([]);
+  const [suggestedColonies, setSuggestedColonies] = useState<SuggestedColony[]>([]);
 
   const [session, setSession] = useState<Session | null>(null);
   // Colony ids the current user is a linked caretaker of (or created).
@@ -267,6 +287,11 @@ export default function ColonyMap({
 
       if (colonyData) setColonies(colonyData as Colony[]);
       setHasLoadedColonies(true);
+
+      const { data: suggestedData } = await supabase
+        .from("suggested_colonies")
+        .select("id, latitude, longitude, sighting_count");
+      if (suggestedData) setSuggestedColonies(suggestedData as SuggestedColony[]);
 
       // cats is public-readable (cats_select_public), so this is safe
       // to fetch regardless of session — one query for every colony's
@@ -434,6 +459,7 @@ export default function ColonyMap({
 
   const filteredSightings = visiblePinTypes.has("sighting") ? sightings : [];
   const filteredEmergencies = visiblePinTypes.has("emergency") ? emergencies : [];
+  const filteredSuggestedColonies = visiblePinTypes.has("suggested") ? suggestedColonies : [];
 
   // What the activity panel shows: only items whose pin currently falls
   // within the visible map area, so the list always matches what's on
@@ -708,6 +734,16 @@ export default function ColonyMap({
             </Circle>
           );
         })}
+
+        {filteredSuggestedColonies.map((suggestion) => (
+          <Marker
+            key={suggestion.id}
+            position={[suggestion.latitude, suggestion.longitude]}
+            icon={suggestedColonyIcon}
+          >
+            <SuggestedColonyPopup suggestion={suggestion} />
+          </Marker>
+        ))}
       </MapContainer>
 
       {showColonyClickTooltip && (
@@ -835,5 +871,54 @@ export default function ColonyMap({
         </div>
       )}
     </div>
+  );
+}
+
+// Popup content for a suggested-colony pin: explains the inference and
+// offers two actions — register it for real (pre-filling the location)
+// or add one more sighting confirmation at this exact spot.
+function SuggestedColonyPopup({ suggestion }: { suggestion: SuggestedColony }) {
+  const [confirming, setConfirming] = useState(false);
+  const [confirmed, setConfirmed] = useState(false);
+
+  async function handleConfirmSighting() {
+    setConfirming(true);
+    const { error } = await submitReport({
+      type: "sighting",
+      latitude: suggestion.latitude,
+      longitude: suggestion.longitude,
+      status: "open",
+    });
+    setConfirming(false);
+    if (!error) setConfirmed(true);
+  }
+
+  return (
+    <Popup>
+      <p className="text-sm font-medium">Vários gatos foram avistados aqui.</p>
+      <p className="mt-1 text-xs text-felines-text-secondary">
+        Isso pode ser uma colônia ainda não registrada.
+      </p>
+      <div className="mt-2 flex flex-col gap-1">
+        <a
+          href={`/colony/new?lat=${suggestion.latitude}&lng=${suggestion.longitude}`}
+          className="text-xs font-medium text-felines-accent-hover"
+        >
+          Cadastrar uma colônia aqui →
+        </a>
+        {confirmed ? (
+          <span className="text-xs text-felines-success">Obrigado por confirmar!</span>
+        ) : (
+          <button
+            type="button"
+            onClick={handleConfirmSighting}
+            disabled={confirming}
+            className="text-left text-xs font-medium text-felines-text-secondary hover:text-felines-accent disabled:opacity-50"
+          >
+            {confirming ? "Enviando..." : "Também vi gatos aqui"}
+          </button>
+        )}
+      </div>
+    </Popup>
   );
 }
