@@ -15,6 +15,7 @@ import ShareStoryButton from "@/components/ShareStoryButton";
 import HelpRequestButton from "@/components/HelpRequestButton";
 import HelpRequestBanner from "@/components/HelpRequestBanner";
 import FollowColonyButton from "@/components/FollowColonyButton";
+import VerifyColonyButton from "@/components/VerifyColonyButton";
 import NeuteringRequestButton from "@/components/NeuteringRequestButton";
 import NeuteringRequestBanner from "@/components/NeuteringRequestBanner";
 import ColonyActions from "@/components/ColonyActions";
@@ -159,7 +160,7 @@ export default async function ColonyDetailPage({
   const { data: colony } = await supabase
     .from("colonies")
     .select(
-      "id, name, narrative, castration_status, cover_photo_url, latitude_blurred, longitude_blurred, created_at"
+      "id, name, narrative, castration_status, cover_photo_url, latitude_blurred, longitude_blurred, created_at, verified_status, verified_at"
     )
     .eq("id", id)
     .single();
@@ -516,6 +517,14 @@ export default async function ColonyDetailPage({
 
           <div className="mt-4">
             <FollowColonyButton colonyId={colony.id} />
+          </div>
+
+          <div className="mt-2">
+            <VerifyColonyButton
+              colonyId={colony.id}
+              verifiedStatus={colony.verified_status}
+              verifiedAt={colony.verified_at}
+            />
           </div>
 
           <Reveal delayMs={80}>

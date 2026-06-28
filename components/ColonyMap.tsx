@@ -55,6 +55,7 @@ type Colony = {
   longitude_blurred_near: number | null;
   castration_status: CastrationStatus;
   created_by: string | null;
+  verified_status: "unverified" | "community_verified";
 };
 
 type SuggestedColony = {
@@ -174,6 +175,16 @@ const colonyIconWithNeuteringBadge = L.divIcon({
     <span class="felines-pin" style="background:#C4704F;width:22px;height:22px;display:flex;align-items:center;justify-content:center;"></span>
     <span style="position:absolute;top:-6px;right:-6px;font-size:11px;line-height:1;">✂️</span>
   </span>`,
+  iconSize: [22, 22],
+  iconAnchor: [11, 11],
+});
+
+// Unverified colonies get a dashed (instead of solid) border, muted
+// slightly — a softer cue than the help/neutering badges, so it never
+// competes with them when both apply.
+const unverifiedColonyIcon = L.divIcon({
+  className: "",
+  html: `<span style="display:flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:rgba(196,112,79,0.55);border:2px dashed #C4704F;"></span>`,
   iconSize: [22, 22],
   iconAnchor: [11, 11],
 });
@@ -318,7 +329,7 @@ export default function ColonyMap({
       const { data: colonyData } = await supabase
         .from("colonies")
         .select(
-          "id, name, narrative, latitude_blurred, longitude_blurred, latitude_blurred_near, longitude_blurred_near, castration_status, created_by"
+          "id, name, narrative, latitude_blurred, longitude_blurred, latitude_blurred_near, longitude_blurred_near, castration_status, created_by, verified_status"
         );
 
       if (colonyData) setColonies(colonyData as Colony[]);
@@ -652,7 +663,9 @@ export default function ColonyMap({
                   ? colonyIconWithNormalHelpBadge
                   : neuteringColonyIds.has(colony.id)
                     ? colonyIconWithNeuteringBadge
-                    : colonyIcon;
+                    : colony.verified_status === "unverified"
+                      ? unverifiedColonyIcon
+                      : colonyIcon;
             return (
               <Marker
                 key={colony.id}
