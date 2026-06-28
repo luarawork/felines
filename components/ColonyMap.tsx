@@ -192,12 +192,6 @@ const PIN_TYPE_OPTIONS: { value: PinType; label: string; color: string }[] = [
   { value: "suggested", label: "Possíveis colônias", color: "#6B8F6A" },
 ];
 
-const CASTRATION_FILTER_OPTIONS: { value: CastrationStatus; label: string }[] = [
-  { value: "none", label: "Nenhum castrado" },
-  { value: "partial", label: "Parcial" },
-  { value: "full", label: "Total" },
-];
-
 // Uncertainty circle radius (meters) drawn around blurred pins, so the
 // approximation is visually obvious even to someone who doesn't know
 // the colony's real address — a single precise-looking pin doesn't
@@ -212,11 +206,17 @@ const BLUR_RADIUS_METERS: Record<1 | 2, number> = {
 
 export default function ColonyMap({
   onCenterChange,
+  compact = false,
 }: {
   // Lets the page hosting the map (the weather banner specifically)
   // know where the visitor is currently looking, instead of always
   // showing the weather for the map's fixed initial center.
   onCenterChange?: (lat: number, lon: number) => void;
+  // Used for the small map preview on /impact: hides the activity panel
+  // and the "no colonies in view" empty state, both positioned assuming
+  // a full-viewport-height map — in a short preview box they overlap
+  // each other instead of stacking. Just the pins are the point there.
+  compact?: boolean;
 }) {
   const [colonies, setColonies] = useState<Colony[]>([]);
   const [visibleBounds, setVisibleBounds] = useState<L.LatLngBounds | null>(null);
@@ -242,9 +242,6 @@ export default function ColonyMap({
   const [visiblePinTypes, setVisiblePinTypes] = useState<Set<PinType>>(
     new Set(["colony", "sighting", "emergency"])
   );
-  const [visibleCastrationStatuses, setVisibleCastrationStatuses] = useState<
-    Set<CastrationStatus>
-  >(new Set(["none", "partial", "full"]));
 
   const [showColonyClickTooltip, setShowColonyClickTooltip] = useState(false);
   const [interestColonyId, setInterestColonyId] = useState<string | null>(null);
@@ -415,15 +412,6 @@ export default function ColonyMap({
     });
   }
 
-  function toggleCastrationStatus(status: CastrationStatus) {
-    setVisibleCastrationStatuses((previous) => {
-      const next = new Set(previous);
-      if (next.has(status)) next.delete(status);
-      else next.add(status);
-      return next;
-    });
-  }
-
   // Resolves which coordinates and access level to show for a colony,
   // based on the current session and whether the RPC confirmed an exact
   // location for it.
@@ -451,11 +439,9 @@ export default function ColonyMap({
     if (!visiblePinTypes.has("colony")) return [];
     const normalizedSearch = searchTerm.trim().toLowerCase();
     return colonies.filter(
-      (colony) =>
-        visibleCastrationStatuses.has(colony.castration_status) &&
-        (normalizedSearch === "" || colony.name.toLowerCase().includes(normalizedSearch))
+      (colony) => normalizedSearch === "" || colony.name.toLowerCase().includes(normalizedSearch)
     );
-  }, [colonies, searchTerm, visiblePinTypes, visibleCastrationStatuses]);
+  }, [colonies, searchTerm, visiblePinTypes]);
 
   const filteredSightings = visiblePinTypes.has("sighting") ? sightings : [];
   const filteredEmergencies = visiblePinTypes.has("emergency") ? emergencies : [];
@@ -511,26 +497,6 @@ export default function ColonyMap({
                   className="h-2 w-2 rounded-full"
                   style={{ background: option.color }}
                 />
-                {option.label}
-              </button>
-            );
-          })}
-        </div>
-
-        <div className="flex flex-wrap gap-2">
-          {CASTRATION_FILTER_OPTIONS.map((option) => {
-            const isActive = visibleCastrationStatuses.has(option.value);
-            return (
-              <button
-                key={option.value}
-                type="button"
-                onClick={() => toggleCastrationStatus(option.value)}
-                className={`rounded-full border px-2 py-1 text-xs font-medium transition-colors ${
-                  isActive
-                    ? "border-felines-success text-felines-text-primary"
-                    : "border-felines-border text-felines-text-secondary opacity-50"
-                }`}
-              >
                 {option.label}
               </button>
             );
@@ -762,6 +728,7 @@ export default function ColonyMap({
           desktop) so the two never overlap. The on/off toggle lives in
           its own footer instead of floating separately, so the panel
           never has to fully disappear. */}
+      {!compact && (
       <div
         className={`absolute left-4 right-4 top-[19rem] z-[999] flex flex-col rounded-xl border border-felines-border bg-felines-surface shadow-lg sm:left-auto sm:top-24 sm:w-80 ${
           listExpanded ? "bottom-24" : ""
@@ -846,8 +813,9 @@ export default function ColonyMap({
           </button>
         </div>
       </div>
+      )}
 
-      {hasLoadedColonies && visiblePinTypes.has("colony") && filteredColonies.length === 0 && (
+      {!compact && hasLoadedColonies && visiblePinTypes.has("colony") && filteredColonies.length === 0 && (
         // bottom-24 (not bottom-6) so this never overlaps the floating
         // "+ Cadastrar colônia" button anchored at the bottom-right.
         <div className="absolute bottom-24 left-1/2 z-[1000] w-[90%] max-w-md -translate-x-1/2">

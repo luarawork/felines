@@ -1,15 +1,12 @@
-// Renders /map's map and the floating "Colocar uma colônia no mapa" action
-// — same label and destination as the one offered inside the help modal,
-// since it's the same action just reachable from two places.
-// The activity panel (showing what's visible in the current map area)
-// and its own show/hide toggle live inside ColonyMap itself, since the
-// panel is always present on screen rather than swapped in and out.
-// Holds the map's current center so the weather banner reflects wherever
-// the visitor is currently looking, instead of a fixed city.
+// Renders /map's map. The activity panel (showing what's visible in the
+// current map area) and its own show/hide toggle live inside ColonyMap
+// itself, since the panel is always present on screen rather than
+// swapped in and out. Holds the map's current center so the weather
+// banner reflects wherever the visitor is currently looking, instead of
+// a fixed city.
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import MapShell from "@/components/MapShell";
 import WeatherBanner from "@/components/WeatherBanner";
 import NeighborhoodQuizButton from "@/components/NeighborhoodQuizButton";
@@ -37,14 +34,9 @@ export default function MapPageClient() {
         <WeatherBanner lat={mapCenter.lat} lon={mapCenter.lon} />
       </div>
 
-      <Link
-        href="/colony/new"
-        className="absolute bottom-6 right-6 z-[1000] rounded-full bg-felines-accent px-5 py-3 text-sm font-medium text-white shadow-lg transition-colors hover:bg-felines-accent-hover"
-      >
-        Colocar uma colônia no mapa
-      </Link>
-
-      <div className="absolute bottom-6 left-4 z-[1000]">
+      {/* bottom-6 right-6 (not left) so this never sits over the
+          Leaflet zoom control, which is anchored bottom-left. */}
+      <div className="absolute bottom-6 right-6 z-[1000]">
         <NeighborhoodQuizButton
           triggerClassName="rounded-full border border-felines-border bg-white px-4 py-2.5 text-sm font-medium text-felines-text-secondary shadow-lg transition-colors hover:border-felines-accent hover:text-felines-accent"
           triggerLabel="Não sabe o que está vendo? →"
