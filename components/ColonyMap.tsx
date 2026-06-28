@@ -59,15 +59,32 @@ type Colony = {
 type EmergencyReport = {
   id: string;
   type: string;
-  // Anon's column grant on `reports` only covers id/type/colony_id/lat/long/status
-  // (see 0024_public_report_pins.sql) — description and created_at are
-  // only fetched when signed in, so these stay optional rather than
-  // breaking the anonymous map view by requesting an ungranted column.
+  // Anon's column grant on `reports` (see 0024/0025/0040) only covers
+  // id/type/colony_id/latitude_blurred/longitude_blurred/status/... —
+  // exact latitude/longitude and description are only fetched when
+  // signed in, so these stay optional rather than breaking the
+  // anonymous map view by requesting an ungranted column.
   description?: string | null;
-  latitude: number | null;
-  longitude: number | null;
+  latitude?: number | null;
+  longitude?: number | null;
+  latitude_blurred?: number | null;
+  longitude_blurred?: number | null;
   created_at?: string;
 };
+
+// Anonymous visitors never receive exact report coordinates from the
+// database (revoked at the grant level in 0040) — only the blurred
+// columns. Signed-in visitors get the exact ones. This mirrors
+// resolveColonyPosition below, just for reports instead of colonies.
+function resolveReportPosition(report: EmergencyReport): [number, number] | null {
+  if (report.latitude != null && report.longitude != null) {
+    return [report.latitude, report.longitude];
+  }
+  if (report.latitude_blurred != null && report.longitude_blurred != null) {
+    return [report.latitude_blurred, report.longitude_blurred];
+  }
+  return null;
+}
 
 // Mounts inside MapContainer purely to read the live Leaflet map instance
 // and report its visible bounds upward — react-leaflet has no prop for
@@ -271,7 +288,7 @@ export default function ColonyMap({
       // map just because they were typed elsewhere.
       const reportSelect: string = currentSession
         ? "id, type, description, latitude, longitude, created_at"
-        : "id, type, latitude, longitude";
+        : "id, type, latitude_blurred, longitude_blurred";
       const { data: reportData } = await supabase
         .from("reports")
         .select(reportSelect)
@@ -430,8 +447,9 @@ export default function ColonyMap({
   }, [visibleBounds, filteredColonies]);
 
   function isInBounds(report: EmergencyReport) {
-    if (!visibleBounds || report.latitude == null || report.longitude == null) return false;
-    return visibleBounds.contains([report.latitude, report.longitude]);
+    const position = resolveReportPosition(report);
+    if (!visibleBounds || !position) return false;
+    return visibleBounds.contains(position);
   }
 
   const panelEmergencies = filteredEmergencies.filter(isInBounds);
@@ -619,45 +637,77 @@ export default function ColonyMap({
             );
           })}
 
-        {filteredSightings
-          .filter((report) => report.latitude != null && report.longitude != null)
-          .map((report) => (
-            <Marker
-              key={report.id}
-              position={[report.latitude as number, report.longitude as number]}
-              icon={sightingIcon}
-            >
-              <Popup>
-                <strong>{getReportTypeLabel(report.type)}</strong>
-                <a
-                  href={`/reports#report-${report.id}`}
-                  className="mt-2 block text-xs font-medium text-felines-accent-hover"
-                >
-                  Ver relato →
-                </a>
-              </Popup>
+        {filteredSightings.map((report) => {
+          const position = resolveReportPosition(report);
+          if (!position) return null;
+          const isExact = report.latitude != null;
+          const popupContent = (
+            <Popup>
+              <strong>{getReportTypeLabel(report.type)}</strong>
+              {!isExact && (
+                <p className="mt-1 text-xs text-felines-text-secondary">
+                  🔒 Localização aproximada
+                </p>
+              )}
+              <a
+                href={`/reports#report-${report.id}`}
+                className="mt-2 block text-xs font-medium text-felines-accent-hover"
+              >
+                Ver relato →
+              </a>
+            </Popup>
+          );
+          return isExact ? (
+            <Marker key={report.id} position={position} icon={sightingIcon}>
+              {popupContent}
             </Marker>
-          ))}
+          ) : (
+            <Circle
+              key={report.id}
+              center={position}
+              radius={BLUR_RADIUS_METERS[1]}
+              pathOptions={{ color: "#6B6B6B", fillColor: "#6B6B6B", fillOpacity: 0.18, weight: 1 }}
+            >
+              {popupContent}
+            </Circle>
+          );
+        })}
 
-        {filteredEmergencies
-          .filter((report) => report.latitude != null && report.longitude != null)
-          .map((report) => (
-            <Marker
-              key={report.id}
-              position={[report.latitude as number, report.longitude as number]}
-              icon={emergencyIcon}
-            >
-              <Popup>
-                <strong>Alerta: {getReportTypeLabel(report.type)}</strong>
-                <a
-                  href={`/reports#report-${report.id}`}
-                  className="mt-2 block text-xs font-medium text-felines-accent-hover"
-                >
-                  Ver relato →
-                </a>
-              </Popup>
+        {filteredEmergencies.map((report) => {
+          const position = resolveReportPosition(report);
+          if (!position) return null;
+          const isExact = report.latitude != null;
+          const popupContent = (
+            <Popup>
+              <strong>Alerta: {getReportTypeLabel(report.type)}</strong>
+              {!isExact && (
+                <p className="mt-1 text-xs text-felines-text-secondary">
+                  🔒 Localização aproximada
+                </p>
+              )}
+              <a
+                href={`/reports#report-${report.id}`}
+                className="mt-2 block text-xs font-medium text-felines-accent-hover"
+              >
+                Ver relato →
+              </a>
+            </Popup>
+          );
+          return isExact ? (
+            <Marker key={report.id} position={position} icon={emergencyIcon}>
+              {popupContent}
             </Marker>
-          ))}
+          ) : (
+            <Circle
+              key={report.id}
+              center={position}
+              radius={BLUR_RADIUS_METERS[1]}
+              pathOptions={{ color: "#C0392B", fillColor: "#C0392B", fillOpacity: 0.18, weight: 1 }}
+            >
+              {popupContent}
+            </Circle>
+          );
+        })}
       </MapContainer>
 
       {showColonyClickTooltip && (
