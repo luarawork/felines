@@ -14,6 +14,7 @@ import Reveal from "@/components/Reveal";
 import CountUpStat from "@/components/CountUpStat";
 import MapPreviewIllustration from "@/components/MapPreviewIllustration";
 import ArticleCard from "@/components/ArticleCard";
+import NeighborhoodQuizButton from "@/components/NeighborhoodQuizButton";
 import { ARTICLES } from "@/lib/articles";
 
 const STATS: { value: string; label: string }[] = [
@@ -193,6 +194,24 @@ export default function Home() {
             })}
           </div>
         </div>
+      </section>
+
+      {/* Neighborhood diagnosis quiz CTA */}
+      <section className="bg-felines-surface py-16">
+        <Reveal className="mx-auto max-w-3xl px-4 text-center sm:px-6">
+          <p className="text-xs font-semibold uppercase tracking-[0.1em] text-felines-accent-hover">
+            Não sabe por onde começar?
+          </p>
+          <h2 className="mt-3 text-2xl font-bold leading-tight text-felines-text-primary sm:text-3xl">
+            Responda 4 perguntas rápidas sobre o que você vê na sua rua.
+          </h2>
+          <div className="mt-6">
+            <NeighborhoodQuizButton
+              triggerClassName="rounded-full bg-felines-accent px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-felines-accent-hover"
+              triggerLabel="O que está acontecendo no seu bairro? →"
+            />
+          </div>
+        </Reveal>
       </section>
 
       {/* Education preview — dark section */}

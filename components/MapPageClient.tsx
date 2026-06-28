@@ -12,6 +12,7 @@ import { useState } from "react";
 import Link from "next/link";
 import MapShell from "@/components/MapShell";
 import WeatherBanner from "@/components/WeatherBanner";
+import NeighborhoodQuizButton from "@/components/NeighborhoodQuizButton";
 import { NATAL_COORDS } from "@/lib/weather";
 
 export default function MapPageClient() {
@@ -42,6 +43,13 @@ export default function MapPageClient() {
       >
         Colocar uma colônia no mapa
       </Link>
+
+      <div className="absolute bottom-6 left-4 z-[1000]">
+        <NeighborhoodQuizButton
+          triggerClassName="rounded-full border border-felines-border bg-white px-4 py-2.5 text-sm font-medium text-felines-text-secondary shadow-lg transition-colors hover:border-felines-accent hover:text-felines-accent"
+          triggerLabel="Não sabe o que está vendo? →"
+        />
+      </div>
     </div>
   );
 }
