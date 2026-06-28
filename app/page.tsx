@@ -291,10 +291,15 @@ export default function Home() {
               © 2026 Luara Oliveira
             </a>
           </p>
-          {/* TODO: link to product documentation once it's published */}
-          <a href="#" className="font-medium text-felines-accent-hover">
-            Saiba mais sobre esse produto
-          </a>
+          <div className="flex items-center gap-4">
+            <Link href="/glossary" className="font-medium text-felines-accent-hover">
+              Glossário
+            </Link>
+            {/* TODO: link to product documentation once it's published */}
+            <a href="#" className="font-medium text-felines-accent-hover">
+              Saiba mais sobre esse produto
+            </a>
+          </div>
         </div>
       </footer>
     </div>
