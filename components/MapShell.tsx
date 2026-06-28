@@ -16,8 +16,10 @@ const ColonyMap = dynamic(() => import("@/components/ColonyMap"), {
 
 export default function MapShell({
   onCenterChange,
+  compact,
 }: {
   onCenterChange?: (lat: number, lon: number) => void;
+  compact?: boolean;
 }) {
-  return <ColonyMap onCenterChange={onCenterChange} />;
+  return <ColonyMap onCenterChange={onCenterChange} compact={compact} />;
 }
