@@ -271,6 +271,12 @@ export default async function ImpactPage() {
           >
             Comece a aprender →
           </Link>
+          <Link
+            href="/stories"
+            className="rounded-full border-2 border-white px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-white hover:text-felines-dark"
+          >
+            Veja histórias da comunidade →
+          </Link>
         </div>
       </section>
     </div>

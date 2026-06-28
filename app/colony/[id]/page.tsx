@@ -11,6 +11,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import ShareButton from "@/components/ShareButton";
+import ShareStoryButton from "@/components/ShareStoryButton";
 import ColonyActions from "@/components/ColonyActions";
 import WeatherBanner from "@/components/WeatherBanner";
 import CatManager from "@/components/CatManager";
@@ -461,6 +462,10 @@ export default async function ColonyDetailPage({
 
           {/* Available actions, scoped by the visitor's access level */}
           <ColonyActions colonyId={colony.id} />
+
+          <div className="mt-3">
+            <ShareStoryButton colonyId={colony.id} />
+          </div>
 
           <ColonyTabs
             tabs={[

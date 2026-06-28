@@ -314,6 +314,9 @@ export default function Home() {
             <Link href="/glossary" className="font-medium text-felines-accent-hover">
               Glossário
             </Link>
+            <Link href="/stories" className="font-medium text-felines-accent-hover">
+              Histórias
+            </Link>
             {/* TODO: link to product documentation once it's published */}
             <a href="#" className="font-medium text-felines-accent-hover">
               Saiba mais sobre esse produto
