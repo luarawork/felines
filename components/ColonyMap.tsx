@@ -164,6 +164,19 @@ function buildColonyIconWithBadge(urgency: "normal" | "urgent"): L.DivIcon {
 }
 const colonyIconWithNormalHelpBadge = buildColonyIconWithBadge("normal");
 const colonyIconWithUrgentHelpBadge = buildColonyIconWithBadge("urgent");
+
+// Scissors badge for an open neutering request — only shown when there's
+// no help-request badge already occupying that corner, so pins never
+// stack multiple indicators.
+const colonyIconWithNeuteringBadge = L.divIcon({
+  className: "",
+  html: `<span style="position:relative;display:inline-block;width:22px;height:22px;">
+    <span class="felines-pin" style="background:#C4704F;width:22px;height:22px;display:flex;align-items:center;justify-content:center;"></span>
+    <span style="position:absolute;top:-6px;right:-6px;font-size:11px;line-height:1;">✂️</span>
+  </span>`,
+  iconSize: [22, 22],
+  iconAnchor: [11, 11],
+});
 const sightingIcon = buildPinIcon("#6B6B6B", 14);
 const emergencyIcon = buildPinIcon("#C0392B", 22, true);
 
@@ -252,6 +265,8 @@ export default function ColonyMap({
   const [helpUrgencyByColonyId, setHelpUrgencyByColonyId] = useState<
     Map<string, "normal" | "urgent">
   >(new Map());
+  // Colony ids with an open or in-progress neutering request.
+  const [neuteringColonyIds, setNeuteringColonyIds] = useState<Set<string>>(new Set());
 
   const [session, setSession] = useState<Session | null>(null);
   // Colony ids the current user is a linked caretaker of (or created).
@@ -327,6 +342,12 @@ export default function ColonyMap({
         }
       });
       setHelpUrgencyByColonyId(urgencyMap);
+
+      const { data: neuteringRows } = await supabase
+        .from("neutering_requests")
+        .select("colony_id")
+        .neq("status", "completed");
+      setNeuteringColonyIds(new Set((neuteringRows ?? []).map((row) => row.colony_id)));
 
       // cats is public-readable (cats_select_public), so this is safe
       // to fetch regardless of session — one query for every colony's
@@ -629,7 +650,9 @@ export default function ColonyMap({
                 ? colonyIconWithUrgentHelpBadge
                 : helpUrgency === "normal"
                   ? colonyIconWithNormalHelpBadge
-                  : colonyIcon;
+                  : neuteringColonyIds.has(colony.id)
+                    ? colonyIconWithNeuteringBadge
+                    : colonyIcon;
             return (
               <Marker
                 key={colony.id}

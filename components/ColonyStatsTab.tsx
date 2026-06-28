@@ -5,6 +5,7 @@
 // plain CSS bars rather than a canvas/SVG chart.
 import { getReportTypeLabel } from "@/lib/reportTypes";
 import { computeMilestones, type TimelineEventLike } from "@/components/ColonyMilestones";
+import { URGENCY_LABELS } from "@/lib/neuteringRequestTypes";
 
 type Stats = {
   total_cats: number;
@@ -22,6 +23,13 @@ type WeeklyFeeding = { week_start: string; check_in_count: number };
 type MonthlyReports = { month_start: string; report_count: number };
 type ReportBreakdown = { report_type: string; report_count: number };
 type MonthlyWeather = { month_start: string; event_count: number };
+type NeuteringRequestRecord = {
+  id: string;
+  cats_count: number;
+  urgency: "low" | "medium" | "high";
+  status: "open" | "in_progress" | "completed";
+  created_at: string;
+};
 
 function BarChart({
   data,
@@ -53,6 +61,7 @@ export default function ColonyStatsTab({
   monthlyReports,
   reportBreakdown,
   monthlyWeather,
+  neuteringRequests,
   colonyCreatedAt,
   timelineEvents,
 }: {
@@ -61,6 +70,7 @@ export default function ColonyStatsTab({
   monthlyReports: MonthlyReports[];
   reportBreakdown: ReportBreakdown[];
   monthlyWeather: MonthlyWeather[];
+  neuteringRequests: NeuteringRequestRecord[];
   colonyCreatedAt: string;
   timelineEvents: TimelineEventLike[];
 }) {
@@ -172,6 +182,33 @@ export default function ColonyStatsTab({
           </ul>
         )}
       </div>
+
+      {neuteringRequests.length > 0 && (
+        <div>
+          <p className="text-sm font-semibold text-felines-text-primary">Pedidos de castração</p>
+          <ul className="mt-3 space-y-2">
+            {neuteringRequests.map((request) => (
+              <li
+                key={request.id}
+                className="flex items-center justify-between rounded-md border border-felines-border px-3 py-2 text-sm"
+              >
+                <span className="text-felines-text-primary">
+                  ✂️ {request.cats_count} {request.cats_count === 1 ? "gato" : "gatos"} ·{" "}
+                  {URGENCY_LABELS[request.urgency]}
+                </span>
+                <span className="text-xs text-felines-text-secondary">
+                  {request.status === "completed"
+                    ? "Concluído"
+                    : request.status === "in_progress"
+                      ? "Em andamento"
+                      : "Aberto"}{" "}
+                  · {new Date(request.created_at).toLocaleDateString("pt-BR")}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       <div>
         <p className="text-sm font-semibold text-felines-text-primary">Milestones</p>

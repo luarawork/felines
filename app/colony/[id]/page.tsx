@@ -15,6 +15,8 @@ import ShareStoryButton from "@/components/ShareStoryButton";
 import HelpRequestButton from "@/components/HelpRequestButton";
 import HelpRequestBanner from "@/components/HelpRequestBanner";
 import FollowColonyButton from "@/components/FollowColonyButton";
+import NeuteringRequestButton from "@/components/NeuteringRequestButton";
+import NeuteringRequestBanner from "@/components/NeuteringRequestBanner";
 import ColonyActions from "@/components/ColonyActions";
 import WeatherBanner from "@/components/WeatherBanner";
 import CatManager from "@/components/CatManager";
@@ -92,6 +94,7 @@ const EVENT_TYPE_LABELS: Record<string, string> = {
   extreme_heat: "🌡️ Calor extremo",
   extreme_cold: "🌡️ Frio extremo",
   heavy_rain: "🌧️ Chuva forte",
+  neutering_completed: "✂️ Castração concluída",
 };
 
 // System-generated events (weather, automated detections) — rendered
@@ -190,6 +193,22 @@ export default async function ColonyDetailPage({
     .limit(1);
 
   const activeHelpRequest = activeHelpRequestRows?.[0] ?? null;
+
+  const { data: neuteringRequestRows } = await supabase
+    .from("neutering_requests")
+    .select("id, cats_count, urgency, status")
+    .eq("colony_id", id)
+    .neq("status", "completed")
+    .order("created_at", { ascending: false })
+    .limit(1);
+
+  const activeNeuteringRequest = neuteringRequestRows?.[0] ?? null;
+
+  const { data: neuteringHistoryRows } = await supabase
+    .from("neutering_requests")
+    .select("id, cats_count, urgency, status, created_at")
+    .eq("colony_id", id)
+    .order("created_at", { ascending: false });
 
   // caretakers.user_id and timeline_events.created_by both reference
   // auth.users, not profiles, so PostgREST can't embed profiles in
@@ -447,6 +466,9 @@ export default async function ColonyDetailPage({
 
         <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6">
           {activeHelpRequest && <HelpRequestBanner request={activeHelpRequest} />}
+          {activeNeuteringRequest && (
+            <NeuteringRequestBanner request={activeNeuteringRequest} colonyId={colony.id} />
+          )}
 
           <div className="mb-6 flex flex-wrap items-start justify-between gap-3">
             <div className="flex-1">
@@ -514,6 +536,7 @@ export default async function ColonyDetailPage({
           <div className="mt-3 flex flex-wrap gap-3">
             <ShareStoryButton colonyId={colony.id} />
             <HelpRequestButton colonyId={colony.id} />
+            <NeuteringRequestButton colonyId={colony.id} />
           </div>
 
           <ColonyTabs
@@ -530,6 +553,7 @@ export default async function ColonyDetailPage({
                     monthlyReports={monthlyReportRows ?? []}
                     reportBreakdown={reportBreakdownRows ?? []}
                     monthlyWeather={monthlyWeatherRows ?? []}
+                    neuteringRequests={neuteringHistoryRows ?? []}
                     colonyCreatedAt={colony.created_at}
                     timelineEvents={timelineEvents ?? []}
                   />

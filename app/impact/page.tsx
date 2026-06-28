@@ -99,17 +99,19 @@ function describeActivity(kind: string): string {
 }
 
 export default async function ImpactPage() {
-  const [{ data: statsRows }, { data: activityRows }, { data: helpRequestRows }] = await Promise.all([
-    supabase.rpc("get_platform_impact_stats"),
-    supabase.rpc("get_recent_platform_activity", { p_limit: 20 }),
-    supabase
-      .from("help_requests")
-      .select("id, colony_id, type, description, urgency, created_at, colonies(name)")
-      .eq("status", "open")
-      .gt("expires_at", new Date().toISOString())
-      .order("created_at", { ascending: false })
-      .limit(10),
-  ]);
+  const [{ data: statsRows }, { data: activityRows }, { data: helpRequestRows }, { data: neuteringRows }] =
+    await Promise.all([
+      supabase.rpc("get_platform_impact_stats"),
+      supabase.rpc("get_recent_platform_activity", { p_limit: 20 }),
+      supabase
+        .from("help_requests")
+        .select("id, colony_id, type, description, urgency, created_at, colonies(name)")
+        .eq("status", "open")
+        .gt("expires_at", new Date().toISOString())
+        .order("created_at", { ascending: false })
+        .limit(10),
+      supabase.from("neutering_requests").select("cats_count").neq("status", "completed"),
+    ]);
 
   const activeHelpRequests = (helpRequestRows ?? []).map((row) => ({
     id: row.id,
@@ -119,6 +121,8 @@ export default async function ImpactPage() {
     description: row.description,
     urgency: row.urgency as "normal" | "urgent",
   }));
+
+  const catsAwaitingNeutering = (neuteringRows ?? []).reduce((total, row) => total + row.cats_count, 0);
 
   const stats = (statsRows?.[0] as PlatformStats | undefined) ?? {
     total_colonies: 0,
@@ -240,6 +244,26 @@ export default async function ImpactPage() {
                 </Reveal>
               ))}
             </div>
+          </div>
+        </section>
+      )}
+
+      {/* Neutering needs */}
+      {catsAwaitingNeutering > 0 && (
+        <section className="bg-felines-background py-16">
+          <div className="mx-auto max-w-6xl px-4 text-center sm:px-6">
+            <Reveal>
+              <p className="text-xs font-semibold uppercase tracking-[0.1em] text-felines-accent-hover">
+                Necessidades de castração
+              </p>
+              <p className="mt-3 text-4xl font-bold leading-tight text-felines-text-primary">
+                {catsAwaitingNeutering}
+              </p>
+              <p className="mt-1 text-base text-felines-text-secondary">
+                {catsAwaitingNeutering === 1 ? "gato" : "gatos"} esperando castração em colônias
+                cadastradas no Felines
+              </p>
+            </Reveal>
           </div>
         </section>
       )}
