@@ -815,7 +815,7 @@ export default function ColonyMap({
         // bottom-24 (not bottom-6) so this never overlaps the floating
         // "+ Cadastrar colônia" button anchored at the bottom-right.
         <div className="absolute bottom-24 left-1/2 z-[1000] w-[90%] max-w-md -translate-x-1/2">
-          {sightings.length > 0 ? (
+          {panelSightings.length > 0 ? (
             <EmptyState
               main="Pessoas avistaram gatos aqui, mas ninguém mapeou uma colônia ainda. Será que você pode ser essa pessoa?"
               ctas={[{ label: "Cadastrar uma colônia →", href: "/colony/new" }]}

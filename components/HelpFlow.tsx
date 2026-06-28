@@ -188,6 +188,19 @@ export default function HelpFlow({ onClose }: { onClose?: () => void }) {
               </button>
             ))}
           </div>
+
+          {/* Same action offered on step 2 (and on /map's floating
+              button) — reachable from here too, since not every
+              situation leads to step 2's generic branch (the missing-cat
+              one doesn't), and someone who already knows they want to
+              map a colony shouldn't have to pick a situation first. */}
+          <Link
+            href="/colony/new"
+            onClick={onClose}
+            className="mt-4 inline-block rounded-full border border-felines-border px-4 py-2 text-sm font-medium text-felines-text-secondary transition-colors hover:border-felines-accent hover:text-felines-accent"
+          >
+            Colocar uma colônia no mapa
+          </Link>
         </div>
       )}
 
