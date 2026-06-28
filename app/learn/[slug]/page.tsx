@@ -1,6 +1,7 @@
 // /learn/:slug route for Felines.
 // Renders a single article's content, level badge, reading time, fact
 // chips, related articles, and a CTA pointing to the map or help flow.
+import type { Metadata } from "next";
 import Link from "next/link";
 import { getArticleBySlug, getReadingTimeMinutes, getRelatedArticles } from "@/lib/articles";
 import ArticleProgressTracker from "@/components/ArticleProgressTracker";
@@ -8,6 +9,31 @@ import FactChip from "@/components/FactChip";
 import OpenHelpModalButton from "@/components/OpenHelpModalButton";
 import ReadingProgressBar from "@/components/ReadingProgressBar";
 import ArticleNotFound from "@/components/ArticleNotFound";
+import ShareButton from "@/components/ShareButton";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const article = getArticleBySlug(slug);
+  if (!article) return {};
+
+  // Each article already has a hand-written `summary` — a better og:
+  // description than mechanically truncating the body to 150 characters,
+  // since it's written to stand alone instead of just being cut off.
+  return {
+    title: article.title,
+    description: article.summary,
+    openGraph: {
+      title: article.title,
+      description: article.summary,
+      url: `/learn/${article.slug}`,
+      images: ["/images/hero-cat.png"],
+    },
+  };
+}
 
 export default async function ArticlePage({
   params,
@@ -33,8 +59,9 @@ export default async function ArticlePage({
         ← Voltar ao guia
       </Link>
 
-      <div className="mt-3">
+      <div className="mt-3 flex items-center justify-between gap-3">
         <span className="text-xs text-felines-text-secondary">{readingTime} min de leitura</span>
+        <ShareButton title={article.title} />
       </div>
 
       <h1 className="mt-2 text-2xl font-bold text-felines-text-primary sm:text-3xl">

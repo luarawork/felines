@@ -7,8 +7,10 @@
 // coordinates are never fetched here — only data already safe for public
 // display. Sections below the hero are organized into tabs to keep the
 // page scannable instead of one long scroll.
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
+import ShareButton from "@/components/ShareButton";
 import ColonyActions from "@/components/ColonyActions";
 import WeatherBanner from "@/components/WeatherBanner";
 import CatManager from "@/components/CatManager";
@@ -100,6 +102,36 @@ function resolveCastrationLabel(castrationStatus: string, cats: Cat[]): string {
   if (castratedCount === 0) return "Nenhum gato castrado ainda";
   if (castratedCount === cats.length) return "Todos os gatos castrados";
   return `${castratedCount} de ${cats.length} gatos castrados`;
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}): Promise<Metadata> {
+  const { id } = await params;
+  const { data: colony } = await supabase
+    .from("colonies")
+    .select("name, narrative, cover_photo_url")
+    .eq("id", id)
+    .single();
+
+  if (!colony) return {};
+
+  const description = colony.narrative
+    ? colony.narrative.slice(0, 150)
+    : "Veja essa colônia de gatos de rua no Felines.";
+
+  return {
+    title: `${colony.name} — Felines`,
+    description,
+    openGraph: {
+      title: `${colony.name} — Felines`,
+      description,
+      url: `/colony/${id}`,
+      images: [colony.cover_photo_url || "/images/hero-cat.png"],
+    },
+  };
 }
 
 export default async function ColonyDetailPage({
@@ -371,8 +403,11 @@ export default async function ColonyDetailPage({
         </div>
 
         <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6">
-          <div className="mb-6">
-            <WeatherBanner lat={colony.latitude_blurred} lon={colony.longitude_blurred} />
+          <div className="mb-6 flex flex-wrap items-start justify-between gap-3">
+            <div className="flex-1">
+              <WeatherBanner lat={colony.latitude_blurred} lon={colony.longitude_blurred} />
+            </div>
+            <ShareButton title={`${colony.name} — Felines`} />
           </div>
 
           {caretakers.length > 0 && (

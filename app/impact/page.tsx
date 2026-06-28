@@ -6,17 +6,30 @@
 // tables, like feedings and knowledge_progress, have no anon SELECT
 // policy at all, by design — this page never widens that, it just asks
 // the database for a count instead of the rows themselves).
+import type { Metadata } from "next";
 import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient";
 import { ARTICLES, getArticleBySlug, getReadingTimeMinutes } from "@/lib/articles";
 import Reveal from "@/components/Reveal";
 import CountUpStat from "@/components/CountUpStat";
 import MapShell from "@/components/MapShell";
+import ShareButton from "@/components/ShareButton";
 
 // These are live counts, not content that should be baked in at build
 // time — without this, Next.js would statically render the page once
 // during `next build` and serve that stale snapshot to every visitor.
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  title: "Impacto — Felines",
+  description: "Veja o impacto real da comunidade Felines: colônias mapeadas, gatos castrados, relatos resolvidos e muito mais.",
+  openGraph: {
+    title: "Impacto — Felines",
+    description: "Veja o impacto real da comunidade Felines: colônias mapeadas, gatos castrados, relatos resolvidos e muito mais.",
+    url: "/impact",
+    images: ["/images/hero-cat.png"],
+  },
+};
 
 type PlatformStats = {
   total_colonies: number;
@@ -32,39 +45,56 @@ type PlatformStats = {
 
 type ActivityRow = { kind: string; occurred_at: string };
 
-// Maps a raw activity "kind" (an event_type, "report:<type>", or
-// "article_read") to an anonymized, human-readable sentence — no user
-// names, no colony names, no coordinates, ever.
+// Maps a raw activity "kind" (an event_type, "report:<type>",
+// "notification:<type>", or "article_read") to an anonymized,
+// human-readable sentence — no user names, no colony names, no
+// coordinates, ever. Notifications in particular only ever expose their
+// `type` column here (see migration 0048) — the actual message text
+// often names a specific colony, which would defeat the point.
 function describeActivity(kind: string): string {
-  if (kind === "article_read") return "Someone completed an educational article";
+  if (kind === "article_read") return "Alguém terminou de ler um artigo educativo";
+
   if (kind.startsWith("report:")) {
     const reportType = kind.slice("report:".length);
     const reportLabels: Record<string, string> = {
-      no_food_water: "a colony running low on food or water",
-      injured_sick: "an injured or sick cat",
-      new_kitten: "a new kitten",
-      missing_cat: "a missing cat",
-      suspected_poisoning: "a suspected poisoning",
-      suspected_abuse: "suspected abuse",
-      disease_outbreak: "a disease outbreak",
-      threat_to_colony: "a threat to a colony",
-      sighting: "a cat sighting",
+      no_food_water: "uma colônia sem comida ou água",
+      injured_sick: "um gato ferido ou doente",
+      new_kitten: "um filhote novo",
+      missing_cat: "um gato desaparecido",
+      suspected_poisoning: "uma suspeita de envenenamento",
+      suspected_abuse: "uma suspeita de maus-tratos",
+      disease_outbreak: "um surto de doença",
+      threat_to_colony: "uma ameaça a uma colônia",
+      sighting: "um avistamento de gato",
     };
-    return `Someone reported ${reportLabels[reportType] ?? "something"} near a colony`;
+    return `Alguém relatou ${reportLabels[reportType] ?? "algo"} perto de uma colônia`;
   }
+
+  if (kind.startsWith("notification:")) {
+    const notificationType = kind.slice("notification:".length);
+    const notificationLabels: Record<string, string> = {
+      extreme_weather: "Um alerta de clima extremo foi enviado a um cuidador",
+      cat_unseen: "Um cuidador foi avisado sobre um gato não visto há um tempo",
+      sighting_cluster: "Avistamentos sugeriram uma possível nova colônia",
+      action_thanks: "Alguém agradeceu uma ação de cuidado",
+    };
+    return notificationLabels[notificationType] ?? "Uma notificação foi enviada a um cuidador";
+  }
+
   const eventLabels: Record<string, string> = {
-    colony_created: "A colony was registered",
-    new_caretaker: "A caretaker joined a colony",
-    new_cat: "A cat was added to a colony",
-    feeding: "Someone logged a feeding check-in",
-    water: "Someone logged a water check-in",
-    thank_you: "Someone thanked a caretaker",
-    report_resolved: "A report was resolved",
-    colony_info_updated: "A colony's page was updated",
-    cover_photo_changed: "A colony's cover photo was updated",
-    caretaker_letter_updated: "A caretaker left a note for the next one",
+    colony_created: "Uma colônia foi cadastrada",
+    new_caretaker: "Um cuidador passou a olhar por uma colônia",
+    new_cat: "Um gato foi adicionado a uma colônia",
+    cat_castrated: "Um gato foi castrado",
+    feeding: "Alguém registrou uma alimentação",
+    water: "Alguém registrou a troca de água",
+    thank_you: "Alguém agradeceu um cuidador",
+    report_resolved: "Um relato foi resolvido",
+    colony_info_updated: "As informações de uma colônia foram atualizadas",
+    cover_photo_changed: "A foto de capa de uma colônia foi trocada",
+    caretaker_letter_updated: "Um cuidador deixou um recado pro próximo",
   };
-  return eventLabels[kind] ?? "Something happened in a colony";
+  return eventLabels[kind] ?? "Algo aconteceu em uma colônia";
 }
 
 export default async function ImpactPage() {
@@ -95,14 +125,14 @@ export default async function ImpactPage() {
     : null;
 
   const STAT_CARDS: { value: number; label: string }[] = [
-    { value: stats.total_colonies, label: "Colonies mapped" },
-    { value: stats.total_cats, label: "Named cats registered" },
-    { value: stats.total_cats_castrated, label: "Cats marked as castrated" },
-    { value: stats.total_reports, label: "Reports submitted" },
-    { value: stats.total_reports_resolved, label: "Reports resolved" },
-    { value: stats.total_feedings, label: "Feeding check-ins logged" },
-    { value: stats.total_caretakers, label: "Active caretakers" },
-    { value: stats.total_articles_read, label: "Articles read" },
+    { value: stats.total_colonies, label: "Colônias mapeadas" },
+    { value: stats.total_cats, label: "Gatos nomeados cadastrados" },
+    { value: stats.total_cats_castrated, label: "Gatos castrados" },
+    { value: stats.total_reports, label: "Relatos enviados" },
+    { value: stats.total_reports_resolved, label: "Relatos resolvidos" },
+    { value: stats.total_feedings, label: "Check-ins de alimentação" },
+    { value: stats.total_caretakers, label: "Cuidadores ativos" },
+    { value: stats.total_articles_read, label: "Artigos lidos" },
   ];
 
   return (
@@ -110,12 +140,15 @@ export default async function ImpactPage() {
       {/* Hero */}
       <section className="bg-[#2D1810] py-20">
         <div className="mx-auto max-w-6xl px-4 text-center sm:px-6">
+          <div className="mb-4 flex justify-center">
+            <ShareButton title="Impacto do Felines" onDark />
+          </div>
           <Reveal>
             <h1 className="text-4xl font-bold leading-tight text-white sm:text-5xl">
-              Every action leaves a mark.
+              Cada ação deixa uma marca.
             </h1>
             <p className="mx-auto mt-4 max-w-xl text-lg text-felines-text-secondary-on-dark">
-              Here&apos;s what the Felines community has done so far.
+              Veja o que a comunidade do Felines já fez até agora.
             </p>
           </Reveal>
         </div>
@@ -144,15 +177,15 @@ export default async function ImpactPage() {
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
           <Reveal>
             <p className="text-xs font-semibold uppercase tracking-[0.1em] text-felines-accent-hover">
-              Geographic spread
+              Alcance geográfico
             </p>
             <h2 className="mt-3 text-3xl font-bold leading-tight text-felines-text-primary">
-              Every pin is a colony someone is looking after.
+              Cada pin é uma colônia que alguém está cuidando.
             </h2>
           </Reveal>
           <Reveal delayMs={100}>
             <div className="mt-8 h-96 w-full overflow-hidden rounded-2xl border border-felines-border shadow-[0_8px_24px_rgba(0,0,0,0.08)]">
-              <MapShell />
+              <MapShell compact />
             </div>
           </Reveal>
         </div>
@@ -163,16 +196,16 @@ export default async function ImpactPage() {
         <div className="mx-auto max-w-3xl px-4 sm:px-6">
           <Reveal>
             <p className="text-xs font-semibold uppercase tracking-[0.1em] text-felines-accent-hover">
-              Happening right now
+              Acontecendo agora
             </p>
             <h2 className="mt-3 text-3xl font-bold leading-tight text-felines-text-primary">
-              Recent activity
+              Atividade recente
             </h2>
           </Reveal>
 
           {activity.length === 0 ? (
             <p className="mt-6 text-sm text-felines-text-secondary">
-              Nothing recorded yet — be the first to leave a mark.
+              Nada registrado ainda — seja a primeira pessoa a deixar uma marca.
             </p>
           ) : (
             <ol className="mt-8 space-y-3">
@@ -181,7 +214,7 @@ export default async function ImpactPage() {
                   <li className="flex items-center justify-between rounded-xl border border-felines-border bg-felines-background px-4 py-3 text-sm">
                     <span className="text-felines-text-primary">{describeActivity(item.kind)}</span>
                     <span className="text-xs text-felines-text-secondary">
-                      {new Date(item.occurred_at).toLocaleDateString("en-US")}
+                      {new Date(item.occurred_at).toLocaleDateString("pt-BR")}
                     </span>
                   </li>
                 </Reveal>
@@ -196,28 +229,28 @@ export default async function ImpactPage() {
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
           <Reveal>
             <p className="text-xs font-semibold uppercase tracking-[0.1em] text-felines-accent-hover">
-              Education
+              Educação
             </p>
             <h2 className="mt-3 text-3xl font-bold leading-tight text-felines-text-primary">
-              Knowledge spreading
+              Conhecimento se espalhando
             </h2>
           </Reveal>
           <div className="mt-8 grid gap-6 sm:grid-cols-3">
             <Reveal>
               <p className="text-[40px] font-bold leading-none text-felines-accent">{ARTICLES.length}</p>
-              <p className="mt-2 text-sm text-felines-text-secondary">Articles published</p>
+              <p className="mt-2 text-sm text-felines-text-secondary">Artigos publicados</p>
             </Reveal>
             <Reveal delayMs={80}>
               <p className="text-[40px] font-bold leading-none text-felines-accent">
                 {averageReadingTime} min
               </p>
-              <p className="mt-2 text-sm text-felines-text-secondary">Average reading time</p>
+              <p className="mt-2 text-sm text-felines-text-secondary">Tempo médio de leitura</p>
             </Reveal>
             <Reveal delayMs={160}>
               <p className="text-lg font-semibold leading-tight text-felines-text-primary">
-                {mostReadArticle ? mostReadArticle.title : "No articles read yet"}
+                {mostReadArticle ? mostReadArticle.title : "Nenhum artigo lido ainda"}
               </p>
-              <p className="mt-2 text-sm text-felines-text-secondary">Most read article</p>
+              <p className="mt-2 text-sm text-felines-text-secondary">Artigo mais lido</p>
             </Reveal>
           </div>
         </div>
@@ -230,13 +263,13 @@ export default async function ImpactPage() {
             href="/map"
             className="rounded-full bg-felines-accent px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-felines-accent-hover"
           >
-            See what&apos;s happening near you →
+            Veja o que está acontecendo perto de você →
           </Link>
           <Link
             href="/#aprender"
             className="rounded-full border-2 border-white px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-white hover:text-felines-dark"
           >
-            Start learning →
+            Comece a aprender →
           </Link>
         </div>
       </section>
