@@ -9,6 +9,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient";
+import { submitReport } from "@/lib/submitReport";
 import AnonymousReportNotice from "@/components/AnonymousReportNotice";
 import MapMarkerPickerShell from "@/components/MapMarkerPickerShell";
 import CreateAccountInvite from "@/components/CreateAccountInvite";
@@ -133,6 +134,7 @@ export default function HelpFlow({ onClose }: { onClose?: () => void }) {
   const [locationCoords, setLocationCoords] = useState<[number, number] | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [reportError, setReportError] = useState<string | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState(true);
   // Lets a signed-out visitor explicitly choose to continue into
   // LostCatForm anyway (which then shows its own AuthRequiredNotice),
@@ -148,16 +150,17 @@ export default function HelpFlow({ onClose }: { onClose?: () => void }) {
   async function handleSubmitReport() {
     if (!situation?.reportType) return;
     setSubmitting(true);
-    const { data: sessionData } = await supabase.auth.getSession();
-    const { error } = await supabase.from("reports").insert({
+    setReportError(null);
+    const { error } = await submitReport({
       type: situation.reportType,
       latitude: locationCoords?.[0] ?? null,
       longitude: locationCoords?.[1] ?? null,
       status: "open",
-      created_by: sessionData.session?.user.id ?? null,
     });
     setSubmitting(false);
-    if (!error) {
+    if (error) {
+      setReportError(error);
+    } else {
       setSubmitted(true);
       if (onClose) setTimeout(onClose, 1500);
     }
@@ -287,6 +290,10 @@ export default function HelpFlow({ onClose }: { onClose?: () => void }) {
                   >
                     {situation.relatedArticleLabel ?? "Saiba mais"} →
                   </Link>
+                )}
+
+                {reportError && !submitted && (
+                  <p className="mt-3 text-sm text-felines-emergency">{reportError}</p>
                 )}
 
                 <div className="mt-5 flex flex-wrap items-center gap-3">

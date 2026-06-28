@@ -9,6 +9,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import { buildSafeStoragePath, validatePhotoFile } from "@/lib/storage";
+import { submitReport } from "@/lib/submitReport";
 import MapMarkerPickerShell from "@/components/MapMarkerPickerShell";
 import AuthRequiredNotice from "@/components/AuthRequiredNotice";
 import PhotoUploadButton from "@/components/PhotoUploadButton";
@@ -63,20 +64,19 @@ export default function LostCatForm({ onSubmitted }: { onSubmitted?: () => void 
 
     const photoUrl = supabase.storage.from("colony-photos").getPublicUrl(filePath).data.publicUrl;
 
-    const { error: insertError } = await supabase.from("reports").insert({
+    const { error: submitError } = await submitReport({
       type: "missing_cat",
       description: description.trim() || null,
       photo_url: photoUrl,
       latitude: locationCoords?.[0] ?? null,
       longitude: locationCoords?.[1] ?? null,
       status: "open",
-      created_by: session.user.id,
     });
 
     setSubmitting(false);
 
-    if (insertError) {
-      setError("O gato perdido não foi cadastrado. Tenta de novo?");
+    if (submitError) {
+      setError(submitError);
       return;
     }
 

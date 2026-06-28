@@ -10,6 +10,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient";
 import { buildSafeStoragePath, validatePhotoFile } from "@/lib/storage";
+import { submitReport } from "@/lib/submitReport";
 import MapMarkerPickerShell from "@/components/MapMarkerPickerShell";
 import PhotoUploadButton from "@/components/PhotoUploadButton";
 
@@ -57,22 +58,19 @@ export default function QuickSightingForm({
       photoUrl = supabase.storage.from("colony-photos").getPublicUrl(filePath).data.publicUrl;
     }
 
-    const { data: sessionData } = await supabase.auth.getSession();
-
-    const { error: insertError } = await supabase.from("reports").insert({
+    const { error: submitError } = await submitReport({
       type: "sighting",
       description: description.trim() || null,
       photo_url: photoUrl,
       latitude: position?.[0] ?? null,
       longitude: position?.[1] ?? null,
       status: "open",
-      created_by: sessionData.session?.user.id ?? null,
     });
 
     setSubmitting(false);
 
-    if (insertError) {
-      setError("O avistamento não foi enviado. Tenta de novo?");
+    if (submitError) {
+      setError(submitError);
       return;
     }
 

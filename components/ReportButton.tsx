@@ -8,6 +8,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import { REPORT_TYPES } from "@/lib/reportTypes";
+import { submitReport } from "@/lib/submitReport";
 import AnonymousReportNotice from "@/components/AnonymousReportNotice";
 import CreateAccountInvite from "@/components/CreateAccountInvite";
 import { useEscapeToClose } from "@/lib/useEscapeToClose";
@@ -20,12 +21,10 @@ export default function ReportButton({ colonyId }: { colonyId: string }) {
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState(true);
-  const [userId, setUserId] = useState<string | null>(null);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
       setIsLoggedIn(!!data.session);
-      setUserId(data.session?.user.id ?? null);
     });
   }, []);
 
@@ -48,17 +47,16 @@ export default function ReportButton({ colonyId }: { colonyId: string }) {
     }
 
     setSubmitting(true);
-    const { error: insertError } = await supabase.from("reports").insert({
+    const { error: submitError } = await submitReport({
       colony_id: colonyId,
       type,
       description: description.trim() || null,
       status: "open",
-      created_by: userId,
     });
     setSubmitting(false);
 
-    if (insertError) {
-      setError("O relato não foi enviado. Tenta de novo?");
+    if (submitError) {
+      setError(submitError);
       return;
     }
 

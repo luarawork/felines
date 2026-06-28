@@ -7,7 +7,7 @@
 "use client";
 
 import { useState } from "react";
-import { supabase } from "@/lib/supabaseClient";
+import { submitReport } from "@/lib/submitReport";
 import MapMarkerPickerShell from "@/components/MapMarkerPickerShell";
 
 export default function SightingReportButton({ lostCatReportId }: { lostCatReportId: string }) {
@@ -21,9 +21,7 @@ export default function SightingReportButton({ lostCatReportId }: { lostCatRepor
     formEvent.preventDefault();
     setSubmitting(true);
 
-    const { data: sessionData } = await supabase.auth.getSession();
-
-    const { error } = await supabase.from("reports").insert({
+    const { error } = await submitReport({
       type: "sighting",
       description: note.trim()
         ? `Possível avistamento do gato perdido: ${note.trim()}`
@@ -32,7 +30,6 @@ export default function SightingReportButton({ lostCatReportId }: { lostCatRepor
       latitude: locationCoords?.[0] ?? null,
       longitude: locationCoords?.[1] ?? null,
       status: "open",
-      created_by: sessionData.session?.user.id ?? null,
     });
 
     setSubmitting(false);
