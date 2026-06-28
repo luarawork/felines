@@ -212,6 +212,14 @@ export default async function ColonyDetailPage({
     .eq("colony_id", id)
     .order("created_at", { ascending: false });
 
+  const { data: falsePinFlagRows } = await supabase
+    .from("flags")
+    .select("id")
+    .eq("target_type", "colony")
+    .eq("target_id", id)
+    .in("reason", ["never_seen_cats", "location_doesnt_exist", "duplicate_colony", "suspicious_harmful"]);
+  const hasFalsePinWarning = (falsePinFlagRows?.length ?? 0) >= 3;
+
   // caretakers.user_id and timeline_events.created_by both reference
   // auth.users, not profiles, so PostgREST can't embed profiles in
   // either query — every author id across both is resolved in one
@@ -472,6 +480,12 @@ export default async function ColonyDetailPage({
         </div>
 
         <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6">
+          {hasFalsePinWarning && (
+            <div className="mb-6 rounded-xl border border-felines-emergency bg-felines-emergency/10 px-4 py-3 text-sm text-felines-text-primary">
+              ⚠️ Essa colônia foi sinalizada por membros da comunidade. Confira as informações antes
+              de visitar o local.
+            </div>
+          )}
           {activeHelpRequest && <HelpRequestBanner request={activeHelpRequest} />}
           {activeNeuteringRequest && (
             <NeuteringRequestBanner request={activeNeuteringRequest} colonyId={colony.id} />

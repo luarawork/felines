@@ -33,6 +33,8 @@ import LocationBlurBadge, { BADGE_TEXT, type LocationAccessLevel } from "@/compo
 import EmptyState from "@/components/EmptyState";
 import { getReportTypeLabel } from "@/lib/reportTypes";
 import { submitReport } from "@/lib/submitReport";
+import ReportFalsePinButton from "@/components/ReportFalsePinButton";
+import { FALSE_PIN_REASONS } from "@/lib/falsePinReasons";
 import ColonyClickTooltip, {
   hasSeenColonyClickTooltip,
   markColonyClickTooltipSeen,
@@ -188,6 +190,17 @@ const unverifiedColonyIcon = L.divIcon({
   iconSize: [22, 22],
   iconAnchor: [11, 11],
 });
+// 3+ false-pin flags — top-priority warning, overrides every other badge.
+const colonyIconWithWarning = L.divIcon({
+  className: "",
+  html: `<span style="position:relative;display:inline-block;width:22px;height:22px;">
+    <span class="felines-pin" style="background:#C4704F;width:22px;height:22px;display:flex;align-items:center;justify-content:center;"></span>
+    <span style="position:absolute;top:-6px;right:-6px;font-size:11px;line-height:1;">⚠️</span>
+  </span>`,
+  iconSize: [22, 22],
+  iconAnchor: [11, 11],
+});
+
 const sightingIcon = buildPinIcon("#6B6B6B", 14);
 const emergencyIcon = buildPinIcon("#C0392B", 22, true);
 
@@ -278,6 +291,10 @@ export default function ColonyMap({
   >(new Map());
   // Colony ids with an open or in-progress neutering request.
   const [neuteringColonyIds, setNeuteringColonyIds] = useState<Set<string>>(new Set());
+  // Colony ids with 3+ false-pin flags — shown with top priority over
+  // every other badge, since "this pin might be wrong" matters more
+  // than what kind of help it's asking for.
+  const [flaggedColonyIds, setFlaggedColonyIds] = useState<Set<string>>(new Set());
 
   const [session, setSession] = useState<Session | null>(null);
   // Colony ids the current user is a linked caretaker of (or created).
@@ -359,6 +376,20 @@ export default function ColonyMap({
         .select("colony_id")
         .neq("status", "completed");
       setNeuteringColonyIds(new Set((neuteringRows ?? []).map((row) => row.colony_id)));
+
+      const falsePinReasonValues = FALSE_PIN_REASONS.map((reason) => reason.value);
+      const { data: flagRows } = await supabase
+        .from("flags")
+        .select("target_id")
+        .eq("target_type", "colony")
+        .in("reason", falsePinReasonValues);
+      const flagCounts = new Map<string, number>();
+      (flagRows ?? []).forEach((row) => {
+        flagCounts.set(row.target_id, (flagCounts.get(row.target_id) ?? 0) + 1);
+      });
+      setFlaggedColonyIds(
+        new Set(Array.from(flagCounts.entries()).filter(([, count]) => count >= 3).map(([id]) => id))
+      );
 
       // cats is public-readable (cats_select_public), so this is safe
       // to fetch regardless of session — one query for every colony's
@@ -646,6 +677,7 @@ export default function ColonyMap({
                   </button>
                 )
               )}
+              <ReportFalsePinButton colonyId={colony.id} />
             </Popup>
           );
 
@@ -656,8 +688,9 @@ export default function ColonyMap({
           // exists to prevent. Only level 3 (exact location) gets a pin.
           if (level === 3) {
             const helpUrgency = helpUrgencyByColonyId.get(colony.id);
-            const icon =
-              helpUrgency === "urgent"
+            const icon = flaggedColonyIds.has(colony.id)
+              ? colonyIconWithWarning
+              : helpUrgency === "urgent"
                 ? colonyIconWithUrgentHelpBadge
                 : helpUrgency === "normal"
                   ? colonyIconWithNormalHelpBadge
