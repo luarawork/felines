@@ -137,6 +137,19 @@ export default function CatManager({ colonyId }: { colonyId: string }) {
       return;
     }
 
+    // Only logged when turning castration ON, not off — this is what
+    // powers the "Primeira castração" milestone card (ColonyMilestones),
+    // which needs a real timestamp the cats table itself never tracked.
+    if (!cat.castrated && session) {
+      await supabase.from("timeline_events").insert({
+        colony_id: colonyId,
+        event_type: "cat_castrated",
+        description: `${cat.name ?? "Um gato"} foi castrado.`,
+        created_by: session.user.id,
+      });
+      await supabase.rpc("record_care_streak", { p_colony_id: colonyId });
+    }
+
     setCats((previous) =>
       previous.map((item) => (item.id === cat.id ? { ...item, castrated: !item.castrated } : item))
     );

@@ -24,6 +24,7 @@ import ColonyAccessProvider from "@/components/ColonyAccessProvider";
 import Reveal from "@/components/Reveal";
 import RotatingSingleFact from "@/components/RotatingSingleFact";
 import TimelinePhoto from "@/components/TimelinePhoto";
+import ColonyMilestones from "@/components/ColonyMilestones";
 import ActionThanksButton from "@/components/ActionThanksButton";
 import Link from "next/link";
 
@@ -69,6 +70,7 @@ const EVENT_TYPE_LABELS: Record<string, string> = {
   water: "Água registrada",
   new_caretaker: "Novo cuidador",
   new_cat: "Novo gato na colônia",
+  cat_castrated: "Gato castrado",
   caretaker_letter_updated: "Carta de cuidador atualizada",
   colony_info_updated: "Informações da colônia atualizadas",
   cover_photo_changed: "Foto de capa trocada",
@@ -109,7 +111,7 @@ export default async function ColonyDetailPage({
   const { data: colony } = await supabase
     .from("colonies")
     .select(
-      "id, name, narrative, castration_status, cover_photo_url, latitude_blurred, longitude_blurred"
+      "id, name, narrative, castration_status, cover_photo_url, latitude_blurred, longitude_blurred, created_at"
     )
     .eq("id", id)
     .single();
@@ -236,6 +238,12 @@ export default async function ColonyDetailPage({
 
   const timelineSection = (
     <>
+      <ColonyMilestones
+        colonyCreatedAt={colony.created_at}
+        catCount={cats?.length ?? 0}
+        timelineEvents={timelineEvents ?? []}
+      />
+
       <TimelineEventForm colonyId={colony.id} />
 
       {hasNoTimelineEntriesEver && (
