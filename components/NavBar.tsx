@@ -19,6 +19,7 @@ import { useHelpModal } from "@/components/HelpModalProvider";
 const NAV_LINKS = [
   { href: "/", label: "Início" },
   { href: "/map", label: "Mapa" },
+  { href: "/impact", label: "Impacto" },
 ];
 
 export default function NavBar() {
