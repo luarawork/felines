@@ -96,12 +96,13 @@ const EVENT_TYPE_LABELS: Record<string, string> = {
   extreme_cold: "🌡️ Frio extremo",
   heavy_rain: "🌧️ Chuva forte",
   neutering_completed: "✂️ Castração concluída",
+  colony_edited: "Informações atualizadas",
 };
 
-// System-generated events (weather, automated detections) — rendered
-// with lighter styling than user actions so they don't visually compete
-// with what a caretaker actually did.
-const SYSTEM_EVENT_TYPES = new Set(["extreme_heat", "extreme_cold", "heavy_rain"]);
+// System-generated events (weather, automated detections) and edit-log
+// entries — rendered with lighter styling than user actions so they
+// don't visually compete with what a caretaker actually did.
+const SYSTEM_EVENT_TYPES = new Set(["extreme_heat", "extreme_cold", "heavy_rain", "colony_edited"]);
 
 function eventTypeLabel(eventType: string): string {
   return EVENT_TYPE_LABELS[eventType] ?? eventType.replace(/_/g, " ");
@@ -396,7 +397,12 @@ export default async function ColonyDetailPage({
                   >
                     {eventTypeLabel(event.event_type)}
                   </p>
-                  {event.description && (
+                  {/* colony_edited's description is a JSON-encoded
+                      field/old/new payload (see lib/colonyEditHistory.ts)
+                      meant for EditHistorySection's expandable detail,
+                      not for display here — the main timeline only shows
+                      the generic "Informações atualizadas" title + author. */}
+                  {event.description && event.event_type !== "colony_edited" && (
                     <p className="mt-1 text-sm text-felines-text-secondary">
                       {event.description}
                     </p>

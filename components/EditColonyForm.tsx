@@ -10,6 +10,8 @@ import { supabase } from "@/lib/supabaseClient";
 import { buildSafeStoragePath, validatePhotoFile } from "@/lib/storage";
 import { useColonyAccessContext } from "@/components/ColonyAccessProvider";
 import PhotoUploadButton from "@/components/PhotoUploadButton";
+import { encodeColonyEdit } from "@/lib/colonyEditHistory";
+import EditHistorySection from "@/components/EditHistorySection";
 
 type CastrationStatus = "none" | "partial" | "full";
 
@@ -113,21 +115,43 @@ export default function EditColonyForm({
       return;
     }
 
-    // Leaves a trace of what actually changed, so the timeline reflects
-    // edits to the colony's own info — not just cats, feedings and reports.
-    const changes: string[] = [];
-    if (name.trim() !== initialName) changes.push(`nome para "${name.trim()}"`);
-    if ((narrative.trim() || null) !== (initialNarrative ?? null)) changes.push("a narrativa");
-    if (castrationStatus !== initialCastrationStatus) {
-      changes.push(`status de castração para ${CASTRATION_LABELS[castrationStatus]}`);
-    }
-    if (changes.length > 0 && session) {
-      await supabase.from("timeline_events").insert({
-        colony_id: colonyId,
-        event_type: "colony_info_updated",
-        description: `Atualizou ${changes.join(", ")}.`,
-        created_by: session.user.id,
-      });
+    // Leaves a trace of what actually changed — one "colony_edited"
+    // event per changed field, each carrying the old/new value (JSON-
+    // encoded; see lib/colonyEditHistory.ts) so the Edit modal's history
+    // section can show a real diff, not just "something changed".
+    // Narrative is truncated to 100 chars per field, since storing the
+    // full text twice on every edit isn't worth it for a free-text field
+    // that can run to 1000 characters.
+    if (session) {
+      const edits: { field: "name" | "narrative" | "castration_status"; oldValue: string; newValue: string }[] =
+        [];
+
+      if (name.trim() !== initialName) {
+        edits.push({ field: "name", oldValue: initialName, newValue: name.trim() });
+      }
+      if ((narrative.trim() || null) !== (initialNarrative ?? null)) {
+        edits.push({
+          field: "narrative",
+          oldValue: (initialNarrative ?? "").slice(0, 100),
+          newValue: narrative.trim().slice(0, 100),
+        });
+      }
+      if (castrationStatus !== initialCastrationStatus) {
+        edits.push({
+          field: "castration_status",
+          oldValue: CASTRATION_LABELS[initialCastrationStatus],
+          newValue: CASTRATION_LABELS[castrationStatus],
+        });
+      }
+
+      for (const edit of edits) {
+        await supabase.from("timeline_events").insert({
+          colony_id: colonyId,
+          event_type: "colony_edited",
+          description: encodeColonyEdit(edit),
+          created_by: session.user.id,
+        });
+      }
     }
 
     setPhotoFile(null);
@@ -146,6 +170,7 @@ export default function EditColonyForm({
   }
 
   return (
+    <>
     <form onSubmit={handleSubmit} className="max-w-xl space-y-4">
       <div>
         <label
@@ -230,5 +255,8 @@ export default function EditColonyForm({
         )}
       </div>
     </form>
+
+    <EditHistorySection colonyId={colonyId} />
+    </>
   );
 }
