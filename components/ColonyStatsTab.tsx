@@ -14,12 +14,14 @@ type Stats = {
   total_reports_resolved: number;
   total_caretakers: number;
   total_timeline_events: number;
+  total_weather_events: number;
   days_since_registered: number;
 };
 
 type WeeklyFeeding = { week_start: string; check_in_count: number };
 type MonthlyReports = { month_start: string; report_count: number };
 type ReportBreakdown = { report_type: string; report_count: number };
+type MonthlyWeather = { month_start: string; event_count: number };
 
 function BarChart({
   data,
@@ -50,6 +52,7 @@ export default function ColonyStatsTab({
   weeklyFeedings,
   monthlyReports,
   reportBreakdown,
+  monthlyWeather,
   colonyCreatedAt,
   timelineEvents,
 }: {
@@ -57,6 +60,7 @@ export default function ColonyStatsTab({
   weeklyFeedings: WeeklyFeeding[];
   monthlyReports: MonthlyReports[];
   reportBreakdown: ReportBreakdown[];
+  monthlyWeather: MonthlyWeather[];
   colonyCreatedAt: string;
   timelineEvents: TimelineEventLike[];
 }) {
@@ -73,6 +77,7 @@ export default function ColonyStatsTab({
     { label: "Dias desde o cadastro", value: stats.days_since_registered },
     { label: "Cuidadores atuais", value: stats.total_caretakers },
     { label: "Eventos na linha do tempo", value: stats.total_timeline_events },
+    { label: "Eventos climáticos", value: stats.total_weather_events },
   ];
 
   return (
@@ -120,6 +125,20 @@ export default function ColonyStatsTab({
           <div className="mt-4">
             <BarChart
               data={monthlyReports.map((month) => ({ label: month.month_start, value: month.report_count }))}
+              labelFormatter={(label) => new Date(label).toLocaleDateString("pt-BR", { month: "short" })}
+            />
+          </div>
+        </div>
+        <div>
+          <p className="text-sm font-semibold text-felines-text-primary">
+            Eventos climáticos por mês
+          </p>
+          <p className="mt-1 text-xs text-felines-text-secondary">
+            Calor extremo, frio extremo ou chuva forte registrados automaticamente.
+          </p>
+          <div className="mt-4">
+            <BarChart
+              data={monthlyWeather.map((month) => ({ label: month.month_start, value: month.event_count }))}
               labelFormatter={(label) => new Date(label).toLocaleDateString("pt-BR", { month: "short" })}
             />
           </div>

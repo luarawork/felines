@@ -39,19 +39,22 @@ export async function markAllRead(userId: string): Promise<void> {
   await supabase.from("notifications").update({ read: true }).eq("user_id", userId).eq("read", false);
 }
 
-// Checks the current temperature and, if it's extreme (below 10°C or
-// above 32°C), creates one notification per colony the user cares for —
-// unless one was already created today for that colony. The weather
-// reading is a single regional value (see lib/weather.ts), so this is
-// an approximation: every colony gets the same reading rather than a
-// lookup at its own coordinates.
+// Checks the current weather and, if it's significant (extreme heat,
+// extreme cold, or heavy rain), creates a notification AND a
+// timeline_event for every colony the user cares for — unless one was
+// already created today for that colony. The weather reading is a
+// single regional value (see lib/weather.ts), so this is an
+// approximation: every colony gets the same reading rather than a
+// lookup at its own (blurred) coordinates. timeline_events.created_by
+// is left null — these are system-generated, not attributed to the
+// signed-in user whose session happened to trigger the check.
 export async function checkExtremeWeatherForCaretaker(userId: string): Promise<void> {
   const weather = await getWeatherAt(NATAL_COORDS.lat, NATAL_COORDS.lon);
   if (!weather) return;
 
   const isExtremeCold = weather.temperatureCelsius < 10;
   const isExtremeHeat = weather.temperatureCelsius > 32;
-  if (!isExtremeCold && !isExtremeHeat) return;
+  if (!isExtremeCold && !isExtremeHeat && !weather.isHeavyRain) return;
 
   const { data: caretakerRows } = await supabase
     .from("caretakers")
@@ -68,12 +71,21 @@ export async function checkExtremeWeatherForCaretaker(userId: string): Promise<v
   todayStart.setHours(0, 0, 0, 0);
 
   const roundedTemp = Math.round(weather.temperatureCelsius);
-  const message = isExtremeCold
+  const notificationMessage = isExtremeCold
     ? `Está fazendo ${roundedTemp}°C — frio extremo para os gatos de`
-    : `Está fazendo ${roundedTemp}°C — calor extremo para os gatos de`;
+    : isExtremeHeat
+      ? `Está fazendo ${roundedTemp}°C — calor extremo para os gatos de`
+      : `Chuva forte registrada perto de`;
+
+  const timelineEventType = isExtremeCold ? "extreme_cold" : isExtremeHeat ? "extreme_heat" : "heavy_rain";
+  const timelineDescription = isExtremeCold
+    ? `🌡️ Frio extremo registrado — ${roundedTemp}°C`
+    : isExtremeHeat
+      ? `🌡️ Calor extremo registrado — ${roundedTemp}°C`
+      : `🌧️ Chuva forte registrada`;
 
   for (const colony of colonies) {
-    const { data: existing } = await supabase
+    const { data: existingNotification } = await supabase
       .from("notifications")
       .select("id")
       .eq("user_id", userId)
@@ -82,14 +94,31 @@ export async function checkExtremeWeatherForCaretaker(userId: string): Promise<v
       .gte("created_at", todayStart.toISOString())
       .maybeSingle();
 
-    if (existing) continue;
+    if (!existingNotification) {
+      await supabase.from("notifications").insert({
+        user_id: userId,
+        colony_id: colony.id,
+        type: "extreme_weather",
+        message: `${notificationMessage} ${colony.name}. Considere checar comida, água e abrigo.`,
+      });
+    }
 
-    await supabase.from("notifications").insert({
-      user_id: userId,
-      colony_id: colony.id,
-      type: "extreme_weather",
-      message: `${message} ${colony.name}. Considere checar comida, água e abrigo.`,
-    });
+    const { data: existingEvent } = await supabase
+      .from("timeline_events")
+      .select("id")
+      .eq("colony_id", colony.id)
+      .eq("event_type", timelineEventType)
+      .gte("created_at", todayStart.toISOString())
+      .maybeSingle();
+
+    if (!existingEvent) {
+      await supabase.from("timeline_events").insert({
+        colony_id: colony.id,
+        event_type: timelineEventType,
+        description: timelineDescription,
+        created_by: null,
+      });
+    }
   }
 }
 

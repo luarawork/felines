@@ -89,7 +89,15 @@ const EVENT_TYPE_LABELS: Record<string, string> = {
   relocation: "Mudança de local",
   photo_update: "Foto da colônia",
   other: "Outra atualização",
+  extreme_heat: "🌡️ Calor extremo",
+  extreme_cold: "🌡️ Frio extremo",
+  heavy_rain: "🌧️ Chuva forte",
 };
+
+// System-generated events (weather, automated detections) — rendered
+// with lighter styling than user actions so they don't visually compete
+// with what a caretaker actually did.
+const SYSTEM_EVENT_TYPES = new Set(["extreme_heat", "extreme_cold", "heavy_rain"]);
 
 function eventTypeLabel(eventType: string): string {
   return EVENT_TYPE_LABELS[eventType] ?? eventType.replace(/_/g, " ");
@@ -220,11 +228,13 @@ export default async function ColonyDetailPage({
     { data: weeklyFeedingRows },
     { data: monthlyReportRows },
     { data: reportBreakdownRows },
+    { data: monthlyWeatherRows },
   ] = await Promise.all([
     supabase.rpc("get_colony_stats", { p_colony_id: id }),
     supabase.rpc("get_colony_feeding_weekly", { p_colony_id: id }),
     supabase.rpc("get_colony_reports_monthly", { p_colony_id: id }),
     supabase.rpc("get_colony_report_breakdown", { p_colony_id: id }),
+    supabase.rpc("get_colony_weather_monthly", { p_colony_id: id }),
   ]);
 
   const colonyStats = statsRows?.[0] ?? {
@@ -235,6 +245,7 @@ export default async function ColonyDetailPage({
     total_reports_resolved: 0,
     total_caretakers: 0,
     total_timeline_events: 0,
+    total_weather_events: 0,
     days_since_registered: 0,
   };
 
@@ -349,8 +360,20 @@ export default async function ColonyDetailPage({
           {(timelineEvents as TimelineEvent[]).map((event, index) => (
             <Reveal key={event.id} delayMs={Math.min(index, 8) * 60}>
               <li>
-                <div className="rounded-xl border border-felines-border bg-felines-surface p-4">
-                  <p className="text-sm font-medium text-felines-text-primary">
+                <div
+                  className={`rounded-xl border p-4 ${
+                    SYSTEM_EVENT_TYPES.has(event.event_type)
+                      ? "border-felines-border/60 bg-felines-surface/60"
+                      : "border-felines-border bg-felines-surface"
+                  }`}
+                >
+                  <p
+                    className={`text-sm font-medium ${
+                      SYSTEM_EVENT_TYPES.has(event.event_type)
+                        ? "text-felines-text-secondary"
+                        : "text-felines-text-primary"
+                    }`}
+                  >
                     {eventTypeLabel(event.event_type)}
                   </p>
                   {event.description && (
@@ -506,6 +529,7 @@ export default async function ColonyDetailPage({
                     weeklyFeedings={weeklyFeedingRows ?? []}
                     monthlyReports={monthlyReportRows ?? []}
                     reportBreakdown={reportBreakdownRows ?? []}
+                    monthlyWeather={monthlyWeatherRows ?? []}
                     colonyCreatedAt={colony.created_at}
                     timelineEvents={timelineEvents ?? []}
                   />
