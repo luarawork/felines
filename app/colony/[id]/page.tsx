@@ -209,7 +209,7 @@ export default async function ColonyDetailPage({
                       <p className="mt-1 text-xs text-felines-warning">
                         Ninguém viu {cat.name ?? "ele"} há um tempo. Sabe se ele está bem?
                       </p>
-                      <MarkCatSeenButton catId={cat.id} catName={cat.name ?? "esse gato"} />
+                      <MarkCatSeenButton catId={cat.id} catName={cat.name ?? "esse gato"} colonyId={colony.id} />
                     </>
                   )}
                 </div>

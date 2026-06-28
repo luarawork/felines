@@ -82,6 +82,8 @@ export default function TimelineEventForm({ colonyId }: { colonyId: string }) {
       return;
     }
 
+    await supabase.rpc("record_care_streak", { p_colony_id: colonyId });
+
     setDescription("");
     setPhotoFile(null);
     setSubmitted(true);

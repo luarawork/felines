@@ -63,6 +63,10 @@ export default function ColonyActions({ colonyId }: { colonyId: string }) {
       created_by: session.user.id,
     });
 
+    // No-ops server-side if the signed-in user isn't actually a
+    // caretaker of this colony (see record_care_streak, 0043).
+    await supabase.rpc("record_care_streak", { p_colony_id: colonyId });
+
     if (type === "food") setFoodLogged(true);
     else setWaterLogged(true);
     router.refresh();

@@ -157,6 +157,8 @@ export default function CatManager({ colonyId }: { colonyId: string }) {
       return;
     }
 
+    await supabase.rpc("record_care_streak", { p_colony_id: colonyId });
+
     setCats((previous) =>
       previous.map((item) => (item.id === catId ? { ...item, last_seen: now } : item))
     );

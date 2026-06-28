@@ -59,6 +59,8 @@ export default function ProfileContent() {
   const [confirmationsGiven, setConfirmationsGiven] = useState<ConfirmationRecord[]>([]);
   const [thanksSent, setThanksSent] = useState<ThankYouRecord[]>([]);
   const [thanksReceived, setThanksReceived] = useState<ThankYouRecord[]>([]);
+  const [currentStreak, setCurrentStreak] = useState(0);
+  const [longestStreak, setLongestStreak] = useState(0);
 
   useEffect(() => {
     async function loadProfile() {
@@ -78,6 +80,14 @@ export default function ProfileContent() {
       const currentDisplayName = await getDisplayName(session.user.id);
       setDisplayName(currentDisplayName ?? "");
       setAvatarUrl(await getAvatarUrl(session.user.id));
+
+      const { data: streakRow } = await supabase
+        .from("profiles")
+        .select("current_streak, longest_streak")
+        .eq("id", session.user.id)
+        .maybeSingle();
+      setCurrentStreak(streakRow?.current_streak ?? 0);
+      setLongestStreak(streakRow?.longest_streak ?? 0);
 
       const [{ data: feedingRows }, { data: caretakerRows }, { data: progressRows }, { data: createdColonyRows }] =
         await Promise.all([
@@ -395,6 +405,26 @@ export default function ProfileContent() {
                   {avatarError && <p className="mt-1 text-xs text-felines-emergency">{avatarError}</p>}
                 </div>
               </div>
+            </div>
+          </Reveal>
+
+          {/* Personal motivation, not competition — never shown on the
+              public profile (/u/:id) or anywhere else visible to
+              other people. */}
+          <Reveal delayMs={60}>
+            <div className="mt-6 inline-flex flex-wrap items-center gap-4 rounded-xl border border-felines-border bg-felines-surface px-4 py-3">
+              {currentStreak > 1 ? (
+                <p className="text-sm font-semibold text-felines-accent">
+                  🔥 {currentStreak} {currentStreak === 1 ? "dia" : "dias"} de sequência
+                </p>
+              ) : (
+                <p className="text-sm text-felines-text-secondary">Comece sua sequência hoje</p>
+              )}
+              {longestStreak > 1 && (
+                <p className="text-xs text-felines-text-secondary">
+                  Melhor sequência: {longestStreak} {longestStreak === 1 ? "dia" : "dias"}
+                </p>
+              )}
             </div>
           </Reveal>
 
