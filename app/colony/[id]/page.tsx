@@ -12,6 +12,8 @@ import { notFound } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import ShareButton from "@/components/ShareButton";
 import ShareStoryButton from "@/components/ShareStoryButton";
+import HelpRequestButton from "@/components/HelpRequestButton";
+import HelpRequestBanner from "@/components/HelpRequestBanner";
 import ColonyActions from "@/components/ColonyActions";
 import WeatherBanner from "@/components/WeatherBanner";
 import CatManager from "@/components/CatManager";
@@ -163,6 +165,22 @@ export default async function ColonyDetailPage({
     .select("id, event_type, description, photo_url, created_at, created_by")
     .eq("colony_id", id)
     .order("created_at", { ascending: false });
+
+  // Most urgent, most recent active request — banner shows one at a
+  // time. "Active" means open AND not past its 7-day expiry; there's no
+  // backend job flipping status automatically, so this filter is what
+  // actually enforces the expiry.
+  const { data: activeHelpRequestRows } = await supabase
+    .from("help_requests")
+    .select("id, type, description, urgency")
+    .eq("colony_id", id)
+    .eq("status", "open")
+    .gt("expires_at", new Date().toISOString())
+    .order("urgency", { ascending: false }) // "urgent" sorts before "normal" alphabetically
+    .order("created_at", { ascending: false })
+    .limit(1);
+
+  const activeHelpRequest = activeHelpRequestRows?.[0] ?? null;
 
   // caretakers.user_id and timeline_events.created_by both reference
   // auth.users, not profiles, so PostgREST can't embed profiles in
@@ -404,6 +422,8 @@ export default async function ColonyDetailPage({
         </div>
 
         <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6">
+          {activeHelpRequest && <HelpRequestBanner request={activeHelpRequest} />}
+
           <div className="mb-6 flex flex-wrap items-start justify-between gap-3">
             <div className="flex-1">
               <WeatherBanner lat={colony.latitude_blurred} lon={colony.longitude_blurred} />
@@ -463,8 +483,9 @@ export default async function ColonyDetailPage({
           {/* Available actions, scoped by the visitor's access level */}
           <ColonyActions colonyId={colony.id} />
 
-          <div className="mt-3">
+          <div className="mt-3 flex flex-wrap gap-3">
             <ShareStoryButton colonyId={colony.id} />
+            <HelpRequestButton colonyId={colony.id} />
           </div>
 
           <ColonyTabs

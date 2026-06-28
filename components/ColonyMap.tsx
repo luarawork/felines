@@ -145,6 +145,25 @@ function buildPinIcon(color: string, size: number, pulsing = false, icon = "") {
 }
 
 const colonyIcon = buildPinIcon("#C4704F", 22);
+
+// Colony pins with an active help request get a small corner badge —
+// amber for normal urgency, red (pulsing) for urgent. Only three
+// possible variants, so these are built once instead of per-colony.
+function buildColonyIconWithBadge(urgency: "normal" | "urgent"): L.DivIcon {
+  const badgeColor = urgency === "urgent" ? "#C0392B" : "#E8A838";
+  const badgeClass = urgency === "urgent" ? "felines-pin-pulse" : "";
+  return L.divIcon({
+    className: "",
+    html: `<span style="position:relative;display:inline-block;width:22px;height:22px;">
+      <span class="felines-pin" style="background:#C4704F;width:22px;height:22px;display:flex;align-items:center;justify-content:center;"></span>
+      <span class="${badgeClass}" style="position:absolute;top:-3px;right:-3px;width:10px;height:10px;border-radius:50%;background:${badgeColor};border:1.5px solid white;"></span>
+    </span>`,
+    iconSize: [22, 22],
+    iconAnchor: [11, 11],
+  });
+}
+const colonyIconWithNormalHelpBadge = buildColonyIconWithBadge("normal");
+const colonyIconWithUrgentHelpBadge = buildColonyIconWithBadge("urgent");
 const sightingIcon = buildPinIcon("#6B6B6B", 14);
 const emergencyIcon = buildPinIcon("#C0392B", 22, true);
 
@@ -228,6 +247,11 @@ export default function ColonyMap({
   const [emergencies, setEmergencies] = useState<EmergencyReport[]>([]);
   const [sightings, setSightings] = useState<EmergencyReport[]>([]);
   const [suggestedColonies, setSuggestedColonies] = useState<SuggestedColony[]>([]);
+  // Most urgent active help request per colony, if any — drives the
+  // small badge on colony pins.
+  const [helpUrgencyByColonyId, setHelpUrgencyByColonyId] = useState<
+    Map<string, "normal" | "urgent">
+  >(new Map());
 
   const [session, setSession] = useState<Session | null>(null);
   // Colony ids the current user is a linked caretaker of (or created).
@@ -289,6 +313,20 @@ export default function ColonyMap({
         .from("suggested_colonies")
         .select("id, latitude, longitude, sighting_count");
       if (suggestedData) setSuggestedColonies(suggestedData as SuggestedColony[]);
+
+      const { data: helpRequestRows } = await supabase
+        .from("help_requests")
+        .select("colony_id, urgency")
+        .eq("status", "open")
+        .gt("expires_at", new Date().toISOString());
+      const urgencyMap = new Map<string, "normal" | "urgent">();
+      (helpRequestRows ?? []).forEach((row) => {
+        const current = urgencyMap.get(row.colony_id);
+        if (row.urgency === "urgent" || !current) {
+          urgencyMap.set(row.colony_id, row.urgency as "normal" | "urgent");
+        }
+      });
+      setHelpUrgencyByColonyId(urgencyMap);
 
       // cats is public-readable (cats_select_public), so this is safe
       // to fetch regardless of session — one query for every colony's
@@ -585,11 +623,18 @@ export default function ColonyMap({
           // "the colony is exactly here," which is the one thing blur
           // exists to prevent. Only level 3 (exact location) gets a pin.
           if (level === 3) {
+            const helpUrgency = helpUrgencyByColonyId.get(colony.id);
+            const icon =
+              helpUrgency === "urgent"
+                ? colonyIconWithUrgentHelpBadge
+                : helpUrgency === "normal"
+                  ? colonyIconWithNormalHelpBadge
+                  : colonyIcon;
             return (
               <Marker
                 key={colony.id}
                 position={position}
-                icon={colonyIcon}
+                icon={icon}
                 eventHandlers={{ click: handleColonyPinClick }}
               >
                 {popupContent}

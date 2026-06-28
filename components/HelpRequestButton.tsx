@@ -1,0 +1,181 @@
+// Trigger + modal for a caretaker to post a time-bound help request for
+// their colony. Gated by canManage, same pattern as ShareStoryButton/
+// EditColonyButton.
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { supabase } from "@/lib/supabaseClient";
+import { useColonyAccessContext } from "@/components/ColonyAccessProvider";
+import { useEscapeToClose } from "@/lib/useEscapeToClose";
+import { HELP_REQUEST_TYPES } from "@/lib/helpRequestTypes";
+
+export default function HelpRequestButton({ colonyId }: { colonyId: string }) {
+  const router = useRouter();
+  const { session, canManage, checkingAccess } = useColonyAccessContext();
+  const [open, setOpen] = useState(false);
+  const [type, setType] = useState(HELP_REQUEST_TYPES[0].value);
+  const [description, setDescription] = useState("");
+  const [urgency, setUrgency] = useState<"normal" | "urgent">("normal");
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [submitted, setSubmitted] = useState(false);
+
+  useEscapeToClose(open, () => setOpen(false));
+
+  async function handleSubmit(formEvent: React.FormEvent) {
+    formEvent.preventDefault();
+    setError(null);
+
+    if (!description.trim()) {
+      setError("Descreva o que a colônia precisa.");
+      return;
+    }
+    if (!session) return;
+
+    setSubmitting(true);
+    const { error: insertError } = await supabase.from("help_requests").insert({
+      colony_id: colonyId,
+      created_by: session.user.id,
+      type,
+      description: description.trim(),
+      urgency,
+    });
+    setSubmitting(false);
+
+    if (insertError) {
+      setError("O pedido não foi enviado. Tenta de novo?");
+      return;
+    }
+
+    setSubmitted(true);
+    router.refresh();
+  }
+
+  if (checkingAccess || !canManage) return null;
+
+  return (
+    <>
+      <button
+        onClick={() => setOpen(true)}
+        className="rounded-full border border-felines-border px-4 py-2 text-sm font-medium text-felines-text-secondary transition-colors hover:border-felines-accent hover:text-felines-accent-hover"
+      >
+        Pedir ajuda à comunidade →
+      </button>
+
+      {open && (
+        <div
+          className="fixed inset-0 z-[2000] flex items-center justify-center bg-black/40 p-4"
+          onClick={() => setOpen(false)}
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="help-request-title"
+            className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-xl bg-felines-background p-6 shadow-xl"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="flex items-start justify-between">
+              <h2 id="help-request-title" className="text-lg font-bold text-felines-text-primary">
+                Pedir ajuda à comunidade
+              </h2>
+              <button
+                onClick={() => setOpen(false)}
+                aria-label="Fechar"
+                className="flex h-11 w-11 flex-shrink-0 items-center justify-center text-xl leading-none text-felines-text-secondary hover:text-felines-text-primary"
+              >
+                ×
+              </button>
+            </div>
+
+            {submitted ? (
+              <div className="mt-4">
+                <p className="rounded-lg border border-felines-success bg-felines-success/10 px-4 py-3 text-sm text-felines-success">
+                  Pedido publicado. Fica visível por 7 dias, ou até alguém marcar como resolvido.
+                </p>
+                <button
+                  onClick={() => setOpen(false)}
+                  className="mt-3 text-sm font-medium text-felines-text-secondary hover:text-felines-text-primary"
+                >
+                  Fechar
+                </button>
+              </div>
+            ) : (
+              <form onSubmit={handleSubmit} className="mt-4 space-y-3">
+                <div>
+                  <label htmlFor="help-type" className="block text-xs font-medium text-felines-text-secondary">
+                    Tipo de ajuda
+                  </label>
+                  <select
+                    id="help-type"
+                    value={type}
+                    onChange={(event) => setType(event.target.value)}
+                    className="mt-1 w-full rounded-md border border-felines-border bg-white px-3 py-2 text-sm"
+                  >
+                    {HELP_REQUEST_TYPES.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.icon} {option.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label htmlFor="help-description" className="block text-xs font-medium text-felines-text-secondary">
+                    Descrição
+                  </label>
+                  <textarea
+                    id="help-description"
+                    value={description}
+                    onChange={(event) => setDescription(event.target.value)}
+                    maxLength={200}
+                    rows={3}
+                    className="mt-1 w-full rounded-md border border-felines-border bg-white px-3 py-2 text-sm"
+                  />
+                </div>
+
+                <div>
+                  <span className="block text-xs font-medium text-felines-text-secondary">Urgência</span>
+                  <div className="mt-1 flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setUrgency("normal")}
+                      className={`rounded-full border px-3 py-1 text-xs font-medium ${
+                        urgency === "normal"
+                          ? "border-felines-accent bg-felines-accent-light text-felines-text-primary"
+                          : "border-felines-border text-felines-text-secondary"
+                      }`}
+                    >
+                      Normal
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setUrgency("urgent")}
+                      className={`rounded-full border px-3 py-1 text-xs font-medium ${
+                        urgency === "urgent"
+                          ? "border-felines-emergency bg-felines-emergency text-white"
+                          : "border-felines-border text-felines-text-secondary"
+                      }`}
+                    >
+                      Urgente
+                    </button>
+                  </div>
+                </div>
+
+                {error && <p className="text-sm text-felines-emergency">{error}</p>}
+
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className="rounded-full bg-felines-accent px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-felines-accent-hover disabled:opacity-50"
+                >
+                  {submitting ? "Enviando..." : "Publicar pedido"}
+                </button>
+              </form>
+            )}
+          </div>
+        </div>
+      )}
+    </>
+  );
+}

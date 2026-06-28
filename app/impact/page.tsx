@@ -14,6 +14,7 @@ import Reveal from "@/components/Reveal";
 import CountUpStat from "@/components/CountUpStat";
 import MapShell from "@/components/MapShell";
 import ShareButton from "@/components/ShareButton";
+import { getHelpRequestTypeIcon, getHelpRequestTypeLabel } from "@/lib/helpRequestTypes";
 
 // These are live counts, not content that should be baked in at build
 // time — without this, Next.js would statically render the page once
@@ -98,10 +99,26 @@ function describeActivity(kind: string): string {
 }
 
 export default async function ImpactPage() {
-  const [{ data: statsRows }, { data: activityRows }] = await Promise.all([
+  const [{ data: statsRows }, { data: activityRows }, { data: helpRequestRows }] = await Promise.all([
     supabase.rpc("get_platform_impact_stats"),
     supabase.rpc("get_recent_platform_activity", { p_limit: 20 }),
+    supabase
+      .from("help_requests")
+      .select("id, colony_id, type, description, urgency, created_at, colonies(name)")
+      .eq("status", "open")
+      .gt("expires_at", new Date().toISOString())
+      .order("created_at", { ascending: false })
+      .limit(10),
   ]);
+
+  const activeHelpRequests = (helpRequestRows ?? []).map((row) => ({
+    id: row.id,
+    colonyId: row.colony_id,
+    colonyName: (row.colonies as unknown as { name: string } | null)?.name ?? "Colônia",
+    type: row.type,
+    description: row.description,
+    urgency: row.urgency as "normal" | "urgent",
+  }));
 
   const stats = (statsRows?.[0] as PlatformStats | undefined) ?? {
     total_colonies: 0,
@@ -190,6 +207,42 @@ export default async function ImpactPage() {
           </Reveal>
         </div>
       </section>
+
+      {/* Active help requests */}
+      {activeHelpRequests.length > 0 && (
+        <section className="bg-felines-surface py-20">
+          <div className="mx-auto max-w-6xl px-4 sm:px-6">
+            <Reveal>
+              <p className="text-xs font-semibold uppercase tracking-[0.1em] text-felines-accent-hover">
+                Quem precisa de uma mão
+              </p>
+              <h2 className="mt-3 text-3xl font-bold leading-tight text-felines-text-primary">
+                Necessidades da comunidade agora
+              </h2>
+            </Reveal>
+            <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {activeHelpRequests.map((request, index) => (
+                <Reveal key={request.id} delayMs={index * 60}>
+                  <Link
+                    href={`/colony/${request.colonyId}`}
+                    className={`block h-full rounded-2xl border p-5 transition-all duration-200 hover:-translate-y-1 ${
+                      request.urgency === "urgent"
+                        ? "border-felines-emergency bg-felines-emergency/5"
+                        : "border-felines-border bg-felines-background"
+                    }`}
+                  >
+                    <p className="text-sm font-semibold text-felines-text-primary">
+                      {getHelpRequestTypeIcon(request.type)} {getHelpRequestTypeLabel(request.type)}
+                    </p>
+                    <p className="mt-1 text-sm text-felines-text-secondary">{request.description}</p>
+                    <p className="mt-2 text-xs font-medium text-felines-accent-hover">{request.colonyName}</p>
+                  </Link>
+                </Reveal>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Recent activity feed */}
       <section className="bg-felines-surface py-20">
