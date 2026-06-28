@@ -14,6 +14,7 @@ import ShareButton from "@/components/ShareButton";
 import ShareStoryButton from "@/components/ShareStoryButton";
 import HelpRequestButton from "@/components/HelpRequestButton";
 import HelpRequestBanner from "@/components/HelpRequestBanner";
+import FollowColonyButton from "@/components/FollowColonyButton";
 import ColonyActions from "@/components/ColonyActions";
 import WeatherBanner from "@/components/WeatherBanner";
 import CatManager from "@/components/CatManager";
@@ -467,6 +468,10 @@ export default async function ColonyDetailPage({
               </div>
             </Reveal>
           )}
+
+          <div className="mt-4">
+            <FollowColonyButton colonyId={colony.id} />
+          </div>
 
           <Reveal delayMs={80}>
             {colony.narrative && (

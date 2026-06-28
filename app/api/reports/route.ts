@@ -82,5 +82,19 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "O relato não foi enviado. Tenta de novo?" }, { status: 400 });
   }
 
+  // Notifies the colony's followers with a summary only, never the
+  // free-text description — and only for signed-in reporters, since
+  // notify_followers is granted to `authenticated`, not `anon` (an
+  // anonymous caller could otherwise spam arbitrary fan-out messages to
+  // every follower of any colony, since p_message has no server-side
+  // content check beyond what we pass it here).
+  if (isAuthenticated && colony_id) {
+    await supabase.rpc("notify_followers", {
+      p_colony_id: colony_id,
+      p_type: "report_submitted",
+      p_message: "Um novo relato foi feito em uma colônia que você segue.",
+    });
+  }
+
   return NextResponse.json({ data });
 }

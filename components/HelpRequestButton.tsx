@@ -8,7 +8,7 @@ import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import { useColonyAccessContext } from "@/components/ColonyAccessProvider";
 import { useEscapeToClose } from "@/lib/useEscapeToClose";
-import { HELP_REQUEST_TYPES } from "@/lib/helpRequestTypes";
+import { HELP_REQUEST_TYPES, getHelpRequestTypeLabel } from "@/lib/helpRequestTypes";
 
 export default function HelpRequestButton({ colonyId }: { colonyId: string }) {
   const router = useRouter();
@@ -47,6 +47,12 @@ export default function HelpRequestButton({ colonyId }: { colonyId: string }) {
       setError("O pedido não foi enviado. Tenta de novo?");
       return;
     }
+
+    await supabase.rpc("notify_followers", {
+      p_colony_id: colonyId,
+      p_type: "help_request_posted",
+      p_message: `Uma colônia que você segue precisa de ajuda: ${getHelpRequestTypeLabel(type)}.`,
+    });
 
     setSubmitted(true);
     router.refresh();

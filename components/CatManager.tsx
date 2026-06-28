@@ -118,6 +118,12 @@ export default function CatManager({ colonyId }: { colonyId: string }) {
       created_by: session.user.id,
     });
 
+    await supabase.rpc("notify_followers", {
+      p_colony_id: colonyId,
+      p_type: "new_cat",
+      p_message: `${name.trim()} foi adicionado a uma colônia que você segue.`,
+    });
+
     setCats((previous) => [newCat as ManagedCat, ...previous]);
     setName("");
     setCastrated(false);
@@ -148,6 +154,17 @@ export default function CatManager({ colonyId }: { colonyId: string }) {
         created_by: session.user.id,
       });
       await supabase.rpc("record_care_streak", { p_colony_id: colonyId });
+
+      // Castration milestone: this toggle is the one that brings every
+      // registered cat to castrated=true.
+      const allNowCastrated = cats.every((item) => item.id === cat.id || item.castrated);
+      if (allNowCastrated && cats.length > 0) {
+        await supabase.rpc("notify_followers", {
+          p_colony_id: colonyId,
+          p_type: "castration_milestone",
+          p_message: "Uma colônia que você segue agora está totalmente castrada!",
+        });
+      }
     }
 
     setCats((previous) =>

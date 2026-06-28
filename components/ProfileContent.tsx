@@ -43,6 +43,7 @@ export default function ProfileContent() {
   const [memberSince, setMemberSince] = useState<string | null>(null);
   const [feedings, setFeedings] = useState<FeedingRecord[]>([]);
   const [linkedColonies, setLinkedColonies] = useState<LinkedColony[]>([]);
+  const [followedColonies, setFollowedColonies] = useState<LinkedColony[]>([]);
   const [createdColonies, setCreatedColonies] = useState<CreatedColonyRecord[]>([]);
   const [caretakerLinks, setCaretakerLinks] = useState<CaretakerLinkRecord[]>([]);
   const [readSlugs, setReadSlugs] = useState<string[]>([]);
@@ -129,6 +130,18 @@ export default function ProfileContent() {
       }
 
       if (createdColonyRows) setCreatedColonies(createdColonyRows as CreatedColonyRecord[]);
+
+      const { data: followerRows } = await supabase
+        .from("colony_followers")
+        .select("colonies(id, name)")
+        .eq("user_id", session.user.id);
+      if (followerRows) {
+        setFollowedColonies(
+          followerRows
+            .map((row) => row.colonies as unknown as LinkedColony | null)
+            .filter((colony): colony is LinkedColony => colony !== null)
+        );
+      }
 
       if (progressRows) {
         setReadSlugs(Array.from(new Set(progressRows.map((row) => row.article_slug))));
@@ -482,6 +495,38 @@ export default function ProfileContent() {
           )}
         </div>
       </section>
+
+      {/* Followed colonies — same card style as linked colonies, with a
+          "Seguindo" badge instead of a caretaker-specific stat. */}
+      {followedColonies.length > 0 && (
+        <section className="bg-felines-background py-16">
+          <div className="mx-auto max-w-6xl px-4 sm:px-6">
+            <Reveal>
+              <p className="text-xs font-semibold uppercase tracking-[0.1em] text-felines-accent-hover">
+                Acompanhando
+              </p>
+              <h2 className="mt-3 text-3xl font-bold leading-tight text-felines-text-primary">
+                Colônias que você segue
+              </h2>
+            </Reveal>
+            <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {followedColonies.map((colony, index) => (
+                <Reveal key={colony.id} delayMs={index * 80}>
+                  <Link
+                    href={`/colony/${colony.id}`}
+                    className="block h-full rounded-2xl border border-felines-border bg-felines-surface p-5 shadow-[0_2px_8px_rgba(0,0,0,0.05)] transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_8px_24px_rgba(0,0,0,0.10)]"
+                  >
+                    <p className="font-semibold text-felines-text-primary">{colony.name}</p>
+                    <p className="mt-2 inline-block rounded-full bg-felines-accent-light px-2 py-0.5 text-xs font-medium text-felines-accent-hover">
+                      Seguindo
+                    </p>
+                  </Link>
+                </Reveal>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Knowledge — progress, article badges, quiz */}
       <section className="bg-felines-background py-16">
