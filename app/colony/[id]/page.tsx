@@ -25,6 +25,7 @@ import Reveal from "@/components/Reveal";
 import RotatingSingleFact from "@/components/RotatingSingleFact";
 import TimelinePhoto from "@/components/TimelinePhoto";
 import ColonyMilestones from "@/components/ColonyMilestones";
+import ColonyStatsTab from "@/components/ColonyStatsTab";
 import ActionThanksButton from "@/components/ActionThanksButton";
 import Link from "next/link";
 
@@ -158,6 +159,32 @@ export default async function ColonyDetailPage({
   function authorAvatar(userId: string) {
     return (authorProfiles ?? []).find((profile) => profile.id === userId)?.avatar_url ?? null;
   }
+
+  // Powers the "Relatórios" tab. All four are SECURITY DEFINER RPCs
+  // (0046) returning aggregates only, scoped to this one colony — not a
+  // direct select, since feedings has no anon SELECT policy at all.
+  const [
+    { data: statsRows },
+    { data: weeklyFeedingRows },
+    { data: monthlyReportRows },
+    { data: reportBreakdownRows },
+  ] = await Promise.all([
+    supabase.rpc("get_colony_stats", { p_colony_id: id }),
+    supabase.rpc("get_colony_feeding_weekly", { p_colony_id: id }),
+    supabase.rpc("get_colony_reports_monthly", { p_colony_id: id }),
+    supabase.rpc("get_colony_report_breakdown", { p_colony_id: id }),
+  ]);
+
+  const colonyStats = statsRows?.[0] ?? {
+    total_cats: 0,
+    cats_castrated: 0,
+    total_feedings: 0,
+    total_reports: 0,
+    total_reports_resolved: 0,
+    total_caretakers: 0,
+    total_timeline_events: 0,
+    days_since_registered: 0,
+  };
 
   const caretakers = caretakerUserIds.map((userId) => ({
     userId,
@@ -404,6 +431,20 @@ export default async function ColonyDetailPage({
             tabs={[
               { id: "cats", label: "Gatos", content: catsSection },
               { id: "timeline", label: "Linha do tempo", content: timelineSection },
+              {
+                id: "reports",
+                label: "Relatórios",
+                content: (
+                  <ColonyStatsTab
+                    stats={colonyStats}
+                    weeklyFeedings={weeklyFeedingRows ?? []}
+                    monthlyReports={monthlyReportRows ?? []}
+                    reportBreakdown={reportBreakdownRows ?? []}
+                    colonyCreatedAt={colony.created_at}
+                    timelineEvents={timelineEvents ?? []}
+                  />
+                ),
+              },
               {
                 id: "letter",
                 label: "Carta de quem cuidou antes",

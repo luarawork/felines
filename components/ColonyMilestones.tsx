@@ -4,13 +4,13 @@
 // Pure presentation over already-fetched data (no client interactivity
 // needed; the horizontal scroll is plain CSS), so this stays a server
 // component like the rest of the colony page.
-type TimelineEventLike = {
+export type TimelineEventLike = {
   event_type: string;
   created_at: string;
   photo_url: string | null;
 };
 
-type Milestone = { emoji: string; label: string; date: Date };
+export type Milestone = { emoji: string; label: string; date: Date };
 
 const MS_PER_YEAR = 1000 * 60 * 60 * 24 * 365;
 
@@ -18,8 +18,10 @@ const MS_PER_YEAR = 1000 * 60 * 60 * 24 * 365;
 // no separate query needed. Threshold milestones (5 cats, 10 check-ins)
 // use the date of the event that crossed the threshold when available,
 // falling back to now for colonies whose history predates that event
-// type being logged.
-function computeMilestones(
+// type being logged. Exported so ColonyStatsTab can reuse it for the
+// compact milestones list in the Reports tab, instead of recomputing
+// the same logic twice.
+export function computeMilestones(
   colonyCreatedAt: string,
   catCount: number,
   timelineEvents: TimelineEventLike[]
