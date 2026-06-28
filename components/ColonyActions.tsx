@@ -66,6 +66,7 @@ export default function ColonyActions({ colonyId }: { colonyId: string }) {
     // No-ops server-side if the signed-in user isn't actually a
     // caretaker of this colony (see record_care_streak, 0043).
     await supabase.rpc("record_care_streak", { p_colony_id: colonyId });
+    await supabase.rpc("recalculate_colony_health", { p_colony_id: colonyId });
 
     if (type === "food") setFoodLogged(true);
     else setWaterLogged(true);
@@ -96,6 +97,8 @@ export default function ColonyActions({ colonyId }: { colonyId: string }) {
       created_by: session.user.id,
     });
 
+    await supabase.rpc("recalculate_colony_health", { p_colony_id: colonyId });
+
     setCaretakerJoined(true);
     refreshAccess();
     router.refresh();
@@ -117,6 +120,8 @@ export default function ColonyActions({ colonyId }: { colonyId: string }) {
       setActionError("Não consegui te desvincular agora. Tenta de novo?");
       return;
     }
+
+    await supabase.rpc("recalculate_colony_health", { p_colony_id: colonyId });
 
     setCaretakerJoined(false);
     refreshAccess();

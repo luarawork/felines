@@ -124,6 +124,8 @@ export default function CatManager({ colonyId }: { colonyId: string }) {
       p_message: `${name.trim()} foi adicionado a uma colônia que você segue.`,
     });
 
+    await supabase.rpc("recalculate_colony_health", { p_colony_id: colonyId });
+
     setCats((previous) => [newCat as ManagedCat, ...previous]);
     setName("");
     setCastrated(false);
@@ -167,6 +169,8 @@ export default function CatManager({ colonyId }: { colonyId: string }) {
       }
     }
 
+    await supabase.rpc("recalculate_colony_health", { p_colony_id: colonyId });
+
     setCats((previous) =>
       previous.map((item) => (item.id === cat.id ? { ...item, castrated: !item.castrated } : item))
     );
@@ -188,6 +192,7 @@ export default function CatManager({ colonyId }: { colonyId: string }) {
     }
 
     await supabase.rpc("record_care_streak", { p_colony_id: colonyId });
+    await supabase.rpc("recalculate_colony_health", { p_colony_id: colonyId });
 
     setCats((previous) =>
       previous.map((item) => (item.id === catId ? { ...item, last_seen: now } : item))

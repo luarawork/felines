@@ -30,6 +30,20 @@ type NeuteringRequestRecord = {
   status: "open" | "in_progress" | "completed";
   created_at: string;
 };
+type HealthBreakdown = {
+  feeding_score: number;
+  sighting_score: number;
+  castration_score: number;
+  reports_score: number;
+  caretaker_score: number;
+};
+
+const HEALTH_STATUS_LABELS: Record<string, string> = {
+  thriving: "🟢 Próspera",
+  stable: "🟡 Estável",
+  needs_attention: "🟠 Precisa de atenção",
+  at_risk: "🔴 Em risco",
+};
 
 function BarChart({
   data,
@@ -62,6 +76,9 @@ export default function ColonyStatsTab({
   reportBreakdown,
   monthlyWeather,
   neuteringRequests,
+  healthScore,
+  healthStatus,
+  healthBreakdown,
   colonyCreatedAt,
   timelineEvents,
 }: {
@@ -71,6 +88,9 @@ export default function ColonyStatsTab({
   reportBreakdown: ReportBreakdown[];
   monthlyWeather: MonthlyWeather[];
   neuteringRequests: NeuteringRequestRecord[];
+  healthScore: number;
+  healthStatus: string;
+  healthBreakdown: HealthBreakdown;
   colonyCreatedAt: string;
   timelineEvents: TimelineEventLike[];
 }) {
@@ -99,6 +119,36 @@ export default function ColonyStatsTab({
             <p className="mt-1 text-xs text-felines-text-secondary">{card.label}</p>
           </div>
         ))}
+      </div>
+
+      <div>
+        <p className="text-sm font-semibold text-felines-text-primary">
+          Índice de saúde: {healthScore}/100 — {HEALTH_STATUS_LABELS[healthStatus] ?? healthStatus}
+        </p>
+        <div className="mt-3 space-y-2">
+          {[
+            { label: "Alimentação recente (30%)", value: healthBreakdown.feeding_score, max: 30 },
+            { label: "Gatos vistos recentemente (25%)", value: healthBreakdown.sighting_score, max: 25 },
+            { label: "Taxa de castração (20%)", value: healthBreakdown.castration_score, max: 20 },
+            { label: "Relatos abertos (15%)", value: healthBreakdown.reports_score, max: 15 },
+            { label: "Cobertura de cuidadores (10%)", value: healthBreakdown.caretaker_score, max: 10 },
+          ].map((factor) => (
+            <div key={factor.label}>
+              <div className="flex items-center justify-between text-xs text-felines-text-secondary">
+                <span>{factor.label}</span>
+                <span>
+                  {Math.round(factor.value * 10) / 10}/{factor.max}
+                </span>
+              </div>
+              <div className="mt-1 h-2 w-full rounded-full bg-felines-border">
+                <div
+                  className="h-2 rounded-full bg-felines-accent"
+                  style={{ width: `${Math.max(2, (factor.value / factor.max) * 100)}%` }}
+                />
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
 
       <div>

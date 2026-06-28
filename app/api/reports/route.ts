@@ -96,5 +96,12 @@ export async function POST(request: NextRequest) {
     });
   }
 
+  // Unlike notify_followers, this is safe (and granted) for anon too —
+  // a report's sensitivity affects the colony's health score regardless
+  // of whether the reporter has an account.
+  if (colony_id) {
+    await supabase.rpc("recalculate_colony_health", { p_colony_id: colony_id });
+  }
+
   return NextResponse.json({ data });
 }

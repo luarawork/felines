@@ -35,6 +35,7 @@ export default function MarkCatSeenButton({
       // comment at the top of this file), but only a caretaker's streak
       // should move.
       await supabase.rpc("record_care_streak", { p_colony_id: colonyId });
+      await supabase.rpc("recalculate_colony_health", { p_colony_id: colonyId });
       setDone(true);
       router.refresh();
     }

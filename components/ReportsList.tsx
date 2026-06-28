@@ -245,6 +245,10 @@ export default function ReportsList() {
       });
     }
 
+    if (resolvedReport?.colony_id) {
+      await supabase.rpc("recalculate_colony_health", { p_colony_id: resolvedReport.colony_id });
+    }
+
     setReports((previous) =>
       previous.map((report) =>
         report.id === reportId ? { ...report, status: "resolved" as const } : report

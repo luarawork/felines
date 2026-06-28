@@ -71,6 +71,13 @@ const CASTRATION_LABELS: Record<string, string> = {
   full: "Todo mundo castrado",
 };
 
+const HEALTH_STATUS_LABELS: Record<string, string> = {
+  thriving: "🟢 Próspera",
+  stable: "🟡 Estável",
+  needs_attention: "🟠 Precisa de atenção",
+  at_risk: "🔴 Em risco",
+};
+
 // timeline_events.event_type has no check constraint (see
 // TimelineEventForm), so values come from a few different places —
 // this just needs to cover every value any of them actually inserts.
@@ -161,7 +168,7 @@ export default async function ColonyDetailPage({
   const { data: colony } = await supabase
     .from("colonies")
     .select(
-      "id, name, narrative, castration_status, cover_photo_url, latitude_blurred, longitude_blurred, created_at, verified_status, verified_at"
+      "id, name, narrative, castration_status, cover_photo_url, latitude_blurred, longitude_blurred, created_at, verified_status, verified_at, health_status, health_score"
     )
     .eq("id", id)
     .single();
@@ -258,13 +265,23 @@ export default async function ColonyDetailPage({
     { data: monthlyReportRows },
     { data: reportBreakdownRows },
     { data: monthlyWeatherRows },
+    { data: healthBreakdownRows },
   ] = await Promise.all([
     supabase.rpc("get_colony_stats", { p_colony_id: id }),
     supabase.rpc("get_colony_feeding_weekly", { p_colony_id: id }),
     supabase.rpc("get_colony_reports_monthly", { p_colony_id: id }),
     supabase.rpc("get_colony_report_breakdown", { p_colony_id: id }),
     supabase.rpc("get_colony_weather_monthly", { p_colony_id: id }),
+    supabase.rpc("get_colony_health_breakdown", { p_colony_id: id }),
   ]);
+
+  const healthBreakdown = healthBreakdownRows?.[0] ?? {
+    feeding_score: 0,
+    sighting_score: 0,
+    castration_score: 0,
+    reports_score: 0,
+    caretaker_score: 0,
+  };
 
   const colonyStats = statsRows?.[0] ?? {
     total_cats: 0,
@@ -473,9 +490,14 @@ export default async function ColonyDetailPage({
             <h1 className="text-3xl font-bold leading-tight text-white sm:text-[40px]">
               {colony.name}
             </h1>
-            <span className="mt-2 inline-block rounded-full bg-white/90 px-3 py-1 text-xs font-medium text-felines-text-primary">
-              {resolveCastrationLabel(colony.castration_status, (cats as Cat[] | null) ?? [])}
-            </span>
+            <div className="mt-2 flex flex-wrap gap-2">
+              <span className="inline-block rounded-full bg-white/90 px-3 py-1 text-xs font-medium text-felines-text-primary">
+                {resolveCastrationLabel(colony.castration_status, (cats as Cat[] | null) ?? [])}
+              </span>
+              <span className="inline-block rounded-full bg-white/90 px-3 py-1 text-xs font-medium text-felines-text-primary">
+                {HEALTH_STATUS_LABELS[colony.health_status] ?? colony.health_status}
+              </span>
+            </div>
           </div>
         </div>
 
@@ -589,6 +611,9 @@ export default async function ColonyDetailPage({
                     reportBreakdown={reportBreakdownRows ?? []}
                     monthlyWeather={monthlyWeatherRows ?? []}
                     neuteringRequests={neuteringHistoryRows ?? []}
+                    healthScore={colony.health_score}
+                    healthStatus={colony.health_status}
+                    healthBreakdown={healthBreakdown}
                     colonyCreatedAt={colony.created_at}
                     timelineEvents={timelineEvents ?? []}
                   />

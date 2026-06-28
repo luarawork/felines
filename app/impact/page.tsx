@@ -99,8 +99,13 @@ function describeActivity(kind: string): string {
 }
 
 export default async function ImpactPage() {
-  const [{ data: statsRows }, { data: activityRows }, { data: helpRequestRows }, { data: neuteringRows }] =
-    await Promise.all([
+  const [
+    { data: statsRows },
+    { data: activityRows },
+    { data: helpRequestRows },
+    { data: neuteringRows },
+    { data: colonyHealthRows },
+  ] = await Promise.all([
       supabase.rpc("get_platform_impact_stats"),
       supabase.rpc("get_recent_platform_activity", { p_limit: 20 }),
       supabase
@@ -111,6 +116,7 @@ export default async function ImpactPage() {
         .order("created_at", { ascending: false })
         .limit(10),
       supabase.from("neutering_requests").select("cats_count").neq("status", "completed"),
+      supabase.from("colonies").select("health_status"),
     ]);
 
   const activeHelpRequests = (helpRequestRows ?? []).map((row) => ({
@@ -123,6 +129,12 @@ export default async function ImpactPage() {
   }));
 
   const catsAwaitingNeutering = (neuteringRows ?? []).reduce((total, row) => total + row.cats_count, 0);
+
+  const healthCounts = { thriving: 0, stable: 0, needs_attention: 0, at_risk: 0 };
+  (colonyHealthRows ?? []).forEach((row) => {
+    const status = row.health_status as keyof typeof healthCounts;
+    if (status in healthCounts) healthCounts[status] += 1;
+  });
 
   const stats = (statsRows?.[0] as PlatformStats | undefined) ?? {
     total_colonies: 0,
@@ -267,6 +279,33 @@ export default async function ImpactPage() {
           </div>
         </section>
       )}
+
+      {/* Colony health overview */}
+      <section className="bg-felines-surface py-16">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6">
+          <Reveal>
+            <p className="text-xs font-semibold uppercase tracking-[0.1em] text-felines-accent-hover">
+              Saúde das colônias
+            </p>
+            <h2 className="mt-3 text-3xl font-bold leading-tight text-felines-text-primary">
+              Visão geral de saúde
+            </h2>
+          </Reveal>
+          <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-4">
+            {[
+              { label: "🟢 Prósperas", value: healthCounts.thriving },
+              { label: "🟡 Estáveis", value: healthCounts.stable },
+              { label: "🟠 Precisam de atenção", value: healthCounts.needs_attention },
+              { label: "🔴 Em risco", value: healthCounts.at_risk },
+            ].map((item) => (
+              <div key={item.label} className="text-center">
+                <p className="text-3xl font-bold text-felines-text-primary">{item.value}</p>
+                <p className="mt-1 text-xs text-felines-text-secondary">{item.label}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
 
       {/* Recent activity feed */}
       <section className="bg-felines-surface py-20">

@@ -58,6 +58,7 @@ type Colony = {
   castration_status: CastrationStatus;
   created_by: string | null;
   verified_status: "unverified" | "community_verified";
+  health_status: "thriving" | "stable" | "needs_attention" | "at_risk";
 };
 
 type SuggestedColony = {
@@ -201,6 +202,33 @@ const colonyIconWithWarning = L.divIcon({
   iconAnchor: [11, 11],
 });
 
+// "Mostrar saúde da colônia" overlay — a colored ring instead of the
+// usual badge system, swapped in entirely when the toggle is on rather
+// than combined with help/neutering/verification badges, to keep the
+// two visual languages from competing on the same pin.
+const HEALTH_RING_COLORS: Record<string, string> = {
+  thriving: "#2E7D32",
+  stable: "#E8A838",
+  needs_attention: "#E07B39",
+  at_risk: "#C0392B",
+};
+
+function buildHealthRingIcon(status: string): L.DivIcon {
+  const color = HEALTH_RING_COLORS[status] ?? HEALTH_RING_COLORS.stable;
+  return L.divIcon({
+    className: "",
+    html: `<span style="display:flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:#C4704F;border:3px solid ${color};"></span>`,
+    iconSize: [22, 22],
+    iconAnchor: [11, 11],
+  });
+}
+const healthRingIcons: Record<string, L.DivIcon> = {
+  thriving: buildHealthRingIcon("thriving"),
+  stable: buildHealthRingIcon("stable"),
+  needs_attention: buildHealthRingIcon("needs_attention"),
+  at_risk: buildHealthRingIcon("at_risk"),
+};
+
 const sightingIcon = buildPinIcon("#6B6B6B", 14);
 const emergencyIcon = buildPinIcon("#C0392B", 22, true);
 
@@ -325,6 +353,7 @@ export default function ColonyMap({
   // so the toggle is only offered once signed in.
   const [heatMapOn, setHeatMapOn] = useState(false);
   const [colonyNeedScores, setColonyNeedScores] = useState<Map<string, number>>(new Map());
+  const [showColonyHealth, setShowColonyHealth] = useState(false);
 
   function handleColonyPinClick() {
     if (!hasSeenColonyClickTooltip()) {
@@ -346,7 +375,7 @@ export default function ColonyMap({
       const { data: colonyData } = await supabase
         .from("colonies")
         .select(
-          "id, name, narrative, latitude_blurred, longitude_blurred, latitude_blurred_near, longitude_blurred_near, castration_status, created_by, verified_status"
+          "id, name, narrative, latitude_blurred, longitude_blurred, latitude_blurred_near, longitude_blurred_near, castration_status, created_by, verified_status, health_status"
         );
 
       if (colonyData) setColonies(colonyData as Colony[]);
@@ -622,6 +651,17 @@ export default function ColonyMap({
                 🟠 com relato aberto ou sem alimentação há 7+ dias · 🔴 os dois ao mesmo tempo
               </p>
             )}
+            <button
+              type="button"
+              onClick={() => setShowColonyHealth((previous) => !previous)}
+              className={`mt-2 w-full rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
+                showColonyHealth
+                  ? "border-felines-accent bg-felines-accent text-white"
+                  : "border-felines-border text-felines-text-secondary"
+              }`}
+            >
+              {showColonyHealth ? "Ocultar" : "Mostrar"} saúde da colônia
+            </button>
           </div>
         )}
       </div>
@@ -688,17 +728,19 @@ export default function ColonyMap({
           // exists to prevent. Only level 3 (exact location) gets a pin.
           if (level === 3) {
             const helpUrgency = helpUrgencyByColonyId.get(colony.id);
-            const icon = flaggedColonyIds.has(colony.id)
-              ? colonyIconWithWarning
-              : helpUrgency === "urgent"
-                ? colonyIconWithUrgentHelpBadge
-                : helpUrgency === "normal"
-                  ? colonyIconWithNormalHelpBadge
-                  : neuteringColonyIds.has(colony.id)
-                    ? colonyIconWithNeuteringBadge
-                    : colony.verified_status === "unverified"
-                      ? unverifiedColonyIcon
-                      : colonyIcon;
+            const icon = showColonyHealth
+              ? healthRingIcons[colony.health_status] ?? colonyIcon
+              : flaggedColonyIds.has(colony.id)
+                ? colonyIconWithWarning
+                : helpUrgency === "urgent"
+                  ? colonyIconWithUrgentHelpBadge
+                  : helpUrgency === "normal"
+                    ? colonyIconWithNormalHelpBadge
+                    : neuteringColonyIds.has(colony.id)
+                      ? colonyIconWithNeuteringBadge
+                      : colony.verified_status === "unverified"
+                        ? unverifiedColonyIcon
+                        : colonyIcon;
             return (
               <Marker
                 key={colony.id}
