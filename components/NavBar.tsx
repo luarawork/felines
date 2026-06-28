@@ -13,6 +13,7 @@ import { supabase } from "@/lib/supabaseClient";
 import { getAvatarUrl } from "@/lib/profile";
 import { checkExtremeWeatherForCaretaker, checkStaleCatsForCaretaker, getUnreadCount } from "@/lib/notifications";
 import { useHelpModal } from "@/components/HelpModalProvider";
+import GlobalSearchButton from "@/components/GlobalSearchButton";
 
 // Links shown in the main navigation, in display order. "Aprender" was
 // dropped since that content now lives on the home page itself.
@@ -134,6 +135,7 @@ export default function NavBar() {
         </ul>
 
         <div className="flex items-center gap-3">
+          <GlobalSearchButton />
           <button
             onClick={openHelpModal}
             className="felines-help-pulse rounded-full bg-felines-accent px-4 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-felines-accent-hover"
