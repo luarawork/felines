@@ -10,6 +10,7 @@ import type { Session } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabaseClient";
 import { RESOURCE_CATEGORIES, getResourceCategoryIcon, getResourceCategoryLabel } from "@/lib/resourceTypes";
 import EmptyState from "@/components/EmptyState";
+import { useLanguage } from "@/lib/i18n";
 
 type ResourcePost = {
   id: string;
@@ -24,17 +25,20 @@ type ResourcePost = {
   authorName: string;
 };
 
-function timeAgo(dateString: string): string {
+function timeAgo(dateString: string, t: (key: string) => string): string {
   const diffMs = Date.now() - new Date(dateString).getTime();
   const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-  if (days >= 1) return `${days} ${days === 1 ? "dia" : "dias"} atrás`;
+  if (days >= 1)
+    return (days === 1 ? t("timeAgo.daysAgo") : t("timeAgo.daysAgoPlural")).replace("{count}", String(days));
   const hours = Math.floor(diffMs / (1000 * 60 * 60));
-  if (hours >= 1) return `${hours} ${hours === 1 ? "hora" : "horas"} atrás`;
-  return "agora mesmo";
+  if (hours >= 1)
+    return (hours === 1 ? t("timeAgo.hoursAgo") : t("timeAgo.hoursAgoPlural")).replace("{count}", String(hours));
+  return t("timeAgo.justNow");
 }
 
 export default function ResourcesBoard() {
   const router = useRouter();
+  const { t } = useLanguage();
   const [session, setSession] = useState<Session | null>(null);
   const [checkingSession, setCheckingSession] = useState(true);
   const [posts, setPosts] = useState<ResourcePost[]>([]);
@@ -77,24 +81,24 @@ export default function ResourcesBoard() {
       setPosts(
         (postRows ?? []).map((row) => ({
           ...row,
-          authorName: (profiles ?? []).find((p) => p.id === row.created_by)?.display_name || "Alguém da comunidade",
+          authorName: (profiles ?? []).find((p) => p.id === row.created_by)?.display_name || t("colony.timeline.authorDefault"),
         }))
       );
     }
 
     load();
-  }, [router]);
+  }, [router, t]);
 
   async function handleSubmit(formEvent: React.FormEvent) {
     formEvent.preventDefault();
     setError(null);
 
     if (!postType) {
-      setError("Escolha se você está oferecendo ou procurando algo.");
+      setError(t("forms.resource.validationError"));
       return;
     }
     if (!title.trim() || !description.trim()) {
-      setError("Preencha o título e a descrição.");
+      setError(t("forms.resource.fieldsError"));
       return;
     }
     if (!session) return;
@@ -115,12 +119,12 @@ export default function ResourcesBoard() {
     setSubmitting(false);
 
     if (insertError || !newPost) {
-      setError("O anúncio não foi publicado. Tenta de novo?");
+      setError(t("forms.resource.insertError"));
       return;
     }
 
     setPosts((previous) => [
-      { ...newPost, authorName: "Você" },
+      { ...newPost, authorName: t("common.you") },
       ...previous,
     ]);
     setTitle("");
@@ -156,7 +160,7 @@ export default function ResourcesBoard() {
                 : "border-felines-border text-felines-text-secondary"
             }`}
           >
-            Disponível
+            {t("forms.resource.offering")}
           </button>
           <button
             onClick={() => setActiveTab("requesting")}
@@ -166,14 +170,14 @@ export default function ResourcesBoard() {
                 : "border-felines-border text-felines-text-secondary"
             }`}
           >
-            Procurado
+            {t("forms.resource.requesting")}
           </button>
         </div>
         <button
           onClick={() => setShowForm((previous) => !previous)}
           className="rounded-full bg-felines-accent px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-felines-accent-hover"
         >
-          {showForm ? "Cancelar" : "+ Publicar anúncio"}
+          {showForm ? t("forms.resource.cancelNew") : t("forms.resource.new")}
         </button>
       </div>
 
@@ -189,7 +193,7 @@ export default function ResourcesBoard() {
                   : "border-felines-border text-felines-text-secondary"
               }`}
             >
-              Estou oferecendo
+              {t("forms.resource.offering_action")}
             </button>
             <button
               type="button"
@@ -200,7 +204,7 @@ export default function ResourcesBoard() {
                   : "border-felines-border text-felines-text-secondary"
               }`}
             >
-              Estou procurando
+              {t("forms.resource.requesting_action")}
             </button>
           </div>
 
@@ -220,7 +224,7 @@ export default function ResourcesBoard() {
             type="text"
             value={title}
             onChange={(event) => setTitle(event.target.value)}
-            placeholder="Título"
+            placeholder={t("forms.resource.titlePlaceholder")}
             maxLength={60}
             className="w-full rounded-md border border-felines-border bg-white px-3 py-2 text-sm"
           />
@@ -228,7 +232,7 @@ export default function ResourcesBoard() {
           <textarea
             value={description}
             onChange={(event) => setDescription(event.target.value)}
-            placeholder="Descrição"
+            placeholder={t("forms.resource.descPlaceholder")}
             maxLength={200}
             rows={3}
             className="w-full rounded-md border border-felines-border bg-white px-3 py-2 text-sm"
@@ -238,7 +242,7 @@ export default function ResourcesBoard() {
             type="text"
             value={locationHint}
             onChange={(event) => setLocationHint(event.target.value)}
-            placeholder="Bairro (nunca endereço exato)"
+            placeholder={t("forms.resource.locationPlaceholder")}
             maxLength={60}
             className="w-full rounded-md border border-felines-border bg-white px-3 py-2 text-sm"
           />
@@ -251,7 +255,7 @@ export default function ResourcesBoard() {
             aria-busy={submitting}
             className="rounded-full bg-felines-accent px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-felines-accent-hover disabled:opacity-50"
           >
-            {submitting ? "Publicando..." : "Publicar"}
+            {submitting ? t("forms.resource.submitting") : t("forms.resource.submit")}
           </button>
         </form>
       )}
@@ -259,7 +263,7 @@ export default function ResourcesBoard() {
       {filteredPosts.length === 0 ? (
         <div className="mt-8">
           <EmptyState
-            main="Nada aqui ainda. Seja a primeira pessoa a oferecer ou procurar algo."
+            main={t("forms.resource.noResults")}
           />
         </div>
       ) : (
@@ -269,9 +273,9 @@ export default function ResourcesBoard() {
               <div className="flex items-center justify-between">
                 <span className="text-xs font-semibold uppercase tracking-[0.1em] text-felines-accent-hover">
                   {getResourceCategoryIcon(post.category)}{" "}
-                  {post.type === "offering" ? "Oferecendo" : "Procurando"}
+                  {post.type === "offering" ? t("forms.resource.offering") : t("forms.resource.requesting")}
                 </span>
-                <span className="text-xs text-felines-text-secondary">{timeAgo(post.created_at)}</span>
+                <span className="text-xs text-felines-text-secondary">{timeAgo(post.created_at, t)}</span>
               </div>
               <p className="mt-2 font-semibold text-felines-text-primary">{post.title}</p>
               <p className="text-xs text-felines-text-secondary">{getResourceCategoryLabel(post.category)}</p>
@@ -280,7 +284,7 @@ export default function ResourcesBoard() {
                 <p className="mt-1 text-xs text-felines-text-secondary">📍 {post.location_hint}</p>
               )}
               <p className="mt-2 text-xs text-felines-text-secondary">
-                Publicado por{" "}
+                {t("forms.resource.postedBy")}{" "}
                 <Link href={`/u/${post.created_by}`} className="text-felines-accent-hover">
                   {post.authorName}
                 </Link>
@@ -291,7 +295,7 @@ export default function ResourcesBoard() {
                     onClick={() => handleResolve(post.id)}
                     className="rounded-full bg-felines-success px-3 py-1.5 text-xs font-medium text-white hover:opacity-90"
                   >
-                    Trocado ✓
+                    {t("forms.resource.exchanged")}
                   </button>
                 ) : (
                   <button
@@ -299,7 +303,7 @@ export default function ResourcesBoard() {
                     disabled={respondedIds.has(post.id)}
                     className="rounded-full border border-felines-accent px-3 py-1.5 text-xs font-medium text-felines-accent transition-colors hover:bg-felines-accent hover:text-white disabled:opacity-50"
                   >
-                    {respondedIds.has(post.id) ? "Interesse enviado ✓" : "Tenho interesse"}
+                    {respondedIds.has(post.id) ? t("forms.resource.interestSent") : t("forms.resource.interested")}
                   </button>
                 )}
               </div>

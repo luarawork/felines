@@ -14,6 +14,7 @@ import { getReportTypeLabel, REPORT_TYPES } from "@/lib/reportTypes";
 import EmptyState from "@/components/EmptyState";
 import FlagButton, { getFlagReasonLabel } from "@/components/FlagButton";
 import SightingReportButton from "@/components/SightingReportButton";
+import { useLanguage } from "@/lib/i18n";
 
 type Report = {
   id: string;
@@ -41,6 +42,7 @@ type Flag = {
 };
 
 export default function ReportsList() {
+  const { t } = useLanguage();
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [reports, setReports] = useState<Report[]>([]);
@@ -106,7 +108,7 @@ export default function ReportsList() {
           .in("id", authorIds);
         const names: Record<string, string> = {};
         (profiles ?? []).forEach((profile) => {
-          names[profile.id] = profile.display_name || "Alguém da comunidade";
+          names[profile.id] = profile.display_name || t("colony.timeline.authorDefault");
         });
         setAuthorNames(names);
       }
@@ -146,7 +148,7 @@ export default function ReportsList() {
               const colony = (flaggedColonies ?? []).find((row) => row.id === flag.target_id);
               return {
                 ...flag,
-                targetLabel: colony ? `Colônia: ${colony.name}` : "Colônia",
+                targetLabel: colony ? `${t("reportStatus.colonyLabel")} ${colony.name}` : t("reportStatus.colonyLabel"),
                 targetHref: `/colony/${flag.target_id}`,
               };
             }
@@ -154,14 +156,14 @@ export default function ReportsList() {
               const profile = (flaggedProfiles ?? []).find((row) => row.id === flag.target_id);
               return {
                 ...flag,
-                targetLabel: `Perfil: ${profile?.display_name || "Alguém da comunidade"}`,
+                targetLabel: `${t("reportStatus.profileLabel")} ${profile?.display_name || t("colony.timeline.authorDefault")}`,
                 targetHref: `/u/${flag.target_id}`,
               };
             }
             const report = (flaggedReports ?? []).find((row) => row.id === flag.target_id);
             return {
               ...flag,
-              targetLabel: report ? `Relato: ${getReportTypeLabel(report.type)}` : "Relato",
+              targetLabel: report ? `${t("reportStatus.reportLabel")} ${getReportTypeLabel(report.type)}` : t("reportStatus.reportLabel"),
               targetHref: `#report-${flag.target_id}`,
             };
           })
@@ -172,7 +174,7 @@ export default function ReportsList() {
     }
 
     loadReports();
-  }, [showResolved]);
+  }, [showResolved, t]);
 
   // If we arrived here via a map popup's "Ver relato" link
   // (/reports#report-<id>), scroll to that report and highlight it
@@ -199,7 +201,7 @@ export default function ReportsList() {
     const { error: rpcError } = await supabase.rpc("confirm_report", { p_report_id: reportId });
 
     if (rpcError) {
-      setError("Não consegui confirmar esse relato agora.");
+      setError(t("reportStatus.confirmError"));
       return;
     }
 
@@ -227,7 +229,7 @@ export default function ReportsList() {
       .eq("id", reportId);
 
     if (updateError) {
-      setError("Não consegui marcar como resolvido agora.");
+      setError(t("reportStatus.resolveError"));
       return;
     }
 
@@ -258,7 +260,7 @@ export default function ReportsList() {
 
   if (loading) return (
     <p role="status" className="mt-8 text-sm text-felines-text-secondary">
-      Carregando relatos...
+      {t("reportStatus.loading")}
     </p>
   );
 
@@ -266,9 +268,9 @@ export default function ReportsList() {
     return (
       <p className="mt-8 rounded-lg border border-felines-border bg-felines-surface px-4 py-3 text-sm text-felines-text-secondary">
         <Link href="/login?returnTo=/reports" className="font-medium text-felines-accent-hover">
-          Entre na sua conta
+          {t("reportStatus.loginPromptPre")}
         </Link>{" "}
-        para ver e confirmar relatos.
+        {t("reportStatus.loginPromptPost")}
       </p>
     );
   }
@@ -281,12 +283,12 @@ export default function ReportsList() {
     <div className="mt-6">
       <div className="flex flex-wrap items-center gap-3">
         <select
-          aria-label="Filtrar por tipo de relato"
+          aria-label={t("reportStatus.filterLabel")}
           value={typeFilter}
           onChange={(formEvent) => setTypeFilter(formEvent.target.value)}
           className="rounded-md border border-felines-border bg-white px-3 py-1.5 text-sm"
         >
-          <option value="all">Todos os tipos</option>
+          <option value="all">{t("reportTypes.all")}</option>
           {REPORT_TYPES.map((reportType) => (
             <option key={reportType.value} value={reportType.value}>
               {reportType.label}
@@ -300,7 +302,7 @@ export default function ReportsList() {
             checked={showResolved}
             onChange={(formEvent) => setShowResolved(formEvent.target.checked)}
           />
-          Mostrar relatos já resolvidos
+          {t("reportStatus.showResolved")}
         </label>
       </div>
 
@@ -309,9 +311,9 @@ export default function ReportsList() {
       {filteredReports.length === 0 ? (
         <div className="mt-6">
           <EmptyState
-            main="Nenhum relato aberto agora."
-            sub="Esse é um bom sinal. Continue de olho nas colônias perto de você."
-            ctas={[{ label: "Ir para o mapa", href: "/map" }]}
+            main={t("reportStatus.empty.main")}
+            sub={t("reportStatus.empty.sub")}
+            ctas={[{ label: t("reportStatus.empty.cta"), href: "/map" }]}
           />
         </div>
       ) : (
@@ -349,12 +351,12 @@ export default function ReportsList() {
                         {getReportTypeLabel(report.type)}
                         {report.sensitive && (
                           <span className="ml-2 text-xs font-normal text-felines-emergency">
-                            sensível
+                            {t("reportStatus.sensitive")}
                           </span>
                         )}
                         {report.status === "resolved" && (
                           <span className="ml-2 text-xs font-normal text-felines-success">
-                            resolvido
+                            {t("reportStatus.resolved")}
                           </span>
                         )}
                       </p>
@@ -366,13 +368,13 @@ export default function ReportsList() {
                       <p className="mt-1 text-xs text-felines-text-secondary">
                         {report.created_by ? (
                           <Link href={`/u/${report.created_by}`} className="text-felines-accent-hover">
-                            {authorNames[report.created_by] ?? "Alguém da comunidade"}
+                            {authorNames[report.created_by] ?? t("colony.timeline.authorDefault")}
                           </Link>
                         ) : (
-                          "Relato anônimo"
+                          t("reportStatus.anonymous")
                         )}{" "}
                         · {new Date(report.created_at).toLocaleDateString("pt-BR")} ·{" "}
-                        {report.confirmations} de 3 confirmações
+                        {report.confirmations} {t("reportStatus.confirmations")}
                         {report.colony_id && (
                           <>
                             {" "}
@@ -381,7 +383,7 @@ export default function ReportsList() {
                               href={`/colony/${report.colony_id}`}
                               className="text-felines-accent-hover"
                             >
-                              ver colônia
+                              {t("reportStatus.viewColony")}
                             </Link>
                           </>
                         )}
@@ -397,7 +399,7 @@ export default function ReportsList() {
                         <div className="mt-2 rounded-md bg-felines-success/10 p-2">
                           <p className="text-xs font-medium text-felines-success">
                             {sightings.length}{" "}
-                            {sightings.length === 1 ? "avistamento relatado" : "avistamentos relatados"}
+                            {sightings.length === 1 ? t("reportStatus.sightingsCount") : t("reportStatus.sightingsCountPlural")}
                           </p>
                           {sightings.map((sighting) => (
                             <p key={sighting.id} className="mt-1 text-xs text-felines-text-secondary">
@@ -419,10 +421,10 @@ export default function ReportsList() {
                         <button
                           onClick={() => handleConfirm(report.id)}
                           disabled={confirmedReportIds.has(report.id)}
-                          title="Confirme se você também viu isso — com 3 confirmações, o relato se resolve sozinho"
+                          title={t("reportStatus.confirmTitle")}
                           className="rounded-full border border-felines-accent px-3 py-1 text-xs font-medium text-felines-accent transition-colors hover:bg-felines-accent hover:text-white disabled:opacity-50"
                         >
-                          {confirmedReportIds.has(report.id) ? "Você já confirmou" : "Eu também vi"}
+                          {confirmedReportIds.has(report.id) ? t("reportStatus.alreadyConfirmed") : t("reportStatus.iAlsoSaw")}
                         </button>
                       )}
                       {canManuallyResolve && (
@@ -430,7 +432,7 @@ export default function ReportsList() {
                           onClick={() => handleResolve(report.id)}
                           className="rounded-full bg-felines-success px-3 py-1 text-xs font-medium text-white transition-colors hover:opacity-90"
                         >
-                          Resolver
+                          {t("reportStatus.resolve")}
                         </button>
                       )}
                     </div>
@@ -445,7 +447,7 @@ export default function ReportsList() {
       {flags.length > 0 && (
         <div className="mt-10">
           <h2 className="text-lg font-bold text-felines-text-primary">
-            Possíveis informações falsas sinalizadas
+            {t("reportStatus.flagsTitle")}
           </h2>
           <ul className="mt-3 space-y-2">
             {flags.map((flag) => (

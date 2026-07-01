@@ -6,6 +6,7 @@
 import { useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import { useEscapeToClose } from "@/lib/useEscapeToClose";
+import { useLanguage } from "@/lib/i18n";
 
 type Note = {
   id: string;
@@ -38,6 +39,7 @@ export default function CatNotesSection({
   catId: string;
   initialNotes: Note[];
 }) {
+  const { t } = useLanguage();
   const [notes, setNotes] = useState<Note[]>(initialNotes);
   const [body, setBody] = useState("");
   const [healthStatus, setHealthStatus] = useState<string | null>(null);
@@ -52,13 +54,13 @@ export default function CatNotesSection({
     setError(null);
 
     if (!body.trim()) {
-      setError("Escreva uma observação antes de enviar.");
+      setError(t("colony.catNote.bodyRequired"));
       return;
     }
 
     const { data: sessionData } = await supabase.auth.getSession();
     if (!sessionData.session) {
-      setError("Você precisa estar logado para deixar uma anotação.");
+      setError(t("colony.catNote.loginRequired"));
       return;
     }
 
@@ -77,7 +79,7 @@ export default function CatNotesSection({
     setSubmitting(false);
 
     if (insertError || !newNote) {
-      setError("Não foi possível salvar a anotação. Tenta de novo?");
+      setError(t("colony.catNote.insertError"));
       return;
     }
 
@@ -91,14 +93,14 @@ export default function CatNotesSection({
     <section className="mt-10">
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-bold text-felines-text-primary">
-          Anotações da comunidade
+          {t("colony.catNote.sectionTitle")}
         </h2>
         {!formOpen && (
           <button
             onClick={() => setFormOpen(true)}
             className="rounded-full border border-felines-border px-4 py-1.5 text-sm text-felines-text-secondary transition-colors hover:border-felines-accent hover:text-felines-accent"
           >
-            + Adicionar observação
+            {t("colony.catNote.addButton")}
           </button>
         )}
       </div>
@@ -110,21 +112,21 @@ export default function CatNotesSection({
         >
           <div>
             <label className="block text-xs font-medium text-felines-text-secondary">
-              Observação
+              {t("colony.catNote.observationLabel")}
             </label>
             <textarea
               value={body}
               onChange={(e) => setBody(e.target.value)}
               rows={3}
               maxLength={500}
-              placeholder="Ex: Estava mancando da pata dianteira direita. Vi às 14h perto do portão."
+              placeholder={t("colony.catNote.notePlaceholder")}
               className="mt-1 w-full rounded-lg border border-felines-border bg-white px-3 py-2 text-sm"
             />
           </div>
 
           <div>
             <label className="block text-xs font-medium text-felines-text-secondary">
-              Estado de saúde aparente (opcional)
+              {t("colony.catNote.healthLabel")}
             </label>
             <div className="mt-1 flex flex-wrap gap-2">
               {HEALTH_OPTIONS.map((opt) => (
@@ -153,14 +155,14 @@ export default function CatNotesSection({
               aria-busy={submitting}
               className="rounded-full bg-felines-accent px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
             >
-              {submitting ? "Salvando…" : "Salvar observação"}
+              {submitting ? t("colony.catNote.submitting") : t("colony.catNote.submit")}
             </button>
             <button
               type="button"
               onClick={() => setFormOpen(false)}
               className="text-sm text-felines-text-secondary hover:text-felines-text-primary"
             >
-              Cancelar
+              {t("common.cancel")}
             </button>
           </div>
         </form>
@@ -168,7 +170,7 @@ export default function CatNotesSection({
 
       {notes.length === 0 ? (
         <p className="mt-4 text-sm text-felines-text-secondary">
-          Nenhuma anotação ainda. Se você viu esse gato, conta como ele estava.
+          {t("colony.catNote.noNotes")}
         </p>
       ) : (
         <ol className="mt-5 space-y-3">

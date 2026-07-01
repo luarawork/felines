@@ -759,4 +759,12 @@ export const en = {
     submitBtn: "Register",
     submitting: "Saving…",
   },
+
+  timeAgo: {
+    daysAgo: "{count} day ago",
+    daysAgoPlural: "{count} days ago",
+    hoursAgo: "{count} hour ago",
+    hoursAgoPlural: "{count} hours ago",
+    justNow: "just now",
+  },
 };

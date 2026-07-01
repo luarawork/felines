@@ -760,4 +760,12 @@ export const pt = {
     submitBtn: "Cadastrar",
     submitting: "Salvando…",
   },
+
+  timeAgo: {
+    daysAgo: "{count} dia atrás",
+    daysAgoPlural: "{count} dias atrás",
+    hoursAgo: "{count} hora atrás",
+    hoursAgoPlural: "{count} horas atrás",
+    justNow: "agora mesmo",
+  },
 };

@@ -12,8 +12,10 @@ import { submitReport } from "@/lib/submitReport";
 import AnonymousReportNotice from "@/components/AnonymousReportNotice";
 import CreateAccountInvite from "@/components/CreateAccountInvite";
 import { useEscapeToClose } from "@/lib/useEscapeToClose";
+import { useLanguage } from "@/lib/i18n";
 
 export default function ReportButton({ colonyId }: { colonyId: string }) {
+  const { t } = useLanguage();
   const [open, setOpen] = useState(false);
   const [type, setType] = useState(REPORT_TYPES[0].value);
   const [description, setDescription] = useState("");
@@ -42,7 +44,7 @@ export default function ReportButton({ colonyId }: { colonyId: string }) {
     setError(null);
 
     if (!type) {
-      setError("Selecione o tipo de relato.");
+      setError(t("forms.report.typeRequired"));
       return;
     }
 
@@ -69,7 +71,7 @@ export default function ReportButton({ colonyId }: { colonyId: string }) {
         onClick={() => setOpen(true)}
         className="rounded-full border border-felines-emergency px-4 py-2 text-sm font-medium text-felines-emergency transition-colors hover:bg-felines-emergency hover:text-white"
       >
-        Contar o que está acontecendo
+        {t("forms.report.triggerLabel")}
       </button>
 
       {open && (
@@ -86,11 +88,11 @@ export default function ReportButton({ colonyId }: { colonyId: string }) {
           >
             <div className="flex items-start justify-between">
               <h2 id="report-modal-title" className="text-lg font-bold text-felines-text-primary">
-                Contar o que está acontecendo
+                {t("forms.report.title")}
               </h2>
               <button
                 onClick={handleClose}
-                aria-label="Fechar"
+                aria-label={t("forms.report.close")}
                 className="flex h-11 w-11 flex-shrink-0 items-center justify-center text-xl leading-none text-felines-text-secondary hover:text-felines-text-primary"
               >
                 ×
@@ -100,7 +102,7 @@ export default function ReportButton({ colonyId }: { colonyId: string }) {
             {submitted ? (
               <div className="mt-4">
                 <p className="rounded-lg border border-felines-success bg-felines-success/10 px-4 py-3 text-sm text-felines-success">
-                  Relato enviado. Valeu por ajudar essa colônia.
+                  {t("forms.report.submitted")}
                 </p>
                 {!isLoggedIn && <CreateAccountInvite />}
               </div>
@@ -112,7 +114,7 @@ export default function ReportButton({ colonyId }: { colonyId: string }) {
                   htmlFor="report-type"
                   className="block text-xs font-medium text-felines-text-secondary"
                 >
-                  Tipo de relato
+                  {t("forms.report.typeLabel")}
                 </label>
                 <select
                   id="report-type"
@@ -131,7 +133,7 @@ export default function ReportButton({ colonyId }: { colonyId: string }) {
                   htmlFor="report-description"
                   className="mt-3 block text-xs font-medium text-felines-text-secondary"
                 >
-                  Descrição (opcional)
+                  {t("forms.report.descLabel")}
                 </label>
                 <textarea
                   id="report-description"
@@ -151,14 +153,14 @@ export default function ReportButton({ colonyId }: { colonyId: string }) {
                     aria-busy={submitting}
                     className="rounded-full bg-felines-emergency px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
                   >
-                    {submitting ? "Enviando..." : "Enviar"}
+                    {submitting ? t("forms.report.submitting") : t("forms.report.submit")}
                   </button>
                   <button
                     type="button"
                     onClick={handleClose}
                     className="rounded-full px-4 py-2 text-sm font-medium text-felines-text-secondary"
                   >
-                    Cancelar
+                    {t("common.cancel")}
                   </button>
                 </div>
               </form>

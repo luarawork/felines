@@ -9,6 +9,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabaseClient";
+import { useLanguage } from "@/lib/i18n";
 
 type CaretakerLetter = {
   id: string;
@@ -25,6 +26,7 @@ type LetterHistoryEntry = {
 };
 
 export default function CaretakerLetters({ colonyId }: { colonyId: string }) {
+  const { t } = useLanguage();
   const [session, setSession] = useState<Session | null>(null);
   const [letters, setLetters] = useState<CaretakerLetter[]>([]);
   const [history, setHistory] = useState<LetterHistoryEntry[]>([]);
@@ -100,7 +102,7 @@ export default function CaretakerLetters({ colonyId }: { colonyId: string }) {
           .in("id", Array.from(authorIds));
         const names: Record<string, string> = {};
         (profiles ?? []).forEach((profile) => {
-          names[profile.id] = profile.display_name || "Alguém da comunidade";
+          names[profile.id] = profile.display_name || t("colony.caretakerLetter.community");
         });
         setAuthorNames(names);
       }
@@ -109,7 +111,7 @@ export default function CaretakerLetters({ colonyId }: { colonyId: string }) {
     }
 
     loadLetters();
-  }, [colonyId]);
+  }, [colonyId, t]);
 
   async function handleSave() {
     if (!ownCaretakerId || !session) return;
@@ -123,7 +125,7 @@ export default function CaretakerLetters({ colonyId }: { colonyId: string }) {
 
     if (updateError) {
       setSaving(false);
-      setError("A carta não foi salva. Tenta de novo?");
+      setError(t("colony.caretakerLetter.saveError"));
       return;
     }
 
@@ -135,7 +137,7 @@ export default function CaretakerLetters({ colonyId }: { colonyId: string }) {
       .insert({
         colony_id: colonyId,
         event_type: "caretaker_letter_updated",
-        description: draft.trim() || "(carta removida)",
+        description: draft.trim() || t("colony.caretakerLetter.letterRemoved"),
         created_by: session.user.id,
       })
       .select("id, description, created_at, created_by")
@@ -177,13 +179,13 @@ export default function CaretakerLetters({ colonyId }: { colonyId: string }) {
   return (
     <div>
       <p className="text-sm text-felines-text-secondary">
-        Histórico, hábitos dos gatos e dicas de quem já passou por aqui antes.
+        {t("colony.caretakerLetter.intro")}
       </p>
 
       {ownCaretakerId && (
         <div className="mt-4 rounded-xl border border-felines-border bg-felines-surface p-4">
           <label className="block text-sm font-medium text-felines-text-primary">
-            Deixe sua marca pro próximo cuidador
+            {t("colony.caretakerLetter.yourLetterLabel")}
           </label>
           <textarea
             value={draft}
@@ -193,7 +195,7 @@ export default function CaretakerLetters({ colonyId }: { colonyId: string }) {
             }}
             rows={4}
             maxLength={2000}
-            placeholder="O que você gostaria que a próxima pessoa soubesse sobre essa colônia?"
+            placeholder={t("colony.caretakerLetter.letterPlaceholder")}
             className="mt-2 w-full rounded-md border border-felines-border bg-white px-3 py-2 text-sm"
           />
           {error && <p role="alert" className="mt-2 text-sm text-felines-emergency">{error}</p>}
@@ -202,14 +204,14 @@ export default function CaretakerLetters({ colonyId }: { colonyId: string }) {
             disabled={saving}
             className="mt-2 rounded-full bg-felines-accent px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-felines-accent-hover disabled:opacity-50"
           >
-            {saving ? "Salvando..." : saved ? "Salvo" : "Salvar carta"}
+            {saving ? t("colony.caretakerLetter.saving") : saved ? t("colony.caretakerLetter.saved") : t("colony.caretakerLetter.save")}
           </button>
         </div>
       )}
 
       {letters.length === 0 && history.length === 0 && (
         <p className="mt-4 text-sm text-felines-text-secondary">
-          Ninguém deixou uma carta por aqui ainda.
+          {t("colony.caretakerLetter.noLetters")}
         </p>
       )}
 
@@ -227,7 +229,7 @@ export default function CaretakerLetters({ colonyId }: { colonyId: string }) {
                 </p>
                 <p className="mt-2 text-xs text-felines-text-secondary">
                   <Link href={`/u/${letter.userId}`} className="text-felines-accent-hover">
-                    {authorNames[letter.userId] ?? "Alguém da comunidade"}
+                    {authorNames[letter.userId] ?? t("colony.caretakerLetter.community")}
                   </Link>{" "}
                   · {new Date(letter.created_at).toLocaleDateString("pt-BR")}
                 </p>
@@ -238,7 +240,7 @@ export default function CaretakerLetters({ colonyId }: { colonyId: string }) {
 
       {history.length > 0 && (
         <div className="mt-8">
-          <p className="text-sm font-medium text-felines-text-primary">Histórico de cartas</p>
+          <p className="text-sm font-medium text-felines-text-primary">{t("colony.caretakerLetter.historyTitle")}</p>
           <ul className="mt-3 space-y-3">
             {history.map((entry) => (
               <li
@@ -250,7 +252,7 @@ export default function CaretakerLetters({ colonyId }: { colonyId: string }) {
                 </p>
                 <p className="mt-2 text-xs text-felines-text-secondary">
                   <Link href={`/u/${entry.userId}`} className="text-felines-accent-hover">
-                    {authorNames[entry.userId] ?? "Alguém da comunidade"}
+                    {authorNames[entry.userId] ?? t("colony.caretakerLetter.community")}
                   </Link>{" "}
                   · {new Date(entry.created_at).toLocaleDateString("pt-BR")}
                 </p>

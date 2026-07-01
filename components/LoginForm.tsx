@@ -7,6 +7,7 @@ import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient";
+import { useLanguage } from "@/lib/i18n";
 
 export default function LoginForm() {
   const router = useRouter();
@@ -16,13 +17,14 @@ export default function LoginForm() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const { t } = useLanguage();
 
   async function handleSubmit(formEvent: React.FormEvent) {
     formEvent.preventDefault();
     setError(null);
 
     if (!email.includes("@") || password.length < 6) {
-      setError("Coloca um e-mail válido e uma senha com pelo menos 6 caracteres.");
+      setError(t("auth.login.validationError"));
       return;
     }
 
@@ -34,7 +36,7 @@ export default function LoginForm() {
     setSubmitting(false);
 
     if (signInError) {
-      setError("E-mail ou senha não bateram. Tenta de novo?");
+      setError(t("auth.login.error"));
       return;
     }
 
@@ -45,7 +47,7 @@ export default function LoginForm() {
     <form onSubmit={handleSubmit} className="mt-6 space-y-4">
       <div>
         <label htmlFor="login-email" className="block text-sm font-medium text-felines-text-primary">
-          E-mail
+          {t("auth.login.emailLabel")}
         </label>
         <input
           id="login-email"
@@ -59,7 +61,7 @@ export default function LoginForm() {
       </div>
       <div>
         <label htmlFor="login-password" className="block text-sm font-medium text-felines-text-primary">
-          Senha
+          {t("auth.login.passwordLabel")}
         </label>
         <input
           id="login-password"
@@ -81,13 +83,13 @@ export default function LoginForm() {
         aria-busy={submitting}
         className="w-full rounded-full bg-felines-accent px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-felines-accent-hover disabled:opacity-50"
       >
-        {submitting ? "Entrando..." : "Entrar"}
+        {submitting ? t("auth.login.submitting") : t("auth.login.submit")}
       </button>
 
       <p className="text-center text-sm text-felines-text-secondary">
-        Não tem conta?{" "}
+        {t("auth.login.noAccount")}{" "}
         <Link href="/signup" className="font-medium text-felines-accent-hover">
-          Cadastre-se
+          {t("auth.login.signupLink")}
         </Link>
       </p>
     </form>

@@ -8,9 +8,11 @@ import Link from "next/link";
 import type { GlossaryTerm } from "@/lib/glossary";
 import { getArticleBySlug } from "@/lib/articles";
 import FactChip from "@/components/FactChip";
+import { useLanguage } from "@/lib/i18n";
 
 export default function GlossaryList({ terms }: { terms: GlossaryTerm[] }) {
   const [search, setSearch] = useState("");
+  const { t } = useLanguage();
 
   const sortedTerms = useMemo(
     () => [...terms].sort((a, b) => a.term.localeCompare(b.term, "pt-BR")),
@@ -38,8 +40,8 @@ export default function GlossaryList({ terms }: { terms: GlossaryTerm[] }) {
         type="text"
         value={search}
         onChange={(formEvent) => setSearch(formEvent.target.value)}
-        placeholder="Buscar um termo..."
-        aria-label="Buscar termo no glossário"
+        placeholder={t("glossary.searchPlaceholder")}
+        aria-label={t("glossary.searchLabel")}
         className="mt-6 w-full rounded-md border border-felines-border bg-white px-4 py-2.5 text-sm"
       />
 
@@ -59,7 +61,7 @@ export default function GlossaryList({ terms }: { terms: GlossaryTerm[] }) {
 
       {filteredTerms.length === 0 ? (
         <p className="mt-8 text-sm text-felines-text-secondary">
-          Nenhum termo encontrado para &quot;{search}&quot;.
+          {t("glossary.noResults").replace("{query}", search)}
         </p>
       ) : (
         <dl className="mt-8 space-y-8">
