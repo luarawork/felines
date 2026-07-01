@@ -5,7 +5,7 @@
 // history, not as a private message between two people.
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabaseClient";
@@ -174,6 +174,11 @@ export default function CaretakerLetters({ colonyId }: { colonyId: string }) {
     });
   }
 
+  const othersLetters = useMemo(
+    () => letters.filter((letter) => letter.id !== ownCaretakerId),
+    [letters, ownCaretakerId]
+  );
+
   if (loading) return null;
 
   return (
@@ -215,11 +220,9 @@ export default function CaretakerLetters({ colonyId }: { colonyId: string }) {
         </p>
       )}
 
-      {letters.filter((letter) => letter.id !== ownCaretakerId).length > 0 && (
+      {othersLetters.length > 0 && (
         <ul className="mt-4 space-y-3">
-          {letters
-            .filter((letter) => letter.id !== ownCaretakerId)
-            .map((letter) => (
+          {othersLetters.map((letter) => (
               <li
                 key={letter.id}
                 className="rounded-xl border border-felines-border bg-felines-surface p-4"
