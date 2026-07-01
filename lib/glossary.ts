@@ -221,4 +221,122 @@ export const GLOSSARY_TERMS: GlossaryTerm[] = [
     definition_en:
       "A simple structure (a styrofoam box, a small wooden house) built to protect street cats from cold, heat, or rain — one of the cheapest and most effective ways to help a colony.",
   },
+  {
+    term: "Alimentação controlada",
+    definition:
+      "Oferecer comida em horários e locais fixos, em vez de deixar restos espalhados — atrai menos pragas, facilita monitorar quem come e ajuda a notar rapidamente se um gato parou de aparecer.",
+    relatedArticleSlugs: ["living-with-a-cat-colony"],
+    term_en: "Controlled feeding",
+    definition_en:
+      "Offering food at fixed times and places, instead of leaving scraps scattered around — attracts fewer pests, makes it easier to monitor who's eating, and helps notice quickly if a cat stops showing up.",
+  },
+  {
+    term: "Cio",
+    definition:
+      "Período fértil de uma fêmea não castrada, marcado por miados altos e frequentes, inquietação e tentativas de sair de casa — um dos principais motivos de conflito com vizinhos, resolvido pela castração.",
+    term_en: "Heat (estrus)",
+    definition_en:
+      "The fertile period of an unneutered female, marked by loud, frequent meowing, restlessness, and attempts to escape outside — one of the main sources of conflict with neighbors, resolved by neutering.",
+  },
+  {
+    term: "Ninhada",
+    definition:
+      "O grupo de filhotes nascidos de uma mesma gestação — uma fêmea não castrada pode ter várias ninhadas por ano, o que explica a velocidade com que uma colônia sem manejo cresce.",
+    term_en: "Litter",
+    definition_en:
+      "The group of kittens born from a single pregnancy — an unneutered female can have several litters a year, which explains how quickly an unmanaged colony grows.",
+  },
+  {
+    term: "Pós-operatório (castração)",
+    definition:
+      "Período de recuperação de alguns dias após a cirurgia de castração, em que o gato precisa de repouso, um local seco e tranquilo, e observação para sinais de infecção no ponto do corte.",
+    relatedArticleSlugs: ["castracao-reduz-conflitos"],
+    term_en: "Post-op recovery",
+    definition_en:
+      "The few days of recovery after neutering surgery, during which the cat needs rest, a dry and quiet spot, and monitoring for signs of infection at the incision site.",
+  },
+  {
+    term: "Guarda responsável",
+    definition:
+      "O conjunto de deveres de quem tem ou cuida de um animal: alimentação adequada, vacinação, castração, e não abandoná-lo — vale tanto para gatos domésticos quanto para quem assume uma colônia.",
+    term_en: "Responsible pet ownership",
+    definition_en:
+      "The set of duties owed by anyone who owns or cares for an animal: proper feeding, vaccination, neutering, and never abandoning it — applies to house cats and colony caretakers alike.",
+  },
+  {
+    term: "Bem-estar animal",
+    definition:
+      "Conceito que avalia a qualidade de vida de um animal além da simples sobrevivência — inclui ausência de dor e fome, liberdade para expressar comportamentos naturais, e ausência de medo crônico.",
+    term_en: "Animal welfare",
+    definition_en:
+      "A concept that evaluates an animal's quality of life beyond mere survival — includes freedom from pain and hunger, the ability to express natural behaviors, and freedom from chronic fear.",
+  },
+  {
+    term: "Vacina antirrábica",
+    definition:
+      "Imunização contra a raiva, doença viral fatal transmissível a humanos — aplicada gratuitamente em campanhas do CCZ e recomendada para todo gato de colônia manejada.",
+    term_en: "Rabies vaccine",
+    definition_en:
+      "Immunization against rabies, a fatal viral disease transmissible to humans — offered free during CCZ campaigns and recommended for every cat in a managed colony.",
+  },
+  {
+    term: "Superpopulação felina",
+    definition:
+      "Situação em que o número de gatos numa área excede o que o ambiente sustenta de forma saudável — geralmente causada pela ausência de castração, e revertida com TNR consistente ao longo do tempo.",
+    factChip: "📊 Uma fêmea não castrada pode gerar até 3 ninhadas por ano.",
+    relatedArticleSlugs: ["stray-cats-in-brazil-the-numbers"],
+    term_en: "Feline overpopulation",
+    definition_en:
+      "A situation where the number of cats in an area exceeds what the environment can healthily sustain — usually caused by a lack of neutering, and reversed with consistent TNR over time.",
+    factChip_en: "📊 An unneutered female can produce up to 3 litters a year.",
+  },
+  {
+    term: "Verificação comunitária",
+    definition:
+      "Selo que uma colônia cadastrada no Felines recebe quando 3 pessoas diferentes (que não sejam o criador do cadastro nem cuidadores vinculados) confirmam já ter visto os gatos naquele local.",
+    term_en: "Community verification",
+    definition_en:
+      "A badge a colony registered on Felines earns once 3 different people (not the colony's creator or linked caretakers) confirm they've actually seen cats at that location.",
+  },
+  {
+    term: "Índice de saúde da colônia",
+    definition:
+      "Pontuação de 0 a 100 calculada automaticamente pelo Felines a partir de alimentação recente, avistamentos, taxa de castração, ausência de relatos graves e presença de cuidadores vinculados.",
+    term_en: "Colony health index",
+    definition_en:
+      "A 0-100 score automatically calculated by Felines from recent feeding activity, sightings, neutering rate, absence of serious open reports, and whether the colony has linked caretakers.",
+  },
+  {
+    term: "Denúncia anônima",
+    definition:
+      "Relato feito sem se identificar — o Felines permite isso para a maioria dos tipos de relato, e o Disque Denúncia (181) e a DEPREMA também aceitam denúncias de maus-tratos sem identificação do denunciante.",
+    relatedArticleSlugs: ["how-to-report-animal-abuse"],
+    term_en: "Anonymous report",
+    definition_en:
+      "A report made without identifying yourself — Felines allows this for most report types, and channels like Disque Denúncia (181) also accept abuse reports without identifying the reporter.",
+  },
+  {
+    term: "Relato sensível",
+    definition:
+      "Categoria de relato (suspeita de envenenamento, maus-tratos ou surto de doença) que o Felines mantém visível na linha do tempo da colônia mesmo depois de resolvido, por ser informação relevante a longo prazo.",
+    term_en: "Sensitive report",
+    definition_en:
+      "A report category (suspected poisoning, abuse, or disease outbreak) that Felines keeps visible in the colony's timeline even after it's resolved, since it's relevant information long-term.",
+  },
+  {
+    term: "Pino sinalizado",
+    definition:
+      "Um pino no mapa do Felines marcado por 3 ou mais pessoas como possivelmente falso (local que não existe, colônia duplicada, ou conteúdo suspeito) — aparece com um aviso, mas não é removido automaticamente.",
+    term_en: "Flagged pin",
+    definition_en:
+      "A pin on the Felines map marked by 3 or more people as possibly false (a nonexistent location, a duplicate colony, or suspicious content) — shows a warning, but isn't automatically removed.",
+  },
+  {
+    term: "Troca de recursos",
+    definition:
+      "Mural do Felines onde cuidadores oferecem ou procuram itens como ração, transporte e equipamentos — sem dinheiro envolvido, só combinação direta entre quem oferece e quem precisa.",
+    term_en: "Resource exchange",
+    definition_en:
+      "A board on Felines where caretakers offer or request items like food, transport, and equipment — no money involved, just direct coordination between whoever's offering and whoever needs it.",
+  },
 ];
