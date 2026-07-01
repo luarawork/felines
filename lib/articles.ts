@@ -16,6 +16,7 @@ export type Article = {
   summary: string;
   body: string[];
   factChips?: string[];
+  href?: string; // overrides /learn/slug when set (e.g. for dedicated sub-pages)
 };
 
 export const ARTICLES: Article[] = [
@@ -371,6 +372,18 @@ export const ARTICLES: Article[] = [
     ],
   },
   {
+    slug: "plantas-toxicas",
+    level: 3,
+    href: "/plants",
+    title: "Plantas tóxicas para gatos que crescem na rua",
+    summary: "Espirradeira, comigo-ninguém-pode, boa-noite e outras 9 plantas comuns no Brasil que podem intoxicar gatos. Com ilustrações para identificação.",
+    body: [],
+    factChips: [
+      "📊 A espirradeira (Nerium oleander) é uma das plantas mais perigosas e aparece em calçadas e praças",
+      "📊 Intoxicação por lírio (Lilium spp.) pode causar insuficiência renal fatal em gatos em menos de 72h",
+    ],
+  },
+  {
     slug: "feral-semi-feral-e-socializado",
     level: 1,
     title: "Feral, semi-feral ou socializado? O comportamento explica tudo",
@@ -403,7 +416,7 @@ export function getArticleBySlug(slug: string): Article | undefined {
 // reading speed of 200 words per minute. Always at least 1 minute.
 export function getReadingTimeMinutes(article: Article): number {
   const wordCount = article.body.join(" ").split(/\s+/).filter(Boolean).length;
-  return Math.max(1, Math.round(wordCount / 200));
+  return Math.max(1, Math.round(wordCount / 130));
 }
 
 // Up to two related articles: prefers the same level, falls back to

@@ -17,7 +17,6 @@ import HelpRequestBanner from "@/components/HelpRequestBanner";
 import FollowColonyButton from "@/components/FollowColonyButton";
 import VerifyColonyButton from "@/components/VerifyColonyButton";
 import NeuteringRequestButton from "@/components/NeuteringRequestButton";
-import NeuteringRequestBanner from "@/components/NeuteringRequestBanner";
 import ColonyActions from "@/components/ColonyActions";
 import WeatherBanner from "@/components/WeatherBanner";
 import CatManager from "@/components/CatManager";
@@ -46,6 +45,17 @@ const COLONY_FACT_CHIPS: string[] = [
   "📊 Abrigos formais já recebem mais gatos do que conseguem cuidar",
   "📊 4 em cada 10 pessoas já brigaram com um vizinho por causa de animais",
   "📊 TNR é o único método com eficácia comprovada para estabilizar colônias",
+  "📊 Colônias com alimentação regular têm menor taxa de doenças infecciosas",
+  "📊 Gatos castrados marcam território até 90% menos e brigam muito menos",
+  "📊 A Lei Sansão prevê 2 a 5 anos de prisão por maus-tratos a cães e gatos",
+  "📊 Uma fêmea não castrada pode gerar até 3 ninhadas por ano",
+  "📊 Filhotes têm uma janela de poucas semanas para se tornar socializados",
+  "📊 Colônias totalmente castradas diminuem naturalmente ao longo dos anos",
+  "📊 Leite de vaca causa diarreia grave em filhotes — não é alimento seguro",
+  "📊 A OMS recomenda o método TNR como estratégia de controle populacional",
+  "📊 Território esvaziado atrai um grupo novo em poucos meses — o efeito vácuo",
+  "📊 Gatos de rua vivem em média 3 a 5 anos; os cuidados aumentam essa estimativa",
+  "📊 No Brasil, gatos são os animais com maior índice de abandono",
 ];
 
 type Cat = {
@@ -362,6 +372,94 @@ export default async function ColonyDetailPage({
     </>
   );
 
+  const uncastratedCats = (cats as Cat[] | null)?.filter((cat) => !cat.castrated) ?? [];
+  const totalCats = (cats as Cat[] | null)?.length ?? 0;
+  const castratedCount = (cats as Cat[] | null)?.filter((cat) => cat.castrated).length ?? 0;
+
+  const needsSection = (
+    <div className="space-y-6">
+      {/* Castration needs */}
+      <div>
+        <p className="text-sm font-semibold text-felines-text-primary">
+          Situação das castrações
+        </p>
+        {totalCats === 0 ? (
+          <p className="mt-2 text-sm text-felines-text-secondary">
+            Nenhum gato cadastrado ainda. Cadastre os gatos na aba Gatos para acompanhar a castração.
+          </p>
+        ) : (
+          <>
+            <div className="mt-2 h-3 w-full max-w-sm rounded-full bg-felines-border">
+              <div
+                className="h-3 rounded-full transition-all duration-700 ease-out"
+                style={{ width: `${Math.round((castratedCount / totalCats) * 100)}%`, backgroundColor: "#6B8F6A" }}
+              />
+            </div>
+            <p className="mt-1 text-sm text-felines-text-secondary">
+              {castratedCount} de {totalCats} gato{totalCats !== 1 ? "s" : ""} castrado{castratedCount !== 1 ? "s" : ""}
+            </p>
+            {uncastratedCats.length > 0 && (
+              <div className="mt-3">
+                <p className="text-xs font-medium text-felines-text-secondary uppercase tracking-wide">
+                  Ainda precisam castrar
+                </p>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {uncastratedCats.map((cat) => (
+                    <span
+                      key={cat.id}
+                      className="rounded-full border border-felines-warning bg-felines-warning/10 px-3 py-1 text-xs font-medium text-felines-warning"
+                    >
+                      {cat.name ?? "Sem nome"}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+          </>
+        )}
+      </div>
+
+      {/* Active neutering request */}
+      {activeNeuteringRequest && (
+        <div className="rounded-xl border border-felines-accent/30 bg-felines-accent-light p-4">
+          <p className="text-sm font-semibold text-felines-text-primary">
+            ✂️ Pedido de castração ativo
+          </p>
+          <p className="mt-1 text-sm text-felines-text-secondary">
+            {activeNeuteringRequest.cats_count} gato{activeNeuteringRequest.cats_count !== 1 ? "s" : ""} aguardando castração ·{" "}
+            urgência {activeNeuteringRequest.urgency === "high" ? "alta" : activeNeuteringRequest.urgency === "medium" ? "média" : "baixa"}
+          </p>
+        </div>
+      )}
+
+      {/* Active help request */}
+      {activeHelpRequest && (
+        <div className="rounded-xl border border-felines-emergency/30 bg-felines-emergency/5 p-4">
+          <p className="text-sm font-semibold text-felines-text-primary">
+            🆘 Pedido de ajuda ativo
+          </p>
+          <p className="mt-1 text-sm text-felines-text-secondary">
+            {activeHelpRequest.description || activeHelpRequest.type}
+          </p>
+        </div>
+      )}
+
+      {/* No needs */}
+      {!activeNeuteringRequest && !activeHelpRequest && uncastratedCats.length === 0 && totalCats > 0 && (
+        <div className="rounded-xl border border-felines-success/30 bg-felines-success/5 p-4">
+          <p className="font-semibold text-felines-success">✅ Tudo em ordem</p>
+          <p className="mt-1 text-sm text-felines-text-secondary">
+            Todos os gatos cadastrados estão castrados e não há pedidos de ajuda ativos.
+          </p>
+        </div>
+      )}
+
+      <div className="pt-2">
+        <NeuteringRequestButton colonyId={colony.id} />
+      </div>
+    </div>
+  );
+
   const hasNoTimelineEntriesEver = !timelineEvents || timelineEvents.length === 0;
   const mostRecentEventDate = timelineEvents?.[0]?.created_at
     ? new Date(timelineEvents[0].created_at)
@@ -509,15 +607,15 @@ export default async function ColonyDetailPage({
             </div>
           )}
           {activeHelpRequest && <HelpRequestBanner request={activeHelpRequest} />}
-          {activeNeuteringRequest && (
-            <NeuteringRequestBanner request={activeNeuteringRequest} colonyId={colony.id} />
-          )}
 
           <div className="mb-6 flex flex-wrap items-start justify-between gap-3">
             <div className="flex-1">
               <WeatherBanner lat={colony.latitude_blurred} lon={colony.longitude_blurred} />
             </div>
-            <ShareButton title={`${colony.name} — Felines`} />
+            <div className="flex items-center gap-3">
+              <FollowColonyButton colonyId={colony.id} />
+              <ShareButton title={`${colony.name} — Felines`} />
+            </div>
           </div>
 
           {caretakers.length > 0 && (
@@ -558,10 +656,6 @@ export default async function ColonyDetailPage({
           )}
 
           <div className="mt-4">
-            <FollowColonyButton colonyId={colony.id} />
-          </div>
-
-          <div className="mt-2">
             <VerifyColonyButton
               colonyId={colony.id}
               verifiedStatus={colony.verified_status}
@@ -584,21 +678,16 @@ export default async function ColonyDetailPage({
           {/* Available actions, scoped by the visitor's access level */}
           <ColonyActions colonyId={colony.id} />
 
-          <div className="mt-3 flex flex-wrap gap-3">
+          <div className="mt-6 flex flex-wrap gap-3">
             <ShareStoryButton colonyId={colony.id} />
             <HelpRequestButton colonyId={colony.id} />
             <NeuteringRequestButton colonyId={colony.id} />
-            <Link
-              href="/resources"
-              className="rounded-full border border-felines-border px-4 py-2 text-sm font-medium text-felines-text-secondary transition-colors hover:border-felines-accent hover:text-felines-accent-hover"
-            >
-              Troca de recursos →
-            </Link>
           </div>
 
           <ColonyTabs
             tabs={[
               { id: "cats", label: "Gatos", content: catsSection },
+              { id: "needs", label: "Necessidades", content: needsSection },
               { id: "timeline", label: "Linha do tempo", content: timelineSection },
               {
                 id: "reports",

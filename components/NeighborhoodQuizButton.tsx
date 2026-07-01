@@ -1,4 +1,4 @@
-// Self-contained trigger + modal for the neighborhood diagnosis quiz —
+﻿// Self-contained trigger + modal for the neighborhood diagnosis quiz —
 // helps a visitor figure out what's likely going on with cats near
 // them, distinct from the identity-focused quiz on /profile (lib/quiz.ts).
 // One question per screen with a felines-step-in transition on each
@@ -17,7 +17,7 @@ import { useEscapeToClose } from "@/lib/useEscapeToClose";
 
 export default function NeighborhoodQuizButton({
   triggerClassName,
-  triggerLabel = "O que está acontecendo no seu bairro? →",
+  triggerLabel = "O que está acontecendo no seu bairro?",
 }: {
   triggerClassName?: string;
   triggerLabel?: string;

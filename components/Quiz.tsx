@@ -1,4 +1,4 @@
-// Personalization quiz shown on /learn once a user has read at least 3
+﻿// Personalization quiz shown on /learn once a user has read at least 3
 // articles, and on /profile. No wrong answers — only the commitment
 // question determines the resulting "neighbor profile" and its
 // suggested first action. One question is shown at a time, advancing
@@ -72,7 +72,7 @@ export default function Quiz({ onSkip }: { onSkip?: () => void }) {
           href="/map"
           className="mt-2 inline-block rounded-full bg-felines-accent px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-felines-accent-hover"
         >
-          Ver o mapa →
+          Ver o mapa
         </Link>
       </div>
     );

@@ -1,4 +1,4 @@
-// Home page for Felines.
+﻿// Home page for Felines.
 // Editorial marketing-style landing page (not the map) that introduces
 // the project to the everyday citizen who is curious or in conflict
 // with stray cats, and merges in the full /learn guide as an anchored
@@ -15,6 +15,7 @@ import CountUpStat from "@/components/CountUpStat";
 import MapPreviewIllustration from "@/components/MapPreviewIllustration";
 import ArticleCard from "@/components/ArticleCard";
 import NeighborhoodQuizButton from "@/components/NeighborhoodQuizButton";
+import CatsConflictModal from "@/components/CatsConflictModal";
 import { ARTICLES } from "@/lib/articles";
 
 const STATS: { value: string; label: string }[] = [
@@ -84,13 +85,19 @@ export default function Home() {
               fazer quando ainda não tem ninguém cuidando. Sem precisar ser especialista.
             </p>
           </Reveal>
+          <Reveal delayMs={200}>
+            <div className="mt-6 flex justify-center lg:justify-start">
+              <CatsConflictModal />
+            </div>
+          </Reveal>
+
           <Reveal delayMs={240}>
-            <div className="mt-8 flex flex-wrap justify-center gap-3 lg:justify-start">
+            <div className="mt-6 flex flex-wrap justify-center gap-3 lg:justify-start">
               <Link
                 href="/map"
                 className="rounded-full bg-felines-accent px-7 py-3 text-base font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-felines-accent-hover active:scale-[0.97]"
               >
-                Explorar o mapa →
+                Explorar o mapa
               </Link>
               <Link
                 href="#aprender"
@@ -170,7 +177,7 @@ export default function Home() {
                     {card.description}
                   </p>
                   <span className="mt-4 inline-block text-sm font-medium text-felines-accent-hover transition-transform duration-200 group-hover:translate-x-0.5">
-                    Saiba mais →
+                    Saiba mais
                   </span>
                 </>
               );
@@ -208,7 +215,7 @@ export default function Home() {
           <div className="mt-6">
             <NeighborhoodQuizButton
               triggerClassName="rounded-full bg-felines-accent px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-felines-accent-hover"
-              triggerLabel="O que está acontecendo no seu bairro? →"
+              triggerLabel="O que está acontecendo no seu bairro?"
             />
           </div>
         </Reveal>
@@ -232,7 +239,7 @@ export default function Home() {
               href="#aprender"
               className="mt-6 inline-block rounded-full border-2 border-white px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-white hover:text-felines-dark"
             >
-              Começar a aprender →
+              Começar a aprender
             </Link>
           </Reveal>
 
@@ -272,7 +279,7 @@ export default function Home() {
               href="/map"
               className="mt-6 inline-block rounded-full bg-felines-accent px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-felines-accent-hover"
             >
-              Abrir o mapa →
+              Abrir o mapa
             </Link>
           </Reveal>
         </div>
@@ -314,8 +321,8 @@ export default function Home() {
             <Link href="/glossary" className="font-medium text-felines-accent-hover">
               Glossário
             </Link>
-            <Link href="/stories" className="font-medium text-felines-accent-hover">
-              Histórias
+            <Link href="/curso" className="font-medium text-felines-accent-hover">
+              Curso
             </Link>
             {/* TODO: link to product documentation once it's published */}
             <a href="#" className="font-medium text-felines-accent-hover">

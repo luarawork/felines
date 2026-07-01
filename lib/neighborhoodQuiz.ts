@@ -1,4 +1,4 @@
-// Diagnostic quiz helping a visitor figure out what's likely going on
+﻿// Diagnostic quiz helping a visitor figure out what's likely going on
 // with cats in their area — distinct from lib/quiz.ts (the "what kind
 // of neighbor are you" identity quiz on /profile): this one is about
 // the situation, not the person answering.
@@ -62,27 +62,27 @@ export const DIAGNOSES: Record<DiagnosisKey, Diagnosis> = {
     title: "Isso parece uma colônia já estabelecida",
     explanation:
       "Você provavelmente está vendo uma colônia que já tem alguém de olho nela. Isso é uma boa notícia — significa que já existe cuidado acontecendo, mesmo que discreto.",
-    ctaLabel: "Descobrir se ela já está mapeada →",
+    ctaLabel: "Descobrir se ela já está mapeada",
     ctaHref: "/map",
   },
   unregistered: {
     title: "Isso pode ser uma colônia ainda não registrada",
     explanation:
       "Esses gatos parecem ter se estabelecido ali, mas ninguém está acompanhando oficialmente. Eles podem precisar de apoio — e você pode ser a pessoa que começa isso.",
-    ctaLabel: "Seja o primeiro a mapear essa colônia →",
+    ctaLabel: "Seja o primeiro a mapear essa colônia",
     ctaHref: "/colony/new",
   },
   conflict: {
     title: "Isso parece uma situação de conflito",
     explanation:
       "Conflitos de vizinhança envolvendo gatos são mais comuns do que parece — e têm soluções reais, que não passam por remover os gatos.",
-    ctaLabel: "Veja o que realmente funciona →",
+    ctaLabel: "Veja o que realmente funciona",
     ctaHref: "/learn/cats-bothering-your-building",
   },
   unclear: {
     title: "Ainda é difícil saber",
     explanation: "Sem problema. O mapa pode te ajudar a descobrir o que já existe perto de você.",
-    ctaLabel: "Explorar o que tem na sua área →",
+    ctaLabel: "Explorar o que tem na sua área",
     ctaHref: "/map",
   },
 };

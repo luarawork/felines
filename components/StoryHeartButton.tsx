@@ -37,11 +37,7 @@ export default function StoryHeartButton({
     if (hearted || sending) return;
     setSending(true);
 
-    const { data: sessionData } = await supabase.auth.getSession();
-    const { error } = await supabase.from("story_reactions").insert({
-      story_id: storyId,
-      user_id: sessionData.session?.user.id ?? null,
-    });
+    const { error } = await supabase.rpc("react_to_story", { p_story_id: storyId });
 
     setSending(false);
     if (error) return;

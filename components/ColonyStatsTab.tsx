@@ -122,21 +122,58 @@ export default function ColonyStatsTab({
       </div>
 
       <div>
-        <p className="text-sm font-semibold text-felines-text-primary">
-          Índice de saúde: {healthScore}/100 — {HEALTH_STATUS_LABELS[healthStatus] ?? healthStatus}
+        <div className="flex flex-wrap items-center gap-3">
+          <p className="text-sm font-semibold text-felines-text-primary">
+            Índice de saúde: {healthScore}/100 — {HEALTH_STATUS_LABELS[healthStatus] ?? healthStatus}
+          </p>
+        </div>
+        <p className="mt-1 text-xs text-felines-text-secondary max-w-xl">
+          Calculado automaticamente a partir de 5 fatores: frequência de alimentação registrada, avistamentos recentes dos gatos, porcentagem de castração, ausência de relatos graves abertos e cobertura de cuidadores. Atualizado a cada nova ação na colônia.
         </p>
-        <div className="mt-3 space-y-2">
+        <div className="mt-4 space-y-4">
           {[
-            { label: "Alimentação recente (30%)", value: healthBreakdown.feeding_score, max: 30 },
-            { label: "Gatos vistos recentemente (25%)", value: healthBreakdown.sighting_score, max: 25 },
-            { label: "Taxa de castração (20%)", value: healthBreakdown.castration_score, max: 20 },
-            { label: "Relatos abertos (15%)", value: healthBreakdown.reports_score, max: 15 },
-            { label: "Cobertura de cuidadores (10%)", value: healthBreakdown.caretaker_score, max: 10 },
+            {
+              label: "Alimentação recente",
+              weight: 30,
+              value: healthBreakdown.feeding_score,
+              max: 30,
+              how: "Sobe com cada check-in de alimentação registrado nos últimos 30 dias. Chega a 30 com 10 ou mais check-ins no período.",
+            },
+            {
+              label: "Gatos vistos recentemente",
+              weight: 25,
+              value: healthBreakdown.sighting_score,
+              max: 25,
+              how: "Baseado em avistamentos e relatos de gatos nos últimos 7 dias. Chega a 25 quando pelo menos 3 gatos foram vistos no período.",
+            },
+            {
+              label: "Taxa de castração",
+              weight: 20,
+              value: healthBreakdown.castration_score,
+              max: 20,
+              how: "Proporcional ao percentual de gatos cadastrados que já foram castrados. 100% de castração vale 20 pontos.",
+            },
+            {
+              label: "Ausência de relatos graves",
+              weight: 15,
+              value: healthBreakdown.reports_score,
+              max: 15,
+              how: "Começa em 15. Perde pontos por cada relato grave (envenenamento, maus-tratos, surto de doença) ainda sem resolução.",
+            },
+            {
+              label: "Cobertura de cuidadores",
+              weight: 10,
+              value: healthBreakdown.caretaker_score,
+              max: 10,
+              how: "Vale 10 se a colônia tiver pelo menos um cuidador vinculado, 0 se não tiver nenhum.",
+            },
           ].map((factor) => (
             <div key={factor.label}>
-              <div className="flex items-center justify-between text-xs text-felines-text-secondary">
-                <span>{factor.label}</span>
-                <span>
+              <div className="flex items-center justify-between text-xs">
+                <span className="font-medium text-felines-text-primary">
+                  {factor.label} <span className="font-normal text-felines-text-secondary">({factor.weight}%)</span>
+                </span>
+                <span className="tabular-nums text-felines-text-secondary">
                   {Math.round(factor.value * 10) / 10}/{factor.max}
                 </span>
               </div>
@@ -146,6 +183,7 @@ export default function ColonyStatsTab({
                   style={{ width: `${Math.max(2, (factor.value / factor.max) * 100)}%` }}
                 />
               </div>
+              <p className="mt-1 text-xs text-felines-text-secondary">{factor.how}</p>
             </div>
           ))}
         </div>

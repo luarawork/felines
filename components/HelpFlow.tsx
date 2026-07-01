@@ -1,4 +1,4 @@
-// Two-step "what should I do" wizard for the /help page.
+﻿// Two-step "what should I do" wizard for the /help page.
 // Step 1 asks what's happening, step 2 asks where, then shows tailored
 // educational guidance and, when relevant, a way to submit a report
 // directly from the flow — no login required, except for "Gato
@@ -16,6 +16,7 @@ import CreateAccountInvite from "@/components/CreateAccountInvite";
 import LostCatForm from "@/components/LostCatForm";
 
 type SituationKey =
+  | "spotted"
   | "injured"
   | "kitten"
   | "abuse"
@@ -39,7 +40,33 @@ type Situation = {
 
 // What's happening? options, with the educational guidance shown for each
 // and, when applicable, the reports.type used if the user submits a report.
+// Order of the two-column grid (sm:grid-cols-2):
+// col A: spotted, injured, kitten, missing, disease
+// col B: conflict, abuse, threat, map_colony (special Link), other
 const SITUATIONS: Situation[] = [
+  // Row 1
+  {
+    key: "spotted",
+    label: "👀 Avistei um gato",
+    reportType: "sighting",
+    guidance: [
+      "Um avistamento isolado já ajuda — registre onde e quando você viu o gato.",
+      "Se você costuma ver o mesmo gato (ou grupo de gatos) na região, isso pode ser uma colônia ainda não mapeada.",
+    ],
+    alert: "Viu o mesmo lugar mais de uma vez? Considere colocar essa colônia no mapa.",
+  },
+  {
+    key: "conflict",
+    label: "🏠 Estou em conflito com os gatos",
+    reportType: null,
+    guidance: [
+      "Cheiro, barulho e sujeira costumam vir de colônias sem ninguém cuidando — castração e alimentação controlada resolvem boa parte disso.",
+      "Remover ou afugentar os gatos quase sempre atrai um grupo novo pro mesmo lugar.",
+    ],
+    relatedArticleSlug: "cats-bothering-your-building",
+    relatedArticleLabel: "Veja o que realmente funciona",
+  },
+  // Row 2
   {
     key: "injured",
     label: "🤕 Gato ferido ou doente",
@@ -51,17 +78,6 @@ const SITUATIONS: Situation[] = [
     alert: "Procure uma clínica veterinária ou abrigo de emergência perto de você.",
     relatedArticleSlug: "found-injured-cat-step-by-step",
     relatedArticleLabel: "Veja o passo a passo completo",
-  },
-  {
-    key: "kitten",
-    label: "🐾 Filhote sozinho",
-    reportType: "new_kitten",
-    guidance: [
-      "Filhote sozinho nem sempre é filhote abandonado. A mãe pode estar só caçando comida por aí.",
-      "Observe de uma distância segura por algumas horas antes de fazer qualquer coisa.",
-    ],
-    relatedArticleSlug: "found-a-kitten-alone",
-    relatedArticleLabel: "Veja o guia completo antes de agir",
   },
   {
     key: "abuse",
@@ -76,36 +92,17 @@ const SITUATIONS: Situation[] = [
     relatedArticleSlug: "how-to-report-animal-abuse",
     relatedArticleLabel: "Saiba como denunciar corretamente",
   },
+  // Row 3
   {
-    key: "disease",
-    label: "🦠 Surto de doença na colônia",
-    reportType: "disease_outbreak",
+    key: "kitten",
+    label: "🐾 Filhote sozinho",
+    reportType: "new_kitten",
     guidance: [
-      "Evite contato direto com gatos doentes, e não deixe outros bichos domésticos se aproximarem.",
-      "Anote quantos gatos parecem afetados e quais sintomas você está vendo.",
+      "Filhote sozinho nem sempre é filhote abandonado. A mãe pode estar só caçando comida por aí.",
+      "Observe de uma distância segura por algumas horas antes de fazer qualquer coisa.",
     ],
-    alert: "Contate o centro de controle de zoonoses da sua região.",
-  },
-  {
-    key: "conflict",
-    label: "🏠 Estou em conflito com os gatos",
-    reportType: null,
-    guidance: [
-      "Cheiro, barulho e sujeira costumam vir de colônias sem ninguém cuidando — castração e alimentação controlada resolvem boa parte disso.",
-      "Remover ou afugentar os gatos quase sempre atrai um grupo novo pro mesmo lugar.",
-    ],
-    relatedArticleSlug: "cats-bothering-your-building",
-    relatedArticleLabel: "Veja o que realmente funciona",
-  },
-  {
-    key: "missing",
-    label: "🔍 Gato desaparecido",
-    reportType: "missing_cat",
-    guidance: [
-      "Avise os cuidadores de colônias próximas. Eles costumam reconhecer os gatos da região.",
-      "Espalhe uma foto recente e características marcantes (cor, porte, coleira) pela vizinhança.",
-    ],
-    alert: "Dá uma olhada nas colônias próximas no mapa — gatos costumam ficar a poucos quarteirões de casa.",
+    relatedArticleSlug: "found-a-kitten-alone",
+    relatedArticleLabel: "Veja o guia completo antes de agir",
   },
   {
     key: "threat",
@@ -116,6 +113,30 @@ const SITUATIONS: Situation[] = [
       "Procure o cuidador responsável pela colônia, se já tiver um cadastrado no mapa.",
     ],
     alert: "Avise cuidadores e vizinhos da região — junto, é mais fácil agir a tempo.",
+  },
+  // Row 4
+  {
+    key: "missing",
+    label: "🔍 Gato desaparecido",
+    reportType: "missing_cat",
+    guidance: [
+      "Avise os cuidadores de colônias próximas. Eles costumam reconhecer os gatos da região.",
+      "Espalhe uma foto recente e características marcantes (cor, porte, coleira) pela vizinhança.",
+    ],
+    alert: "Dá uma olhada nas colônias próximas no mapa — gatos costumam ficar a poucos quarteirões de casa.",
+  },
+  // Row 4 col B: "Colocar uma colônia no mapa" is rendered as a special Link
+  // after this item — key "map_colony" is a placeholder filtered out in render.
+  // Row 5
+  {
+    key: "disease",
+    label: "🦠 Surto de doença na colônia",
+    reportType: "disease_outbreak",
+    guidance: [
+      "Evite contato direto com gatos doentes, e não deixe outros bichos domésticos se aproximarem.",
+      "Anote quantos gatos parecem afetados e quais sintomas você está vendo.",
+    ],
+    alert: "Contate o centro de controle de zoonoses da sua região.",
   },
   {
     key: "other",
@@ -174,33 +195,38 @@ export default function HelpFlow({ onClose }: { onClose?: () => void }) {
             O que está acontecendo?
           </h2>
           <div className="mt-4 grid gap-3 sm:grid-cols-2">
-            {SITUATIONS.map((option) => (
-              <button
-                key={option.key}
-                onClick={() => {
-                  setSituation(option);
-                  setStep(2);
-                  setMissingCatGuestConfirmed(false);
-                }}
-                className="rounded-xl border border-felines-border bg-felines-surface px-4 py-3 text-left text-sm font-medium text-felines-text-primary transition-colors hover:border-felines-accent"
-              >
-                {option.label}
-              </button>
-            ))}
+            {SITUATIONS.flatMap((option, index) => {
+              const btn = (
+                <button
+                  key={option.key}
+                  onClick={() => {
+                    setSituation(option);
+                    setStep(2);
+                    setMissingCatGuestConfirmed(false);
+                  }}
+                  className="rounded-xl border border-felines-border bg-felines-surface px-4 py-3 text-left text-sm font-medium text-felines-text-primary transition-colors hover:border-felines-accent"
+                >
+                  {option.label}
+                </button>
+              );
+              // "Colocar uma colônia no mapa" sits at column-B of row 4,
+              // right after "Gato desaparecido" (index 6, 0-based).
+              if (index === 6) {
+                return [
+                  btn,
+                  <Link
+                    key="map_colony"
+                    href="/colony/new"
+                    onClick={onClose}
+                    className="rounded-xl border border-felines-border bg-felines-surface px-4 py-3 text-left text-sm font-medium text-felines-text-primary transition-colors hover:border-felines-accent"
+                  >
+                    📍 Colocar uma colônia no mapa
+                  </Link>,
+                ];
+              }
+              return [btn];
+            })}
           </div>
-
-          {/* Same action offered on step 2 (and on /map's floating
-              button) — reachable from here too, since not every
-              situation leads to step 2's generic branch (the missing-cat
-              one doesn't), and someone who already knows they want to
-              map a colony shouldn't have to pick a situation first. */}
-          <Link
-            href="/colony/new"
-            onClick={onClose}
-            className="mt-4 inline-block rounded-full border border-felines-border px-4 py-2 text-sm font-medium text-felines-text-secondary transition-colors hover:border-felines-accent hover:text-felines-accent"
-          >
-            Colocar uma colônia no mapa
-          </Link>
         </div>
       )}
 
@@ -301,7 +327,7 @@ export default function HelpFlow({ onClose }: { onClose?: () => void }) {
                     onClick={onClose}
                     className="mt-3 inline-block text-sm font-medium text-felines-accent hover:text-felines-accent-hover"
                   >
-                    {situation.relatedArticleLabel ?? "Saiba mais"} →
+                    {situation.relatedArticleLabel ?? "Saiba mais"}
                   </Link>
                 )}
 

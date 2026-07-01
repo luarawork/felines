@@ -1,4 +1,4 @@
-// Renders /map's map. The activity panel (showing what's visible in the
+﻿// Renders /map's map. The activity panel (showing what's visible in the
 // current map area) and its own show/hide toggle live inside ColonyMap
 // itself, since the panel is always present on screen rather than
 // swapped in and out. Holds the map's current center so the weather
@@ -39,7 +39,7 @@ export default function MapPageClient() {
       <div className="absolute bottom-6 right-6 z-[1000]">
         <NeighborhoodQuizButton
           triggerClassName="rounded-full border border-felines-border bg-white px-4 py-2.5 text-sm font-medium text-felines-text-secondary shadow-lg transition-colors hover:border-felines-accent hover:text-felines-accent"
-          triggerLabel="Não sabe o que está vendo? →"
+          triggerLabel="Não sabe o que está vendo?"
         />
       </div>
     </div>

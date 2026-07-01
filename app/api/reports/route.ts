@@ -82,26 +82,49 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "O relato não foi enviado. Tenta de novo?" }, { status: 400 });
   }
 
-  // Notifies the colony's followers with a summary only, never the
-  // free-text description — and only for signed-in reporters, since
-  // notify_followers is granted to `authenticated`, not `anon` (an
-  // anonymous caller could otherwise spam arbitrary fan-out messages to
-  // every follower of any colony, since p_message has no server-side
-  // content check beyond what we pass it here).
-  if (isAuthenticated && colony_id) {
-    await supabase.rpc("notify_followers", {
-      p_colony_id: colony_id,
-      p_type: "report_submitted",
-      p_message: "Um novo relato foi feito em uma colônia que você segue.",
-    });
-  }
+  // All post-insert side-effects are independent — run them in parallel
+  // so the response time is bounded by the slowest one, not their sum.
+  const SERIOUS_TYPES = ["suspected_poisoning", "suspected_abuse", "disease_outbreak", "threat_to_colony"];
+  const SERIOUS_TYPE_LABELS: Record<string, string> = {
+    suspected_poisoning: "suspeita de envenenamento",
+    suspected_abuse: "maus-tratos",
+    disease_outbreak: "surto de doença",
+    threat_to_colony: "ameaça a colônia",
+  };
 
-  // Unlike notify_followers, this is safe (and granted) for anon too —
-  // a report's sensitivity affects the colony's health score regardless
-  // of whether the reporter has an account.
-  if (colony_id) {
-    await supabase.rpc("recalculate_colony_health", { p_colony_id: colony_id });
-  }
+  await Promise.all([
+    // notify_followers is granted to `authenticated` only — anon callers
+    // can't fan-out arbitrary messages to every follower.
+    isAuthenticated && colony_id
+      ? supabase.rpc("notify_followers", {
+          p_colony_id: colony_id,
+          p_type: "report_submitted",
+          p_message: "Um novo relato foi feito em uma colônia que você segue.",
+        })
+      : Promise.resolve(),
+
+    colony_id
+      ? supabase.rpc("notify_caretakers", {
+          p_colony_id: colony_id,
+          p_type: "report_submitted",
+          p_message: "Alguém relatou que uma colônia que você cuida precisa de atenção.",
+        })
+      : Promise.resolve(),
+
+    SERIOUS_TYPES.includes(type) && latitude != null && longitude != null
+      ? supabase.rpc("notify_nearby_caretakers", {
+          p_latitude: latitude,
+          p_longitude: longitude,
+          p_radius_km: 1,
+          p_type: "area_alert",
+          p_message: `⚠️ Alerta de área: foi registrado um relato de "${SERIOUS_TYPE_LABELS[type] ?? type}" perto de uma colônia que você cuida.`,
+        })
+      : Promise.resolve(),
+
+    colony_id
+      ? supabase.rpc("recalculate_colony_health", { p_colony_id: colony_id })
+      : Promise.resolve(),
+  ]);
 
   return NextResponse.json({ data });
 }

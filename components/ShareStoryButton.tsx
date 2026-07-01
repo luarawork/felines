@@ -1,4 +1,4 @@
-// Trigger + modal for a linked caretaker to share a short story about
+﻿// Trigger + modal for a linked caretaker to share a short story about
 // their colony on the public /stories wall. Gated by canManage, same
 // pattern as EditColonyButton — only visible to whoever actually
 // caretakes this colony.
@@ -19,7 +19,6 @@ export default function ShareStoryButton({ colonyId }: { colonyId: string }) {
   const [title, setTitle] = useState("");
   const [storyText, setStoryText] = useState("");
   const [photoFile, setPhotoFile] = useState<File | null>(null);
-  const [anonymous, setAnonymous] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
@@ -62,7 +61,7 @@ export default function ShareStoryButton({ colonyId }: { colonyId: string }) {
       title: title.trim(),
       story_text: storyText.trim(),
       photo_url: photoUrl,
-      anonymous,
+      anonymous: false,
     });
 
     setSubmitting(false);
@@ -84,7 +83,7 @@ export default function ShareStoryButton({ colonyId }: { colonyId: string }) {
         onClick={() => setOpen(true)}
         className="rounded-full border border-felines-border px-4 py-2 text-sm font-medium text-felines-text-secondary transition-colors hover:border-felines-accent hover:text-felines-accent-hover"
       >
-        Compartilhar uma história sobre essa colônia →
+        Compartilhar uma história sobre essa colônia
       </button>
 
       {open && (
@@ -163,15 +162,6 @@ export default function ShareStoryButton({ colonyId }: { colonyId: string }) {
                     <PhotoUploadButton label="Escolher foto" file={photoFile} onChange={setPhotoFile} />
                   </div>
                 </div>
-
-                <label className="flex items-center gap-2 text-sm text-felines-text-secondary">
-                  <input
-                    type="checkbox"
-                    checked={anonymous}
-                    onChange={(event) => setAnonymous(event.target.checked)}
-                  />
-                  Compartilhar sem meu nome
-                </label>
 
                 {error && <p className="text-sm text-felines-emergency">{error}</p>}
 

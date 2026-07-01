@@ -8,6 +8,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import { ARTICLES } from "@/lib/articles";
@@ -204,19 +205,21 @@ export default function GlobalSearchButton() {
         🔍
       </button>
 
-      {open && (
-        <div
-          className="fixed inset-0 z-[2500] flex items-start justify-center bg-black/50 p-4 pt-[10vh]"
-          onClick={handleClose}
-        >
+      {open &&
+        createPortal(
           <div
-            role="dialog"
-            aria-modal="true"
-            aria-label="Busca global"
-            className="w-full max-w-lg rounded-2xl bg-felines-background shadow-2xl"
-            onClick={(event) => event.stopPropagation()}
-            onKeyDown={handleKeyDownInModal}
+            className="fixed inset-0 z-[2500] flex justify-center bg-black/50 p-4"
+            style={{ paddingTop: "var(--navbar-height, 64px)" }}
+            onClick={handleClose}
           >
+            <div
+              role="dialog"
+              aria-modal="true"
+              aria-label="Busca global"
+              className="h-fit w-full max-w-lg overflow-hidden rounded-2xl bg-felines-background shadow-2xl"
+              onClick={(event) => event.stopPropagation()}
+              onKeyDown={handleKeyDownInModal}
+            >
             <input
               ref={inputRef}
               type="text"
@@ -297,10 +300,11 @@ export default function GlobalSearchButton() {
                     )
                 )
               )}
+              </div>
             </div>
-          </div>
-        </div>
-      )}
+          </div>,
+          document.body
+        )}
     </>
   );
 }

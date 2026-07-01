@@ -1,4 +1,4 @@
-// Interactive colony map for Felines, centered on Natal, RN.
+﻿// Interactive colony map for Felines, centered on Natal, RN.
 // Renders colony pins (terracotta), sighting pins (gray) and emergency
 // pins (red, pulsing) using Leaflet. Includes a search box (by colony
 // name) and filters for pin type and castration status.
@@ -27,6 +27,9 @@ import {
 } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+import MarkerClusterGroup from "react-leaflet-cluster";
+import "leaflet.markercluster/dist/MarkerCluster.css";
+import "leaflet.markercluster/dist/MarkerCluster.Default.css";
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabaseClient";
 import LocationBlurBadge, { BADGE_TEXT, type LocationAccessLevel } from "@/components/LocationBlurBadge";
@@ -150,54 +153,17 @@ function buildPinIcon(color: string, size: number, pulsing = false, icon = "") {
 
 const colonyIcon = buildPinIcon("#C4704F", 22);
 
-// Colony pins with an active help request get a small corner badge —
-// amber for normal urgency, red (pulsing) for urgent. Only three
-// possible variants, so these are built once instead of per-colony.
-function buildColonyIconWithBadge(urgency: "normal" | "urgent"): L.DivIcon {
-  const badgeColor = urgency === "urgent" ? "#C0392B" : "#E8A838";
-  const badgeClass = urgency === "urgent" ? "felines-pin-pulse" : "";
-  return L.divIcon({
-    className: "",
-    html: `<span style="position:relative;display:inline-block;width:22px;height:22px;">
-      <span class="felines-pin" style="background:#C4704F;width:22px;height:22px;display:flex;align-items:center;justify-content:center;"></span>
-      <span class="${badgeClass}" style="position:absolute;top:-3px;right:-3px;width:10px;height:10px;border-radius:50%;background:${badgeColor};border:1.5px solid white;"></span>
-    </span>`,
-    iconSize: [22, 22],
-    iconAnchor: [11, 11],
-  });
-}
-const colonyIconWithNormalHelpBadge = buildColonyIconWithBadge("normal");
-const colonyIconWithUrgentHelpBadge = buildColonyIconWithBadge("urgent");
-
-// Scissors badge for an open neutering request — only shown when there's
-// no help-request badge already occupying that corner, so pins never
-// stack multiple indicators.
-const colonyIconWithNeuteringBadge = L.divIcon({
-  className: "",
-  html: `<span style="position:relative;display:inline-block;width:22px;height:22px;">
-    <span class="felines-pin" style="background:#C4704F;width:22px;height:22px;display:flex;align-items:center;justify-content:center;"></span>
-    <span style="position:absolute;top:-6px;right:-6px;font-size:11px;line-height:1;">✂️</span>
-  </span>`,
-  iconSize: [22, 22],
-  iconAnchor: [11, 11],
-});
-
-// Unverified colonies get a dashed (instead of solid) border, muted
-// slightly — a softer cue than the help/neutering badges, so it never
-// competes with them when both apply.
+// Help requests, neutering requests, and false-pin flags used to show as
+// small badges layered on top of the pin itself ("bolinha em cima do
+// pin") — removed in favor of surfacing the same information as status
+// chips inside the popup, so the pin shape stays clean at every zoom
+// level and the information is still one click away.
+//
+// Unverified colonies still get a dashed (instead of solid) border —
+// a whole-pin treatment, not a corner badge, so it's kept.
 const unverifiedColonyIcon = L.divIcon({
   className: "",
   html: `<span style="display:flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:rgba(196,112,79,0.55);border:2px dashed #C4704F;"></span>`,
-  iconSize: [22, 22],
-  iconAnchor: [11, 11],
-});
-// 3+ false-pin flags — top-priority warning, overrides every other badge.
-const colonyIconWithWarning = L.divIcon({
-  className: "",
-  html: `<span style="position:relative;display:inline-block;width:22px;height:22px;">
-    <span class="felines-pin" style="background:#C4704F;width:22px;height:22px;display:flex;align-items:center;justify-content:center;"></span>
-    <span style="position:absolute;top:-6px;right:-6px;font-size:11px;line-height:1;">⚠️</span>
-  </span>`,
   iconSize: [22, 22],
   iconAnchor: [11, 11],
 });
@@ -273,7 +239,6 @@ const PIN_TYPE_OPTIONS: { value: PinType; label: string; color: string }[] = [
   { value: "colony", label: "Colônias", color: "#C4704F" },
   { value: "sighting", label: "Avistamentos", color: "#6B6B6B" },
   { value: "emergency", label: "Emergências", color: "#C0392B" },
-  { value: "suggested", label: "Possíveis colônias", color: "#6B8F6A" },
 ];
 
 // Uncertainty circle radius (meters) drawn around blurred pins, so the
@@ -372,25 +337,67 @@ export default function ColonyMap({
       const currentSession = sessionData.session;
       setSession(currentSession);
 
-      const { data: colonyData } = await supabase
-        .from("colonies")
-        .select(
-          "id, name, narrative, latitude_blurred, longitude_blurred, latitude_blurred_near, longitude_blurred_near, castration_status, created_by, verified_status, health_status"
-        );
+      // All independent reads fire in parallel — one round-trip instead
+      // of the previous 8 sequential awaits.
+      const reportSelect: string = currentSession
+        ? "id, type, description, latitude, longitude, created_at"
+        : "id, type, latitude_blurred, longitude_blurred";
+      const falsePinReasonValues = FALSE_PIN_REASONS.map((reason) => reason.value);
+
+      const [
+        { data: colonyData },
+        { data: suggestedData },
+        { data: helpRequestRows },
+        { data: neuteringRows },
+        { data: flagRows },
+        { data: catRows },
+        { data: reportData },
+        { data: caretakerRows },
+      ] = await Promise.all([
+        supabase
+          .from("colonies")
+          .select(
+            "id, name, narrative, latitude_blurred, longitude_blurred, latitude_blurred_near, longitude_blurred_near, castration_status, created_by, verified_status, health_status"
+          ),
+        supabase
+          .from("suggested_colonies")
+          .select("id, latitude, longitude, sighting_count"),
+        supabase
+          .from("help_requests")
+          .select("colony_id, urgency")
+          .eq("status", "open")
+          .gt("expires_at", new Date().toISOString()),
+        supabase
+          .from("neutering_requests")
+          .select("colony_id")
+          .neq("status", "completed"),
+        supabase
+          .from("flags")
+          .select("target_id")
+          .eq("target_type", "colony")
+          .in("reason", falsePinReasonValues),
+        // cats is public-readable (cats_select_public) — one query for
+        // every colony's cats instead of one query per pin.
+        supabase.from("cats").select("colony_id, castrated"),
+        // Fetch every open report with a location, not just sightings and
+        // the emergency types — types like missing_cat, new_kitten, and
+        // no_food_water still need to show up somewhere.
+        supabase.from("reports").select(reportSelect).eq("status", "open"),
+        // Candidate colonies for level 3 (exact coordinates via RPC):
+        // caretakers row tells us which ones to call the RPC for.
+        currentSession
+          ? supabase
+              .from("caretakers")
+              .select("colony_id")
+              .eq("user_id", currentSession.user.id)
+          : Promise.resolve({ data: null }),
+      ]);
 
       if (colonyData) setColonies(colonyData as Colony[]);
       setHasLoadedColonies(true);
 
-      const { data: suggestedData } = await supabase
-        .from("suggested_colonies")
-        .select("id, latitude, longitude, sighting_count");
       if (suggestedData) setSuggestedColonies(suggestedData as SuggestedColony[]);
 
-      const { data: helpRequestRows } = await supabase
-        .from("help_requests")
-        .select("colony_id, urgency")
-        .eq("status", "open")
-        .gt("expires_at", new Date().toISOString());
       const urgencyMap = new Map<string, "normal" | "urgent">();
       (helpRequestRows ?? []).forEach((row) => {
         const current = urgencyMap.get(row.colony_id);
@@ -400,18 +407,8 @@ export default function ColonyMap({
       });
       setHelpUrgencyByColonyId(urgencyMap);
 
-      const { data: neuteringRows } = await supabase
-        .from("neutering_requests")
-        .select("colony_id")
-        .neq("status", "completed");
       setNeuteringColonyIds(new Set((neuteringRows ?? []).map((row) => row.colony_id)));
 
-      const falsePinReasonValues = FALSE_PIN_REASONS.map((reason) => reason.value);
-      const { data: flagRows } = await supabase
-        .from("flags")
-        .select("target_id")
-        .eq("target_type", "colony")
-        .in("reason", falsePinReasonValues);
       const flagCounts = new Map<string, number>();
       (flagRows ?? []).forEach((row) => {
         flagCounts.set(row.target_id, (flagCounts.get(row.target_id) ?? 0) + 1);
@@ -420,10 +417,6 @@ export default function ColonyMap({
         new Set(Array.from(flagCounts.entries()).filter(([, count]) => count >= 3).map(([id]) => id))
       );
 
-      // cats is public-readable (cats_select_public), so this is safe
-      // to fetch regardless of session — one query for every colony's
-      // cats instead of one query per pin.
-      const { data: catRows } = await supabase.from("cats").select("colony_id, castrated");
       const counts = new Map<string, { total: number; castrated: number }>();
       (catRows ?? []).forEach((cat) => {
         const current = counts.get(cat.colony_id) ?? { total: 0, castrated: 0 };
@@ -433,43 +426,13 @@ export default function ColonyMap({
       });
       setCatCountsByColonyId(counts);
 
-      // Fetch every open report with a location, not just sightings and
-      // the emergency types — types like missing_cat, new_kitten, and
-      // no_food_water have no dedicated pin color, but they still need
-      // to show up somewhere instead of silently disappearing from the
-      // map just because they were typed elsewhere.
-      const reportSelect: string = currentSession
-        ? "id, type, description, latitude, longitude, created_at"
-        : "id, type, latitude_blurred, longitude_blurred";
-      const { data: reportData } = await supabase
-        .from("reports")
-        .select(reportSelect)
-        .eq("status", "open");
-
       if (reportData) {
         const typedReportData = reportData as unknown as EmergencyReport[];
-        setEmergencies(
-          typedReportData.filter((r) =>
-            EMERGENCY_REPORT_TYPES.includes(r.type)
-          )
-        );
-        setSightings(
-          typedReportData.filter(
-            (r) => !EMERGENCY_REPORT_TYPES.includes(r.type)
-          )
-        );
+        setEmergencies(typedReportData.filter((r) => EMERGENCY_REPORT_TYPES.includes(r.type)));
+        setSightings(typedReportData.filter((r) => !EMERGENCY_REPORT_TYPES.includes(r.type)));
       }
 
       if (!currentSession || !colonyData) return;
-
-      // Candidate colonies for level 3: the user created them, or has a
-      // caretakers row for them. This is only a hint for which colonies
-      // to call the RPC for — the RPC itself re-validates server-side
-      // and is the only thing that actually returns exact coordinates.
-      const { data: caretakerRows } = await supabase
-        .from("caretakers")
-        .select("colony_id")
-        .eq("user_id", currentSession.user.id);
 
       const candidateColonyIds = new Set<string>(
         (caretakerRows ?? []).map((row) => row.colony_id)
@@ -681,43 +644,103 @@ export default function ColonyMap({
 
         {filteredColonies.map((colony) => {
           const { position, level } = resolveColonyPosition(colony);
+          const helpUrgency = helpUrgencyByColonyId.get(colony.id);
+          const isFlagged = flaggedColonyIds.has(colony.id);
+          const needsNeutering = neuteringColonyIds.has(colony.id);
+          const chips: { label: string; className: string }[] = [];
+          if (isFlagged) {
+            chips.push({
+              label: "⚠️ Pin sinalizado",
+              className: "border-felines-emergency bg-felines-emergency/10 text-felines-emergency",
+            });
+          }
+          if (helpUrgency === "urgent") {
+            chips.push({
+              label: "🆘 Ajuda urgente",
+              className: "border-felines-emergency bg-felines-emergency/10 text-felines-emergency",
+            });
+          } else if (helpUrgency === "normal") {
+            chips.push({
+              label: "🙋 Precisa de ajuda",
+              className: "border-felines-warning bg-felines-warning/10 text-felines-warning",
+            });
+          }
+          if (needsNeutering) {
+            chips.push({
+              label: "✂️ Castração pendente",
+              className: "border-felines-border bg-felines-surface text-felines-text-secondary",
+            });
+          }
+          if (colony.verified_status === "unverified") {
+            chips.push({
+              label: "Não verificada",
+              className: "border-felines-border bg-felines-surface text-felines-text-secondary",
+            });
+          }
+
           const popupContent = (
-            <Popup>
-              <strong>{colony.name}</strong>
-              <p className="mt-1 text-sm">{colony.narrative}</p>
-              <p className="mt-1 text-xs text-felines-text-secondary">
-                {resolveCastrationLabel(colony.castration_status, catCountsByColonyId.get(colony.id))}
-              </p>
-              <LocationBlurBadge level={level} />
-              {/* The colony page's name and narrative can describe the
-                  location in plain language (street names, landmarks),
-                  so this is only offered to signed-in visitors —
-                  anonymous visitors get the blurred pin and nothing more.
-                  The detail page is meant for people who'd realistically
-                  look after the colony, so a short interest check comes
-                  before the link, instead of going straight there. */}
-              {session && (
-                // Caretakers/creators already manage this colony, so the
-                // "are you interested in becoming a caretaker?" gate
-                // would be nonsensical for them — go straight to the page.
-                myColonyIds.has(colony.id) ? (
-                  <a
-                    href={`/colony/${colony.id}`}
-                    className="mt-2 block text-xs font-medium text-felines-accent-hover"
-                  >
-                    Ver colônia →
-                  </a>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={() => setInterestColonyId(colony.id)}
-                    className="mt-2 block text-xs font-medium text-felines-accent-hover"
-                  >
-                    Ver colônia →
-                  </button>
-                )
-              )}
-              <ReportFalsePinButton colonyId={colony.id} />
+            <Popup minWidth={220} maxWidth={280}>
+              <div className="space-y-2">
+                <strong className="block text-sm font-semibold text-felines-text-primary">
+                  {colony.name}
+                </strong>
+
+                {chips.length > 0 && (
+                  <div className="flex flex-wrap gap-1">
+                    {chips.map((chip) => (
+                      <span
+                        key={chip.label}
+                        className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-medium ${chip.className}`}
+                      >
+                        {chip.label}
+                      </span>
+                    ))}
+                  </div>
+                )}
+
+                {colony.narrative && (
+                  <p className="text-xs leading-relaxed text-felines-text-secondary">{colony.narrative}</p>
+                )}
+
+                <p className="text-xs text-felines-text-secondary">
+                  {resolveCastrationLabel(colony.castration_status, catCountsByColonyId.get(colony.id))}
+                </p>
+
+                <LocationBlurBadge level={level} />
+
+                {/* The colony page's name and narrative can describe the
+                    location in plain language (street names, landmarks),
+                    so this is only offered to signed-in visitors —
+                    anonymous visitors get the blurred pin and nothing more.
+                    The detail page is meant for people who'd realistically
+                    look after the colony, so a short interest check comes
+                    before the link, instead of going straight there. */}
+                {session && (
+                  // Caretakers/creators already manage this colony, so the
+                  // "are you interested in becoming a caretaker?" gate
+                  // would be nonsensical for them — go straight to the page.
+                  myColonyIds.has(colony.id) ? (
+                    <a
+                      href={`/colony/${colony.id}`}
+                      className="felines-popup-cta block rounded-full bg-felines-accent px-3 py-1.5 text-center text-xs font-semibold text-white transition-colors hover:bg-felines-accent-hover"
+                    >
+                      Ver colônia
+                    </a>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => setInterestColonyId(colony.id)}
+                      className="block w-full rounded-full bg-felines-accent px-3 py-1.5 text-center text-xs font-semibold text-white transition-colors hover:bg-felines-accent-hover"
+                    >
+                      Ver colônia
+                    </button>
+                  )
+                )}
+
+                <div className="pt-1 text-right">
+                  <ReportFalsePinButton colonyId={colony.id} />
+                </div>
+              </div>
             </Popup>
           );
 
@@ -725,33 +748,10 @@ export default function ColonyMap({
           // marker pin — because a precise-looking pin defeats the blur
           // no matter how big the circle is: it still tells the viewer
           // "the colony is exactly here," which is the one thing blur
-          // exists to prevent. Only level 3 (exact location) gets a pin.
-          if (level === 3) {
-            const helpUrgency = helpUrgencyByColonyId.get(colony.id);
-            const icon = showColonyHealth
-              ? healthRingIcons[colony.health_status] ?? colonyIcon
-              : flaggedColonyIds.has(colony.id)
-                ? colonyIconWithWarning
-                : helpUrgency === "urgent"
-                  ? colonyIconWithUrgentHelpBadge
-                  : helpUrgency === "normal"
-                    ? colonyIconWithNormalHelpBadge
-                    : neuteringColonyIds.has(colony.id)
-                      ? colonyIconWithNeuteringBadge
-                      : colony.verified_status === "unverified"
-                        ? unverifiedColonyIcon
-                        : colonyIcon;
-            return (
-              <Marker
-                key={colony.id}
-                position={position}
-                icon={icon}
-                eventHandlers={{ click: handleColonyPinClick }}
-              >
-                {popupContent}
-              </Marker>
-            );
-          }
+          // exists to prevent. Only level 3 (exact location) gets a pin,
+          // and those are rendered separately below inside a cluster
+          // group, so they're skipped here.
+          if (level === 3) return null;
 
           return (
             <Circle
@@ -768,6 +768,123 @@ export default function ColonyMap({
             </Circle>
           );
         })}
+
+        {/* Exact-location (level 3) colony pins, grouped via clustering
+            so nearby pins merge into a single number bubble at lower
+            zoom levels instead of overlapping each other. */}
+        <MarkerClusterGroup
+          showCoverageOnHover={false}
+          spiderfyOnMaxZoom
+          maxClusterRadius={70}
+          zoomToBoundsOnClick
+        >
+          {filteredColonies.map((colony) => {
+            const { position, level } = resolveColonyPosition(colony);
+            if (level !== 3) return null;
+
+            const helpUrgency = helpUrgencyByColonyId.get(colony.id);
+            const isFlagged = flaggedColonyIds.has(colony.id);
+            const needsNeutering = neuteringColonyIds.has(colony.id);
+            const chips: { label: string; className: string }[] = [];
+            if (isFlagged) {
+              chips.push({
+                label: "⚠️ Pin sinalizado",
+                className: "border-felines-emergency bg-felines-emergency/10 text-felines-emergency",
+              });
+            }
+            if (helpUrgency === "urgent") {
+              chips.push({
+                label: "🆘 Ajuda urgente",
+                className: "border-felines-emergency bg-felines-emergency/10 text-felines-emergency",
+              });
+            } else if (helpUrgency === "normal") {
+              chips.push({
+                label: "🙋 Precisa de ajuda",
+                className: "border-felines-warning bg-felines-warning/10 text-felines-warning",
+              });
+            }
+            if (needsNeutering) {
+              chips.push({
+                label: "✂️ Castração pendente",
+                className: "border-felines-border bg-felines-surface text-felines-text-secondary",
+              });
+            }
+            if (colony.verified_status === "unverified") {
+              chips.push({
+                label: "Não verificada",
+                className: "border-felines-border bg-felines-surface text-felines-text-secondary",
+              });
+            }
+
+            const icon = showColonyHealth
+              ? healthRingIcons[colony.health_status] ?? colonyIcon
+              : colony.verified_status === "unverified"
+                ? unverifiedColonyIcon
+                : colonyIcon;
+
+            return (
+              <Marker
+                key={colony.id}
+                position={position}
+                icon={icon}
+                eventHandlers={{ click: handleColonyPinClick }}
+              >
+                <Popup minWidth={220} maxWidth={280}>
+                  <div className="space-y-2">
+                    <strong className="block text-sm font-semibold text-felines-text-primary">
+                      {colony.name}
+                    </strong>
+
+                    {chips.length > 0 && (
+                      <div className="flex flex-wrap gap-1">
+                        {chips.map((chip) => (
+                          <span
+                            key={chip.label}
+                            className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-medium ${chip.className}`}
+                          >
+                            {chip.label}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+
+                    {colony.narrative && (
+                      <p className="text-xs leading-relaxed text-felines-text-secondary">
+                        {colony.narrative}
+                      </p>
+                    )}
+
+                    <p className="text-xs text-felines-text-secondary">
+                      {resolveCastrationLabel(colony.castration_status, catCountsByColonyId.get(colony.id))}
+                    </p>
+
+                    {session &&
+                      (myColonyIds.has(colony.id) ? (
+                        <a
+                          href={`/colony/${colony.id}`}
+                          className="block rounded-full bg-felines-accent px-3 py-1.5 text-center text-xs font-semibold text-white transition-colors hover:bg-felines-accent-hover"
+                        >
+                          Ver colônia
+                        </a>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => setInterestColonyId(colony.id)}
+                          className="block w-full rounded-full bg-felines-accent px-3 py-1.5 text-center text-xs font-semibold text-white transition-colors hover:bg-felines-accent-hover"
+                        >
+                          Ver colônia
+                        </button>
+                      ))}
+
+                    <div className="pt-1 text-right">
+                      <ReportFalsePinButton colonyId={colony.id} />
+                    </div>
+                  </div>
+                </Popup>
+              </Marker>
+            );
+          })}
+        </MarkerClusterGroup>
 
         {heatMapOn &&
           filteredColonies.map((colony) => {
@@ -801,7 +918,7 @@ export default function ColonyMap({
                 href={`/reports#report-${report.id}`}
                 className="mt-2 block text-xs font-medium text-felines-accent-hover"
               >
-                Ver relato →
+                Ver relato
               </a>
             </Popup>
           );
@@ -837,7 +954,7 @@ export default function ColonyMap({
                 href={`/reports#report-${report.id}`}
                 className="mt-2 block text-xs font-medium text-felines-accent-hover"
               >
-                Ver relato →
+                Ver relato
               </a>
             </Popup>
           );
@@ -895,7 +1012,7 @@ export default function ColonyMap({
             href="/reports"
             className="text-sm font-bold text-felines-text-primary hover:text-felines-accent-hover"
           >
-            Atividade nesta área →
+            Atividade nesta área
           </Link>
           <p className="text-xs text-felines-text-secondary">
             Mova ou dê zoom no mapa para atualizar a lista.
@@ -978,15 +1095,15 @@ export default function ColonyMap({
           {panelSightings.length > 0 ? (
             <EmptyState
               main="Pessoas avistaram gatos aqui, mas ninguém mapeou uma colônia ainda. Será que você pode ser essa pessoa?"
-              ctas={[{ label: "Cadastrar uma colônia →", href: "/colony/new" }]}
+              ctas={[{ label: "Cadastrar uma colônia", href: "/colony/new" }]}
             />
           ) : (
             <EmptyState
               main="Nenhuma colônia mapeada aqui ainda — mas isso não significa que não existam."
               ctas={[
-                { label: "Viu gatos por aqui? Seja o primeiro a mapear →", href: "/colony/new" },
+                { label: "Viu gatos por aqui? Seja o primeiro a mapear", href: "/colony/new" },
                 {
-                  label: "Não tem certeza? Aprenda o que procurar primeiro →",
+                  label: "Não tem certeza? Aprenda o que procurar primeiro",
                   href: "/learn/what-is-a-cat-colony",
                 },
               ]}
@@ -1028,7 +1145,7 @@ function SuggestedColonyPopup({ suggestion }: { suggestion: SuggestedColony }) {
           href={`/colony/new?lat=${suggestion.latitude}&lng=${suggestion.longitude}`}
           className="text-xs font-medium text-felines-accent-hover"
         >
-          Cadastrar uma colônia aqui →
+          Cadastrar uma colônia aqui
         </a>
         {confirmed ? (
           <span className="text-xs text-felines-success">Obrigado por confirmar!</span>

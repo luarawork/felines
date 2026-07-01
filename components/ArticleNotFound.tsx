@@ -1,4 +1,4 @@
-// Empty state shown when a /learn/:slug route doesn't match any known
+﻿// Empty state shown when a /learn/:slug route doesn't match any known
 // article, instead of a generic 404 page.
 import Link from "next/link";
 
@@ -13,7 +13,7 @@ export default function ArticleNotFound() {
         href="/#aprender"
         className="mt-6 inline-block rounded-full bg-felines-accent px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-felines-accent-hover"
       >
-        Explorar o que já temos →
+        Explorar o que já temos
       </Link>
     </div>
   );

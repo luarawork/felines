@@ -1,4 +1,4 @@
-// Colony registration form for /colony/new.
+﻿// Colony registration form for /colony/new.
 // Requires authentication. Walks the user through validation questions
 // (to discourage low-quality submissions), a required photo upload, map
 // marker placement, and the name/narrative fields, then inserts the new
@@ -47,6 +47,8 @@ export default function NewColonyForm() {
   const [castrationStatus, setCastrationStatus] = useState<"none" | "partial" | "full">("none");
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [position, setPosition] = useState<[number, number] | null>(null);
+  const [city, setCity] = useState("");
+  const [cityLoading, setCityLoading] = useState(false);
 
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -58,7 +60,7 @@ export default function NewColonyForm() {
     });
 
     // Pre-fills the marker position when arriving from a suggested-colony
-    // popup on the map ("Cadastrar uma colônia aqui →", ?lat=...&lng=...).
+    // popup on the map ("Cadastrar uma colônia aqui", ?lat=...&lng=...).
     // Read via window.location instead of useSearchParams so this client
     // component doesn't force its page into a Suspense boundary just for
     // an optional convenience prefill.
@@ -143,6 +145,7 @@ export default function NewColonyForm() {
         castration_status: castrationStatus,
         cover_photo_url: publicUrlData.publicUrl,
         created_by: session.user.id,
+        city: city.trim() || null,
       })
       .select("id")
       .single();
@@ -205,7 +208,7 @@ export default function NewColonyForm() {
               onClick={() => setShowSightingForm(true)}
               className="mt-2 rounded-full border border-felines-accent px-3 py-1 text-xs font-medium text-felines-accent transition-colors hover:bg-felines-accent hover:text-white"
             >
-              Relatar avistamento →
+              Relatar avistamento
             </button>
           </div>
         )}
@@ -228,7 +231,7 @@ export default function NewColonyForm() {
           htmlFor="new-colony-name"
           className="block text-sm font-medium text-felines-text-primary"
         >
-          Nome da colônia
+          Nome da colônia <span className="text-felines-emergency">*</span>
         </label>
         <input
           id="new-colony-name"
@@ -283,7 +286,7 @@ export default function NewColonyForm() {
       {/* Photo upload */}
       <div>
         <label className="block text-sm font-medium text-felines-text-primary">
-          Uma foto do local
+          Uma foto do local <span className="text-felines-emergency">*</span>
         </label>
         <div className="mt-1">
           <PhotoUploadButton label="Escolher foto" file={photoFile} onChange={setPhotoFile} />
@@ -293,7 +296,7 @@ export default function NewColonyForm() {
       {/* Map marker placement */}
       <div>
         <label className="block text-sm font-medium text-felines-text-primary">
-          Onde exatamente
+          Onde exatamente <span className="text-felines-emergency">*</span>
         </label>
         <p className="mt-1 text-xs text-felines-text-secondary">
           Toque ou arraste o pino até o ponto certo no mapa.
@@ -301,10 +304,47 @@ export default function NewColonyForm() {
         <div className="mt-2 h-64 w-full overflow-hidden rounded-xl border border-felines-border">
           <MapMarkerPickerShell
             position={position}
-            onPick={(lat, lng) => setPosition([lat, lng])}
+            onPick={async (lat, lng) => {
+              setPosition([lat, lng]);
+              setCityLoading(true);
+              try {
+                const res = await fetch(
+                  `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&accept-language=pt-BR`,
+                  { headers: { "User-Agent": "Felines/1.0 (plasticabolha@gmail.com)" } }
+                );
+                const json = await res.json();
+                const addr = json.address ?? {};
+                const detected =
+                  addr.city ?? addr.town ?? addr.village ?? addr.municipality ?? "";
+                setCity(detected);
+              } catch {
+                // Nominatim unavailable — let user type manually
+              } finally {
+                setCityLoading(false);
+              }
+            }}
           />
         </div>
       </div>
+
+      {position && (
+        <div>
+          <label className="block text-sm font-medium text-felines-text-primary">
+            Cidade
+          </label>
+          <p className="mt-1 text-xs text-felines-text-secondary">
+            Detectada automaticamente pelo pin. Corrija se necessário.
+          </p>
+          <input
+            type="text"
+            value={cityLoading ? "Detectando..." : city}
+            onChange={(e) => setCity(e.target.value)}
+            disabled={cityLoading}
+            placeholder="Ex: Natal"
+            className="mt-2 w-full rounded-xl border border-felines-border bg-felines-background px-4 py-2 text-sm text-felines-text-primary placeholder:text-felines-text-secondary focus:outline-none focus:ring-2 focus:ring-felines-accent disabled:opacity-60"
+          />
+        </div>
+      )}
 
       {error && <p className="text-sm text-felines-emergency">{error}</p>}
 

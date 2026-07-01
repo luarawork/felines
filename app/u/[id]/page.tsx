@@ -27,10 +27,54 @@ export default async function CaretakerPublicPage({
 
   if (!profile) notFound();
 
-  const { data: caretakerRows } = await supabase
-    .from("caretakers")
-    .select("colonies(id, name, castration_status)")
-    .eq("user_id", id);
+  const [
+    { data: caretakerRows },
+    { data: madeReportRows },
+    { data: confirmationRows },
+    { count: createdColonyCount },
+    { count: feedingCount },
+    { count: foodDonationCount },
+    { count: thanksReceivedCount },
+    { data: certRow },
+  ] = await Promise.all([
+    supabase
+      .from("caretakers")
+      .select("colonies(id, name, castration_status)")
+      .eq("user_id", id),
+    supabase
+      .from("reports")
+      .select("id, type, status, created_at")
+      .eq("created_by", id)
+      .order("created_at", { ascending: false }),
+    supabase
+      .from("report_confirmations")
+      .select("created_at, reports(id, type, status)")
+      .eq("user_id", id)
+      .order("created_at", { ascending: false }),
+    supabase
+      .from("colonies")
+      .select("id", { count: "exact", head: true })
+      .eq("created_by", id),
+    supabase
+      .from("feedings")
+      .select("id", { count: "exact", head: true })
+      .eq("user_id", id),
+    supabase
+      .from("resource_posts")
+      .select("id", { count: "exact", head: true })
+      .eq("created_by", id)
+      .eq("type", "offering")
+      .eq("category", "food_supplies"),
+    supabase
+      .from("thanks")
+      .select("id", { count: "exact", head: true })
+      .eq("caretaker_user_id", id),
+    supabase
+      .from("caretaker_certifications")
+      .select("id")
+      .eq("user_id", id)
+      .maybeSingle(),
+  ]);
 
   const colonies = (caretakerRows ?? [])
     .map(
@@ -45,17 +89,14 @@ export default async function CaretakerPublicPage({
       colony !== null
     );
 
-  const { data: madeReportRows } = await supabase
-    .from("reports")
-    .select("id, type, status, created_at")
-    .eq("created_by", id)
-    .order("created_at", { ascending: false });
-
-  const { data: confirmationRows } = await supabase
-    .from("report_confirmations")
-    .select("created_at, reports(id, type, status)")
-    .eq("user_id", id)
-    .order("created_at", { ascending: false });
+  const badges: { icon: string; label: string }[] = [];
+  if (colonies.length > 0) badges.push({ icon: "🤝", label: "Cuidador" });
+  if ((createdColonyCount ?? 0) > 0) badges.push({ icon: "🐾", label: "Cadastrou uma colônia" });
+  if ((feedingCount ?? 0) > 0) badges.push({ icon: "🍽️", label: "Alimentou uma colônia" });
+  if ((foodDonationCount ?? 0) > 0) badges.push({ icon: "🥫", label: "Doou ração" });
+  if ((madeReportRows?.length ?? 0) > 0) badges.push({ icon: "🚨", label: "Enviou um relato" });
+  if ((thanksReceivedCount ?? 0) > 0) badges.push({ icon: "🙏", label: "Foi agradecido" });
+  if (certRow) badges.push({ icon: "🎓", label: "Cuidador Preparado" });
 
   const confirmedReports = (confirmationRows ?? [])
     .map((row) => ({
@@ -96,8 +137,33 @@ export default async function CaretakerPublicPage({
         </div>
       </section>
 
+      {/* Badges */}
+      {badges.length > 0 && (
+        <section className="bg-felines-surface py-12">
+          <div className="mx-auto max-w-6xl px-4 sm:px-6">
+            <Reveal>
+              <p className="text-xs font-semibold uppercase tracking-[0.1em] text-felines-accent-hover">
+                Conquistas
+              </p>
+              <h2 className="mt-3 text-2xl font-bold text-felines-text-primary">Badges</h2>
+            </Reveal>
+            <div className="mt-6 flex flex-wrap gap-3">
+              {badges.map((badge) => (
+                <div
+                  key={badge.label}
+                  className="flex items-center gap-2 rounded-2xl border border-felines-border bg-felines-background px-4 py-3 shadow-[0_2px_8px_rgba(0,0,0,0.05)]"
+                >
+                  <span className="text-2xl">{badge.icon}</span>
+                  <span className="text-sm font-medium text-felines-text-primary">{badge.label}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* Colonies */}
-      <section className="bg-felines-surface py-16">
+      <section className="bg-felines-background py-16">
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
           <Reveal>
             <p className="text-xs font-semibold uppercase tracking-[0.1em] text-felines-accent-hover">

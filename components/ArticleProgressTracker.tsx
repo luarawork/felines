@@ -12,19 +12,12 @@ export default function ArticleProgressTracker({ slug }: { slug: string }) {
       const { data } = await supabase.auth.getSession();
       if (!data.session) return;
 
-      const { data: existing } = await supabase
-        .from("knowledge_progress")
-        .select("id")
-        .eq("user_id", data.session.user.id)
-        .eq("article_slug", slug)
-        .maybeSingle();
-
-      if (existing) return;
-
-      await supabase.from("knowledge_progress").insert({
-        user_id: data.session.user.id,
-        article_slug: slug,
-      });
+      // upsert with ignoreDuplicates skips the separate SELECT — one
+      // round-trip instead of two regardless of whether the row exists.
+      await supabase.from("knowledge_progress").upsert(
+        { user_id: data.session.user.id, article_slug: slug },
+        { onConflict: "user_id,article_slug", ignoreDuplicates: true }
+      );
     }
 
     recordProgress();

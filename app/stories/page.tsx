@@ -1,4 +1,4 @@
-// /stories route for Felines.
+﻿// /stories route for Felines.
 // Public wall of short stories caretakers share about their colonies —
 // a special moment, a transformation, a cat that was adopted. Anyone
 // can read and react; only linked caretakers can post (via
@@ -51,7 +51,7 @@ export default async function StoriesPage() {
         <div className="mt-8">
           <EmptyState
             main="Nenhuma história ainda. Seja a primeira pessoa a compartilhar um momento da sua colônia."
-            ctas={[{ label: "Ver colônias no mapa →", href: "/map" }]}
+            ctas={[{ label: "Ver colônias no mapa", href: "/map" }]}
           />
         </div>
       </div>

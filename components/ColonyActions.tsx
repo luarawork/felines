@@ -56,17 +56,17 @@ export default function ColonyActions({ colonyId }: { colonyId: string }) {
       return;
     }
 
-    await supabase.from("timeline_events").insert({
-      colony_id: colonyId,
-      event_type: type === "food" ? "feeding" : "water",
-      description: type === "food" ? "Alguém alimentou a colônia." : "Alguém trocou a água da colônia.",
-      created_by: session.user.id,
-    });
-
-    // No-ops server-side if the signed-in user isn't actually a
-    // caretaker of this colony (see record_care_streak, 0043).
-    await supabase.rpc("record_care_streak", { p_colony_id: colonyId });
-    await supabase.rpc("recalculate_colony_health", { p_colony_id: colonyId });
+    await Promise.all([
+      supabase.from("timeline_events").insert({
+        colony_id: colonyId,
+        event_type: type === "food" ? "feeding" : "water",
+        description: type === "food" ? "Alguém alimentou a colônia." : "Alguém trocou a água da colônia.",
+        created_by: session.user.id,
+      }),
+      // No-ops server-side if the user isn't a caretaker (see 0043).
+      supabase.rpc("record_care_streak", { p_colony_id: colonyId }),
+      supabase.rpc("recalculate_colony_health", { p_colony_id: colonyId }),
+    ]);
 
     if (type === "food") setFoodLogged(true);
     else setWaterLogged(true);
@@ -90,14 +90,15 @@ export default function ColonyActions({ colonyId }: { colonyId: string }) {
       return;
     }
 
-    await supabase.from("timeline_events").insert({
-      colony_id: colonyId,
-      event_type: "new_caretaker",
-      description: "Um novo cuidador passou a olhar por essa colônia.",
-      created_by: session.user.id,
-    });
-
-    await supabase.rpc("recalculate_colony_health", { p_colony_id: colonyId });
+    await Promise.all([
+      supabase.from("timeline_events").insert({
+        colony_id: colonyId,
+        event_type: "new_caretaker",
+        description: "Um novo cuidador passou a olhar por essa colônia.",
+        created_by: session.user.id,
+      }),
+      supabase.rpc("recalculate_colony_health", { p_colony_id: colonyId }),
+    ]);
 
     setCaretakerJoined(true);
     refreshAccess();

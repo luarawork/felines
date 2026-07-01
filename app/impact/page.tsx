@@ -1,4 +1,4 @@
-// /impact route for Felines.
+﻿// /impact route for Felines.
 // Public, no-login page showing live platform-wide statistics — every
 // number here comes from get_platform_impact_stats() and
 // get_recent_platform_activity(), two SECURITY DEFINER RPCs that return
@@ -149,6 +149,20 @@ export default async function ImpactPage() {
   };
 
   const activity = (activityRows as ActivityRow[] | null) ?? [];
+
+  // Group consecutive identical actions by (kind + date) so the feed
+  // doesn't show 10 identical "Alguém registrou uma alimentação" lines.
+  type GroupedActivity = { kind: string; date: string; count: number };
+  const groupedActivity: GroupedActivity[] = [];
+  for (const item of activity) {
+    const date = new Date(item.occurred_at).toLocaleDateString("pt-BR");
+    const last = groupedActivity[groupedActivity.length - 1];
+    if (last && last.kind === item.kind && last.date === date) {
+      last.count += 1;
+    } else {
+      groupedActivity.push({ kind: item.kind, date, count: 1 });
+    }
+  }
 
   const averageReadingTime = Math.round(
     ARTICLES.reduce((total, article) => total + getReadingTimeMinutes(article), 0) / ARTICLES.length
@@ -319,18 +333,23 @@ export default async function ImpactPage() {
             </h2>
           </Reveal>
 
-          {activity.length === 0 ? (
+          {groupedActivity.length === 0 ? (
             <p className="mt-6 text-sm text-felines-text-secondary">
               Nada registrado ainda — seja a primeira pessoa a deixar uma marca.
             </p>
           ) : (
             <ol className="mt-8 space-y-3">
-              {activity.map((item, index) => (
-                <Reveal key={`${item.kind}-${item.occurred_at}-${index}`} delayMs={Math.min(index, 10) * 40}>
+              {groupedActivity.map((item, index) => (
+                <Reveal key={`${item.kind}-${item.date}-${index}`} delayMs={Math.min(index, 10) * 40}>
                   <li className="flex items-center justify-between rounded-xl border border-felines-border bg-felines-background px-4 py-3 text-sm">
                     <span className="text-felines-text-primary">{describeActivity(item.kind)}</span>
-                    <span className="text-xs text-felines-text-secondary">
-                      {new Date(item.occurred_at).toLocaleDateString("pt-BR")}
+                    <span className="flex items-center gap-2 text-xs text-felines-text-secondary">
+                      {item.count > 1 && (
+                        <span className="rounded-full bg-felines-accent/10 px-2 py-0.5 font-semibold text-felines-accent">
+                          {item.count}×
+                        </span>
+                      )}
+                      {item.date}
                     </span>
                   </li>
                 </Reveal>
@@ -372,6 +391,26 @@ export default async function ImpactPage() {
         </div>
       </section>
 
+      {/* Caretaker recognition */}
+      <section className="bg-felines-background py-16">
+        <div className="mx-auto max-w-3xl px-4 text-center sm:px-6">
+          <Reveal>
+            <p className="text-[56px] font-bold leading-none text-felines-accent">
+              {stats.total_caretakers}
+            </p>
+            <p className="mt-3 text-xl font-semibold text-felines-text-primary">
+              {stats.total_caretakers === 1
+                ? "pessoa cuida de colônias no Felines."
+                : "pessoas cuidam de colônias no Felines."}
+            </p>
+            <p className="mx-auto mt-3 max-w-lg text-base leading-relaxed text-felines-text-secondary">
+              Cada check-in de alimentação, cada castração organizada, cada relato enviado é feito
+              por alguém que poderia ignorar e não ignorou. Obrigado a cada uma dessas pessoas.
+            </p>
+          </Reveal>
+        </div>
+      </section>
+
       {/* CTA */}
       <section className="bg-felines-dark py-16">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-4 px-4 sm:px-6">
@@ -379,19 +418,19 @@ export default async function ImpactPage() {
             href="/map"
             className="rounded-full bg-felines-accent px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-felines-accent-hover"
           >
-            Veja o que está acontecendo perto de você →
+            Veja o que está acontecendo perto de você
           </Link>
           <Link
             href="/#aprender"
             className="rounded-full border-2 border-white px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-white hover:text-felines-dark"
           >
-            Comece a aprender →
+            Comece a aprender
           </Link>
           <Link
             href="/stories"
             className="rounded-full border-2 border-white px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-white hover:text-felines-dark"
           >
-            Veja histórias da comunidade →
+            Veja histórias da comunidade
           </Link>
         </div>
       </section>

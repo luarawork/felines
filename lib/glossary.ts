@@ -77,4 +77,63 @@ export const GLOSSARY_TERMS: GlossaryTerm[] = [
     factChip: "📊 A Lei Sansão prevê pena de 2 a 5 anos de prisão para maus-tratos a cães e gatos.",
     relatedArticleSlugs: ["how-to-report-animal-abuse"],
   },
+  {
+    term: "Gato semi-feral",
+    definition:
+      "Um gato no meio do caminho entre feral e socializado: tolera a presença de quem cuida dele regularmente, mas mantém distância de estranhos e raramente aceita contato físico.",
+    relatedArticleSlugs: ["feral-semi-feral-e-socializado"],
+  },
+  {
+    term: "Socialização",
+    definition:
+      "O processo de acostumar um gato (geralmente filhote) ao contato humano. Depende de exposição gradual e positiva numa janela de tempo limitada — depois dela, fica muito mais difícil.",
+  },
+  {
+    term: "Manejo populacional",
+    definition:
+      "Conjunto de práticas (castração, alimentação controlada, monitoramento) usadas para manter uma colônia estável e saudável ao longo do tempo, em vez de deixá-la crescer sem controle ou tentar removê-la.",
+  },
+  {
+    term: "Censo de colônia",
+    definition:
+      "Contagem periódica de quantos gatos vivem numa colônia, quantos já foram castrados e quantos são novos — usada para acompanhar a evolução do grupo e planejar próximas castrações.",
+  },
+  {
+    term: "Filhote órfão",
+    definition:
+      "Um filhote sem a mãe por perto, seja por abandono real ou porque ela está temporariamente caçando comida. Antes de intervir, vale observar de longe por algumas horas para confirmar que ela não vai voltar.",
+    relatedArticleSlugs: ["found-a-kitten-alone"],
+  },
+  {
+    term: "Microchipagem",
+    definition:
+      "Implante de um chip subcutâneo com um código de identificação único, usado para recuperar gatos perdidos ou comprovar a propriedade de um animal.",
+  },
+  {
+    term: "Ponta de orelha cortada (ear tip)",
+    definition:
+      "Um corte reto e pequeno na ponta de uma das orelhas, feito durante a cirurgia de castração — sinal visual universal de que aquele gato já foi castrado, mesmo de longe.",
+    relatedArticleSlugs: ["castracao-reduz-conflitos"],
+  },
+  {
+    term: "Zoonose",
+    definition:
+      "Doença que pode ser transmitida de animais para humanos (ou vice-versa) — raiva e toxoplasmose são exemplos relevantes para quem cuida de gatos de rua.",
+  },
+  {
+    term: "Abandono de animal",
+    definition:
+      "Deixar um animal doméstico à própria sorte, sem dar continuidade aos cuidados básicos — é crime previsto na Lei 9.605/98, no mesmo nível que outras formas de maus-tratos.",
+    relatedArticleSlugs: ["how-to-report-animal-abuse"],
+  },
+  {
+    term: "Adestramento territorial",
+    definition:
+      "O comportamento natural de gatos de marcar e defender um território — explica por que remover um grupo de gatos de um lugar costuma só abrir espaço pra outro grupo (veja Efeito vácuo).",
+  },
+  {
+    term: "Abrigo improvisado",
+    definition:
+      "Estrutura simples (caixa de isopor, casinha de madeira) montada para proteger gatos de rua do frio, calor ou chuva — uma das formas mais baratas e eficazes de ajudar uma colônia.",
+  },
 ];

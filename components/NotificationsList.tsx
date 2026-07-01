@@ -1,4 +1,4 @@
-// Client component for /notifications. Redirects anonymous visitors to
+﻿// Client component for /notifications. Redirects anonymous visitors to
 // /login, loads the signed-in user's notifications, and marks them all
 // as read once shown — there's no per-item read/unread toggle, since
 // visiting the page is itself the "seen" signal.
@@ -42,7 +42,7 @@ export default function NotificationsList() {
         <EmptyState
           main="Nenhuma notificação por aqui ainda."
           sub="Quando uma colônia que você cuida enfrentar frio ou calor extremo, você vai saber por aqui."
-          ctas={[{ label: "Ver suas colônias →", href: "/profile" }]}
+          ctas={[{ label: "Ver suas colônias", href: "/profile" }]}
         />
       </div>
     );

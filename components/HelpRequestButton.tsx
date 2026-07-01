@@ -1,4 +1,4 @@
-// Trigger + modal for a caretaker to post a time-bound help request for
+﻿// Trigger + modal for a caretaker to post a time-bound help request for
 // their colony. Gated by canManage, same pattern as ShareStoryButton/
 // EditColonyButton.
 "use client";
@@ -66,7 +66,7 @@ export default function HelpRequestButton({ colonyId }: { colonyId: string }) {
         onClick={() => setOpen(true)}
         className="rounded-full border border-felines-border px-4 py-2 text-sm font-medium text-felines-text-secondary transition-colors hover:border-felines-accent hover:text-felines-accent-hover"
       >
-        Pedir ajuda à comunidade →
+        Pedir ajuda à comunidade
       </button>
 
       {open && (

@@ -45,10 +45,10 @@ export default function HelpModalProvider({ children }: { children: React.ReactN
             <div className="flex items-start justify-between">
               <div>
                 <h2 id="help-modal-title" className="text-2xl font-bold text-felines-text-primary">
-                  Não sabe o que fazer? A gente te orienta.
+                  O que está acontecendo?
                 </h2>
                 <p className="mt-2 text-sm text-felines-text-secondary">
-                  Responda duas perguntas rápidas e mostramos o que fazer agora.
+                  Escolha a situação mais parecida com a sua — a gente mostra o que fazer agora.
                 </p>
               </div>
               <button

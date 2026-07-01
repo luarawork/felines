@@ -42,7 +42,7 @@ export default function ResourcesBoard() {
   const [respondedIds, setRespondedIds] = useState<Set<string>>(new Set());
   const [showForm, setShowForm] = useState(false);
 
-  const [postType, setPostType] = useState<"offering" | "requesting">("offering");
+  const [postType, setPostType] = useState<"offering" | "requesting" | null>(null);
   const [category, setCategory] = useState(RESOURCE_CATEGORIES[0].value);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -89,6 +89,10 @@ export default function ResourcesBoard() {
     formEvent.preventDefault();
     setError(null);
 
+    if (!postType) {
+      setError("Escolha se você está oferecendo ou procurando algo.");
+      return;
+    }
     if (!title.trim() || !description.trim()) {
       setError("Preencha o título e a descrição.");
       return;
@@ -122,6 +126,7 @@ export default function ResourcesBoard() {
     setTitle("");
     setDescription("");
     setLocationHint("");
+    setPostType(null);
     setShowForm(false);
   }
 

@@ -19,7 +19,7 @@ export default function ArticleCard({
 }) {
   return (
     <Link
-      href={`/learn/${article.slug}`}
+      href={article.href ?? `/learn/${article.slug}`}
       className={
         isDark
           ? "block h-full rounded-2xl border border-felines-border-on-dark bg-felines-dark-accent p-5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(0,0,0,0.25)]"
@@ -35,7 +35,7 @@ export default function ArticleCard({
           {article.title}
         </h3>
         {isRead && (
-          <span className="flex-shrink-0 rounded-full bg-felines-success/15 px-2 py-0.5 text-xs font-medium text-felines-success">
+          <span className="flex-shrink-0 rounded-full bg-felines-success px-2 py-0.5 text-xs font-semibold text-white">
             Lido
           </span>
         )}

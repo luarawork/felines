@@ -7,6 +7,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import { buildSafeStoragePath, validatePhotoFile } from "@/lib/storage";
@@ -372,7 +373,12 @@ export default function CatManager({ colonyId }: { colonyId: string }) {
                 className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-felines-border px-3 py-2 text-sm"
               >
                 <span className="font-medium text-felines-text-primary">
-                  {cat.name ?? "Sem nome"}
+                  <Link
+                    href={`/cat/${cat.id}`}
+                    className="hover:text-felines-accent hover:underline"
+                  >
+                    {cat.name ?? "Sem nome"}
+                  </Link>
                   {cat.last_seen && (
                     <span className="ml-2 text-xs font-normal text-felines-text-secondary">
                       visto em {new Date(cat.last_seen).toLocaleDateString("pt-BR")}

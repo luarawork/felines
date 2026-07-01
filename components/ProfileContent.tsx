@@ -1,4 +1,4 @@
-// Client component for /profile.
+﻿// Client component for /profile.
 // Redirects anonymous visitors to /login, and otherwise renders the
 // signed-in user's profile in the same editorial, full-bleed section
 // style as the home page: a light header, a colonies grid, a dark
@@ -10,6 +10,8 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ARTICLES } from "@/lib/articles";
+import { COURSE_MODULES, STANDALONE_QUIZZES } from "@/lib/caretakerCourse";
+import StandaloneQuizModal from "@/components/StandaloneQuizModal";
 import { supabase } from "@/lib/supabaseClient";
 import { getOpenReportsForMyColonies, getOwnReports, type MyColonyReport, type OwnReport } from "@/lib/myColonyReports";
 import { getReportTypeLabel } from "@/lib/reportTypes";
@@ -62,6 +64,8 @@ export default function ProfileContent() {
   const [thanksReceived, setThanksReceived] = useState<ThankYouRecord[]>([]);
   const [currentStreak, setCurrentStreak] = useState(0);
   const [longestStreak, setLongestStreak] = useState(0);
+  const [foodDonationCount, setFoodDonationCount] = useState(0);
+  const [isCertified, setIsCertified] = useState(false);
 
   useEffect(() => {
     async function loadProfile() {
@@ -73,43 +77,101 @@ export default function ProfileContent() {
         return;
       }
 
-      setUserId(session.user.id);
+      const uid = session.user.id;
+      setUserId(uid);
       setEmail(session.user.email ?? null);
       setMemberSince(session.user.created_at ?? null);
 
-      await ensureOwnProfile(session.user.id);
-      const currentDisplayName = await getDisplayName(session.user.id);
-      setDisplayName(currentDisplayName ?? "");
-      setAvatarUrl(await getAvatarUrl(session.user.id));
+      // ensureOwnProfile writes the row if it doesn't exist yet — must
+      // finish before any reads that depend on the profile row existing.
+      await ensureOwnProfile(uid);
 
-      const { data: streakRow } = await supabase
-        .from("profiles")
-        .select("current_streak, longest_streak")
-        .eq("id", session.user.id)
-        .maybeSingle();
+      // Visiting the profile page counts as daily activity — no feeding
+      // required. Fire-and-forget: the streak is re-read in the parallel
+      // block below anyway, so a race here is fine.
+      supabase.rpc("record_daily_visit").then(() => {}, () => {});
+
+      // Fire every independent read in parallel — one network round-trip
+      // instead of the previous 8 sequential awaits.
+      const [
+        currentDisplayName,
+        avatarResult,
+        { data: streakRow },
+        { data: feedingRows },
+        { data: caretakerRows },
+        { data: progressRows },
+        { data: createdColonyRows },
+        { count: donationCount },
+        { data: certRow },
+        { data: followerRows },
+        openReports,
+        ownReportsResult,
+        { data: confirmationRows },
+        { data: sentRows },
+        { data: receivedRows },
+      ] = await Promise.all([
+        getDisplayName(uid),
+        getAvatarUrl(uid),
+        supabase
+          .from("profiles")
+          .select("current_streak, longest_streak")
+          .eq("id", uid)
+          .maybeSingle(),
+        supabase
+          .from("feedings")
+          .select("id, colony_id, created_at")
+          .eq("user_id", uid)
+          .order("created_at", { ascending: false }),
+        supabase
+          .from("caretakers")
+          .select("colonies(id, name), created_at")
+          .eq("user_id", uid),
+        supabase
+          .from("knowledge_progress")
+          .select("article_slug")
+          .eq("user_id", uid),
+        supabase
+          .from("colonies")
+          .select("id, name, created_at")
+          .eq("created_by", uid),
+        supabase
+          .from("resource_posts")
+          .select("id", { count: "exact", head: true })
+          .eq("created_by", uid)
+          .eq("type", "offering")
+          .eq("category", "food_supplies"),
+        supabase
+          .from("caretaker_certifications")
+          .select("id")
+          .eq("user_id", uid)
+          .maybeSingle(),
+        supabase
+          .from("colony_followers")
+          .select("colonies(id, name)")
+          .eq("user_id", uid),
+        getOpenReportsForMyColonies(uid),
+        getOwnReports(uid),
+        supabase
+          .from("report_confirmations")
+          .select("created_at, reports(type, status)")
+          .eq("user_id", uid)
+          .order("created_at", { ascending: false }),
+        supabase
+          .from("thanks")
+          .select("id, created_at, colonies(name), caretaker_user_id")
+          .eq("sender_user_id", uid)
+          .order("created_at", { ascending: false }),
+        supabase
+          .from("thanks")
+          .select("id, created_at, colonies(name), sender_user_id")
+          .eq("caretaker_user_id", uid)
+          .order("created_at", { ascending: false }),
+      ]);
+
+      setDisplayName(currentDisplayName ?? "");
+      setAvatarUrl(avatarResult);
       setCurrentStreak(streakRow?.current_streak ?? 0);
       setLongestStreak(streakRow?.longest_streak ?? 0);
-
-      const [{ data: feedingRows }, { data: caretakerRows }, { data: progressRows }, { data: createdColonyRows }] =
-        await Promise.all([
-          supabase
-            .from("feedings")
-            .select("id, colony_id, created_at")
-            .eq("user_id", session.user.id)
-            .order("created_at", { ascending: false }),
-          supabase
-            .from("caretakers")
-            .select("colonies(id, name), created_at")
-            .eq("user_id", session.user.id),
-          supabase
-            .from("knowledge_progress")
-            .select("article_slug")
-            .eq("user_id", session.user.id),
-          supabase
-            .from("colonies")
-            .select("id, name, created_at")
-            .eq("created_by", session.user.id),
-        ]);
 
       if (feedingRows) setFeedings(feedingRows as FeedingRecord[]);
 
@@ -118,7 +180,6 @@ export default function ProfileContent() {
           .map((row) => row.colonies as unknown as LinkedColony | null)
           .filter((colony): colony is LinkedColony => colony !== null);
         setLinkedColonies(colonies);
-
         setCaretakerLinks(
           caretakerRows
             .map((row) => {
@@ -130,11 +191,9 @@ export default function ProfileContent() {
       }
 
       if (createdColonyRows) setCreatedColonies(createdColonyRows as CreatedColonyRecord[]);
+      setFoodDonationCount(donationCount ?? 0);
+      setIsCertified(!!certRow);
 
-      const { data: followerRows } = await supabase
-        .from("colony_followers")
-        .select("colonies(id, name)")
-        .eq("user_id", session.user.id);
       if (followerRows) {
         setFollowedColonies(
           followerRows
@@ -147,29 +206,8 @@ export default function ProfileContent() {
         setReadSlugs(Array.from(new Set(progressRows.map((row) => row.article_slug))));
       }
 
-      const reports = await getOpenReportsForMyColonies(session.user.id);
-      setMyColonyReports(reports);
-
-      setOwnReports(await getOwnReports(session.user.id));
-
-      const [{ data: confirmationRows }, { data: sentRows }, { data: receivedRows }] =
-        await Promise.all([
-          supabase
-            .from("report_confirmations")
-            .select("created_at, reports(type, status)")
-            .eq("user_id", session.user.id)
-            .order("created_at", { ascending: false }),
-          supabase
-            .from("thanks")
-            .select("id, created_at, colonies(name), caretaker_user_id")
-            .eq("sender_user_id", session.user.id)
-            .order("created_at", { ascending: false }),
-          supabase
-            .from("thanks")
-            .select("id, created_at, colonies(name), sender_user_id")
-            .eq("caretaker_user_id", session.user.id)
-            .order("created_at", { ascending: false }),
-        ]);
+      setMyColonyReports(openReports);
+      setOwnReports(ownReportsResult);
 
       if (confirmationRows) {
         setConfirmationsGiven(
@@ -184,9 +222,8 @@ export default function ProfileContent() {
         );
       }
 
-      // Both thanks queries need the other party's display name, which
-      // requires a separate profiles lookup since `thanks` only stores
-      // auth.users ids (profiles can't be embedded directly via PostgREST).
+      // Resolve display names for thanks — needs the other party IDs
+      // from the thanks rows, so this is the only remaining serial step.
       const otherPartyIds = new Set<string>();
       (sentRows ?? []).forEach((row) => otherPartyIds.add(row.caretaker_user_id as string));
       (receivedRows ?? []).forEach((row) => otherPartyIds.add(row.sender_user_id as string));
@@ -334,6 +371,20 @@ export default function ProfileContent() {
     })),
   ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
+  // Milestone badges — simple boolean/threshold checks over data already
+  // loaded for the activity feed, rather than a separate achievements
+  // table, since none of these need to persist beyond "has this
+  // happened at least once."
+  const badges: { icon: string; label: string }[] = [];
+  if (caretakerLinks.length > 0) badges.push({ icon: "🤝", label: "Cuidador" });
+  if (createdColonies.length > 0) badges.push({ icon: "🐾", label: "Cadastrou uma colônia" });
+  if (feedings.length > 0) badges.push({ icon: "🍽️", label: "Alimentou uma colônia" });
+  if (foodDonationCount > 0) badges.push({ icon: "🥫", label: "Doou ração" });
+  if (ownReports.length > 0) badges.push({ icon: "🚨", label: "Enviou um relato" });
+  if (thanksReceived.length > 0) badges.push({ icon: "🙏", label: "Foi agradecido" });
+  if (longestStreak >= 7) badges.push({ icon: "🔥", label: "Sequência de 7+ dias" });
+  if (isCertified) badges.push({ icon: "🎓", label: "Cuidador Preparado" });
+
   const colonyOpenReportCounts = new Map<string, number>();
   myColonyReports.forEach((report) => {
     colonyOpenReportCounts.set(report.colony_id, (colonyOpenReportCounts.get(report.colony_id) ?? 0) + 1);
@@ -404,11 +455,7 @@ export default function ProfileContent() {
                     <Link href={`/u/${userId}`} className="text-felines-accent-hover">
                       ver página pública
                     </Link>
-                  )}{" "}
-                  ·{" "}
-                  <Link href="/resources" className="text-felines-accent-hover">
-                    troca de recursos
-                  </Link>
+                  )}
                 </p>
                 <div className="mt-2">
                   <PhotoUploadButton
@@ -430,12 +477,14 @@ export default function ProfileContent() {
               other people. */}
           <Reveal delayMs={60}>
             <div className="mt-6 inline-flex flex-wrap items-center gap-4 rounded-xl border border-felines-border bg-felines-surface px-4 py-3">
-              {currentStreak > 1 ? (
+              {currentStreak > 0 ? (
                 <p className="text-sm font-semibold text-felines-accent">
                   🔥 {currentStreak} {currentStreak === 1 ? "dia" : "dias"} de sequência
                 </p>
               ) : (
-                <p className="text-sm text-felines-text-secondary">Comece sua sequência hoje</p>
+                <p className="text-sm text-felines-text-secondary">
+                  Volte amanhã para começar sua sequência 🐾
+                </p>
               )}
               {longestStreak > 1 && (
                 <p className="text-xs text-felines-text-secondary">
@@ -450,7 +499,7 @@ export default function ProfileContent() {
               <EmptyState
                 main="Sua jornada começa aqui."
                 sub="Cada colônia que você visita, cada relato que você faz — tudo fica registrado aqui."
-                ctas={[{ label: "Explorar o mapa →", href: "/map" }]}
+                ctas={[{ label: "Explorar o mapa", href: "/map" }]}
               />
             </div>
           )}
@@ -500,6 +549,33 @@ export default function ProfileContent() {
         </div>
       </section>
 
+      {/* Badges — dedicated section so they get the visual weight they deserve */}
+      {badges.length > 0 && (
+        <section className="bg-felines-background py-12">
+          <div className="mx-auto max-w-6xl px-4 sm:px-6">
+            <Reveal>
+              <p className="text-xs font-semibold uppercase tracking-[0.1em] text-felines-accent-hover">
+                Conquistas
+              </p>
+              <h2 className="mt-3 text-2xl font-bold text-felines-text-primary">
+                Seus badges
+              </h2>
+            </Reveal>
+            <div className="mt-6 flex flex-wrap gap-3">
+              {badges.map((badge) => (
+                <div
+                  key={badge.label}
+                  className="flex items-center gap-2 rounded-2xl border border-felines-border bg-felines-surface px-4 py-3 shadow-[0_2px_8px_rgba(0,0,0,0.05)]"
+                >
+                  <span className="text-2xl" aria-hidden="true">{badge.icon}</span>
+                  <span className="text-sm font-medium text-felines-text-primary">{badge.label}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* Followed colonies — same card style as linked colonies, with a
           "Seguindo" badge instead of a caretaker-specific stat. */}
       {followedColonies.length > 0 && (
@@ -532,7 +608,7 @@ export default function ProfileContent() {
         </section>
       )}
 
-      {/* Knowledge — progress, article badges, quiz */}
+      {/* Knowledge — Cursos → Quizzes → Progresso no guia → Artigos */}
       <section className="bg-felines-background py-16">
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
           <Reveal>
@@ -540,29 +616,108 @@ export default function ProfileContent() {
               Conhecimento
             </p>
             <h2 className="mt-3 text-3xl font-bold leading-tight text-felines-text-primary">
-              Progresso no guia
+              Sua jornada de aprendizado
             </h2>
           </Reveal>
 
-          <Reveal delayMs={100}>
-            <div className="mt-6 h-3 w-full max-w-xl rounded-full bg-felines-border">
-              <div
-                className="h-3 rounded-full bg-felines-success transition-all duration-700 ease-out"
-                style={{ width: `${progressPercent}%` }}
-              />
+          {/* 1. Cursos */}
+          <div className="mt-8">
+            <h3 className="text-sm font-semibold uppercase tracking-wide text-felines-text-secondary">
+              Cursos
+            </h3>
+            <div className="mt-3 overflow-hidden rounded-xl border border-felines-border bg-felines-surface">
+              <div className="flex items-start justify-between gap-3 p-4">
+                <div className="flex-1">
+                  <div className="flex items-center gap-2">
+                    <span className="text-lg">🎓</span>
+                    <p className="font-semibold text-felines-text-primary">Cuidador Preparado</p>
+                    {isCertified && (
+                      <span className="rounded-full border border-felines-success/30 bg-felines-success/10 px-2 py-0.5 text-xs font-medium text-felines-success">
+                        Concluído
+                      </span>
+                    )}
+                  </div>
+                  <p className="mt-0.5 text-xs text-felines-text-secondary">
+                    5 módulos + quiz final
+                  </p>
+                  <ol className="mt-3 space-y-1">
+                    {COURSE_MODULES.map((mod) => {
+                      const done = readSlugs.includes(mod.articleSlug);
+                      return (
+                        <li key={mod.articleSlug} className="flex items-center gap-2 text-xs">
+                          <span
+                            className={`flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full text-[9px] font-bold ${
+                              done
+                                ? "bg-felines-success text-white"
+                                : "border border-felines-border text-felines-text-secondary"
+                            }`}
+                          >
+                            {done ? "✓" : mod.order}
+                          </span>
+                          <span className={done ? "text-felines-text-secondary line-through" : "text-felines-text-primary"}>
+                            {mod.title}
+                          </span>
+                        </li>
+                      );
+                    })}
+                  </ol>
+                </div>
+                <Link
+                  href="/curso"
+                  className="flex-shrink-0 rounded-full bg-felines-accent px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-felines-accent-hover"
+                >
+                  {isCertified ? "Rever" : COURSE_MODULES.every((m) => readSlugs.includes(m.articleSlug)) ? "Fazer quiz" : "Continuar"}
+                </Link>
+              </div>
+              <div className="h-1 bg-felines-border">
+                <div
+                  className="h-1 bg-felines-success transition-all duration-700"
+                  style={{
+                    width: `${(COURSE_MODULES.filter((m) => readSlugs.includes(m.articleSlug)).length / COURSE_MODULES.length) * 100}%`,
+                  }}
+                />
+              </div>
             </div>
-            <p className="mt-2 text-sm text-felines-text-secondary">
-              {readCount} de {ARTICLES.length} artigos lidos
-            </p>
-          </Reveal>
+          </div>
 
-          <div className="mt-6 flex flex-wrap gap-2">
+          {/* 2. Quizzes */}
+          <div className="mt-8">
+            <h3 className="text-sm font-semibold uppercase tracking-wide text-felines-text-secondary">
+              Quizzes
+            </h3>
+            <div className="mt-3 grid gap-3 sm:grid-cols-3">
+              {STANDALONE_QUIZZES.map((quiz) => (
+                <StandaloneQuizModal key={quiz.id} quiz={quiz} />
+              ))}
+            </div>
+          </div>
+
+          {/* 3. Progresso no guia */}
+          <div className="mt-8">
+            <h3 className="text-sm font-semibold uppercase tracking-wide text-felines-text-secondary">
+              Progresso no guia
+            </h3>
+            <Reveal delayMs={100}>
+              <div className="mt-3 h-3 w-full max-w-xl rounded-full bg-felines-border">
+                <div
+                  className="h-3 rounded-full bg-felines-success transition-all duration-700 ease-out"
+                  style={{ width: `${progressPercent}%` }}
+                />
+              </div>
+              <p className="mt-2 text-sm text-felines-text-secondary">
+                {readCount} de {ARTICLES.length} artigos lidos
+              </p>
+            </Reveal>
+          </div>
+
+          {/* 4. Artigos */}
+          <div className="mt-8 flex flex-wrap gap-2">
             {ARTICLES.map((article) => {
               const isRead = readSlugs.includes(article.slug);
               return (
                 <Link
                   key={article.slug}
-                  href={`/learn/${article.slug}`}
+                  href={article.href ?? `/learn/${article.slug}`}
                   className={`rounded-full px-3 py-1.5 text-sm font-medium transition-transform duration-150 hover:-translate-y-0.5 ${
                     isRead
                       ? "bg-felines-accent text-white"

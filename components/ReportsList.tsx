@@ -1,4 +1,4 @@
-// Client component for /reports. Requires authentication to read (RLS
+﻿// Client component for /reports. Requires authentication to read (RLS
 // restricts report status to authenticated users). Lets any signed-in
 // user confirm a report (atomic increment via RPC, auto-resolving at 3
 // confirmations) but only the colony's caretaker/creator can manually
@@ -276,15 +276,6 @@ export default function ReportsList() {
   return (
     <div className="mt-6">
       <div className="flex flex-wrap items-center gap-3">
-        <label className="flex items-center gap-2 text-sm text-felines-text-secondary">
-          <input
-            type="checkbox"
-            checked={showResolved}
-            onChange={(formEvent) => setShowResolved(formEvent.target.checked)}
-          />
-          Mostrar relatos já resolvidos
-        </label>
-
         <select
           aria-label="Filtrar por tipo de relato"
           value={typeFilter}
@@ -298,6 +289,15 @@ export default function ReportsList() {
             </option>
           ))}
         </select>
+
+        <label className="flex items-center gap-2 text-sm text-felines-text-secondary">
+          <input
+            type="checkbox"
+            checked={showResolved}
+            onChange={(formEvent) => setShowResolved(formEvent.target.checked)}
+          />
+          Mostrar relatos já resolvidos
+        </label>
       </div>
 
       {error && <p className="mt-2 text-sm text-felines-emergency">{error}</p>}
@@ -307,7 +307,7 @@ export default function ReportsList() {
           <EmptyState
             main="Nenhum relato aberto agora."
             sub="Esse é um bom sinal. Continue de olho nas colônias perto de você."
-            ctas={[{ label: "Ir para o mapa →", href: "/map" }]}
+            ctas={[{ label: "Ir para o mapa", href: "/map" }]}
           />
         </div>
       ) : (

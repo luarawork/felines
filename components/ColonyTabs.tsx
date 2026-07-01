@@ -15,6 +15,7 @@ type Tab = {
 export default function ColonyTabs({
   tabs,
   footer,
+  defaultTabId,
 }: {
   tabs: Tab[];
   // Rendered below the tab panels, remounted (via the key on its
@@ -24,8 +25,9 @@ export default function ColonyTabs({
   // rather than a render-prop function: this component is rendered from
   // a server component, which can't pass functions across the boundary.
   footer?: React.ReactNode;
+  defaultTabId?: string;
 }) {
-  const [activeTabId, setActiveTabId] = useState(tabs[0]?.id);
+  const [activeTabId, setActiveTabId] = useState(defaultTabId ?? tabs[0]?.id);
 
   return (
     <div className="mt-8">

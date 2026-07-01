@@ -1,4 +1,4 @@
-// Client-side search + alphabetical sections for /glossary. Filters in
+﻿// Client-side search + alphabetical sections for /glossary. Filters in
 // real time as the visitor types — small enough term list (a dozen or
 // so) that filtering client-side beats round-tripping to a search API.
 "use client";
@@ -88,7 +88,7 @@ export default function GlossaryList({ terms }: { terms: GlossaryTerm[] }) {
                           href={`/learn/${slug}`}
                           className="text-sm font-medium text-felines-accent-hover"
                         >
-                          {article.title} →
+                          {article.title}
                         </Link>
                       );
                     })}

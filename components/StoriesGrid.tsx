@@ -1,4 +1,4 @@
-// Masonry-style wall of community stories, with a simple sort filter
+﻿// Masonry-style wall of community stories, with a simple sort filter
 // and an inline "read more" expand per card. The story list itself is
 // fetched once server-side (app/stories/page.tsx) — filtering here is
 // just re-sorting the same array client-side, no refetch needed.
@@ -37,7 +37,7 @@ function StoryCard({ story }: { story: StoryWithMeta }) {
           onClick={() => setExpanded((previous) => !previous)}
           className="mt-1 text-xs font-medium text-felines-accent-hover"
         >
-          {expanded ? "Mostrar menos" : "Ler mais →"}
+          {expanded ? "Mostrar menos" : "Ler mais"}
         </button>
       )}
       <Link

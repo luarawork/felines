@@ -20,6 +20,7 @@ import GlobalSearchButton from "@/components/GlobalSearchButton";
 const NAV_LINKS = [
   { href: "/", label: "Início" },
   { href: "/map", label: "Mapa" },
+  { href: "/reports", label: "Relatos" },
   { href: "/impact", label: "Impacto" },
 ];
 
