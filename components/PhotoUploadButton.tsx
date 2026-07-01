@@ -3,9 +3,13 @@
 // render native file inputs wildly differently and they're easy to miss
 // visually — a labeled button with an upload icon makes "you can add a
 // photo here" obvious at a glance.
+// Validates type (image only) and size (max 5 MB) before handing the
+// file to the parent, so errors surface before any network request.
 "use client";
 
-import { useId } from "react";
+import { useId, useState } from "react";
+
+const MAX_BYTES = 5 * 1024 * 1024; // 5 MB
 
 export default function PhotoUploadButton({
   label,
@@ -17,6 +21,29 @@ export default function PhotoUploadButton({
   onChange: (file: File | null) => void;
 }) {
   const inputId = useId();
+  const [validationError, setValidationError] = useState<string | null>(null);
+
+  function handleChange(formEvent: React.ChangeEvent<HTMLInputElement>) {
+    const selected = formEvent.target.files?.[0] ?? null;
+    setValidationError(null);
+
+    if (selected) {
+      if (!selected.type.startsWith("image/")) {
+        setValidationError("Apenas imagens são aceitas (JPG, PNG, WebP…).");
+        formEvent.target.value = "";
+        onChange(null);
+        return;
+      }
+      if (selected.size > MAX_BYTES) {
+        setValidationError("A imagem deve ter no máximo 5 MB.");
+        formEvent.target.value = "";
+        onChange(null);
+        return;
+      }
+    }
+
+    onChange(selected);
+  }
 
   return (
     <div>
@@ -24,7 +51,7 @@ export default function PhotoUploadButton({
         id={inputId}
         type="file"
         accept="image/*"
-        onChange={(formEvent) => onChange(formEvent.target.files?.[0] ?? null)}
+        onChange={handleChange}
         className="sr-only"
       />
       <label
@@ -48,7 +75,12 @@ export default function PhotoUploadButton({
         </svg>
         {label}
       </label>
-      {file && <p className="mt-1 text-xs text-felines-success">Selecionada: {file.name}</p>}
+      {validationError && (
+        <p role="alert" className="mt-1 text-xs text-felines-emergency">{validationError}</p>
+      )}
+      {!validationError && file && (
+        <p className="mt-1 text-xs text-felines-success">Selecionada: {file.name}</p>
+      )}
     </div>
   );
 }

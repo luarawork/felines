@@ -88,12 +88,16 @@ export default function GlobalSearchButton() {
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const dialogRef = useRef<HTMLDivElement>(null);
 
   const handleClose = useCallback(() => {
     setOpen(false);
     setQuery("");
     setDebouncedQuery("");
     setSelectedIndex(0);
+    // Return focus to the button that opened the search.
+    setTimeout(() => triggerRef.current?.focus(), 50);
   }, []);
 
   // Global Cmd+K / Ctrl+K shortcut, available from anywhere in the app.
@@ -167,15 +171,28 @@ export default function GlobalSearchButton() {
   const allResults = [...colonyResults, ...contentResults];
   const hasQuery = query.trim().length > 0;
 
-  function handleSelectResult(result: SearchResult) {
+  const handleSelectResult = useCallback((result: SearchResult) => {
     saveRecentSearch(query);
     handleClose();
     router.push(result.href);
-  }
+  }, [query, handleClose, router]);
 
   function handleKeyDownInModal(event: React.KeyboardEvent) {
     if (event.key === "Escape") {
       handleClose();
+    } else if (event.key === "Tab") {
+      // Trap focus inside the modal.
+      const focusable = dialogRef.current?.querySelectorAll<HTMLElement>(
+        'button, input, [href], [tabindex]:not([tabindex="-1"])'
+      );
+      if (!focusable || focusable.length === 0) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey) {
+        if (document.activeElement === first) { event.preventDefault(); last.focus(); }
+      } else {
+        if (document.activeElement === last) { event.preventDefault(); first.focus(); }
+      }
     } else if (event.key === "ArrowDown") {
       event.preventDefault();
       setSelectedIndex((previous) => Math.min(previous + 1, allResults.length - 1));
@@ -197,6 +214,7 @@ export default function GlobalSearchButton() {
   return (
     <>
       <button
+        ref={triggerRef}
         onClick={() => setOpen(true)}
         aria-label="Buscar"
         title="Buscar (Ctrl+K)"
@@ -213,6 +231,7 @@ export default function GlobalSearchButton() {
             onClick={handleClose}
           >
             <div
+              ref={dialogRef}
               role="dialog"
               aria-modal="true"
               aria-label="Busca global"
@@ -276,6 +295,7 @@ export default function GlobalSearchButton() {
                           return (
                             <button
                               key={result.id}
+                              // eslint-disable-next-line react-hooks/refs
                               onClick={() => handleSelectResult(result)}
                               onMouseEnter={() => setSelectedIndex(flatIndex)}
                               className={`flex w-full items-start gap-3 rounded-lg px-3 py-2 text-left ${

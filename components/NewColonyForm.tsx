@@ -350,6 +350,7 @@ export default function NewColonyForm() {
       <button
         type="submit"
         disabled={submitting}
+        aria-busy={submitting}
         className="w-full rounded-full bg-felines-accent px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-felines-accent-hover disabled:opacity-50"
       >
         {submitting ? "Colocando no mapa..." : "Colocar no mapa"}

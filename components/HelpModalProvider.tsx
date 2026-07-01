@@ -24,21 +24,31 @@ export function useHelpModal(): HelpModalContextValue {
 export default function HelpModalProvider({ children }: { children: React.ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
   const dialogRef = useRef<HTMLDivElement>(null);
-  const close = useCallback(() => setIsOpen(false), []);
+  const triggerRef = useRef<HTMLElement | null>(null);
+
+  const openHelpModal = useCallback(() => {
+    triggerRef.current = document.activeElement as HTMLElement;
+    setIsOpen(true);
+  }, []);
+
+  const close = useCallback(() => {
+    setIsOpen(false);
+    // Return focus to the element that opened the modal.
+    setTimeout(() => triggerRef.current?.focus(), 50);
+  }, []);
+
   useEscapeToClose(isOpen, close);
 
-  // Move focus into the dialog whenever it opens so keyboard/screen-reader
-  // users don't have to navigate past the entire page to reach the content.
+  // Move focus into the dialog whenever it opens.
   useEffect(() => {
     if (isOpen) {
-      // Small timeout lets the portal render before we try to focus it.
       const id = setTimeout(() => dialogRef.current?.focus(), 50);
       return () => clearTimeout(id);
     }
   }, [isOpen]);
 
   return (
-    <HelpModalContext.Provider value={{ openHelpModal: () => setIsOpen(true) }}>
+    <HelpModalContext.Provider value={{ openHelpModal }}>
       {children}
 
       {isOpen && (

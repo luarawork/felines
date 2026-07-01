@@ -148,6 +148,7 @@ export default function ReportButton({ colonyId }: { colonyId: string }) {
                   <button
                     type="submit"
                     disabled={submitting}
+                    aria-busy={submitting}
                     className="rounded-full bg-felines-emergency px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
                   >
                     {submitting ? "Enviando..." : "Enviar"}

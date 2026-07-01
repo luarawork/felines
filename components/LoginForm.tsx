@@ -53,6 +53,7 @@ export default function LoginForm() {
           value={email}
           onChange={(formEvent) => setEmail(formEvent.target.value)}
           required
+          aria-describedby={error ? "login-error" : undefined}
           className="mt-1 w-full rounded-md border border-felines-border bg-white px-3 py-2 text-sm"
         />
       </div>
@@ -67,11 +68,12 @@ export default function LoginForm() {
           onChange={(formEvent) => setPassword(formEvent.target.value)}
           required
           minLength={6}
+          aria-describedby={error ? "login-error" : undefined}
           className="mt-1 w-full rounded-md border border-felines-border bg-white px-3 py-2 text-sm"
         />
       </div>
 
-      {error && <p role="alert" className="text-sm text-felines-emergency">{error}</p>}
+      {error && <p id="login-error" role="alert" className="text-sm text-felines-emergency">{error}</p>}
 
       <button
         type="submit"

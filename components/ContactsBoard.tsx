@@ -218,6 +218,7 @@ export default function ContactsBoard({
           <button
             type="submit"
             disabled={submitting}
+            aria-busy={submitting}
             className="rounded-full bg-felines-accent px-5 py-2 text-sm font-semibold text-white disabled:opacity-50"
           >
             {submitting ? "Salvando…" : "Cadastrar"}
