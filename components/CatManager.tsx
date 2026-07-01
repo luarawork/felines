@@ -203,6 +203,8 @@ export default function CatManager({ colonyId }: { colonyId: string }) {
 
   // Removes a cat from the colony.
   async function handleRemoveCat(catId: string) {
+    const catName = cats.find((c) => c.id === catId)?.name ?? "este gato";
+    if (!window.confirm(`Remover ${catName} da colônia? Essa ação não pode ser desfeita.`)) return;
     const { error: deleteError } = await supabase.from("cats").delete().eq("id", catId);
 
     if (deleteError) {
@@ -314,7 +316,7 @@ export default function CatManager({ colonyId }: { colonyId: string }) {
         </button>
       </form>
 
-      {error && <p className="mt-2 text-sm text-felines-emergency">{error}</p>}
+      {error && <p role="alert" className="mt-2 text-sm text-felines-emergency">{error}</p>}
 
       {cats.length > 0 && (
         <ul className="mt-5 space-y-2">

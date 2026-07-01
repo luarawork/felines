@@ -196,7 +196,7 @@ export default function CaretakerLetters({ colonyId }: { colonyId: string }) {
             placeholder="O que você gostaria que a próxima pessoa soubesse sobre essa colônia?"
             className="mt-2 w-full rounded-md border border-felines-border bg-white px-3 py-2 text-sm"
           />
-          {error && <p className="mt-2 text-sm text-felines-emergency">{error}</p>}
+          {error && <p role="alert" className="mt-2 text-sm text-felines-emergency">{error}</p>}
           <button
             onClick={handleSave}
             disabled={saving}

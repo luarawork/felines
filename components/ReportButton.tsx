@@ -142,7 +142,7 @@ export default function ReportButton({ colonyId }: { colonyId: string }) {
                   className="mt-1 w-full rounded-md border border-felines-border bg-white px-3 py-2 text-sm"
                 />
 
-                {error && <p className="mt-2 text-xs text-felines-emergency">{error}</p>}
+                {error && <p role="alert" className="mt-2 text-xs text-felines-emergency">{error}</p>}
 
                 <div className="mt-3 flex gap-2">
                   <button

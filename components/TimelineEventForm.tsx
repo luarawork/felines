@@ -167,7 +167,7 @@ export default function TimelineEventForm({ colonyId }: { colonyId: string }) {
         {submitting ? "Adicionando..." : "Adicionar"}
       </button>
 
-      {error && <p className="mt-2 text-sm text-felines-emergency">{error}</p>}
+      {error && <p role="alert" className="mt-2 text-sm text-felines-emergency">{error}</p>}
       {submitted && <p className="mt-2 text-sm text-felines-success">Evento adicionado.</p>}
     </form>
   );

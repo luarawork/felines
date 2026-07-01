@@ -243,7 +243,7 @@ export default function ResourcesBoard() {
             className="w-full rounded-md border border-felines-border bg-white px-3 py-2 text-sm"
           />
 
-          {error && <p className="text-sm text-felines-emergency">{error}</p>}
+          {error && <p role="alert" className="text-sm text-felines-emergency">{error}</p>}
 
           <button
             type="submit"

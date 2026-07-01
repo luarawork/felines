@@ -140,7 +140,7 @@ export default function LostCatForm({ onSubmitted }: { onSubmitted?: () => void 
         </div>
       </div>
 
-      {error && <p className="text-sm text-felines-emergency">{error}</p>}
+      {error && <p role="alert" className="text-sm text-felines-emergency">{error}</p>}
 
       <button
         type="submit"

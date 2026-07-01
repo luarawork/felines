@@ -110,6 +110,7 @@ export default function ColonyActions({ colonyId }: { colonyId: string }) {
   // so this can't be used to remove someone else's link.
   async function handleStopCaretaking() {
     if (!session) return;
+    if (!window.confirm("Deixar de ser cuidador desta colônia? Você poderá se vincular novamente depois.")) return;
     setActionError(null);
     const { error } = await supabase
       .from("caretakers")

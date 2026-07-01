@@ -168,7 +168,7 @@ export default function HelpRequestButton({ colonyId }: { colonyId: string }) {
                   </div>
                 </div>
 
-                {error && <p className="text-sm text-felines-emergency">{error}</p>}
+                {error && <p role="alert" className="text-sm text-felines-emergency">{error}</p>}
 
                 <button
                   type="submit"

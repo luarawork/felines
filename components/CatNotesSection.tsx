@@ -144,7 +144,7 @@ export default function CatNotesSection({
             </div>
           </div>
 
-          {error && <p className="text-sm text-felines-emergency">{error}</p>}
+          {error && <p role="alert" className="text-sm text-felines-emergency">{error}</p>}
 
           <div className="flex gap-3">
             <button

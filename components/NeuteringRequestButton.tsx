@@ -183,7 +183,7 @@ export default function NeuteringRequestButton({ colonyId }: { colonyId: string 
                   />
                 </div>
 
-                {error && <p className="text-sm text-felines-emergency">{error}</p>}
+                {error && <p role="alert" className="text-sm text-felines-emergency">{error}</p>}
 
                 <button
                   type="submit"
