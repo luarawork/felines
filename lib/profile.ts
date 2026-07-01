@@ -49,3 +49,25 @@ export async function updateOwnAvatarUrl(userId: string, avatarUrl: string): Pro
   const { error } = await supabase.from("profiles").update({ avatar_url: avatarUrl }).eq("id", userId);
   return !error;
 }
+
+export async function getOwnPublicContact(userId: string): Promise<string | null> {
+  const { data } = await supabase
+    .from("profiles")
+    .select("public_contact")
+    .eq("id", userId)
+    .maybeSingle();
+
+  return data?.public_contact ?? null;
+}
+
+// Optional, user-controlled contact method (WhatsApp, email, etc.)
+// shown on the public profile so people met through the app — e.g. the
+// resource exchange board — have a safe, opt-in way to reach out.
+export async function updateOwnPublicContact(userId: string, publicContact: string): Promise<boolean> {
+  const { error } = await supabase
+    .from("profiles")
+    .update({ public_contact: publicContact.trim() || null })
+    .eq("id", userId);
+
+  return !error;
+}

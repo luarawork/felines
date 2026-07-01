@@ -25,6 +25,8 @@ type ResourcePost = {
   authorName: string;
 };
 
+type InterestedUser = { userId: string; displayName: string };
+
 function timeAgo(dateString: string, t: (key: string) => string): string {
   const diffMs = Date.now() - new Date(dateString).getTime();
   const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
@@ -45,6 +47,7 @@ export default function ResourcesBoard() {
   const [activeTab, setActiveTab] = useState<"offering" | "requesting">("offering");
   const [respondedIds, setRespondedIds] = useState<Set<string>>(new Set());
   const [showForm, setShowForm] = useState(false);
+  const [interestedByPostId, setInterestedByPostId] = useState<Record<string, InterestedUser[]>>({});
 
   const [postType, setPostType] = useState<"offering" | "requesting" | null>(null);
   const [category, setCategory] = useState(RESOURCE_CATEGORIES[0].value);
@@ -84,6 +87,38 @@ export default function ResourcesBoard() {
           authorName: (profiles ?? []).find((p) => p.id === row.created_by)?.display_name || t("colony.timeline.authorDefault"),
         }))
       );
+
+      // Who's expressed interest is only ever visible to the post's own
+      // author (enforced by RLS on resource_post_interests) — fetching
+      // this for every post is harmless even for posts that aren't the
+      // current user's, since the query will just come back empty for
+      // those thanks to the row policy.
+      const ownPostIds = (postRows ?? [])
+        .filter((row) => row.created_by === sessionData.session!.user.id)
+        .map((row) => row.id);
+
+      if (ownPostIds.length > 0) {
+        const { data: interestRows } = await supabase
+          .from("resource_post_interests")
+          .select("resource_post_id, user_id")
+          .in("resource_post_id", ownPostIds);
+
+        const interestedUserIds = Array.from(new Set((interestRows ?? []).map((row) => row.user_id)));
+        const { data: interestedProfiles } =
+          interestedUserIds.length > 0
+            ? await supabase.from("profiles").select("id, display_name").in("id", interestedUserIds)
+            : { data: [] };
+
+        const grouped: Record<string, InterestedUser[]> = {};
+        for (const row of interestRows ?? []) {
+          const displayName =
+            (interestedProfiles ?? []).find((p) => p.id === row.user_id)?.display_name ||
+            t("colony.timeline.authorDefault");
+          if (!grouped[row.resource_post_id]) grouped[row.resource_post_id] = [];
+          grouped[row.resource_post_id].push({ userId: row.user_id, displayName });
+        }
+        setInterestedByPostId(grouped);
+      }
     }
 
     load();
@@ -307,6 +342,24 @@ export default function ResourcesBoard() {
                   </button>
                 )}
               </div>
+              {post.created_by === session.user.id && interestedByPostId[post.id]?.length > 0 && (
+                <div className="mt-3 border-t border-felines-border pt-2">
+                  <p className="text-xs font-medium text-felines-text-secondary">
+                    {t("forms.resource.interestedPeople")}
+                  </p>
+                  <div className="mt-1 flex flex-wrap gap-2">
+                    {interestedByPostId[post.id].map((person) => (
+                      <Link
+                        key={person.userId}
+                        href={`/u/${person.userId}`}
+                        className="rounded-full border border-felines-border px-2.5 py-1 text-xs text-felines-accent-hover hover:border-felines-accent"
+                      >
+                        {person.displayName}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           ))}
         </div>

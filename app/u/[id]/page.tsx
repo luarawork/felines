@@ -21,7 +21,7 @@ export default async function CaretakerPublicPage({
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("id, display_name, avatar_url")
+    .select("id, display_name, avatar_url, public_contact")
     .eq("id", id)
     .maybeSingle();
 
@@ -131,6 +131,9 @@ export default async function CaretakerPublicPage({
                 <p className="mt-1 text-sm text-felines-text-secondary">
                   Cuida de {colonies.length} {colonies.length === 1 ? "colônia" : "colônias"}.
                 </p>
+                {profile.public_contact && (
+                  <p className="mt-1 text-sm text-felines-text-secondary">📞 {profile.public_contact}</p>
+                )}
               </div>
             </div>
           </Reveal>
