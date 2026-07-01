@@ -7,6 +7,7 @@ import "./globals.css";
 import NavBar from "@/components/NavBar";
 import HelpModalProvider from "@/components/HelpModalProvider";
 import { SITE_URL } from "@/lib/siteUrl";
+import { LanguageProvider } from "@/lib/i18n";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -47,12 +48,14 @@ export default function RootLayout({
         >
           Pular para o conteúdo
         </a>
-        <HelpModalProvider>
-          <NavBar />
-          <main id="main-content" className="flex-1">
-            {children}
-          </main>
-        </HelpModalProvider>
+        <LanguageProvider>
+          <HelpModalProvider>
+            <NavBar />
+            <main id="main-content" className="flex-1">
+              {children}
+            </main>
+          </HelpModalProvider>
+        </LanguageProvider>
       </body>
     </html>
   );

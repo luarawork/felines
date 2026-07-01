@@ -14,20 +14,20 @@ import { getAvatarUrl } from "@/lib/profile";
 import { checkExtremeWeatherForCaretaker, checkStaleCatsForCaretaker, getUnreadCount } from "@/lib/notifications";
 import { useHelpModal } from "@/components/HelpModalProvider";
 import GlobalSearchButton from "@/components/GlobalSearchButton";
+import { useLanguage } from "@/lib/i18n";
 
-// Links shown in the main navigation, in display order. "Aprender" was
-// dropped since that content now lives on the home page itself.
-const NAV_LINKS = [
-  { href: "/", label: "Início" },
-  { href: "/map", label: "Mapa" },
-  { href: "/reports", label: "Relatos" },
-  { href: "/impact", label: "Impacto" },
-];
+const NAV_LINK_KEYS = [
+  { href: "/", key: "nav.home" },
+  { href: "/map", key: "nav.map" },
+  { href: "/reports", key: "nav.reports" },
+  { href: "/impact", key: "nav.impact" },
+] as const;
 
 export default function NavBar() {
   const router = useRouter();
   const pathname = usePathname();
   const { openHelpModal } = useHelpModal();
+  const { language, setLanguage, t } = useLanguage();
   const [session, setSession] = useState<Session | null>(null);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -120,7 +120,7 @@ export default function NavBar() {
     >
       <nav
         className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3 sm:px-6"
-        aria-label="Navegação principal"
+        aria-label={t("nav.navLabel")}
       >
         <Link href="/" className="flex-shrink-0">
           <Image
@@ -134,7 +134,7 @@ export default function NavBar() {
         </Link>
 
         <ul className="hidden items-center gap-6 text-sm font-medium text-felines-text-secondary sm:flex">
-          {NAV_LINKS.map((link) => {
+          {NAV_LINK_KEYS.map((link) => {
             const isActive = link.href === "/" ? pathname === "/" : pathname.startsWith(link.href);
             return (
               <li key={link.href}>
@@ -143,7 +143,7 @@ export default function NavBar() {
                   aria-current={isActive ? "page" : undefined}
                   className={`transition-colors hover:text-felines-accent ${isActive ? "font-semibold text-felines-accent" : ""}`}
                 >
-                  {link.label}
+                  {t(link.key)}
                 </Link>
               </li>
             );
@@ -151,26 +151,50 @@ export default function NavBar() {
         </ul>
 
         <div className="flex items-center gap-3">
+          {/* Language switcher — joined PT|EN pill */}
+          <div
+            role="group"
+            aria-label={t("nav.selectLanguage")}
+            className="hidden items-center overflow-hidden rounded-full border border-felines-border sm:flex"
+          >
+            {(["pt", "en"] as const).map((lang, i) => (
+              <button
+                key={lang}
+                onClick={() => setLanguage(lang)}
+                aria-pressed={language === lang}
+                className={`h-8 px-3 text-xs font-semibold transition-colors ${
+                  i === 0 ? "" : "border-l border-felines-border"
+                } ${
+                  language === lang
+                    ? "bg-felines-accent text-white"
+                    : "bg-transparent text-felines-text-secondary hover:text-felines-text-primary"
+                }`}
+              >
+                {lang.toUpperCase()}
+              </button>
+            ))}
+          </div>
+
           <GlobalSearchButton />
           <button
             onClick={openHelpModal}
             className="felines-help-pulse rounded-full bg-felines-accent px-4 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-felines-accent-hover"
           >
-            Preciso de ajuda
+            {t("nav.getHelp")}
           </button>
 
           {session ? (
             <div ref={menuRef} className="relative">
               <button
                 onClick={() => setMenuOpen((previous) => !previous)}
-                aria-label="Menu da conta"
+                aria-label={t("nav.menuLabel")}
                 aria-haspopup="true"
                 aria-expanded={menuOpen}
                 className="relative flex h-11 w-11 items-center justify-center overflow-hidden rounded-full border border-felines-border bg-felines-accent-light text-sm font-semibold text-felines-accent-hover transition-colors hover:bg-felines-accent hover:text-white"
               >
                 {avatarUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={avatarUrl} alt="Sua foto de perfil" className="h-full w-full object-cover" />
+                  <img src={avatarUrl} alt={t("nav.profileAlt")} className="h-full w-full object-cover" />
                 ) : (
                   initial
                 )}
@@ -187,14 +211,14 @@ export default function NavBar() {
                     onClick={() => setMenuOpen(false)}
                     className="block px-4 py-2 text-felines-text-primary hover:bg-felines-background"
                   >
-                    Meu perfil
+                    {t("nav.myProfile")}
                   </Link>
                   <Link
                     href="/notifications"
                     onClick={() => setMenuOpen(false)}
                     className="flex items-center justify-between px-4 py-2 text-felines-text-primary hover:bg-felines-background"
                   >
-                    Notificações
+                    {t("nav.notifications")}
                     {unreadCount > 0 && (
                       <span className="rounded-full bg-felines-emergency px-1.5 py-0.5 text-xs font-bold text-white">
                         {unreadCount}
@@ -205,7 +229,7 @@ export default function NavBar() {
                     onClick={handleLogout}
                     className="block w-full px-4 py-2 text-left text-felines-text-primary hover:bg-felines-background"
                   >
-                    Sair
+                    {t("nav.signOut")}
                   </button>
                 </div>
               )}
@@ -215,7 +239,7 @@ export default function NavBar() {
               href="/login"
               className="text-sm font-medium text-felines-text-secondary transition-colors hover:text-felines-text-primary"
             >
-              Entrar
+              {t("nav.signIn")}
             </Link>
           )}
         </div>
