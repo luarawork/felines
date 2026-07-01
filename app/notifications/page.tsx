@@ -1,15 +1,15 @@
 // /notifications route for Felines.
-// Requires authentication. Renders the NotificationsList client
-// component, which lists the signed-in user's notifications and marks
-// them all as read once viewed.
+"use client";
 import NotificationsList from "@/components/NotificationsList";
+import { useLanguage } from "@/lib/i18n";
 
 export default function NotificationsPage() {
+  const { t } = useLanguage();
   return (
     <section className="bg-felines-background py-16">
       <div className="mx-auto max-w-3xl px-4 sm:px-6">
         <h1 className="text-3xl font-bold leading-tight text-felines-text-primary sm:text-[40px]">
-          Notificações
+          {t("notifications.title")}
         </h1>
         <NotificationsList />
       </div>

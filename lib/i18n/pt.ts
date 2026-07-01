@@ -26,12 +26,12 @@ export const pt = {
     heroCta2: "Começar a aprender",
     heroImageAlt: "Ilustração de um gato de rua sentado, olhando para o lado",
     whyLabel: "Por que isso importa",
-    stats: [
-      "gatos vivem nas ruas só no Brasil",
-      "gatos de rua existem no mundo",
-      "já vivem em ONGs sem mais espaço",
-      "das pessoas já brigaram com um vizinho por causa de um bichano",
-    ],
+    stats: {
+      0: "gatos vivem nas ruas só no Brasil",
+      1: "gatos de rua existem no mundo",
+      2: "já vivem em ONGs sem mais espaço",
+      3: "das pessoas já brigaram com um vizinho por causa de um bichano",
+    },
     howLabel: "Como podemos ajudar",
     howHeadline: "Não importa por que você chegou até aqui. Tem um caminho certo pra você.",
     cards: {
@@ -61,11 +61,11 @@ export const pt = {
       "Textos curtos sobre como os gatos de rua vivem, por que castração funciona e o que fazer em cada situação. Sem enrolação, sem precisar virar especialista.",
     guideCta: "Começar a aprender",
     mapHeadline: "Veja o que está acontecendo perto de você.",
-    mapFeatures: [
-      "A localização exata fica protegida — você vê a área, não o endereço",
-      "Avistamentos e emergências aparecem assim que alguém relata",
-      "Cada colônia mostra se já tem cuidador e como está a castração",
-    ],
+    mapFeatures: {
+      0: "A localização exata fica protegida — você vê a área, não o endereço",
+      1: "Avistamentos e emergências aparecem assim que alguém relata",
+      2: "Cada colônia mostra se já tem cuidador e como está a castração",
+    },
     mapCta: "Abrir o mapa",
     quote:
       '"Uma colônia castrada e com gente de olho nela é, de longe, a forma mais tranquila de conviver com gatos de rua. Sem conflito, sem crescer sem controle."',

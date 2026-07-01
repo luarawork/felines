@@ -1,10 +1,5 @@
-﻿// Home page for Felines.
-// Editorial marketing-style landing page (not the map) that introduces
-// the project to the everyday citizen who is curious or in conflict
-// with stray cats, and merges in the full /learn guide as an anchored
-// section below. Alternates light/dark section backgrounds and uses
-// scroll-reveal + count-up motion for an editorial, Meow-Metrics-style
-// feel rather than a dense informational page.
+// Home page for Felines.
+"use client";
 import Image from "next/image";
 import Link from "next/link";
 import FirstVisitBanner from "@/components/FirstVisitBanner";
@@ -17,53 +12,26 @@ import ArticleCard from "@/components/ArticleCard";
 import NeighborhoodQuizButton from "@/components/NeighborhoodQuizButton";
 import CatsConflictModal from "@/components/CatsConflictModal";
 import { ARTICLES } from "@/lib/articles";
+import { useLanguage } from "@/lib/i18n";
 
-const STATS: { value: string; label: string }[] = [
-  { value: "10M", label: "gatos vivem nas ruas só no Brasil" },
-  { value: "480M", label: "gatos de rua existem no mundo" },
-  { value: "185K", label: "já vivem em ONGs sem mais espaço" },
-  { value: "40%", label: "das pessoas já brigaram com um vizinho por causa de um bichano" },
-];
-
-const ENTRY_CARDS: {
-  href?: string;
-  isHelp?: boolean;
-  icon: string;
-  label: string;
-  title: string;
-  description: string;
-}[] = [
-  {
-    href: "/map",
-    icon: "🗺️",
-    label: "Explorar",
-    title: "Veja quem já está cuidando",
-    description: "Cada colônia no mapa tem uma história e, na maioria das vezes, alguém de olho nela.",
-  },
-  {
-    href: "#aprender",
-    icon: "📖",
-    label: "Entender",
-    title: "Aprenda o básico em 5 minutos",
-    description: "Por que os gatos ficam, o que funciona de verdade e o que só piora as coisas.",
-  },
-  {
-    isHelp: true,
-    icon: "🐾",
-    label: "Agir agora",
-    title: "Achou um gato e não sabe o que fazer?",
-    description: "Conta pra gente o que está acontecendo. A gente te diz o próximo passo.",
-  },
-];
-
-const MAP_FEATURES = [
-  "A localização exata fica protegida — você vê a área, não o endereço",
-  "Avistamentos e emergências aparecem assim que alguém relata",
-  "Cada colônia mostra se já tem cuidador e como está a castração",
-];
+const STAT_VALUES = ["10M", "480M", "185K", "40%"];
 
 export default function Home() {
+  const { t } = useLanguage();
   const previewArticles = ARTICLES.slice(0, 3);
+
+  const statLabels: string[] = [
+    t("home.stats.0"),
+    t("home.stats.1"),
+    t("home.stats.2"),
+    t("home.stats.3"),
+  ];
+
+  const mapFeatures: string[] = [
+    t("home.mapFeatures.0"),
+    t("home.mapFeatures.1"),
+    t("home.mapFeatures.2"),
+  ];
 
   return (
     <div>
@@ -76,13 +44,12 @@ export default function Home() {
         <div className="flex-1 text-center lg:text-left">
           <Reveal>
             <h1 className="text-[40px] font-bold leading-[1.1] tracking-tight text-felines-text-primary sm:text-[52px] lg:text-[64px]">
-              Entenda o que está acontecendo com os gatos da sua rua.
+              {t("home.heroHeadline")}
             </h1>
           </Reveal>
           <Reveal delayMs={120}>
             <p className="mx-auto mt-5 max-w-[520px] text-lg leading-relaxed text-felines-text-secondary lg:mx-0">
-              O Felines conecta você a quem já cuida dos gatos perto de você — e explica o que
-              fazer quando ainda não tem ninguém cuidando. Sem precisar ser especialista.
+              {t("home.heroSub")}
             </p>
           </Reveal>
           <Reveal delayMs={200}>
@@ -97,13 +64,13 @@ export default function Home() {
                 href="/map"
                 className="rounded-full bg-felines-accent px-7 py-3 text-base font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-felines-accent-hover active:scale-[0.97]"
               >
-                Explorar o mapa
+                {t("home.heroCta1")}
               </Link>
               <Link
                 href="#aprender"
                 className="rounded-full px-7 py-3 text-base font-semibold text-felines-text-secondary transition-colors hover:text-felines-text-primary"
               >
-                Começar a aprender
+                {t("home.heroCta2")}
               </Link>
             </div>
           </Reveal>
@@ -112,7 +79,7 @@ export default function Home() {
           <div className="relative mx-auto aspect-square w-full max-w-sm overflow-hidden rounded-full drop-shadow-xl lg:max-w-md">
             <Image
               src="/images/hero-cat.png"
-              alt="Ilustração de um gato de rua sentado, olhando para o lado"
+              alt={t("home.heroImageAlt")}
               fill
               priority
               className="object-cover"
@@ -126,21 +93,21 @@ export default function Home() {
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
           <Reveal>
             <p className="text-center text-xs font-semibold uppercase tracking-[0.1em] text-felines-text-secondary-on-dark lg:text-left">
-              Por que isso importa
+              {t("home.whyLabel")}
             </p>
           </Reveal>
           <div className="mt-8 grid grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-4">
-            {STATS.map((stat, index) => (
-              <Reveal key={stat.label} delayMs={index * 100}>
+            {STAT_VALUES.map((value, index) => (
+              <Reveal key={value} delayMs={index * 100}>
                 <div
                   className={`text-center sm:border-l sm:border-felines-border-on-dark sm:pl-6 sm:text-left ${
                     index === 0 ? "sm:border-l-0 sm:pl-0" : ""
                   }`}
                 >
                   <p className="text-[44px] font-bold leading-none text-felines-accent sm:text-[56px]">
-                    <CountUpStat value={stat.value} />
+                    <CountUpStat value={value} />
                   </p>
-                  <p className="mt-2 text-sm text-felines-text-secondary-on-dark">{stat.label}</p>
+                  <p className="mt-2 text-sm text-felines-text-secondary-on-dark">{statLabels[index]}</p>
                 </div>
               </Reveal>
             ))}
@@ -153,37 +120,41 @@ export default function Home() {
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
           <Reveal>
             <p className="text-xs font-semibold uppercase tracking-[0.1em] text-felines-accent-hover">
-              Como podemos ajudar
+              {t("home.howLabel")}
             </p>
             <h2 className="mt-3 text-3xl font-bold leading-tight text-felines-text-primary sm:text-[40px]">
-              Não importa por que você chegou até aqui. Tem um caminho certo pra você.
+              {t("home.howHeadline")}
             </h2>
           </Reveal>
 
           <div className="mt-12 grid gap-5 sm:grid-cols-3">
-            {ENTRY_CARDS.map((card, index) => {
+            {(["explore", "learn", "act"] as const).map((key, index) => {
+              const card = {
+                explore: { href: "/map", isHelp: false, icon: "🗺️" },
+                learn: { href: "#aprender", isHelp: false, icon: "📖" },
+                act: { href: undefined, isHelp: true, icon: "🐾" },
+              }[key];
+
               const content = (
                 <>
-                  <span className="text-4xl" aria-hidden="true">
-                    {card.icon}
-                  </span>
+                  <span className="text-4xl" aria-hidden="true">{card.icon}</span>
                   <p className="mt-4 text-xs font-semibold uppercase tracking-[0.1em] text-felines-accent-hover">
-                    {card.label}
+                    {t(`home.cards.${key}.label`)}
                   </p>
                   <h3 className="mt-2 text-xl font-semibold text-felines-text-primary">
-                    {card.title}
+                    {t(`home.cards.${key}.title`)}
                   </h3>
                   <p className="mt-2 text-sm leading-relaxed text-felines-text-secondary">
-                    {card.description}
+                    {t(`home.cards.${key}.desc`)}
                   </p>
                   <span className="mt-4 inline-block text-sm font-medium text-felines-accent-hover transition-transform duration-200 group-hover:translate-x-0.5">
-                    Saiba mais
+                    {t("home.cards.learnMore")}
                   </span>
                 </>
               );
 
               return (
-                <Reveal key={card.title} delayMs={index * 100}>
+                <Reveal key={key} delayMs={index * 100}>
                   {card.isHelp ? (
                     <OpenHelpModalButton className="group flex h-full w-full flex-col rounded-2xl border border-felines-border bg-felines-surface p-7 text-left shadow-[0_2px_8px_rgba(0,0,0,0.05)] transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_8px_24px_rgba(0,0,0,0.10)]">
                       {content}
@@ -207,15 +178,15 @@ export default function Home() {
       <section className="bg-felines-surface py-16">
         <Reveal className="mx-auto max-w-3xl px-4 text-center sm:px-6">
           <p className="text-xs font-semibold uppercase tracking-[0.1em] text-felines-accent-hover">
-            Não sabe por onde começar?
+            {t("home.quizLabel")}
           </p>
           <h2 className="mt-3 text-2xl font-bold leading-tight text-felines-text-primary sm:text-3xl">
-            Responda 4 perguntas rápidas sobre o que você vê na sua rua.
+            {t("home.quizHeadline")}
           </h2>
           <div className="mt-6">
             <NeighborhoodQuizButton
               triggerClassName="rounded-full bg-felines-accent px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-felines-accent-hover"
-              triggerLabel="O que está acontecendo no seu bairro?"
+              triggerLabel={t("home.quizCta")}
             />
           </div>
         </Reveal>
@@ -226,20 +197,19 @@ export default function Home() {
         <div className="mx-auto grid max-w-6xl gap-12 px-4 sm:px-6 lg:grid-cols-2 lg:items-center">
           <Reveal>
             <p className="text-xs font-semibold uppercase tracking-[0.1em] text-felines-text-secondary-on-dark">
-              Guia de aprendizado
+              {t("home.guideLabel")}
             </p>
             <h2 className="mt-3 text-3xl font-bold leading-tight text-white sm:text-[40px]">
-              Entenda antes de agir.
+              {t("home.guideHeadline")}
             </h2>
             <p className="mt-4 max-w-md text-base leading-relaxed text-felines-text-secondary-on-dark">
-              Textos curtos sobre como os gatos de rua vivem, por que castração funciona e o que
-              fazer em cada situação. Sem enrolação, sem precisar virar especialista.
+              {t("home.guideSub")}
             </p>
             <Link
               href="#aprender"
               className="mt-6 inline-block rounded-full border-2 border-white px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-white hover:text-felines-dark"
             >
-              Começar a aprender
+              {t("home.guideCta")}
             </Link>
           </Reveal>
 
@@ -263,11 +233,11 @@ export default function Home() {
           </Reveal>
           <Reveal className="order-1 lg:order-2">
             <h3 className="text-3xl font-bold leading-tight text-felines-text-primary">
-              Veja o que está acontecendo perto de você.
+              {t("home.mapHeadline")}
             </h3>
             <ul className="mt-5 space-y-3">
-              {MAP_FEATURES.map((feature) => (
-                <li key={feature} className="flex gap-3 text-base text-felines-text-secondary">
+              {mapFeatures.map((feature, i) => (
+                <li key={i} className="flex gap-3 text-base text-felines-text-secondary">
                   <span className="mt-1 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-felines-success-light text-felines-success">
                     ✓
                   </span>
@@ -279,7 +249,7 @@ export default function Home() {
               href="/map"
               className="mt-6 inline-block rounded-full bg-felines-accent px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-felines-accent-hover"
             >
-              Abrir o mapa
+              {t("home.mapCta")}
             </Link>
           </Reveal>
         </div>
@@ -289,25 +259,20 @@ export default function Home() {
       <section className="bg-felines-background py-20">
         <Reveal className="mx-auto max-w-3xl px-4 text-center sm:px-6">
           <p className="text-2xl font-semibold leading-relaxed text-felines-text-primary sm:text-3xl">
-            “Uma colônia castrada e com gente de olho nela é, de longe, a forma mais tranquila de
-            conviver com gatos de rua. Sem conflito, sem crescer sem controle.”
+            {t("home.quote")}
           </p>
           <p className="mt-4 text-sm font-medium uppercase tracking-[0.1em] text-felines-text-secondary">
-            Pesquisa de campo sobre TNR
+            {t("home.quoteAttrib")}
           </p>
         </Reveal>
       </section>
 
-      {/* Educational guide, merged into the home page as its own
-          sequence of alternating sections — one per theme — instead of
-          a single dense list, so each topic gets the same visual
-          weight as the rest of the page. */}
       <LearnIndex articles={ARTICLES} startDark />
 
       <footer className="border-t border-felines-border bg-felines-background py-8">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-2 px-4 text-sm text-felines-text-secondary sm:px-6">
           <p>
-            Desenhado, codificado e publicado por{" "}
+            {t("home.footerCredit")}{" "}
             <a
               href="https://luara.work/"
               target="_blank"
@@ -319,14 +284,14 @@ export default function Home() {
           </p>
           <div className="flex items-center gap-4">
             <Link href="/glossary" className="font-medium text-felines-accent-hover">
-              Glossário
+              {t("home.footerGlossary")}
             </Link>
             <Link href="/curso" className="font-medium text-felines-accent-hover">
-              Curso
+              {t("home.footerCourse")}
             </Link>
             {/* TODO: link to product documentation once it's published */}
             <a href="#" className="font-medium text-felines-accent-hover">
-              Saiba mais sobre esse produto
+              {t("home.footerAbout")}
             </a>
           </div>
         </div>

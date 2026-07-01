@@ -9,6 +9,7 @@ import StoriesGrid from "@/components/StoriesGrid";
 import ContactsBoard from "@/components/ContactsBoard";
 import EmptyState from "@/components/EmptyState";
 import ColonyTabs from "@/components/ColonyTabs";
+import ReportsPageHeader from "@/components/ReportsPageHeader";
 import type { StoryWithMeta } from "@/app/stories/page";
 import { CATEGORY_LABELS } from "@/app/contacts/page";
 import type { ContactRow } from "@/app/contacts/page";
@@ -108,23 +109,19 @@ export default async function ReportsPage({
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6">
-      <h1 className="text-2xl font-bold text-felines-text-primary sm:text-3xl">
-        O que estão relatando
-      </h1>
-      <p className="mt-2 text-sm text-felines-text-secondary">
-        Relatos, recursos, histórias e contatos úteis da comunidade de cuidadores.
-      </p>
+      <ReportsPageHeader />
       <ColonyTabs
         defaultTabId={defaultTabId}
         tabs={[
-          { id: "reports", label: "Relatos", content: <ReportsList /> },
-          { id: "resources", label: "Troca de recursos", content: <ResourcesBoard /> },
+          { id: "reports", label: "Relatos", labelKey: "reports.tabs.reports", content: <ReportsList /> },
+          { id: "resources", label: "Troca de recursos", labelKey: "reports.tabs.resources", content: <ResourcesBoard /> },
           {
             id: "contacts",
             label: "Contatos",
+            labelKey: "reports.tabs.contacts",
             content: <ContactsBoard initialByCity={byCity} categoryLabels={CATEGORY_LABELS} />,
           },
-          { id: "stories", label: "Histórias", content: storiesContent },
+          { id: "stories", label: "Histórias", labelKey: "reports.tabs.stories", content: storiesContent },
         ]}
       />
     </div>

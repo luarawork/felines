@@ -26,12 +26,12 @@ export const en = {
     heroCta2: "Start learning",
     heroImageAlt: "Illustration of a street cat sitting and looking to the side",
     whyLabel: "Why it matters",
-    stats: [
-      "cats live on the streets of Brazil alone",
-      "stray cats exist worldwide",
-      "already live in shelters that have no room left",
-      "of people have argued with a neighbor over a cat",
-    ],
+    stats: {
+      0: "cats live on the streets of Brazil alone",
+      1: "stray cats exist worldwide",
+      2: "already live in shelters that have no room left",
+      3: "of people have argued with a neighbor over a cat",
+    },
     howLabel: "How we can help",
     howHeadline: "No matter why you're here, there's a right path for you.",
     cards: {
@@ -61,11 +61,11 @@ export const en = {
       "Short reads about how street cats live, why neutering works, and what to do in each situation. No jargon, no need to become an expert.",
     guideCta: "Start learning",
     mapHeadline: "See what's happening near you.",
-    mapFeatures: [
-      "Exact locations are protected — you see the area, not the address",
-      "Sightings and emergencies appear as soon as someone reports them",
-      "Each colony shows whether it has a caretaker and how neutering is going",
-    ],
+    mapFeatures: {
+      0: "Exact locations are protected — you see the area, not the address",
+      1: "Sightings and emergencies appear as soon as someone reports them",
+      2: "Each colony shows whether it has a caretaker and how neutering is going",
+    },
     mapCta: "Open the map",
     quote:
       '"A neutered colony with someone watching over it is, by far, the most peaceful way to coexist with street cats. No conflict. No uncontrolled growth."',

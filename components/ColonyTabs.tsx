@@ -5,10 +5,14 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { useLanguage } from "@/lib/i18n";
 
 type Tab = {
   id: string;
   label: string;
+  // When set, ColonyTabs uses t(labelKey) instead of label so tab
+  // titles update immediately when the visitor switches language.
+  labelKey?: string;
   content: React.ReactNode;
 };
 
@@ -29,6 +33,7 @@ export default function ColonyTabs({
 }) {
   const [activeTabId, setActiveTabId] = useState(defaultTabId ?? tabs[0]?.id);
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
+  const { t } = useLanguage();
 
   function handleKeyDown(event: React.KeyboardEvent, index: number) {
     if (event.key === "ArrowRight") {
@@ -74,7 +79,7 @@ export default function ColonyTabs({
                   : "border-transparent text-felines-text-secondary hover:text-felines-accent"
               }`}
             >
-              {tab.label}
+              {tab.labelKey ? t(tab.labelKey) : tab.label}
             </button>
           );
         })}
