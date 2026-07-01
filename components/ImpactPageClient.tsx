@@ -4,6 +4,7 @@ import Link from "next/link";
 import Reveal from "@/components/Reveal";
 import CountUpStat from "@/components/CountUpStat";
 import MapShell from "@/components/MapShell";
+import TnrProjectionCalculator from "@/components/TnrProjectionCalculator";
 import ShareButton from "@/components/ShareButton";
 import { getHelpRequestTypeIcon, getHelpRequestTypeLabel } from "@/lib/helpRequestTypes";
 import { useLanguage } from "@/lib/i18n";
@@ -143,6 +144,15 @@ export default function ImpactPageClient({
             <div className="mt-8 h-96 w-full overflow-hidden rounded-2xl border border-felines-border shadow-[0_8px_24px_rgba(0,0,0,0.08)]">
               <MapShell compact />
             </div>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* TNR population projection calculator */}
+      <section className="bg-felines-surface py-20">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6">
+          <Reveal>
+            <TnrProjectionCalculator />
           </Reveal>
         </div>
       </section>
