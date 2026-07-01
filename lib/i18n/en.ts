@@ -593,6 +593,11 @@ export const en = {
       photoError: "Photo didn't upload. Try again?",
       photoSaveError: "Photo wasn't saved. Try again?",
       photoAlt: "Your profile photo",
+      publicContactLabel: "Public contact (optional)",
+      publicContactPlaceholder: "WhatsApp, email, Instagram…",
+      publicContactHint: "Shown on your public page, so people who find you through the resource exchange or another colony can reach out.",
+      publicContactAdd: "+ Add public contact",
+      publicContactNone: "No public contact added.",
     },
     streak: {
       day: "day",
@@ -698,6 +703,7 @@ export const en = {
     searchGroupColonies: "Colonies",
     searchGroupArticles: "Articles",
     searchGroupGlossary: "Glossary",
+    searchGroupContacts: "Contacts",
     firstVisit:
       "👋 First time here? Felines helps you understand the street cats in your area, see who's already caring for them, and report what you find — no account needed for most things.",
     weather: {
@@ -821,6 +827,7 @@ export const en = {
       exchanged: "Exchanged ✓",
       interested: "I'm interested",
       interestSent: "Interest sent ✓",
+      interestedPeople: "Interested people",
       noResults: "Nothing here yet. Be the first to offer or request something.",
       titlePlaceholder: "Title",
       descPlaceholder: "Description",
@@ -976,6 +983,7 @@ export const en = {
     activityInArea: "Activity in this area",
     moveToUpdateList: "Move or zoom the map to update the list.",
     noneVisibleInArea: "No colonies or reports visible in this map area.",
+    viewColonyCta: "View colony →",
   },
 
   quiz: {
@@ -1106,9 +1114,11 @@ export const en = {
       general: "General contact",
     },
     filterPlaceholder: "Filter by city…",
+    categoryFilterAll: "All categories",
     newContactBtn: "+ Add contact",
     cancelBtn: "Cancel",
     formTitle: "New contact",
+    editFormTitle: "Edit contact",
     cityLabel: "City",
     nameLabel: "Name / Organization",
     phoneLabel: "Phone / WhatsApp",
@@ -1119,9 +1129,17 @@ export const en = {
     validationError: "City and name are required.",
     loginRequired: "You need to be logged in to add a contact.",
     insertError: "Couldn't save the contact. Want to try again?",
+    updateError: "Couldn't save the changes. Want to try again?",
+    deleteError: "Couldn't delete the contact. Want to try again?",
+    deleteConfirm: "Delete this contact? This can't be undone.",
     empty: "No contacts yet. Be the first to add one.",
+    noResultsForFilter: "No contacts found with these filters.",
     submitBtn: "Register",
     submitting: "Saving…",
+    edit: "Edit",
+    delete: "Delete",
+    saveBtn: "Save changes",
+    saving: "Saving…",
   },
 
   newColony: {

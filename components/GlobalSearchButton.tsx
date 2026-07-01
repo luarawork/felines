@@ -1,22 +1,25 @@
 // Global search — Cmd+K/Ctrl+K or the search icon in the navbar opens a
-// full-screen modal that searches colonies (Supabase, ilike — explicitly
-// allowed as a fallback to full-text search per spec, and simpler to
-// keep correct than a to_tsvector + GIN index setup for this dataset
-// size), articles, and glossary terms (both static, searched client-side
-// since there's no backend round-trip worth making for content that's
-// already in the bundle).
+// full-screen modal that searches colonies and community contacts
+// (Supabase, ilike — explicitly allowed as a fallback to full-text
+// search per spec, and simpler to keep correct than a to_tsvector +
+// GIN index setup for this dataset size), plus articles and glossary
+// terms (both static, searched client-side since there's no backend
+// round-trip worth making for content that's already in the bundle).
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
-import { ARTICLES } from "@/lib/articles";
-import { GLOSSARY_TERMS } from "@/lib/glossary";
+import { ARTICLES, localizeArticle } from "@/lib/articles";
+import { GLOSSARY_TERMS, localizeGlossaryTerm } from "@/lib/glossary";
+import { useLanguage } from "@/lib/i18n";
 
 const RECENT_SEARCHES_KEY = "felines_recent_searches";
 const MAX_RECENT_SEARCHES = 5;
 const MAX_RESULTS_PER_GROUP = 5;
+
+type SearchGroup = "colonies" | "articles" | "glossary" | "contacts";
 
 type SearchResult = {
   id: string;
@@ -24,7 +27,7 @@ type SearchResult = {
   title: string;
   excerpt: string;
   href: string;
-  group: "Colônias" | "Artigos" | "Glossário";
+  group: SearchGroup;
 };
 
 function loadRecentSearches(): string[] {
@@ -44,47 +47,60 @@ function saveRecentSearch(query: string) {
   localStorage.setItem(RECENT_SEARCHES_KEY, JSON.stringify(updated));
 }
 
-function searchArticlesAndGlossary(query: string): SearchResult[] {
+function searchArticlesAndGlossary(query: string, language: "pt" | "en"): SearchResult[] {
   const normalized = query.toLowerCase();
 
-  const articleResults: SearchResult[] = ARTICLES.filter(
-    (article) =>
-      article.title.toLowerCase().includes(normalized) ||
-      article.body.some((paragraph) => paragraph.toLowerCase().includes(normalized))
-  )
+  const articleResults: SearchResult[] = ARTICLES.filter((article) => {
+    const localized = localizeArticle(article, language);
+    return (
+      localized.title.toLowerCase().includes(normalized) ||
+      localized.body.some((paragraph) => paragraph.toLowerCase().includes(normalized))
+    );
+  })
     .slice(0, MAX_RESULTS_PER_GROUP)
-    .map((article) => ({
-      id: `article-${article.slug}`,
-      icon: "📖",
-      title: article.title,
-      excerpt: article.summary,
-      href: `/learn/${article.slug}`,
-      group: "Artigos" as const,
-    }));
+    .map((article) => {
+      const localized = localizeArticle(article, language);
+      return {
+        id: `article-${article.slug}`,
+        icon: "📖",
+        title: localized.title,
+        excerpt: localized.summary,
+        href: `/learn/${article.slug}`,
+        group: "articles" as const,
+      };
+    });
 
-  const glossaryResults: SearchResult[] = GLOSSARY_TERMS.filter(
-    (item) =>
-      item.term.toLowerCase().includes(normalized) || item.definition.toLowerCase().includes(normalized)
-  )
+  const glossaryResults: SearchResult[] = GLOSSARY_TERMS.filter((item) => {
+    const localized = localizeGlossaryTerm(item, language);
+    return (
+      localized.term.toLowerCase().includes(normalized) ||
+      localized.definition.toLowerCase().includes(normalized)
+    );
+  })
     .slice(0, MAX_RESULTS_PER_GROUP)
-    .map((item) => ({
-      id: `glossary-${item.term}`,
-      icon: "📚",
-      title: item.term,
-      excerpt: item.definition,
-      href: `/glossary`,
-      group: "Glossário" as const,
-    }));
+    .map((item) => {
+      const localized = localizeGlossaryTerm(item, language);
+      return {
+        id: `glossary-${item.term}`,
+        icon: "📚",
+        title: localized.term,
+        excerpt: localized.definition,
+        href: `/glossary`,
+        group: "glossary" as const,
+      };
+    });
 
   return [...articleResults, ...glossaryResults];
 }
 
 export default function GlobalSearchButton() {
   const router = useRouter();
+  const { t, language } = useLanguage();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const [colonyResults, setColonyResults] = useState<SearchResult[]>([]);
+  const [contactResults, setContactResults] = useState<SearchResult[]>([]);
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -136,27 +152,47 @@ export default function GlobalSearchButton() {
       // render state from props — outside what this lint rule covers.
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setColonyResults([]);
+      setContactResults([]);
       return;
     }
 
     let cancelled = false;
 
     async function runSearch() {
-      const { data } = await supabase
-        .from("colonies")
-        .select("id, name, narrative")
-        .or(`name.ilike.%${normalized}%,narrative.ilike.%${normalized}%`)
-        .limit(MAX_RESULTS_PER_GROUP);
+      const [{ data: colonyRows }, { data: contactRows }] = await Promise.all([
+        supabase
+          .from("colonies")
+          .select("id, name, narrative")
+          .or(`name.ilike.%${normalized}%,narrative.ilike.%${normalized}%`)
+          .limit(MAX_RESULTS_PER_GROUP),
+        supabase
+          .from("community_contacts")
+          .select("id, city, name, category, notes")
+          .or(`name.ilike.%${normalized}%,city.ilike.%${normalized}%,notes.ilike.%${normalized}%`)
+          .limit(MAX_RESULTS_PER_GROUP),
+      ]);
 
       if (cancelled) return;
+
       setColonyResults(
-        (data ?? []).map((colony) => ({
+        (colonyRows ?? []).map((colony) => ({
           id: `colony-${colony.id}`,
           icon: "🐾",
           title: colony.name,
           excerpt: colony.narrative ?? "",
           href: `/colony/${colony.id}`,
-          group: "Colônias" as const,
+          group: "colonies" as const,
+        }))
+      );
+
+      setContactResults(
+        (contactRows ?? []).map((contact) => ({
+          id: `contact-${contact.id}`,
+          icon: "📇",
+          title: contact.name,
+          excerpt: contact.city,
+          href: `/contacts`,
+          group: "contacts" as const,
         }))
       );
     }
@@ -167,8 +203,8 @@ export default function GlobalSearchButton() {
     };
   }, [debouncedQuery, open]);
 
-  const contentResults = debouncedQuery.trim() ? searchArticlesAndGlossary(debouncedQuery) : [];
-  const allResults = [...colonyResults, ...contentResults];
+  const contentResults = debouncedQuery.trim() ? searchArticlesAndGlossary(debouncedQuery, language) : [];
+  const allResults = [...colonyResults, ...contactResults, ...contentResults];
   const hasQuery = query.trim().length > 0;
 
   const handleSelectResult = useCallback((result: SearchResult) => {
@@ -205,10 +241,11 @@ export default function GlobalSearchButton() {
     }
   }
 
-  const groups: { name: SearchResult["group"]; results: SearchResult[] }[] = [
-    { name: "Colônias", results: colonyResults },
-    { name: "Artigos", results: contentResults.filter((r) => r.group === "Artigos") },
-    { name: "Glossário", results: contentResults.filter((r) => r.group === "Glossário") },
+  const groups: { name: SearchGroup; label: string; results: SearchResult[] }[] = [
+    { name: "colonies", label: t("common.searchGroupColonies"), results: colonyResults },
+    { name: "contacts", label: t("common.searchGroupContacts"), results: contactResults },
+    { name: "articles", label: t("common.searchGroupArticles"), results: contentResults.filter((r) => r.group === "articles") },
+    { name: "glossary", label: t("common.searchGroupGlossary"), results: contentResults.filter((r) => r.group === "glossary") },
   ];
 
   return (
@@ -216,8 +253,8 @@ export default function GlobalSearchButton() {
       <button
         ref={triggerRef}
         onClick={() => setOpen(true)}
-        aria-label="Buscar"
-        title="Buscar (Ctrl+K)"
+        aria-label={t("common.searchAriaLabel")}
+        title={t("common.searchTitle")}
         className="flex h-9 w-9 items-center justify-center rounded-full text-felines-text-secondary transition-colors hover:bg-felines-background hover:text-felines-accent"
       >
         🔍
@@ -234,7 +271,7 @@ export default function GlobalSearchButton() {
               ref={dialogRef}
               role="dialog"
               aria-modal="true"
-              aria-label="Busca global"
+              aria-label={t("common.searchAriaModal")}
               className="h-fit w-full max-w-lg overflow-hidden rounded-2xl bg-felines-background shadow-2xl"
               onClick={(event) => event.stopPropagation()}
               onKeyDown={handleKeyDownInModal}
@@ -247,8 +284,8 @@ export default function GlobalSearchButton() {
                 setQuery(event.target.value);
                 setSelectedIndex(0);
               }}
-              placeholder="Buscar colônias, artigos, termos do glossário..."
-              aria-label="Campo de busca"
+              placeholder={t("common.searchPlaceholder")}
+              aria-label={t("common.searchLabel")}
               className="w-full border-b border-felines-border bg-transparent px-5 py-4 text-base text-felines-text-primary outline-none"
             />
 
@@ -257,7 +294,7 @@ export default function GlobalSearchButton() {
                 recentSearches.length > 0 ? (
                   <div className="p-3">
                     <p className="text-xs font-semibold uppercase tracking-[0.1em] text-felines-text-secondary">
-                      Buscas recentes
+                      {t("common.searchRecent")}
                     </p>
                     <div className="mt-2 flex flex-wrap gap-2">
                       {recentSearches.map((recent) => (
@@ -273,13 +310,12 @@ export default function GlobalSearchButton() {
                   </div>
                 ) : (
                   <p className="p-4 text-sm text-felines-text-secondary">
-                    Busque por colônias, artigos ou termos do glossário.
+                    {t("common.searchEmptyInitial")}
                   </p>
                 )
               ) : allResults.length === 0 ? (
                 <p className="p-4 text-sm text-felines-text-secondary">
-                  Nenhum resultado para &quot;{debouncedQuery}&quot;. Tente buscar por &quot;colônia&quot;,
-                  &quot;TNR&quot; ou &quot;alimentação&quot;.
+                  {t("common.searchEmpty").replace("{query}", debouncedQuery)}
                 </p>
               ) : (
                 groups.map(
@@ -287,7 +323,7 @@ export default function GlobalSearchButton() {
                     group.results.length > 0 && (
                       <div key={group.name} className="mb-2">
                         <p className="px-3 py-1 text-xs font-semibold uppercase tracking-[0.1em] text-felines-text-secondary">
-                          {group.name}
+                          {group.label}
                         </p>
                         {group.results.map((result) => {
                           const flatIndex = allResults.indexOf(result);

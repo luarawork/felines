@@ -595,6 +595,11 @@ export const pt = {
       photoError: "A foto não subiu. Tenta de novo?",
       photoSaveError: "A foto não foi salva. Tenta de novo?",
       photoAlt: "Sua foto de perfil",
+      publicContactLabel: "Contato público (opcional)",
+      publicContactPlaceholder: "WhatsApp, e-mail, Instagram…",
+      publicContactHint: "Mostrado na sua página pública, pra quem te encontrar pela troca de recursos ou outra colônia poder falar com você.",
+      publicContactAdd: "+ Adicionar contato público",
+      publicContactNone: "Nenhum contato público adicionado.",
     },
     streak: {
       day: "dia",
@@ -700,6 +705,7 @@ export const pt = {
     searchGroupColonies: "Colônias",
     searchGroupArticles: "Artigos",
     searchGroupGlossary: "Glossário",
+    searchGroupContacts: "Contatos",
     firstVisit:
       "👋 Primeira vez por aqui? O Felines te ajuda a entender os gatos de rua da sua região, ver quem já cuida deles e relatar o que você encontrar — sem precisar de conta para a maioria das coisas.",
     weather: {
@@ -823,6 +829,7 @@ export const pt = {
       exchanged: "Trocado ✓",
       interested: "Tenho interesse",
       interestSent: "Interesse enviado ✓",
+      interestedPeople: "Pessoas interessadas",
       noResults: "Nada aqui ainda. Seja a primeira pessoa a oferecer ou procurar algo.",
       titlePlaceholder: "Título",
       descPlaceholder: "Descrição",
@@ -977,6 +984,7 @@ export const pt = {
     activityInArea: "Atividade nesta área",
     moveToUpdateList: "Mova ou dê zoom no mapa para atualizar a lista.",
     noneVisibleInArea: "Nenhuma colônia ou relato visível nesta área do mapa.",
+    viewColonyCta: "Ver colônia →",
   },
 
   quiz: {
@@ -1107,9 +1115,11 @@ export const pt = {
       general: "Contato geral",
     },
     filterPlaceholder: "Filtrar por cidade…",
+    categoryFilterAll: "Todas as categorias",
     newContactBtn: "+ Cadastrar contato",
     cancelBtn: "Cancelar",
     formTitle: "Novo contato",
+    editFormTitle: "Editar contato",
     cityLabel: "Cidade",
     nameLabel: "Nome / Organização",
     phoneLabel: "Telefone / WhatsApp",
@@ -1120,9 +1130,17 @@ export const pt = {
     validationError: "Cidade e nome são obrigatórios.",
     loginRequired: "Você precisa estar logado para cadastrar um contato.",
     insertError: "Não foi possível cadastrar o contato. Tenta de novo?",
+    updateError: "Não foi possível salvar as alterações. Tenta de novo?",
+    deleteError: "Não foi possível excluir o contato. Tenta de novo?",
+    deleteConfirm: "Excluir esse contato? Essa ação não pode ser desfeita.",
     empty: "Nenhum contato cadastrado ainda. Seja o primeiro a adicionar um.",
+    noResultsForFilter: "Nenhum contato encontrado com esses filtros.",
     submitBtn: "Cadastrar",
     submitting: "Salvando…",
+    edit: "Editar",
+    delete: "Excluir",
+    saveBtn: "Salvar alterações",
+    saving: "Salvando…",
   },
 
   newColony: {
