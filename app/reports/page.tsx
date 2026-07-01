@@ -119,12 +119,12 @@ export default async function ReportsPage({
         tabs={[
           { id: "reports", label: "Relatos", content: <ReportsList /> },
           { id: "resources", label: "Troca de recursos", content: <ResourcesBoard /> },
-          { id: "stories", label: "Histórias", content: storiesContent },
           {
             id: "contacts",
             label: "Contatos",
             content: <ContactsBoard initialByCity={byCity} categoryLabels={CATEGORY_LABELS} />,
           },
+          { id: "stories", label: "Histórias", content: storiesContent },
         ]}
       />
     </div>

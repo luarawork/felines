@@ -686,9 +686,9 @@ export default async function ColonyDetailPage({
 
           <ColonyTabs
             tabs={[
+              { id: "timeline", label: "Linha do tempo", content: timelineSection },
               { id: "cats", label: "Gatos", content: catsSection },
               { id: "needs", label: "Necessidades", content: needsSection },
-              { id: "timeline", label: "Linha do tempo", content: timelineSection },
               {
                 id: "reports",
                 label: "Relatórios",
