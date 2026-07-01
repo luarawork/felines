@@ -2,9 +2,15 @@
 // an action that requires an account — registering a colony, linking as
 // caretaker, logging a feeding. Explains why an account helps, instead
 // of silently redirecting to /login.
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 export default function AuthRequiredNotice() {
+  const pathname = usePathname();
+  const returnTo = encodeURIComponent(pathname);
+
   return (
     <div className="rounded-lg border border-felines-border bg-felines-surface px-4 py-3 text-sm text-felines-text-secondary">
       <p>
@@ -13,13 +19,13 @@ export default function AuthRequiredNotice() {
       </p>
       <div className="mt-2 flex flex-wrap gap-2">
         <Link
-          href="/signup"
+          href={`/signup?returnTo=${returnTo}`}
           className="inline-block rounded-full bg-felines-accent px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-felines-accent-hover"
         >
           Criar conta
         </Link>
         <Link
-          href="/login"
+          href={`/login?returnTo=${returnTo}`}
           className="inline-block rounded-full px-4 py-2 text-sm font-medium text-felines-text-secondary transition-colors hover:text-felines-text-primary"
         >
           Já tenho conta
