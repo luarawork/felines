@@ -20,8 +20,10 @@ import {
   ensureOwnProfile,
   getAvatarUrl,
   getDisplayName,
+  getOwnPublicContact,
   updateOwnAvatarUrl,
   updateOwnDisplayName,
+  updateOwnPublicContact,
 } from "@/lib/profile";
 import { buildSafeStoragePath, validatePhotoFile } from "@/lib/storage";
 import EmptyState from "@/components/EmptyState";
@@ -57,6 +59,9 @@ export default function ProfileContent() {
   const [displayName, setDisplayName] = useState("");
   const [savingName, setSavingName] = useState(false);
   const [editingName, setEditingName] = useState(false);
+  const [publicContact, setPublicContact] = useState("");
+  const [savingContact, setSavingContact] = useState(false);
+  const [editingContact, setEditingContact] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [avatarError, setAvatarError] = useState<string | null>(null);
@@ -112,6 +117,7 @@ export default function ProfileContent() {
         { data: confirmationRows },
         { data: sentRows },
         { data: receivedRows },
+        currentPublicContact,
       ] = await Promise.all([
         getDisplayName(uid),
         getAvatarUrl(uid),
@@ -169,9 +175,11 @@ export default function ProfileContent() {
           .select("id, created_at, colonies(name), sender_user_id")
           .eq("caretaker_user_id", uid)
           .order("created_at", { ascending: false }),
+        getOwnPublicContact(uid),
       ]);
 
       setDisplayName(currentDisplayName ?? "");
+      setPublicContact(currentPublicContact ?? "");
       setAvatarUrl(avatarResult);
       setCurrentStreak(streakRow?.current_streak ?? 0);
       setLongestStreak(streakRow?.longest_streak ?? 0);
@@ -274,6 +282,14 @@ export default function ProfileContent() {
     const success = await updateOwnDisplayName(userId, displayName);
     setSavingName(false);
     if (success) setEditingName(false);
+  }
+
+  async function handleSavePublicContact() {
+    if (!userId) return;
+    setSavingContact(true);
+    const success = await updateOwnPublicContact(userId, publicContact);
+    setSavingContact(false);
+    if (success) setEditingContact(false);
   }
 
   async function handleAvatarChange(file: File | null) {
@@ -404,7 +420,7 @@ export default function ProfileContent() {
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={avatarUrl}
-                  alt="Sua foto de perfil"
+                  alt={t("profile.header.photoAlt")}
                   className="h-20 w-20 rounded-full object-cover shadow-[0_2px_8px_rgba(0,0,0,0.10)]"
                 />
               ) : (
@@ -456,13 +472,51 @@ export default function ProfileContent() {
                   {email} ·{" "}
                   {userId && (
                     <Link href={`/u/${userId}`} className="text-felines-accent-hover">
-                      ver página pública
+                      {t("profile.header.publicPage")}
                     </Link>
                   )}
                 </p>
+
+                <div className="mt-2">
+                  {editingContact ? (
+                    <div className="flex flex-wrap items-center gap-2">
+                      <input
+                        type="text"
+                        aria-label={t("profile.header.publicContactLabel")}
+                        value={publicContact}
+                        onChange={(formEvent) => setPublicContact(formEvent.target.value)}
+                        maxLength={100}
+                        placeholder={t("profile.header.publicContactPlaceholder")}
+                        autoFocus
+                        className="rounded-md border border-felines-border bg-white px-3 py-2 text-sm"
+                      />
+                      <button
+                        onClick={handleSavePublicContact}
+                        disabled={savingContact}
+                        className="rounded-full bg-felines-accent px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-felines-accent-hover disabled:opacity-50"
+                      >
+                        {savingContact ? t("profile.header.saving") : t("profile.header.save")}
+                      </button>
+                    </div>
+                  ) : (
+                    <p className="text-sm text-felines-text-secondary">
+                      {publicContact || t("profile.header.publicContactNone")}{" "}
+                      <button
+                        onClick={() => setEditingContact(true)}
+                        className="text-sm font-medium text-felines-accent-hover"
+                      >
+                        {publicContact ? t("profile.header.edit") : t("profile.header.publicContactAdd")}
+                      </button>
+                    </p>
+                  )}
+                  <p className="mt-0.5 text-xs text-felines-text-secondary">
+                    {t("profile.header.publicContactHint")}
+                  </p>
+                </div>
+
                 <div className="mt-2">
                   <PhotoUploadButton
-                    label="Trocar foto"
+                    label={t("profile.header.changePhoto")}
                     file={null}
                     onChange={(file) => handleAvatarChange(file)}
                   />
@@ -479,20 +533,24 @@ export default function ProfileContent() {
               public profile (/u/:id) or anywhere else visible to
               other people. */}
           <Reveal delayMs={60}>
-            <div className="mt-6 inline-flex flex-wrap items-center gap-4 rounded-xl border border-felines-border bg-felines-surface px-4 py-3">
-              {currentStreak > 0 ? (
-                <p className="text-sm font-semibold text-felines-accent">
-                  🔥 {currentStreak} {currentStreak === 1 ? "dia" : "dias"} de sequência
-                </p>
-              ) : (
-                <p className="text-sm text-felines-text-secondary">
-                  Volte amanhã para começar sua sequência 🐾
-                </p>
-              )}
+            <div className="mt-6 flex flex-wrap gap-3">
+              <div className="rounded-xl border border-felines-border bg-felines-surface px-4 py-3">
+                {currentStreak > 0 ? (
+                  <p className="text-sm font-semibold text-felines-accent">
+                    🔥 {currentStreak} {currentStreak === 1 ? t("profile.streak.day") : t("profile.streak.days")}{" "}
+                    {t("profile.streak.streak")}
+                  </p>
+                ) : (
+                  <p className="text-sm text-felines-text-secondary">{t("profile.streak.noStreak")}</p>
+                )}
+              </div>
               {longestStreak > 0 && (
-                <p className="text-xs text-felines-text-secondary">
-                  Melhor sequência: {longestStreak} {longestStreak === 1 ? "dia" : "dias"}
-                </p>
+                <div className="rounded-xl border border-felines-border bg-felines-surface px-4 py-3">
+                  <p className="text-xs text-felines-text-secondary">
+                    {t("profile.streak.best")} {longestStreak}{" "}
+                    {longestStreak === 1 ? t("profile.streak.day") : t("profile.streak.days")}
+                  </p>
+                </div>
               )}
             </div>
           </Reveal>
