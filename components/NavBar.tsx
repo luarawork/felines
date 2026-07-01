@@ -178,7 +178,7 @@ export default function NavBar() {
           <GlobalSearchButton />
           <button
             onClick={openHelpModal}
-            className="felines-help-pulse rounded-full bg-felines-accent px-4 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-felines-accent-hover"
+            className="felines-help-pulse min-w-[9.5rem] whitespace-nowrap rounded-full bg-felines-accent px-4 py-1.5 text-center text-sm font-semibold text-white transition-colors hover:bg-felines-accent-hover"
           >
             {t("nav.getHelp")}
           </button>
