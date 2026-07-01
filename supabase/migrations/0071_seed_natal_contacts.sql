@@ -15,7 +15,7 @@ select 'Natal', 'Hospital Veterinário Anclivepa (24h)', '0800 727 7966', 'sac@r
 where not exists (select 1 from community_contacts where city = 'Natal' and name = 'Hospital Veterinário Anclivepa (24h)');
 
 insert into community_contacts (city, name, phone, email, social, category, notes)
-select 'Natal', 'Hospital Veterinário de Natal', '(84) 2030-2003 / (84) 3234-1671', null, '@hospitalveterinario_natal', 'vet',
+select 'Natal', 'Hospital Veterinário de Natal', '(84) 2030-2003/3234-1671', null, '@hospitalveterinario_natal', 'vet',
   'Av. Xavier da Silveira, 876 – Lagoa Nova (Unidade I). Duas unidades, particular ($), atendimento 24h.'
 where not exists (select 1 from community_contacts where city = 'Natal' and name = 'Hospital Veterinário de Natal');
 
@@ -25,7 +25,7 @@ select 'Natal', 'Hospital Amigo Bicho (24h)', '(84) 3611-2223', null, '@hospital
 where not exists (select 1 from community_contacts where city = 'Natal' and name = 'Hospital Amigo Bicho (24h)');
 
 insert into community_contacts (city, name, phone, email, social, category, notes)
-select 'Natal', 'IRV — Instituto de Radiologia Veterinária', '(84) 3207-1064 / (84) 98899-1064', 'irvnatalcontato@gmail.com', null, 'vet',
+select 'Natal', 'IRV — Instituto de Radiologia Veterinária', '(84) 3207-1064/98899-1064', 'irvnatalcontato@gmail.com', null, 'vet',
   'Av. Ayrton Senna, 389, Loja 38. Particular ($). Diagnóstico por imagem. Atende a domicílio para raio-x.'
 where not exists (select 1 from community_contacts where city = 'Natal' and name = 'IRV — Instituto de Radiologia Veterinária');
 
@@ -40,7 +40,7 @@ select 'Natal', 'Instituto Hope RN', '(84) 9108-2063', 'contato@institutohopern.
 where not exists (select 1 from community_contacts where city = 'Natal' and name = 'Instituto Hope RN');
 
 insert into community_contacts (city, name, phone, email, social, category, notes)
-select 'Natal', 'Patamada ONG', '(84) 3618-1624 / (84) 99840-8120', null, '@patamadaong', 'ngo',
+select 'Natal', 'Patamada ONG', '(84) 3618-1624/99840-8120', null, '@patamadaong', 'ngo',
   'Abrigo no Planalto, ~200 animais. Recebe denúncias e resgata animais abandonados, atropelados e envenenados. PIX/CNPJ: 12.273.307/0001'
 where not exists (select 1 from community_contacts where city = 'Natal' and name = 'Patamada ONG');
 
