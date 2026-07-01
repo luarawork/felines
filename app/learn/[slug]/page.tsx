@@ -71,12 +71,12 @@ export default async function ArticlePage({
       <div className="mt-6 space-y-4">
         {article.body.map((paragraph) =>
           paragraph.startsWith("### ") ? (
-            <h3
+            <h2
               key={paragraph}
               className="!mt-8 text-xl font-bold text-felines-text-primary"
             >
               {paragraph.slice(4)}
-            </h3>
+            </h2>
           ) : (
             <p key={paragraph} className="text-base leading-relaxed text-felines-text-secondary">
               {paragraph}
@@ -110,7 +110,7 @@ export default async function ArticlePage({
 
       {relatedArticles.length > 0 && (
         <section className="mt-10">
-          <h2 className="text-lg font-bold text-felines-text-primary">Artigos relacionados</h2>
+          <h3 className="text-lg font-bold text-felines-text-primary">Artigos relacionados</h3>
           <div className="mt-3 grid gap-3 sm:grid-cols-2">
             {relatedArticles.map((related) => (
               <Link

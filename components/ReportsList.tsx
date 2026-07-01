@@ -256,7 +256,11 @@ export default function ReportsList() {
     );
   }
 
-  if (loading) return null;
+  if (loading) return (
+    <p role="status" className="mt-8 text-sm text-felines-text-secondary">
+      Carregando relatos...
+    </p>
+  );
 
   if (!session) {
     return (
@@ -300,7 +304,7 @@ export default function ReportsList() {
         </label>
       </div>
 
-      {error && <p className="mt-2 text-sm text-felines-emergency">{error}</p>}
+      {error && <p role="alert" className="mt-2 text-sm text-felines-emergency">{error}</p>}
 
       {filteredReports.length === 0 ? (
         <div className="mt-6">

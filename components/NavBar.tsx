@@ -7,7 +7,7 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabaseClient";
 import { getAvatarUrl } from "@/lib/profile";
@@ -26,6 +26,7 @@ const NAV_LINKS = [
 
 export default function NavBar() {
   const router = useRouter();
+  const pathname = usePathname();
   const { openHelpModal } = useHelpModal();
   const [session, setSession] = useState<Session | null>(null);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
@@ -86,15 +87,22 @@ export default function NavBar() {
     });
   }, [session]);
 
-  // Closes the avatar dropdown when clicking outside it.
+  // Closes the avatar dropdown when clicking outside it or pressing Escape.
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
         setMenuOpen(false);
       }
     }
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") setMenuOpen(false);
+    }
     document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
   }, []);
 
   async function handleLogout() {
@@ -126,13 +134,20 @@ export default function NavBar() {
         </Link>
 
         <ul className="hidden items-center gap-6 text-sm font-medium text-felines-text-secondary sm:flex">
-          {NAV_LINKS.map((link) => (
-            <li key={link.href}>
-              <Link href={link.href} className="transition-colors hover:text-felines-accent">
-                {link.label}
-              </Link>
-            </li>
-          ))}
+          {NAV_LINKS.map((link) => {
+            const isActive = link.href === "/" ? pathname === "/" : pathname.startsWith(link.href);
+            return (
+              <li key={link.href}>
+                <Link
+                  href={link.href}
+                  aria-current={isActive ? "page" : undefined}
+                  className={`transition-colors hover:text-felines-accent ${isActive ? "font-semibold text-felines-accent" : ""}`}
+                >
+                  {link.label}
+                </Link>
+              </li>
+            );
+          })}
         </ul>
 
         <div className="flex items-center gap-3">

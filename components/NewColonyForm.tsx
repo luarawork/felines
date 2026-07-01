@@ -345,7 +345,7 @@ export default function NewColonyForm() {
         </div>
       )}
 
-      {error && <p className="text-sm text-felines-emergency">{error}</p>}
+      {error && <p role="alert" className="text-sm text-felines-emergency">{error}</p>}
 
       <button
         type="submit"
@@ -409,10 +409,11 @@ function ValidationQuestion({
   return (
     <div>
       <p className="text-sm text-felines-text-secondary">{question}</p>
-      <div className="mt-1 flex gap-2">
+      <div role="group" aria-label={question} className="mt-1 flex gap-2">
         <button
           type="button"
           onClick={() => onChange(true)}
+          aria-pressed={value === true}
           className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
             value === true
               ? "border-felines-success bg-felines-success text-white"
@@ -424,6 +425,7 @@ function ValidationQuestion({
         <button
           type="button"
           onClick={() => onChange(false)}
+          aria-pressed={value === false}
           className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
             value === false
               ? "border-felines-emergency bg-felines-emergency text-white"

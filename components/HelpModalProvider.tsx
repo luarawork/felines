@@ -3,7 +3,7 @@
 // and forms) without needing a dedicated /help route.
 "use client";
 
-import { createContext, useCallback, useContext, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 import HelpFlow from "@/components/HelpFlow";
 import { useEscapeToClose } from "@/lib/useEscapeToClose";
 
@@ -23,8 +23,19 @@ export function useHelpModal(): HelpModalContextValue {
 
 export default function HelpModalProvider({ children }: { children: React.ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
+  const dialogRef = useRef<HTMLDivElement>(null);
   const close = useCallback(() => setIsOpen(false), []);
   useEscapeToClose(isOpen, close);
+
+  // Move focus into the dialog whenever it opens so keyboard/screen-reader
+  // users don't have to navigate past the entire page to reach the content.
+  useEffect(() => {
+    if (isOpen) {
+      // Small timeout lets the portal render before we try to focus it.
+      const id = setTimeout(() => dialogRef.current?.focus(), 50);
+      return () => clearTimeout(id);
+    }
+  }, [isOpen]);
 
   return (
     <HelpModalContext.Provider value={{ openHelpModal: () => setIsOpen(true) }}>
@@ -36,10 +47,12 @@ export default function HelpModalProvider({ children }: { children: React.ReactN
           onClick={close}
         >
           <div
+            ref={dialogRef}
             role="dialog"
             aria-modal="true"
             aria-labelledby="help-modal-title"
-            className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-xl bg-felines-background p-6 shadow-xl"
+            tabIndex={-1}
+            className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-xl bg-felines-background p-6 shadow-xl outline-none"
             onClick={(event) => event.stopPropagation()}
           >
             <div className="flex items-start justify-between">

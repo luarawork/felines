@@ -103,7 +103,7 @@ export default function Home() {
                 href="#aprender"
                 className="rounded-full px-7 py-3 text-base font-semibold text-felines-text-secondary transition-colors hover:text-felines-text-primary"
               >
-                Comecar a aprender
+                Começar a aprender
               </Link>
             </div>
           </Reveal>

@@ -72,11 +72,12 @@ export default function SignupForm() {
         />
       </div>
 
-      {error && <p className="text-sm text-felines-emergency">{error}</p>}
+      {error && <p role="alert" className="text-sm text-felines-emergency">{error}</p>}
 
       <button
         type="submit"
         disabled={submitting}
+        aria-busy={submitting}
         className="w-full rounded-full bg-felines-accent px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-felines-accent-hover disabled:opacity-50"
       >
         {submitting ? "Criando conta..." : "Criar minha conta"}
