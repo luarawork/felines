@@ -29,6 +29,7 @@ export type ContactRow = {
   category: string;
   notes: string | null;
   created_at: string;
+  created_by: string | null;
 };
 
 const CATEGORY_LABELS: Record<string, { label: string; emoji: string }> = {
@@ -46,7 +47,7 @@ export { CATEGORY_LABELS };
 export default async function ContactsPage() {
   const { data: rows } = await supabase
     .from("community_contacts")
-    .select("id, city, name, phone, email, social, category, notes, created_at")
+    .select("id, city, name, phone, email, social, category, notes, created_at, created_by")
     .order("city")
     .order("created_at", { ascending: false });
 
