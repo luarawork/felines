@@ -9,14 +9,21 @@ import { supabase } from "@/lib/supabaseClient";
 import AuthRequiredNotice from "@/components/AuthRequiredNotice";
 import ReportButton from "@/components/ReportButton";
 import { useColonyAccessContext } from "@/components/ColonyAccessProvider";
+import { useLanguage } from "@/lib/i18n";
 
 export default function ColonyActions({ colonyId }: { colonyId: string }) {
   const router = useRouter();
+  const { t } = useLanguage();
   const { session, checkingAccess, refreshAccess } = useColonyAccessContext();
   const [foodLogged, setFoodLogged] = useState(false);
   const [waterLogged, setWaterLogged] = useState(false);
   const [caretakerJoined, setCaretakerJoined] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
+  // Guards against a rapid double-click creating two feeding/water
+  // check-ins — foodLogged/waterLogged only flip to true after the
+  // insert resolves, which is too late to stop a second click fired
+  // before that await settles.
+  const [checkInPending, setCheckInPending] = useState<"food" | "water" | null>(null);
 
   // caretakerJoined used to only flip to true after clicking the button
   // in this session, so an account that was already a caretaker before
@@ -41,17 +48,19 @@ export default function ColonyActions({ colonyId }: { colonyId: string }) {
   // shows up in the colony's history — the feedings row alone is
   // invisible to visitors.
   async function handleLogCheckIn(type: "food" | "water") {
-    if (!session) return;
+    if (!session || checkInPending) return;
     setActionError(null);
+    setCheckInPending(type);
     const { error } = await supabase
       .from("feedings")
       .insert({ colony_id: colonyId, user_id: session.user.id, type });
 
     if (error) {
+      setCheckInPending(null);
       setActionError(
         type === "food"
-          ? "A alimentação não foi registrada. Tenta de novo?"
-          : "A água não foi registrada. Tenta de novo?"
+          ? t("colony.foodError")
+          : t("colony.waterError")
       );
       return;
     }
@@ -60,7 +69,7 @@ export default function ColonyActions({ colonyId }: { colonyId: string }) {
       supabase.from("timeline_events").insert({
         colony_id: colonyId,
         event_type: type === "food" ? "feeding" : "water",
-        description: type === "food" ? "Alguém alimentou a colônia." : "Alguém trocou a água da colônia.",
+        description: type === "food" ? t("colony.feedingEventDesc") : t("colony.waterEventDesc"),
         created_by: session.user.id,
       }),
       // No-ops server-side if the user isn't a caretaker (see 0043).
@@ -68,6 +77,7 @@ export default function ColonyActions({ colonyId }: { colonyId: string }) {
       supabase.rpc("recalculate_colony_health", { p_colony_id: colonyId }),
     ]);
 
+    setCheckInPending(null);
     if (type === "food") setFoodLogged(true);
     else setWaterLogged(true);
     router.refresh();
@@ -86,7 +96,7 @@ export default function ColonyActions({ colonyId }: { colonyId: string }) {
       .insert({ colony_id: colonyId, user_id: session.user.id });
 
     if (error) {
-      setActionError("Não foi possível te vincular como cuidador. Tenta de novo?");
+      setActionError(t("colony.joinError"));
       return;
     }
 
@@ -94,7 +104,7 @@ export default function ColonyActions({ colonyId }: { colonyId: string }) {
       supabase.from("timeline_events").insert({
         colony_id: colonyId,
         event_type: "new_caretaker",
-        description: "Um novo cuidador passou a olhar por essa colônia.",
+        description: t("colony.newCaretakerEventDesc"),
         created_by: session.user.id,
       }),
       supabase.rpc("recalculate_colony_health", { p_colony_id: colonyId }),
@@ -110,7 +120,7 @@ export default function ColonyActions({ colonyId }: { colonyId: string }) {
   // so this can't be used to remove someone else's link.
   async function handleStopCaretaking() {
     if (!session) return;
-    if (!window.confirm("Deixar de ser cuidador desta colônia? Você poderá se vincular novamente depois.")) return;
+    if (!window.confirm(t("colony.confirmStopCaretaking"))) return;
     setActionError(null);
     const { error } = await supabase
       .from("caretakers")
@@ -119,7 +129,7 @@ export default function ColonyActions({ colonyId }: { colonyId: string }) {
       .eq("user_id", session.user.id);
 
     if (error) {
-      setActionError("Não consegui te desvincular agora. Tenta de novo?");
+      setActionError(t("colony.leaveError"));
       return;
     }
 
@@ -136,7 +146,7 @@ export default function ColonyActions({ colonyId }: { colonyId: string }) {
     return (
       <div id="colony-report-button" className="mt-6 rounded-2xl border border-felines-border bg-felines-surface p-5">
         <p className="text-xs font-semibold uppercase tracking-[0.1em] text-felines-accent-hover">
-          O que você pode fazer aqui
+          {t("colony.whatYouCanDo")}
         </p>
         <div className="mt-3">
           <ReportButton colonyId={colonyId} />
@@ -151,37 +161,37 @@ export default function ColonyActions({ colonyId }: { colonyId: string }) {
   return (
     <div id="colony-report-button" className="mt-6 rounded-2xl border border-felines-border bg-felines-surface p-5">
       <p className="text-xs font-semibold uppercase tracking-[0.1em] text-felines-accent-hover">
-        O que você pode fazer aqui
+        {t("colony.whatYouCanDo")}
       </p>
       <div className="mt-3 flex flex-wrap gap-3">
         <ReportButton colonyId={colonyId} />
         <button
           onClick={() => handleLogCheckIn("food")}
-          disabled={foodLogged}
+          disabled={foodLogged || checkInPending !== null}
           className="rounded-full bg-felines-accent px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-felines-accent-hover disabled:opacity-50"
         >
-          {foodLogged ? "Alimentação registrada ✓" : "Alimentei essa colônia hoje"}
+          {foodLogged ? t("colony.foodLogged") : t("colony.logFood")}
         </button>
         <button
           onClick={() => handleLogCheckIn("water")}
-          disabled={waterLogged}
+          disabled={waterLogged || checkInPending !== null}
           className="rounded-full border border-felines-accent px-4 py-2 text-sm font-medium text-felines-accent transition-colors hover:bg-felines-accent hover:text-white disabled:opacity-50"
         >
-          {waterLogged ? "Água registrada ✓" : "Coloquei água hoje"}
+          {waterLogged ? t("colony.waterLogged") : t("colony.logWater")}
         </button>
         {caretakerJoined ? (
           <button
             onClick={handleStopCaretaking}
             className="rounded-full border border-felines-border px-4 py-2 text-sm font-medium text-felines-text-secondary transition-colors hover:border-felines-emergency hover:text-felines-emergency"
           >
-            Deixar de cuidar dessa colônia
+            {t("colony.stopCaretaking")}
           </button>
         ) : (
           <button
             onClick={handleBecomeCaretaker}
             className="rounded-full border border-felines-border px-4 py-2 text-sm font-medium text-felines-text-secondary transition-colors hover:border-felines-accent hover:text-felines-accent-hover"
           >
-            Quero cuidar dessa colônia
+            {t("colony.becomeCaretaker")}
           </button>
         )}
       </div>

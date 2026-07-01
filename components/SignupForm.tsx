@@ -4,10 +4,14 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import { useLanguage } from "@/lib/i18n";
 
 export default function SignupForm() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const returnTo = searchParams.get("returnTo");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -25,11 +29,20 @@ export default function SignupForm() {
     }
 
     setSubmitting(true);
-    const { error: signUpError } = await supabase.auth.signUp({ email, password });
+    const { data: signUpData, error: signUpError } = await supabase.auth.signUp({ email, password });
     setSubmitting(false);
 
     if (signUpError) {
       setError(t("auth.signup.error"));
+      return;
+    }
+
+    // If email confirmation is disabled (project-dependent), signUp
+    // returns an active session immediately — in that case there's no
+    // "check your email" step, so honor returnTo right away instead of
+    // showing a confirmation message that doesn't apply.
+    if (signUpData.session) {
+      router.push(returnTo || "/map");
       return;
     }
 
@@ -38,9 +51,19 @@ export default function SignupForm() {
 
   if (submitted) {
     return (
-      <p className="mt-6 rounded-lg border border-felines-success bg-felines-success/10 px-4 py-3 text-sm text-felines-success">
-        {t("auth.signup.success")}
-      </p>
+      <div className="mt-6 space-y-3">
+        <p className="rounded-lg border border-felines-success bg-felines-success/10 px-4 py-3 text-sm text-felines-success">
+          {t("auth.signup.success")}
+        </p>
+        <p className="text-center text-sm text-felines-text-secondary">
+          <Link
+            href={returnTo ? `/login?returnTo=${encodeURIComponent(returnTo)}` : "/login"}
+            className="font-medium text-felines-accent-hover"
+          >
+            {t("auth.signup.loginLink")}
+          </Link>
+        </p>
+      </div>
     );
   }
 
@@ -89,7 +112,10 @@ export default function SignupForm() {
 
       <p className="text-center text-sm text-felines-text-secondary">
         {t("auth.signup.hasAccount")}{" "}
-        <Link href="/login" className="font-medium text-felines-accent-hover">
+        <Link
+          href={returnTo ? `/login?returnTo=${encodeURIComponent(returnTo)}` : "/login"}
+          className="font-medium text-felines-accent-hover"
+        >
           {t("auth.signup.loginLink")}
         </Link>
       </p>
