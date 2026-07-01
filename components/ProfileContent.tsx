@@ -10,11 +10,12 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ARTICLES } from "@/lib/articles";
-import { COURSE_MODULES, STANDALONE_QUIZZES } from "@/lib/caretakerCourse";
+import { COURSE_MODULES, STANDALONE_QUIZZES, localizeStandaloneQuiz, localizeCourseModules } from "@/lib/caretakerCourse";
 import StandaloneQuizModal from "@/components/StandaloneQuizModal";
 import { supabase } from "@/lib/supabaseClient";
 import { getOpenReportsForMyColonies, getOwnReports, type MyColonyReport, type OwnReport } from "@/lib/myColonyReports";
 import { getReportTypeLabel } from "@/lib/reportTypes";
+import { useLanguage } from "@/lib/i18n";
 import {
   ensureOwnProfile,
   getAvatarUrl,
@@ -39,6 +40,8 @@ type ActivityItem = { id: string; date: string; icon: string; label: string; hre
 
 export default function ProfileContent() {
   const router = useRouter();
+  const { t, language } = useLanguage();
+  const courseModules = localizeCourseModules(COURSE_MODULES, language);
   const [loading, setLoading] = useState(true);
   const [userId, setUserId] = useState<string | null>(null);
   const [email, setEmail] = useState<string | null>(null);
@@ -113,10 +116,10 @@ export default function ProfileContent() {
         getDisplayName(uid),
         getAvatarUrl(uid),
         supabase
-          .from("profiles")
-          .select("current_streak, longest_streak")
-          .eq("id", uid)
-          .maybeSingle(),
+          .rpc("get_own_streak")
+          .maybeSingle() as unknown as Promise<{
+            data: { current_streak: number; longest_streak: number } | null;
+          }>,
         supabase
           .from("feedings")
           .select("id, colony_id, created_at")
@@ -234,14 +237,14 @@ export default function ProfileContent() {
           : { data: [] };
 
       function displayNameFor(id: string) {
-        return (otherProfiles ?? []).find((profile) => profile.id === id)?.display_name || "alguém da comunidade";
+        return (otherProfiles ?? []).find((profile) => profile.id === id)?.display_name || t("profile.someoneFromCommunity");
       }
 
       if (sentRows) {
         setThanksSent(
           sentRows.map((row) => ({
             id: row.id,
-            colonyName: (row.colonies as unknown as { name: string } | null)?.name ?? "Colônia",
+            colonyName: (row.colonies as unknown as { name: string } | null)?.name ?? t("profile.genericColonyName"),
             createdAt: row.created_at,
             otherPartyName: displayNameFor(row.caretaker_user_id as string),
           }))
@@ -252,7 +255,7 @@ export default function ProfileContent() {
         setThanksReceived(
           receivedRows.map((row) => ({
             id: row.id,
-            colonyName: (row.colonies as unknown as { name: string } | null)?.name ?? "Colônia",
+            colonyName: (row.colonies as unknown as { name: string } | null)?.name ?? t("profile.genericColonyName"),
             createdAt: row.created_at,
             otherPartyName: displayNameFor(row.sender_user_id as string),
           }))
@@ -263,7 +266,7 @@ export default function ProfileContent() {
     }
 
     loadProfile();
-  }, [router]);
+  }, [router, t]);
 
   async function handleSaveDisplayName() {
     if (!userId) return;
@@ -289,7 +292,7 @@ export default function ProfileContent() {
 
     if (uploadError) {
       setUploadingAvatar(false);
-      setAvatarError("A foto não subiu. Tenta de novo?");
+      setAvatarError(t("profile.avatarUploadError"));
       return;
     }
 
@@ -298,7 +301,7 @@ export default function ProfileContent() {
     setUploadingAvatar(false);
 
     if (!success) {
-      setAvatarError("A foto não foi salva. Tenta de novo?");
+      setAvatarError(t("profile.avatarSaveError"));
       return;
     }
 
@@ -341,33 +344,33 @@ export default function ProfileContent() {
       id: `feed-${feeding.id}`,
       date: feeding.created_at,
       icon: "🍽️",
-      label: "Alimentação registrada",
+      label: t("profile.activity.feeding"),
       href: `/colony/${feeding.colony_id}`,
     })),
     ...ownReports.map((report) => ({
       id: `report-${report.id}`,
       date: report.created_at,
       icon: "🚨",
-      label: `Relato enviado: ${getReportTypeLabel(report.type)}`,
+      label: `${t("profile.activity.reportSent")} ${getReportTypeLabel(report.type, t)}`,
       href: report.colony_id ? `/colony/${report.colony_id}` : undefined,
     })),
     ...confirmationsGiven.map((confirmation, index) => ({
       id: `confirm-${index}-${confirmation.confirmedAt}`,
       date: confirmation.confirmedAt,
       icon: "✅",
-      label: `Confirmou: ${getReportTypeLabel(confirmation.reportType)}`,
+      label: `${t("profile.activity.confirmed")} ${getReportTypeLabel(confirmation.reportType, t)}`,
     })),
     ...thanksSent.map((thanks) => ({
       id: `thanks-sent-${thanks.id}`,
       date: thanks.createdAt,
       icon: "🙏",
-      label: `Você agradeceu ${thanks.otherPartyName} (${thanks.colonyName})`,
+      label: `${t("profile.activity.thanksSent")} ${thanks.otherPartyName} (${thanks.colonyName})`,
     })),
     ...thanksReceived.map((thanks) => ({
       id: `thanks-received-${thanks.id}`,
       date: thanks.createdAt,
       icon: "🙏",
-      label: `${thanks.otherPartyName} te agradeceu (${thanks.colonyName})`,
+      label: `${thanks.otherPartyName} ${t("profile.activity.thanksReceived")} (${thanks.colonyName})`,
     })),
   ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
@@ -376,14 +379,14 @@ export default function ProfileContent() {
   // table, since none of these need to persist beyond "has this
   // happened at least once."
   const badges: { icon: string; label: string }[] = [];
-  if (caretakerLinks.length > 0) badges.push({ icon: "🤝", label: "Cuidador" });
-  if (createdColonies.length > 0) badges.push({ icon: "🐾", label: "Cadastrou uma colônia" });
-  if (feedings.length > 0) badges.push({ icon: "🍽️", label: "Alimentou uma colônia" });
-  if (foodDonationCount > 0) badges.push({ icon: "🥫", label: "Doou ração" });
-  if (ownReports.length > 0) badges.push({ icon: "🚨", label: "Enviou um relato" });
-  if (thanksReceived.length > 0) badges.push({ icon: "🙏", label: "Foi agradecido" });
-  if (longestStreak >= 7) badges.push({ icon: "🔥", label: "Sequência de 7+ dias" });
-  if (isCertified) badges.push({ icon: "🎓", label: "Cuidador Preparado" });
+  if (caretakerLinks.length > 0) badges.push({ icon: "🤝", label: t("profile.badges.caretaker") });
+  if (createdColonies.length > 0) badges.push({ icon: "🐾", label: t("profile.badges.registeredColony") });
+  if (feedings.length > 0) badges.push({ icon: "🍽️", label: t("profile.badges.fed") });
+  if (foodDonationCount > 0) badges.push({ icon: "🥫", label: t("profile.badges.donated") });
+  if (ownReports.length > 0) badges.push({ icon: "🚨", label: t("profile.badges.reported") });
+  if (thanksReceived.length > 0) badges.push({ icon: "🙏", label: t("profile.badges.thanked") });
+  if (longestStreak >= 7) badges.push({ icon: "🔥", label: t("profile.badges.streak7") });
+  if (isCertified) badges.push({ icon: "🎓", label: t("profile.badges.certified") });
 
   const colonyOpenReportCounts = new Map<string, number>();
   myColonyReports.forEach((report) => {
@@ -413,11 +416,11 @@ export default function ProfileContent() {
                   <div className="flex flex-wrap items-center gap-2">
                     <input
                       type="text"
-                      aria-label="Nome de exibição"
+                      aria-label={t("profile.header.nameLabel")}
                       value={displayName}
                       onChange={(formEvent) => setDisplayName(formEvent.target.value)}
                       maxLength={60}
-                      placeholder="Como você quer ser chamado"
+                      placeholder={t("profile.header.namePlaceholder")}
                       autoFocus
                       className="rounded-md border border-felines-border bg-white px-3 py-2 text-sm"
                     />
@@ -426,24 +429,24 @@ export default function ProfileContent() {
                       disabled={savingName}
                       className="rounded-full bg-felines-accent px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-felines-accent-hover disabled:opacity-50"
                     >
-                      {savingName ? "Salvando..." : "Salvar"}
+                      {savingName ? t("profile.header.saving") : t("profile.header.save")}
                     </button>
                   </div>
                 ) : (
                   <h1 className="text-3xl font-bold leading-tight text-felines-text-primary sm:text-[40px]">
-                    {displayName || "Sem nome de exibição"}{" "}
+                    {displayName || t("profile.header.noName")}{" "}
                     <button
                       onClick={() => setEditingName(true)}
                       className="ml-1 text-sm font-medium text-felines-accent-hover align-middle"
                     >
-                      Editar
+                      {t("profile.header.edit")}
                     </button>
                   </h1>
                 )}
                 {memberSince && (
                   <p className="mt-1 text-xs uppercase tracking-[0.1em] text-felines-text-secondary">
-                    Membro desde{" "}
-                    {new Date(memberSince).toLocaleDateString("pt-BR", {
+                    {t("profile.header.memberSince")}{" "}
+                    {new Date(memberSince).toLocaleDateString(language === "en" ? "en-US" : "pt-BR", {
                       month: "long",
                       year: "numeric",
                     })}
@@ -497,9 +500,9 @@ export default function ProfileContent() {
           {hasNoContributionsYet && (
             <div className="mt-10">
               <EmptyState
-                main="Sua jornada começa aqui."
-                sub="Cada colônia que você visita, cada relato que você faz — tudo fica registrado aqui."
-                ctas={[{ label: "Explorar o mapa", href: "/map" }]}
+                main={t("profile.empty.main")}
+                sub={t("profile.empty.sub")}
+                ctas={[{ label: t("profile.empty.cta"), href: "/map" }]}
               />
             </div>
           )}
@@ -641,7 +644,7 @@ export default function ProfileContent() {
                     5 módulos + quiz final
                   </p>
                   <ol className="mt-3 space-y-1">
-                    {COURSE_MODULES.map((mod) => {
+                    {courseModules.map((mod) => {
                       const done = readSlugs.includes(mod.articleSlug);
                       return (
                         <li key={mod.articleSlug} className="flex items-center gap-2 text-xs">
@@ -666,14 +669,14 @@ export default function ProfileContent() {
                   href="/curso"
                   className="flex-shrink-0 rounded-full bg-felines-accent px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-felines-accent-hover"
                 >
-                  {isCertified ? "Rever" : COURSE_MODULES.every((m) => readSlugs.includes(m.articleSlug)) ? "Fazer quiz" : "Continuar"}
+                  {isCertified ? "Rever" : courseModules.every((m) => readSlugs.includes(m.articleSlug)) ? "Fazer quiz" : "Continuar"}
                 </Link>
               </div>
               <div className="h-1 bg-felines-border">
                 <div
                   className="h-1 bg-felines-success transition-all duration-700"
                   style={{
-                    width: `${(COURSE_MODULES.filter((m) => readSlugs.includes(m.articleSlug)).length / COURSE_MODULES.length) * 100}%`,
+                    width: `${(courseModules.filter((m) => readSlugs.includes(m.articleSlug)).length / courseModules.length) * 100}%`,
                   }}
                 />
               </div>
@@ -687,7 +690,7 @@ export default function ProfileContent() {
             </h3>
             <div className="mt-3 grid gap-3 sm:grid-cols-3">
               {STANDALONE_QUIZZES.map((quiz) => (
-                <StandaloneQuizModal key={quiz.id} quiz={quiz} />
+                <StandaloneQuizModal key={quiz.id} quiz={localizeStandaloneQuiz(quiz, language)} />
               ))}
             </div>
           </div>
@@ -739,10 +742,10 @@ export default function ProfileContent() {
           <div className="mx-auto max-w-6xl px-4 sm:px-6">
             <Reveal>
               <p className="text-xs font-semibold uppercase tracking-[0.1em] text-felines-text-secondary-on-dark">
-                Descubra seu perfil
+                {t("profile.quiz.label")}
               </p>
               <h2 className="mt-3 text-3xl font-bold leading-tight text-white">
-                Que tipo de vizinho você é?
+                {t("profile.quiz.headline")}
               </h2>
             </Reveal>
 
@@ -753,21 +756,21 @@ export default function ProfileContent() {
                     🐾
                   </span>
                   <p className="mt-3 text-2xl font-bold leading-tight text-white">
-                    Descubra em 3 perguntas rápidas
+                    {t("profile.quiz.questions")}
                   </p>
-                  <p className="mt-1 text-sm text-white/80">Não existe resposta errada.</p>
+                  <p className="mt-1 text-sm text-white/80">{t("profile.quiz.noWrong")}</p>
                   <div className="mt-5 flex items-center gap-4">
                     <button
                       onClick={() => setShowQuiz(true)}
                       className="rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-felines-accent-hover transition-transform duration-150 hover:-translate-y-0.5"
                     >
-                      Descobrir
+                      {t("profile.quiz.discover")}
                     </button>
                     <button
                       onClick={() => setQuizSkipped(true)}
                       className="text-sm text-white/80 hover:text-white"
                     >
-                      Fazer isso depois
+                      {t("profile.quiz.later")}
                     </button>
                   </div>
                 </div>
@@ -776,7 +779,7 @@ export default function ProfileContent() {
 
             {quizSkipped && !showQuiz && (
               <p className="mt-6 text-sm text-felines-text-secondary-on-dark">
-                Sem problema. Você pode fazer o quiz quando quiser.
+                {t("profile.quiz.skipped")}
               </p>
             )}
 
@@ -788,7 +791,7 @@ export default function ProfileContent() {
                 <div
                   role="dialog"
                   aria-modal="true"
-                  aria-label="Quiz: que tipo de vizinho você é?"
+                  aria-label={t("profile.quizModalAriaLabel")}
                   className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-2xl bg-felines-background p-2 shadow-xl"
                   onClick={(event) => event.stopPropagation()}
                 >
