@@ -4,9 +4,11 @@
 // everywhere: a clearly dominant title, a quieter description below
 // it, and reading time set apart as the least prominent, caption-style
 // detail — instead of three lines of near-equal weight.
+"use client";
 import Link from "next/link";
 import type { Article } from "@/lib/articles";
 import { getReadingTimeMinutes } from "@/lib/articles";
+import { useLanguage } from "@/lib/i18n";
 
 export default function ArticleCard({
   article,
@@ -17,6 +19,7 @@ export default function ArticleCard({
   isDark?: boolean;
   isRead?: boolean;
 }) {
+  const { t } = useLanguage();
   return (
     <Link
       href={article.href ?? `/learn/${article.slug}`}
@@ -36,7 +39,7 @@ export default function ArticleCard({
         </h3>
         {isRead && (
           <span className="flex-shrink-0 rounded-full bg-felines-success px-2 py-0.5 text-xs font-semibold text-white">
-            Lido
+            {t("article.readBadge")}
           </span>
         )}
       </div>
@@ -54,7 +57,7 @@ export default function ArticleCard({
             : "border-felines-border text-felines-text-secondary"
         }`}
       >
-        {getReadingTimeMinutes(article)} min de leitura
+        {getReadingTimeMinutes(article)} {t("article.readingTime")}
       </p>
     </Link>
   );

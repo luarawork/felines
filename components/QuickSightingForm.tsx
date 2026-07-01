@@ -9,6 +9,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient";
+import { useLanguage } from "@/lib/i18n";
 import { buildSafeStoragePath, validatePhotoFile } from "@/lib/storage";
 import { submitReport } from "@/lib/submitReport";
 import MapMarkerPickerShell from "@/components/MapMarkerPickerShell";
@@ -24,6 +25,7 @@ export default function QuickSightingForm({
   const [description, setDescription] = useState("");
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [position, setPosition] = useState<[number, number] | null>(initialPosition ?? null);
+  const { t } = useLanguage();
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -51,7 +53,7 @@ export default function QuickSightingForm({
 
       if (uploadError) {
         setSubmitting(false);
-        setError("A foto não subiu. Tenta de novo?");
+        setError(t("quickSighting.photoUploadError"));
         return;
       }
 
@@ -81,14 +83,13 @@ export default function QuickSightingForm({
     return (
       <div className="rounded-xl border border-felines-success bg-felines-success/10 p-5">
         <p className="text-sm text-felines-success">
-          Obrigado por relatar! Seu avistamento foi adicionado ao mapa. Se você vir mais gatos
-          nesse local com frequência, considere mapear uma colônia.
+          {t("quickSighting.successMessage")}
         </p>
         <Link
           href="/map"
           className="mt-3 inline-block rounded-full bg-felines-accent px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-felines-accent-hover"
         >
-          Voltar ao mapa
+          {t("quickSighting.backToMap")}
         </Link>
       </div>
     );
@@ -98,7 +99,7 @@ export default function QuickSightingForm({
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
         <label className="block text-sm font-medium text-felines-text-primary">
-          Foto (opcional)
+          {t("quickSighting.photoLabel")}
         </label>
         <div className="mt-1">
           <PhotoUploadButton label="Escolher foto" file={photoFile} onChange={setPhotoFile} />
@@ -110,7 +111,7 @@ export default function QuickSightingForm({
           htmlFor="quick-sighting-description"
           className="block text-sm font-medium text-felines-text-primary"
         >
-          Descrição (opcional)
+          {t("quickSighting.descLabel")}
         </label>
         <textarea
           id="quick-sighting-description"
@@ -118,15 +119,15 @@ export default function QuickSightingForm({
           onChange={(formEvent) => setDescription(formEvent.target.value)}
           rows={3}
           maxLength={500}
-          placeholder="Descreva o que você viu..."
+          placeholder={t("quickSighting.descPlaceholder")}
           className="mt-1 w-full rounded-md border border-felines-border bg-white px-3 py-2 text-sm"
         />
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-felines-text-primary">Localização</label>
+        <label className="block text-sm font-medium text-felines-text-primary">{t("quickSighting.locationLabel")}</label>
         <p className="mt-1 text-xs text-felines-text-secondary">
-          Toque ou arraste o pino até onde você viu o gato.
+          {t("quickSighting.locationHint")}
         </p>
         <div className="mt-2 h-48 w-full overflow-hidden rounded-xl border border-felines-border">
           <MapMarkerPickerShell position={position} onPick={(lat, lng) => setPosition([lat, lng])} />
@@ -142,7 +143,7 @@ export default function QuickSightingForm({
           aria-busy={submitting}
           className="rounded-full bg-felines-accent px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-felines-accent-hover disabled:opacity-50"
         >
-          {submitting ? "Enviando..." : "Enviar avistamento"}
+          {submitting ? t("quickSighting.submitting") : t("quickSighting.submit")}
         </button>
         {onClose && (
           <button
@@ -150,7 +151,7 @@ export default function QuickSightingForm({
             onClick={onClose}
             className="rounded-full px-4 py-2 text-sm font-medium text-felines-text-secondary"
           >
-            Cancelar
+            {t("common.cancel")}
           </button>
         )}
       </div>

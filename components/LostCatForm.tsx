@@ -13,8 +13,10 @@ import { submitReport } from "@/lib/submitReport";
 import MapMarkerPickerShell from "@/components/MapMarkerPickerShell";
 import AuthRequiredNotice from "@/components/AuthRequiredNotice";
 import PhotoUploadButton from "@/components/PhotoUploadButton";
+import { useLanguage } from "@/lib/i18n";
 
 export default function LostCatForm({ onSubmitted }: { onSubmitted?: () => void }) {
+  const { t } = useLanguage();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [checkingSession, setCheckingSession] = useState(true);
 
@@ -36,7 +38,7 @@ export default function LostCatForm({ onSubmitted }: { onSubmitted?: () => void 
     setError(null);
 
     if (!photoFile) {
-      setError("A foto do gato é obrigatória — sem ela, fica difícil alguém reconhecer ele na rua.");
+      setError(t("forms.lostCat.photoRequired"));
       return;
     }
     const photoError = validatePhotoFile(photoFile);
@@ -58,7 +60,7 @@ export default function LostCatForm({ onSubmitted }: { onSubmitted?: () => void 
 
     if (uploadError) {
       setSubmitting(false);
-      setError("A foto não subiu. Tenta de novo?");
+      setError(t("forms.lostCat.photoUploadError"));
       return;
     }
 
@@ -89,8 +91,7 @@ export default function LostCatForm({ onSubmitted }: { onSubmitted?: () => void 
     return (
       <div>
         <p className="mb-3 text-sm text-felines-text-secondary">
-          Pra cadastrar um gato perdido, você precisa de uma conta. Assim, quem encontrar ele sabe
-          como te avisar.
+          {t("forms.lostCat.loginPrompt")}
         </p>
         <AuthRequiredNotice />
       </div>
@@ -104,7 +105,7 @@ export default function LostCatForm({ onSubmitted }: { onSubmitted?: () => void 
           htmlFor="lost-cat-description"
           className="block text-xs font-medium text-felines-text-secondary"
         >
-          Como ele é (nome, cor, jeitão)
+          {t("forms.lostCat.descLabel")}
         </label>
         <textarea
           id="lost-cat-description"
@@ -118,7 +119,7 @@ export default function LostCatForm({ onSubmitted }: { onSubmitted?: () => void 
 
       <div>
         <label className="block text-xs font-medium text-felines-text-secondary">
-          Foto do gato (obrigatória)
+          {t("forms.lostCat.photoLabel")}
         </label>
         <div className="mt-1">
           <PhotoUploadButton label="Escolher foto" file={photoFile} onChange={setPhotoFile} />
@@ -127,10 +128,10 @@ export default function LostCatForm({ onSubmitted }: { onSubmitted?: () => void 
 
       <div>
         <label className="block text-xs font-medium text-felines-text-secondary">
-          Onde foi a última vez que você viu ele
+          {t("forms.lostCat.locationLabel")}
         </label>
         <p className="mt-1 text-xs text-felines-text-secondary">
-          Toque ou arraste o pino até o local.
+          {t("forms.lostCat.locationHint")}
         </p>
         <div className="mt-2 h-48 w-full overflow-hidden rounded-xl border border-felines-border">
           <MapMarkerPickerShell
@@ -148,7 +149,7 @@ export default function LostCatForm({ onSubmitted }: { onSubmitted?: () => void 
         aria-busy={submitting}
         className="rounded-full bg-felines-accent px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-felines-accent-hover disabled:opacity-50"
       >
-        {submitting ? "Cadastrando..." : "Avisar que ele está perdido"}
+        {submitting ? t("forms.lostCat.submitting") : t("forms.lostCat.submit")}
       </button>
     </form>
   );

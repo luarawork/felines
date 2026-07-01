@@ -13,22 +13,7 @@ import { supabase } from "@/lib/supabaseClient";
 import Reveal from "@/components/Reveal";
 import ArticleCard from "@/components/ArticleCard";
 import type { Article, ArticleLevel } from "@/lib/articles";
-
-const LEVEL_LABELS: Record<ArticleLevel, string> = {
-  1: "Primeiros passos",
-  2: "Agindo na prática",
-  3: "Situações específicas",
-  4: "Convivência e conflito",
-  5: "Compromisso de longo prazo",
-};
-
-const LEVEL_DESCRIPTIONS: Record<ArticleLevel, string> = {
-  1: "O básico pra entender por que os gatos de rua existem e como colônias funcionam.",
-  2: "O que fazer no dia a dia, na prática, quando você decide agir.",
-  3: "Guias específicos pra situações que pedem mais cuidado.",
-  4: "Como conviver bem quando os gatos incomodam ou geram conflito.",
-  5: "O que muda quando você decide cuidar de uma colônia a longo prazo.",
-};
+import { useLanguage } from "@/lib/i18n";
 
 export default function LearnIndex({
   articles,
@@ -39,6 +24,7 @@ export default function LearnIndex({
 }) {
   const [session, setSession] = useState<Session | null>(null);
   const [readSlugs, setReadSlugs] = useState<string[]>([]);
+  const { t } = useLanguage();
 
   useEffect(() => {
     async function loadProgress() {
@@ -89,14 +75,14 @@ export default function LearnIndex({
                     isDark ? "text-felines-text-secondary-on-dark" : "text-felines-accent-hover"
                   }`}
                 >
-                  {LEVEL_LABELS[level]}
+                  {t(`learn.levels.${level}`)}
                 </p>
                 <h2
                   className={`mt-3 max-w-xl text-3xl font-bold leading-tight sm:text-[40px] ${
                     isDark ? "text-white" : "text-felines-text-primary"
                   }`}
                 >
-                  {LEVEL_DESCRIPTIONS[level]}
+                  {t(`learn.levelDescriptions.${level}`)}
                 </h2>
               </Reveal>
 
@@ -130,9 +116,9 @@ export default function LearnIndex({
             }`}
           >
             <Link href="/login?returnTo=/%23aprender" className="font-medium text-felines-accent-hover">
-              Entre na sua conta
+              {t("learn.trackSignIn")}
             </Link>{" "}
-            para acompanhar seu progresso de leitura no seu perfil.
+            {t("learn.trackSuffix")}
           </p>
         </div>
       )}

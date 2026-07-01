@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import type { ContactRow } from "@/app/contacts/page";
+import { useLanguage } from "@/lib/i18n";
 
 const CATEGORY_OPTIONS = [
   { value: "vet", label: "🏥 Clínica veterinária" },
@@ -21,6 +22,7 @@ export default function ContactsBoard({
   initialByCity: Record<string, ContactRow[]>;
   categoryLabels: Record<string, { label: string; emoji: string }>;
 }) {
+  const { t } = useLanguage();
   const [byCity, setByCity] = useState(initialByCity);
   const [formOpen, setFormOpen] = useState(false);
   const [city, setCity] = useState("");
@@ -45,13 +47,13 @@ export default function ContactsBoard({
     setError(null);
 
     if (!city.trim() || !name.trim()) {
-      setError("Cidade e nome são obrigatórios.");
+      setError(t("contacts.validationError"));
       return;
     }
 
     const { data: sessionData } = await supabase.auth.getSession();
     if (!sessionData.session) {
-      setError("Você precisa estar logado para cadastrar um contato.");
+      setError(t("contacts.loginRequired"));
       return;
     }
 
@@ -74,7 +76,7 @@ export default function ContactsBoard({
     setSubmitting(false);
 
     if (insertError || !newRow) {
-      setError("Não foi possível cadastrar o contato. Tenta de novo?");
+      setError(t("contacts.insertError"));
       return;
     }
 
@@ -101,7 +103,7 @@ export default function ContactsBoard({
       <div className="flex flex-wrap items-center gap-3">
         <input
           type="text"
-          placeholder="Filtrar por cidade…"
+          placeholder={t("contacts.filterPlaceholder")}
           value={filterCity}
           onChange={(e) => setFilterCity(e.target.value)}
           className="w-full max-w-xs rounded-full border border-felines-border bg-white px-4 py-2 text-sm"
@@ -110,7 +112,7 @@ export default function ContactsBoard({
           onClick={() => setFormOpen((prev) => !prev)}
           className="rounded-full bg-felines-accent px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-felines-accent-hover"
         >
-          {formOpen ? "Cancelar" : "+ Cadastrar contato"}
+          {formOpen ? t("contacts.cancelBtn") : t("contacts.newContactBtn")}
         </button>
       </div>
 
@@ -119,12 +121,12 @@ export default function ContactsBoard({
           onSubmit={handleSubmit}
           className="mt-5 space-y-3 rounded-xl border border-felines-border bg-felines-surface p-6"
         >
-          <h3 className="font-semibold text-felines-text-primary">Novo contato</h3>
+          <h3 className="font-semibold text-felines-text-primary">{t("contacts.formTitle")}</h3>
 
           <div className="grid gap-3 sm:grid-cols-2">
             <div>
               <label className="block text-xs font-medium text-felines-text-secondary">
-                Cidade <span className="text-felines-emergency">*</span>
+                {t("contacts.cityLabel")} <span className="text-felines-emergency">*</span>
               </label>
               <input
                 type="text"
@@ -136,7 +138,7 @@ export default function ContactsBoard({
             </div>
             <div>
               <label className="block text-xs font-medium text-felines-text-secondary">
-                Nome / Organização <span className="text-felines-emergency">*</span>
+                {t("contacts.nameLabel")} <span className="text-felines-emergency">*</span>
               </label>
               <input
                 type="text"
@@ -148,7 +150,7 @@ export default function ContactsBoard({
             </div>
             <div>
               <label className="block text-xs font-medium text-felines-text-secondary">
-                Telefone / WhatsApp
+                {t("contacts.phoneLabel")}
               </label>
               <input
                 type="text"
@@ -160,7 +162,7 @@ export default function ContactsBoard({
             </div>
             <div>
               <label className="block text-xs font-medium text-felines-text-secondary">
-                E-mail
+                {t("contacts.emailLabel")}
               </label>
               <input
                 type="email"
@@ -172,7 +174,7 @@ export default function ContactsBoard({
             </div>
             <div>
               <label className="block text-xs font-medium text-felines-text-secondary">
-                Rede social (Instagram, Facebook…)
+                {t("contacts.socialLabel")}
               </label>
               <input
                 type="text"
@@ -184,7 +186,7 @@ export default function ContactsBoard({
             </div>
             <div>
               <label className="block text-xs font-medium text-felines-text-secondary">
-                Categoria
+                {t("contacts.categoryLabel")}
               </label>
               <select
                 value={category}
@@ -202,7 +204,7 @@ export default function ContactsBoard({
 
           <div>
             <label className="block text-xs font-medium text-felines-text-secondary">
-              Observações (horários, especialidade, etc.)
+              {t("contacts.notesLabel")}
             </label>
             <textarea
               value={notes}
@@ -221,14 +223,14 @@ export default function ContactsBoard({
             aria-busy={submitting}
             className="rounded-full bg-felines-accent px-5 py-2 text-sm font-semibold text-white disabled:opacity-50"
           >
-            {submitting ? "Salvando…" : "Cadastrar"}
+            {submitting ? t("contacts.submitting") : t("contacts.submitBtn")}
           </button>
         </form>
       )}
 
       {filteredCities.length === 0 ? (
         <p className="mt-8 text-center text-sm text-felines-text-secondary">
-          Nenhum contato cadastrado ainda. Seja o primeiro a adicionar um.
+          {t("contacts.empty")}
         </p>
       ) : (
         <div className="mt-8 space-y-10">

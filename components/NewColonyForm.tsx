@@ -1,4 +1,4 @@
-﻿// Colony registration form for /colony/new.
+// Colony registration form for /colony/new.
 // Requires authentication. Walks the user through validation questions
 // (to discourage low-quality submissions), a required photo upload, map
 // marker placement, and the name/narrative fields, then inserts the new
@@ -15,6 +15,7 @@ import AuthRequiredNotice from "@/components/AuthRequiredNotice";
 import PhotoUploadButton from "@/components/PhotoUploadButton";
 import QuickSightingForm from "@/components/QuickSightingForm";
 import { useEscapeToClose } from "@/lib/useEscapeToClose";
+import { useLanguage } from "@/lib/i18n";
 
 // Location blur protects cats from malicious users who could use exact
 // coordinates to find and harm animals. Both blur levels are computed
@@ -33,6 +34,7 @@ function blurCoordinateNear(value: number) {
 
 export default function NewColonyForm() {
   const router = useRouter();
+  const { t } = useLanguage();
   const [session, setSession] = useState<Session | null>(null);
   const [checkingSession, setCheckingSession] = useState(true);
   const [showSightingForm, setShowSightingForm] = useState(false);
@@ -82,23 +84,23 @@ export default function NewColonyForm() {
     setError(null);
 
     if (moreThanOneCat === null || seenFrequently === null || hasCareSigns === null) {
-      setError("Responda as 4 perguntas ali acima antes de continuar.");
+      setError(t("newColony.errAnswerAll"));
       return;
     }
     if (!moreThanOneCat || !seenFrequently) {
-      setError("Isso soa mais como um avistamento. Dá uma olhada na sugestão acima.");
+      setError(t("newColony.errNotColony"));
       return;
     }
     if (!canPhotoNow) {
-      setError("Pra cadastrar, você precisa conseguir fotografar o local agora.");
+      setError(t("newColony.errNeedPhoto"));
       return;
     }
     if (!name.trim()) {
-      setError("Dê um nome pra essa colônia.");
+      setError(t("newColony.errNeedName"));
       return;
     }
     if (!photoFile) {
-      setError("Falta a foto da colônia.");
+      setError(t("newColony.errNeedPhotoFile"));
       return;
     }
     const photoError = validatePhotoFile(photoFile);
@@ -107,7 +109,7 @@ export default function NewColonyForm() {
       return;
     }
     if (!position) {
-      setError("Toque no mapa pra marcar onde essa colônia fica.");
+      setError(t("newColony.errNeedMarker"));
       return;
     }
     if (!session) return;
@@ -121,7 +123,7 @@ export default function NewColonyForm() {
 
     if (uploadError) {
       setSubmitting(false);
-      setError("A foto não subiu. Tenta de novo?");
+      setError(t("newColony.errPhotoUpload"));
       return;
     }
 
@@ -153,7 +155,7 @@ export default function NewColonyForm() {
     setSubmitting(false);
 
     if (insertError || !colony) {
-      setError("Algo deu errado e a colônia não foi cadastrada. Tenta de novo?");
+      setError(t("newColony.errInsert"));
       return;
     }
 
@@ -186,42 +188,50 @@ export default function NewColonyForm() {
       {/* Validation questions */}
       <fieldset className="space-y-4 rounded-xl border border-felines-border bg-felines-surface p-4">
         <legend className="text-sm font-semibold text-felines-text-primary">
-          Antes de continuar, 4 perguntas rápidas
+          {t("newColony.validationLegend")}
         </legend>
 
         <ValidationQuestion
-          question="Tem mais de um gato nesse lugar?"
+          question={t("newColony.q1")}
           value={moreThanOneCat}
           onChange={setMoreThanOneCat}
+          yesLabel={t("newColony.yes")}
+          noLabel={t("newColony.no")}
         />
         <ValidationQuestion
-          question="Você vê eles ali com frequência, sempre no mesmo lugar?"
+          question={t("newColony.q2")}
           value={seenFrequently}
           onChange={setSeenFrequently}
+          yesLabel={t("newColony.yes")}
+          noLabel={t("newColony.no")}
         />
 
         {(moreThanOneCat === false || seenFrequently === false) && (
           <div className="rounded-md bg-felines-warning/10 px-3 py-2 text-sm text-felines-text-primary">
-            <p>Pelo que você descreveu, isso parece mais um avistamento do que uma colônia.</p>
+            <p>{t("newColony.sightingSuggestion")}</p>
             <button
               type="button"
               onClick={() => setShowSightingForm(true)}
               className="mt-2 rounded-full border border-felines-accent px-3 py-1 text-xs font-medium text-felines-accent transition-colors hover:bg-felines-accent hover:text-white"
             >
-              Relatar avistamento
+              {t("newColony.sightingCta")}
             </button>
           </div>
         )}
 
         <ValidationQuestion
-          question="Já tem sinais de que alguém cuida deles? (potes de comida, água, abrigo pequeno)"
+          question={t("newColony.q3")}
           value={hasCareSigns}
           onChange={setHasCareSigns}
+          yesLabel={t("newColony.yes")}
+          noLabel={t("newColony.no")}
         />
         <ValidationQuestion
-          question="Você consegue tirar uma foto do local agora? É obrigatório pra cadastrar."
+          question={t("newColony.q4")}
           value={canPhotoNow}
           onChange={setCanPhotoNow}
+          yesLabel={t("newColony.yes")}
+          noLabel={t("newColony.no")}
         />
       </fieldset>
 
@@ -231,7 +241,7 @@ export default function NewColonyForm() {
           htmlFor="new-colony-name"
           className="block text-sm font-medium text-felines-text-primary"
         >
-          Nome da colônia <span className="text-felines-emergency">*</span>
+          {t("newColony.nameLabel")} <span className="text-felines-emergency">*</span>
         </label>
         <input
           id="new-colony-name"
@@ -248,7 +258,7 @@ export default function NewColonyForm() {
           htmlFor="new-colony-narrative"
           className="block text-sm font-medium text-felines-text-primary"
         >
-          Narrativa
+          {t("newColony.narrativeLabel")}
         </label>
         <textarea
           id="new-colony-narrative"
@@ -256,7 +266,7 @@ export default function NewColonyForm() {
           onChange={(formEvent) => setNarrative(formEvent.target.value)}
           rows={4}
           maxLength={1000}
-          placeholder="Como você conheceu esses gatos? O que eles costumam fazer?"
+          placeholder={t("newColony.narrativePlaceholder")}
           className="mt-1 w-full rounded-md border border-felines-border bg-white px-3 py-2 text-sm"
         />
       </div>
@@ -267,7 +277,7 @@ export default function NewColonyForm() {
           htmlFor="new-colony-castration"
           className="block text-sm font-medium text-felines-text-primary"
         >
-          Quantos já são castrados?
+          {t("newColony.castrationLabel")}
         </label>
         <select
           id="new-colony-castration"
@@ -277,16 +287,16 @@ export default function NewColonyForm() {
           }
           className="mt-1 w-full rounded-md border border-felines-border bg-white px-3 py-2 text-sm"
         >
-          <option value="none">Nenhum ainda</option>
-          <option value="partial">Alguns sim, outros não</option>
-          <option value="full">Todos castrados</option>
+          <option value="none">{t("newColony.castrationNone")}</option>
+          <option value="partial">{t("newColony.castrationPartial")}</option>
+          <option value="full">{t("newColony.castrationFull")}</option>
         </select>
       </div>
 
       {/* Photo upload */}
       <div>
         <label className="block text-sm font-medium text-felines-text-primary">
-          Uma foto do local <span className="text-felines-emergency">*</span>
+          {t("newColony.photoLabel")} <span className="text-felines-emergency">*</span>
         </label>
         <div className="mt-1">
           <PhotoUploadButton label="Escolher foto" file={photoFile} onChange={setPhotoFile} />
@@ -296,10 +306,10 @@ export default function NewColonyForm() {
       {/* Map marker placement */}
       <div>
         <label className="block text-sm font-medium text-felines-text-primary">
-          Onde exatamente <span className="text-felines-emergency">*</span>
+          {t("newColony.locationLabel")} <span className="text-felines-emergency">*</span>
         </label>
         <p className="mt-1 text-xs text-felines-text-secondary">
-          Toque ou arraste o pino até o ponto certo no mapa.
+          {t("newColony.locationHint")}
         </p>
         <div className="mt-2 h-64 w-full overflow-hidden rounded-xl border border-felines-border">
           <MapMarkerPickerShell
@@ -329,14 +339,14 @@ export default function NewColonyForm() {
       {position && (
         <div>
           <label className="block text-sm font-medium text-felines-text-primary">
-            Cidade
+            {t("newColony.cityLabel")}
           </label>
           <p className="mt-1 text-xs text-felines-text-secondary">
-            Detectada automaticamente pelo pin. Corrija se necessário.
+            {t("newColony.cityHint")}
           </p>
           <input
             type="text"
-            value={cityLoading ? "Detectando..." : city}
+            value={cityLoading ? t("newColony.cityLoading") : city}
             onChange={(e) => setCity(e.target.value)}
             disabled={cityLoading}
             placeholder="Ex: Natal"
@@ -353,7 +363,7 @@ export default function NewColonyForm() {
         aria-busy={submitting}
         className="w-full rounded-full bg-felines-accent px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-felines-accent-hover disabled:opacity-50"
       >
-        {submitting ? "Colocando no mapa..." : "Colocar no mapa"}
+        {submitting ? t("newColony.submitting") : t("newColony.submit")}
       </button>
     </form>
 
@@ -371,12 +381,12 @@ export default function NewColonyForm() {
           >
             <div className="flex items-start justify-between">
               <h2 id="sighting-modal-title" className="text-lg font-bold text-felines-text-primary">
-                Relatar avistamento
+                {t("newColony.sightingModalTitle")}
               </h2>
               <button
                 type="button"
                 onClick={() => setShowSightingForm(false)}
-                aria-label="Fechar"
+                aria-label={t("common.close")}
                 className="flex h-11 w-11 flex-shrink-0 items-center justify-center text-xl leading-none text-felines-text-secondary hover:text-felines-text-primary"
               >
                 ×
@@ -402,10 +412,14 @@ function ValidationQuestion({
   question,
   value,
   onChange,
+  yesLabel,
+  noLabel,
 }: {
   question: string;
   value: boolean | null;
   onChange: (value: boolean) => void;
+  yesLabel: string;
+  noLabel: string;
 }) {
   return (
     <div>
@@ -421,7 +435,7 @@ function ValidationQuestion({
               : "border-felines-border text-felines-text-secondary"
           }`}
         >
-          Sim
+          {yesLabel}
         </button>
         <button
           type="button"
@@ -433,7 +447,7 @@ function ValidationQuestion({
               : "border-felines-border text-felines-text-secondary"
           }`}
         >
-          Não
+          {noLabel}
         </button>
       </div>
     </div>

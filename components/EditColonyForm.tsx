@@ -12,6 +12,7 @@ import { useColonyAccessContext } from "@/components/ColonyAccessProvider";
 import PhotoUploadButton from "@/components/PhotoUploadButton";
 import { encodeColonyEdit } from "@/lib/colonyEditHistory";
 import EditHistorySection from "@/components/EditHistorySection";
+import { useLanguage } from "@/lib/i18n";
 
 type CastrationStatus = "none" | "partial" | "full";
 
@@ -38,6 +39,7 @@ export default function EditColonyForm({
 }) {
   const router = useRouter();
   const { session, canManage, checkingAccess } = useColonyAccessContext();
+  const { t } = useLanguage();
 
   const [name, setName] = useState(initialName);
   const [narrative, setNarrative] = useState(initialNarrative ?? "");
@@ -55,7 +57,7 @@ export default function EditColonyForm({
     setSaved(false);
 
     if (!name.trim()) {
-      setError("Informe um nome para a colônia.");
+      setError(t("forms.editColony.nameRequired"));
       return;
     }
 
@@ -78,7 +80,7 @@ export default function EditColonyForm({
 
       if (uploadError) {
         setSubmitting(false);
-        setError("A nova foto não subiu. Tenta de novo?");
+        setError(t("forms.editColony.photoUploadError"));
         return;
       }
 
@@ -111,7 +113,7 @@ export default function EditColonyForm({
     setSubmitting(false);
 
     if (updateError) {
-      setError("As alterações não foram salvas. Tenta de novo?");
+      setError(t("forms.editColony.saveError"));
       return;
     }
 
@@ -164,7 +166,7 @@ export default function EditColonyForm({
   if (!session || !canManage) {
     return (
       <p className="text-sm text-felines-text-secondary">
-        Apenas o criador ou um cuidador vinculado pode editar esta colônia.
+        {t("forms.editColony.notAllowed")}
       </p>
     );
   }
@@ -177,7 +179,7 @@ export default function EditColonyForm({
           htmlFor="edit-colony-name"
           className="block text-sm font-medium text-felines-text-primary"
         >
-          Nome da colônia
+          {t("forms.editColony.nameLabel")}
         </label>
         <input
           id="edit-colony-name"
@@ -194,7 +196,7 @@ export default function EditColonyForm({
           htmlFor="edit-colony-narrative"
           className="block text-sm font-medium text-felines-text-primary"
         >
-          Narrativa
+          {t("forms.editColony.narrativeLabel")}
         </label>
         <textarea
           id="edit-colony-narrative"
@@ -211,7 +213,7 @@ export default function EditColonyForm({
           htmlFor="edit-colony-castration"
           className="block text-sm font-medium text-felines-text-primary"
         >
-          Situação de castração
+          {t("forms.editColony.castrationLabel")}
         </label>
         <select
           id="edit-colony-castration"
@@ -219,15 +221,15 @@ export default function EditColonyForm({
           onChange={(formEvent) => setCastrationStatus(formEvent.target.value as CastrationStatus)}
           className="mt-1 w-full rounded-md border border-felines-border bg-white px-3 py-2 text-sm"
         >
-          <option value="none">Nenhum gato castrado</option>
-          <option value="partial">Castração parcial</option>
-          <option value="full">Colônia totalmente castrada</option>
+          <option value="none">{t("forms.editColony.castrationNone")}</option>
+          <option value="partial">{t("forms.editColony.castrationPartial")}</option>
+          <option value="full">{t("forms.editColony.castrationFull")}</option>
         </select>
       </div>
 
       <div>
         <label className="block text-sm font-medium text-felines-text-primary">
-          Substituir foto de capa (opcional)
+          {t("forms.editColony.photoLabel")}
         </label>
         <div className="mt-1">
           <PhotoUploadButton label="Escolher foto" file={photoFile} onChange={setPhotoFile} />
@@ -243,7 +245,7 @@ export default function EditColonyForm({
           aria-busy={submitting}
           className="rounded-full bg-felines-accent px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-felines-accent-hover disabled:opacity-50"
         >
-          {submitting ? "Salvando..." : saved ? "Salvo" : "Salvar alterações"}
+          {submitting ? t("forms.editColony.submitting") : saved ? t("forms.editColony.saved") : t("forms.editColony.submit")}
         </button>
         {saved && onSaved && (
           <button
@@ -251,7 +253,7 @@ export default function EditColonyForm({
             onClick={onSaved}
             className="text-sm font-medium text-felines-text-secondary hover:text-felines-text-primary"
           >
-            Fechar
+            {t("forms.editColony.close")}
           </button>
         )}
       </div>

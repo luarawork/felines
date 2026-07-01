@@ -12,24 +12,24 @@ import { supabase } from "@/lib/supabaseClient";
 import { buildSafeStoragePath, validatePhotoFile } from "@/lib/storage";
 import { useColonyAccessContext } from "@/components/ColonyAccessProvider";
 import PhotoUploadButton from "@/components/PhotoUploadButton";
+import { useLanguage } from "@/lib/i18n";
 
-// Common timeline event types. The column has no check constraint, so
-// these are just suggestions to keep entries consistent.
-const EVENT_TYPES = [
-  { value: "castration_round", label: "Rodada de castração" },
-  { value: "health_issue", label: "Problema de saúde" },
-  { value: "new_cat", label: "Novo gato na colônia" },
-  { value: "feeding_change", label: "Mudança na alimentação" },
-  { value: "relocation", label: "Mudança de local" },
-  { value: "photo_update", label: "Foto da colônia" },
-  { value: "other", label: "Outro" },
-];
+const EVENT_TYPE_KEYS = [
+  "castration_round",
+  "health_issue",
+  "new_cat",
+  "feeding_change",
+  "relocation",
+  "photo_update",
+  "other",
+] as const;
 
 export default function TimelineEventForm({ colonyId }: { colonyId: string }) {
   const router = useRouter();
   const { session, canManage, checkingAccess } = useColonyAccessContext();
+  const { t } = useLanguage();
 
-  const [eventType, setEventType] = useState(EVENT_TYPES[0].value);
+  const [eventType, setEventType] = useState(EVENT_TYPE_KEYS[0]);
   const [description, setDescription] = useState("");
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -61,7 +61,7 @@ export default function TimelineEventForm({ colonyId }: { colonyId: string }) {
 
       if (uploadError) {
         setSubmitting(false);
-        setError("A foto não subiu. Tenta de novo?");
+        setError(t("timelineForm.photoUploadError"));
         return;
       }
 
@@ -78,7 +78,7 @@ export default function TimelineEventForm({ colonyId }: { colonyId: string }) {
     setSubmitting(false);
 
     if (insertError) {
-      setError("O evento não foi adicionado. Tenta de novo?");
+      setError(t("timelineForm.insertError"));
       return;
     }
 
@@ -98,26 +98,26 @@ export default function TimelineEventForm({ colonyId }: { colonyId: string }) {
       className="mt-4 rounded-xl border border-felines-border bg-felines-surface p-4"
     >
       <p className="text-sm font-semibold text-felines-text-primary">
-        Adicionar evento à linha do tempo
+        {t("timelineForm.formTitle")}
       </p>
 
       <div className="mt-3 flex flex-wrap items-end gap-3">
         <div>
           <label htmlFor="timeline-event-type" className="block text-xs font-medium text-felines-text-secondary">
-            Tipo
+            {t("timelineForm.typeLabel")}
           </label>
           <select
             id="timeline-event-type"
             value={eventType}
             onChange={(formEvent) => {
-              setEventType(formEvent.target.value);
+              setEventType(formEvent.target.value as typeof EVENT_TYPE_KEYS[number]);
               setSubmitted(false);
             }}
             className="mt-1 rounded-md border border-felines-border bg-white px-3 py-2 text-sm"
           >
-            {EVENT_TYPES.map((type) => (
-              <option key={type.value} value={type.value}>
-                {type.label}
+            {EVENT_TYPE_KEYS.map((key) => (
+              <option key={key} value={key}>
+                {t(`timelineForm.eventTypes.${key}`)}
               </option>
             ))}
           </select>
@@ -127,7 +127,7 @@ export default function TimelineEventForm({ colonyId }: { colonyId: string }) {
             htmlFor="timeline-event-description"
             className="block text-xs font-medium text-felines-text-secondary"
           >
-            Descrição (opcional)
+            {t("timelineForm.descLabel")}
           </label>
           <input
             id="timeline-event-description"
@@ -145,7 +145,7 @@ export default function TimelineEventForm({ colonyId }: { colonyId: string }) {
 
       <div className="mt-3">
         <label className="block text-xs font-medium text-felines-text-secondary">
-          Foto (opcional) — não altera a foto de capa da colônia
+          {t("timelineForm.photoLabel")}
         </label>
         <div className="mt-1">
           <PhotoUploadButton
@@ -165,11 +165,11 @@ export default function TimelineEventForm({ colonyId }: { colonyId: string }) {
         aria-busy={submitting}
         className="mt-3 rounded-full bg-felines-accent px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-felines-accent-hover disabled:opacity-50"
       >
-        {submitting ? "Adicionando..." : "Adicionar"}
+        {submitting ? t("forms.timeline.submitting") : t("forms.timeline.submit")}
       </button>
 
       {error && <p role="alert" className="mt-2 text-sm text-felines-emergency">{error}</p>}
-      {submitted && <p className="mt-2 text-sm text-felines-success">Evento adicionado.</p>}
+      {submitted && <p className="mt-2 text-sm text-felines-success">{t("timelineForm.success")}</p>}
     </form>
   );
 }

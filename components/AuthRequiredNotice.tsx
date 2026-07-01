@@ -6,29 +6,28 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useLanguage } from "@/lib/i18n";
 
 export default function AuthRequiredNotice() {
   const pathname = usePathname();
   const returnTo = encodeURIComponent(pathname);
+  const { t } = useLanguage();
 
   return (
     <div className="rounded-lg border border-felines-border bg-felines-surface px-4 py-3 text-sm text-felines-text-secondary">
-      <p>
-        Pra fazer isso, você precisa de uma conta. É rápido — e ajuda quem cuida da colônia a
-        saber com quem falar.
-      </p>
+      <p>{t("auth.authRequired.message")}</p>
       <div className="mt-2 flex flex-wrap gap-2">
         <Link
           href={`/signup?returnTo=${returnTo}`}
           className="inline-block rounded-full bg-felines-accent px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-felines-accent-hover"
         >
-          Criar conta
+          {t("auth.authRequired.createAccount")}
         </Link>
         <Link
           href={`/login?returnTo=${returnTo}`}
           className="inline-block rounded-full px-4 py-2 text-sm font-medium text-felines-text-secondary transition-colors hover:text-felines-text-primary"
         >
-          Já tenho conta
+          {t("auth.authRequired.alreadyHaveAccount")}
         </Link>
       </div>
     </div>

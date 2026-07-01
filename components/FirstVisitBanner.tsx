@@ -5,11 +5,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useLanguage } from "@/lib/i18n";
 
 const STORAGE_KEY = "felines_seen_first_visit_banner";
 
 export default function FirstVisitBanner() {
   const [visible, setVisible] = useState(false);
+  const { t } = useLanguage();
 
   useEffect(() => {
     // Responding to a one-time localStorage check on mount, not deriving
@@ -27,14 +29,10 @@ export default function FirstVisitBanner() {
 
   return (
     <div className="mb-8 flex items-start justify-between gap-4 rounded-xl border border-felines-accent/30 bg-felines-accent/5 px-4 py-3 text-sm">
-      <p className="text-felines-text-primary">
-        👋 Primeira vez por aqui? O Felines te ajuda a entender os gatos de rua da sua região,
-        ver quem já cuida deles e relatar o que você encontrar — sem precisar de conta para a
-        maioria das coisas.
-      </p>
+      <p className="text-felines-text-primary">{t("common.firstVisit")}</p>
       <button
         onClick={dismiss}
-        aria-label="Fechar"
+        aria-label={t("common.close")}
         className="flex h-11 w-11 flex-shrink-0 items-center justify-center text-lg leading-none text-felines-text-secondary hover:text-felines-text-primary"
       >
         ×
