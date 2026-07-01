@@ -443,7 +443,11 @@ export default function ColonyDetailClient({
 
           <div className="mb-6 flex flex-wrap items-start justify-between gap-3">
             <div className="flex-1">
-              <WeatherBanner lat={colony.latitude_blurred} lon={colony.longitude_blurred} />
+              <WeatherBanner
+                lat={colony.latitude_blurred}
+                lon={colony.longitude_blurred}
+                locationName={colony.name}
+              />
             </div>
             <div className="flex items-center gap-3">
               <FollowColonyButton colonyId={colony.id} />
