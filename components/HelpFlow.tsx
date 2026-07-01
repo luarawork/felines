@@ -1,4 +1,4 @@
-﻿// Two-step "what should I do" wizard for the /help page.
+// Two-step "what should I do" wizard for the /help page.
 // Step 1 asks what's happening, step 2 asks where, then shows tailored
 // educational guidance and, when relevant, a way to submit a report
 // directly from the flow — no login required, except for "Gato
@@ -14,6 +14,7 @@ import AnonymousReportNotice from "@/components/AnonymousReportNotice";
 import MapMarkerPickerShell from "@/components/MapMarkerPickerShell";
 import CreateAccountInvite from "@/components/CreateAccountInvite";
 import LostCatForm from "@/components/LostCatForm";
+import { useLanguage } from "@/lib/i18n";
 
 type SituationKey =
   | "spotted"
@@ -26,132 +27,35 @@ type SituationKey =
   | "threat"
   | "other";
 
-type Situation = {
+type SituationMeta = {
   key: SituationKey;
-  label: string;
   reportType: string | null;
-  guidance: string[];
-  /** A more urgent, specifically-worded note (hotlines, official channels). */
-  alert?: string;
-  /** Link to a relevant /learn article for deeper guidance. */
+  guidanceCount: number;
+  hasAlert: boolean;
   relatedArticleSlug?: string;
-  relatedArticleLabel?: string;
 };
 
-// What's happening? options, with the educational guidance shown for each
-// and, when applicable, the reports.type used if the user submits a report.
+// Static metadata — no translatable strings here. Translated content is
+// looked up via t("helpFlow.situations.<key>.*") at render time.
 // Order of the two-column grid (sm:grid-cols-2):
 // col A: spotted, injured, kitten, missing, disease
 // col B: conflict, abuse, threat, map_colony (special Link), other
-const SITUATIONS: Situation[] = [
-  // Row 1
-  {
-    key: "spotted",
-    label: "👀 Avistei um gato",
-    reportType: "sighting",
-    guidance: [
-      "Um avistamento isolado já ajuda — registre onde e quando você viu o gato.",
-      "Se você costuma ver o mesmo gato (ou grupo de gatos) na região, isso pode ser uma colônia ainda não mapeada.",
-    ],
-    alert: "Viu o mesmo lugar mais de uma vez? Considere colocar essa colônia no mapa.",
-  },
-  {
-    key: "conflict",
-    label: "🏠 Estou em conflito com os gatos",
-    reportType: null,
-    guidance: [
-      "Cheiro, barulho e sujeira costumam vir de colônias sem ninguém cuidando — castração e alimentação controlada resolvem boa parte disso.",
-      "Remover ou afugentar os gatos quase sempre atrai um grupo novo pro mesmo lugar.",
-    ],
-    relatedArticleSlug: "cats-bothering-your-building",
-    relatedArticleLabel: "Veja o que realmente funciona",
-  },
-  // Row 2
-  {
-    key: "injured",
-    label: "🤕 Gato ferido ou doente",
-    reportType: "injured_sick",
-    guidance: [
-      "Mantenha distância e evite tocar sem proteção. Um animal com dor pode morder até sendo manso.",
-      "Se conseguir, cubra ele com uma caixa ou toalha. Isso evita que se machuque mais ou fuja.",
-    ],
-    alert: "Procure uma clínica veterinária ou abrigo de emergência perto de você.",
-    relatedArticleSlug: "found-injured-cat-step-by-step",
-    relatedArticleLabel: "Veja o passo a passo completo",
-  },
-  {
-    key: "abuse",
-    label: "⚠️ Suspeita de envenenamento ou maus-tratos",
-    reportType: "suspected_abuse",
-    guidance: [
-      "Documente tudo que puder: fotos, vídeos com data visível, local e horário aproximado.",
-      "Não confronte quem você suspeita. Sua segurança e a do animal vêm primeiro.",
-    ],
-    alert:
-      "Você também pode ligar pro Disque Denúncia 181 (anônimo) ou pra Emergência 190. Maus-tratos a animais são crime pela Lei 9.605/98.",
-    relatedArticleSlug: "how-to-report-animal-abuse",
-    relatedArticleLabel: "Saiba como denunciar corretamente",
-  },
-  // Row 3
-  {
-    key: "kitten",
-    label: "🐾 Filhote sozinho",
-    reportType: "new_kitten",
-    guidance: [
-      "Filhote sozinho nem sempre é filhote abandonado. A mãe pode estar só caçando comida por aí.",
-      "Observe de uma distância segura por algumas horas antes de fazer qualquer coisa.",
-    ],
-    relatedArticleSlug: "found-a-kitten-alone",
-    relatedArticleLabel: "Veja o guia completo antes de agir",
-  },
-  {
-    key: "threat",
-    label: "🏗️ Obra ou risco de despejo perto de uma colônia",
-    reportType: "threat_to_colony",
-    guidance: [
-      "Descubra os prazos (início da obra, data do despejo) o quanto antes. Isso define quanto tempo você tem.",
-      "Procure o cuidador responsável pela colônia, se já tiver um cadastrado no mapa.",
-    ],
-    alert: "Avise cuidadores e vizinhos da região — junto, é mais fácil agir a tempo.",
-  },
-  // Row 4
-  {
-    key: "missing",
-    label: "🔍 Gato desaparecido",
-    reportType: "missing_cat",
-    guidance: [
-      "Avise os cuidadores de colônias próximas. Eles costumam reconhecer os gatos da região.",
-      "Espalhe uma foto recente e características marcantes (cor, porte, coleira) pela vizinhança.",
-    ],
-    alert: "Dá uma olhada nas colônias próximas no mapa — gatos costumam ficar a poucos quarteirões de casa.",
-  },
-  // Row 4 col B: "Colocar uma colônia no mapa" is rendered as a special Link
-  // after this item — key "map_colony" is a placeholder filtered out in render.
-  // Row 5
-  {
-    key: "disease",
-    label: "🦠 Surto de doença na colônia",
-    reportType: "disease_outbreak",
-    guidance: [
-      "Evite contato direto com gatos doentes, e não deixe outros bichos domésticos se aproximarem.",
-      "Anote quantos gatos parecem afetados e quais sintomas você está vendo.",
-    ],
-    alert: "Contate o centro de controle de zoonoses da sua região.",
-  },
-  {
-    key: "other",
-    label: "❓ Outro motivo",
-    reportType: "sighting",
-    guidance: [
-      "Dá uma olhada no nosso guia pra entender melhor o comportamento dos gatos de rua.",
-      "Se você viu algo que vale registrar, conta pra gente — isso ajuda quem está de olho na região.",
-    ],
-  },
+const SITUATION_META: SituationMeta[] = [
+  { key: "spotted",  reportType: "sighting",         guidanceCount: 2, hasAlert: true  },
+  { key: "conflict", reportType: null,                guidanceCount: 2, hasAlert: false, relatedArticleSlug: "cats-bothering-your-building" },
+  { key: "injured",  reportType: "injured_sick",      guidanceCount: 2, hasAlert: true,  relatedArticleSlug: "found-injured-cat-step-by-step" },
+  { key: "abuse",    reportType: "suspected_abuse",   guidanceCount: 2, hasAlert: true,  relatedArticleSlug: "how-to-report-animal-abuse" },
+  { key: "kitten",   reportType: "new_kitten",        guidanceCount: 2, hasAlert: false, relatedArticleSlug: "found-a-kitten-alone" },
+  { key: "threat",   reportType: "threat_to_colony",  guidanceCount: 2, hasAlert: true  },
+  { key: "missing",  reportType: "missing_cat",       guidanceCount: 2, hasAlert: true  },
+  { key: "disease",  reportType: "disease_outbreak",  guidanceCount: 2, hasAlert: true  },
+  { key: "other",    reportType: "sighting",          guidanceCount: 2, hasAlert: false },
 ];
 
 export default function HelpFlow({ onClose }: { onClose?: () => void }) {
+  const { t } = useLanguage();
   const [step, setStep] = useState<1 | 2>(1);
-  const [situation, setSituation] = useState<Situation | null>(null);
+  const [activeMeta, setActiveMeta] = useState<SituationMeta | null>(null);
   const [locationCoords, setLocationCoords] = useState<[number, number] | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -169,11 +73,11 @@ export default function HelpFlow({ onClose }: { onClose?: () => void }) {
 
   // Sends a report using the situation's report type and the marked location.
   async function handleSubmitReport() {
-    if (!situation?.reportType) return;
+    if (!activeMeta?.reportType) return;
     setSubmitting(true);
     setReportError(null);
     const { error } = await submitReport({
-      type: situation.reportType,
+      type: activeMeta.reportType,
       latitude: locationCoords?.[0] ?? null,
       longitude: locationCoords?.[1] ?? null,
       status: "open",
@@ -187,26 +91,44 @@ export default function HelpFlow({ onClose }: { onClose?: () => void }) {
     }
   }
 
+  const situationLabel = activeMeta
+    ? t(`helpFlow.situations.${activeMeta.key}.label`)
+    : "";
+
+  const situationGuidance = activeMeta
+    ? Array.from({ length: activeMeta.guidanceCount }, (_, i) =>
+        t(`helpFlow.situations.${activeMeta.key}.guidance.${i}`)
+      )
+    : [];
+
+  const situationAlert = activeMeta?.hasAlert
+    ? t(`helpFlow.situations.${activeMeta.key}.alert`)
+    : null;
+
+  const situationRelatedLabel = activeMeta?.relatedArticleSlug
+    ? t(`helpFlow.situations.${activeMeta.key}.relatedLabel`)
+    : null;
+
   return (
     <div className="mt-8">
       {step === 1 && (
         <div>
           <h2 className="text-lg font-semibold text-felines-text-primary">
-            O que está acontecendo?
+            {t("helpFlow.title")}
           </h2>
           <div className="mt-4 grid gap-3 sm:grid-cols-2">
-            {SITUATIONS.flatMap((option, index) => {
+            {SITUATION_META.flatMap((meta, index) => {
               const btn = (
                 <button
-                  key={option.key}
+                  key={meta.key}
                   onClick={() => {
-                    setSituation(option);
+                    setActiveMeta(meta);
                     setStep(2);
                     setMissingCatGuestConfirmed(false);
                   }}
                   className="rounded-xl border border-felines-border bg-felines-surface px-4 py-3 text-left text-sm font-medium text-felines-text-primary transition-colors hover:border-felines-accent"
                 >
-                  {option.label}
+                  {t(`helpFlow.situations.${meta.key}.label`)}
                 </button>
               );
               // "Colocar uma colônia no mapa" sits at column-B of row 4,
@@ -220,7 +142,7 @@ export default function HelpFlow({ onClose }: { onClose?: () => void }) {
                     onClick={onClose}
                     className="rounded-xl border border-felines-border bg-felines-surface px-4 py-3 text-left text-sm font-medium text-felines-text-primary transition-colors hover:border-felines-accent"
                   >
-                    📍 Colocar uma colônia no mapa
+                    {t("helpFlow.mapColony")}
                   </Link>,
                 ];
               }
@@ -230,20 +152,20 @@ export default function HelpFlow({ onClose }: { onClose?: () => void }) {
         </div>
       )}
 
-      {step === 2 && situation && (
+      {step === 2 && activeMeta && (
         <div>
           <button
             onClick={() => setStep(1)}
             className="text-sm text-felines-text-secondary hover:text-felines-accent"
           >
-            ← Voltar
+            {t("helpFlow.back")}
           </button>
 
-          {situation.key === "missing" ? (
+          {activeMeta.key === "missing" ? (
             <div className="mt-3 rounded-xl border border-felines-border bg-felines-surface p-5">
-              <h3 className="font-semibold text-felines-text-primary">{situation.label}</h3>
+              <h3 className="font-semibold text-felines-text-primary">{situationLabel}</h3>
               <ul className="mt-3 space-y-2">
-                {situation.guidance.map((line) => (
+                {situationGuidance.map((line) => (
                   <li
                     key={line}
                     className="flex gap-2 text-sm leading-relaxed text-felines-text-secondary"
@@ -253,30 +175,27 @@ export default function HelpFlow({ onClose }: { onClose?: () => void }) {
                   </li>
                 ))}
               </ul>
-              {situation.alert && (
+              {situationAlert && (
                 <p className="mt-3 rounded-md bg-felines-warning/10 px-3 py-2 text-sm text-felines-text-primary">
-                  {situation.alert}
+                  {situationAlert}
                 </p>
               )}
               <div className="mt-5">
                 {!isLoggedIn && !missingCatGuestConfirmed ? (
                   <div className="rounded-md bg-felines-warning/10 px-3 py-3 text-sm text-felines-text-primary">
-                    <p>
-                      ⚠️ Pra cadastrar um gato perdido, você precisa de uma conta. Assim, quem
-                      encontrar o gato sabe com quem falar.
-                    </p>
+                    <p>{t("helpFlow.loginRequired")}</p>
                     <div className="mt-3 flex flex-wrap gap-3">
                       <Link
                         href="/login?returnTo=/help"
                         className="rounded-full bg-felines-accent px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-felines-accent-hover"
                       >
-                        Entrar
+                        {t("helpFlow.signIn")}
                       </Link>
                       <button
                         onClick={() => setMissingCatGuestConfirmed(true)}
                         className="text-sm font-medium text-felines-text-secondary hover:text-felines-accent"
                       >
-                        Continuar sem conta
+                        {t("helpFlow.continueGuest")}
                       </button>
                     </div>
                   </div>
@@ -288,11 +207,11 @@ export default function HelpFlow({ onClose }: { onClose?: () => void }) {
           ) : (
             <>
               <h2 className="mt-3 text-lg font-semibold text-felines-text-primary">
-                Onde fica?
+                {t("helpFlow.whereTitle")}
               </h2>
-              {situation.reportType && !isLoggedIn && <AnonymousReportNotice />}
+              {activeMeta.reportType && !isLoggedIn && <AnonymousReportNotice />}
               <p className="mt-2 text-xs text-felines-text-secondary">
-                Toque ou arraste o pino até o local.
+                {t("helpFlow.dragPin")}
               </p>
               <div className="mt-2 h-48 w-full overflow-hidden rounded-xl border border-felines-border">
                 <MapMarkerPickerShell
@@ -302,9 +221,9 @@ export default function HelpFlow({ onClose }: { onClose?: () => void }) {
               </div>
 
               <div className="mt-6 rounded-xl border border-felines-border bg-felines-surface p-5">
-                <h3 className="font-semibold text-felines-text-primary">{situation.label}</h3>
+                <h3 className="font-semibold text-felines-text-primary">{situationLabel}</h3>
                 <ul className="mt-3 space-y-2">
-                  {situation.guidance.map((line) => (
+                  {situationGuidance.map((line) => (
                     <li
                       key={line}
                       className="flex gap-2 text-sm leading-relaxed text-felines-text-secondary"
@@ -315,19 +234,19 @@ export default function HelpFlow({ onClose }: { onClose?: () => void }) {
                   ))}
                 </ul>
 
-                {situation.alert && (
+                {situationAlert && (
                   <p className="mt-3 rounded-md bg-felines-warning/10 px-3 py-2 text-sm text-felines-text-primary">
-                    {situation.alert}
+                    {situationAlert}
                   </p>
                 )}
 
-                {situation.relatedArticleSlug && (
+                {activeMeta.relatedArticleSlug && (
                   <Link
-                    href={`/learn/${situation.relatedArticleSlug}`}
+                    href={`/learn/${activeMeta.relatedArticleSlug}`}
                     onClick={onClose}
                     className="mt-3 inline-block text-sm font-medium text-felines-accent hover:text-felines-accent-hover"
                   >
-                    {situation.relatedArticleLabel ?? "Saiba mais"}
+                    {situationRelatedLabel ?? t("common.learnMore")}
                   </Link>
                 )}
 
@@ -336,27 +255,27 @@ export default function HelpFlow({ onClose }: { onClose?: () => void }) {
                 )}
 
                 <div className="mt-5 flex flex-wrap items-center gap-3">
-                  {situation.reportType && !submitted && (
+                  {activeMeta.reportType && !submitted && (
                     <button
                       onClick={handleSubmitReport}
                       disabled={submitting}
                       className="rounded-full bg-felines-accent px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-felines-accent-hover disabled:opacity-50"
                     >
-                      {submitting ? "Enviando..." : "Registrar relato"}
+                      {submitting ? t("helpFlow.submitting") : t("helpFlow.submit")}
                     </button>
                   )}
                   {submitted && (
                     <div className="flex flex-col gap-1">
                       <div className="flex items-center gap-3">
                         <p className="text-sm text-felines-success">
-                          Relato registrado. Valeu por avisar.
+                          {t("helpFlow.submitted")}
                         </p>
                         {onClose && (
                           <button
                             onClick={onClose}
                             className="text-sm font-medium text-felines-text-secondary hover:text-felines-accent"
                           >
-                            Fechar
+                            {t("helpFlow.close")}
                           </button>
                         )}
                       </div>
@@ -368,21 +287,21 @@ export default function HelpFlow({ onClose }: { onClose?: () => void }) {
                     onClick={onClose}
                     className="rounded-full border border-felines-accent px-4 py-2 text-sm font-medium text-felines-accent transition-colors hover:bg-felines-accent hover:text-white"
                   >
-                    Entender melhor isso
+                    {t("helpFlow.understand")}
                   </Link>
                   <Link
                     href="/map"
                     onClick={onClose}
                     className="rounded-full border border-felines-border px-4 py-2 text-sm font-medium text-felines-text-secondary transition-colors hover:border-felines-accent hover:text-felines-accent"
                   >
-                    Ver colônias no mapa
+                    {t("helpFlow.seeColonies")}
                   </Link>
                   <Link
                     href="/colony/new"
                     onClick={onClose}
                     className="rounded-full border border-felines-border px-4 py-2 text-sm font-medium text-felines-text-secondary transition-colors hover:border-felines-accent hover:text-felines-accent"
                   >
-                    Colocar uma colônia no mapa
+                    {t("helpFlow.addColony")}
                   </Link>
                 </div>
               </div>

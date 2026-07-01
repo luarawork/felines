@@ -586,6 +586,7 @@ export const pt = {
     saved: "Salvo",
     saving: "Salvando...",
     close: "Fechar",
+    learnMore: "Saiba mais",
     anonymous: "Anônimo",
     you: "Você",
     community: "Alguém da comunidade",

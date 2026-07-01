@@ -584,6 +584,7 @@ export const en = {
     saved: "Saved",
     saving: "Saving...",
     close: "Close",
+    learnMore: "Learn more",
     anonymous: "Anonymous",
     you: "You",
     community: "Someone from the community",
