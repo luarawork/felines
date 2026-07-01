@@ -27,6 +27,7 @@ import ColonyAccessProvider from "@/components/ColonyAccessProvider";
 import RotatingSingleFact from "@/components/RotatingSingleFact";
 import ColonyStatsTab from "@/components/ColonyStatsTab";
 import ActionThanksButton from "@/components/ActionThanksButton";
+import CareReminders from "@/components/CareReminders";
 import { useState } from "react";
 import { useLanguage } from "@/lib/i18n";
 
@@ -270,6 +271,8 @@ export default function ColonyDetailClient({
       <div className="pt-2">
         <NeuteringRequestButton colonyId={colony.id} />
       </div>
+
+      <CareReminders colonyId={colony.id} />
     </div>
   );
 
