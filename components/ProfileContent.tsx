@@ -87,9 +87,9 @@ export default function ProfileContent() {
       await ensureOwnProfile(uid);
 
       // Visiting the profile page counts as daily activity — no feeding
-      // required. Fire-and-forget: the streak is re-read in the parallel
-      // block below anyway, so a race here is fine.
-      supabase.rpc("record_daily_visit").then(() => {}, () => {});
+      // required. Await so the streak row is updated before the parallel
+      // reads below, ensuring the UI reflects today's streak immediately.
+      await supabase.rpc("record_daily_visit").then(() => {}, () => {});
 
       // Fire every independent read in parallel — one network round-trip
       // instead of the previous 8 sequential awaits.
@@ -486,7 +486,7 @@ export default function ProfileContent() {
                   Volte amanhã para começar sua sequência 🐾
                 </p>
               )}
-              {longestStreak > 1 && (
+              {longestStreak > 0 && (
                 <p className="text-xs text-felines-text-secondary">
                   Melhor sequência: {longestStreak} {longestStreak === 1 ? "dia" : "dias"}
                 </p>
