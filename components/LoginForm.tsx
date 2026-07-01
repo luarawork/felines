@@ -73,6 +73,11 @@ export default function LoginForm() {
           aria-describedby={error ? "login-error" : undefined}
           className="mt-1 w-full rounded-md border border-felines-border bg-white px-3 py-2 text-sm"
         />
+        <p className="mt-1.5 text-right">
+          <Link href="/forgot-password" className="text-xs font-medium text-felines-accent-hover">
+            {t("auth.login.forgotPassword")}
+          </Link>
+        </p>
       </div>
 
       {error && <p id="login-error" role="alert" className="text-sm text-felines-emergency">{error}</p>}
