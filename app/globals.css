@@ -114,6 +114,37 @@ summary:focus-visible,
   color: #fff;
 }
 
+/* Restyles Leaflet's default popup chrome (flat white box, hard-edged
+   corners, generic drop shadow, tiny cramped padding) to match the
+   rest of the app's card language — same radius/shadow used on
+   colony cards and modals — instead of looking like an unstyled
+   browser default sitting on top of the map. */
+.leaflet-popup-content-wrapper {
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.14);
+  padding: 2px;
+}
+
+.leaflet-popup-content {
+  margin: 14px 18px;
+  line-height: 1.4;
+}
+
+.leaflet-popup-tip-container {
+  filter: drop-shadow(0 4px 4px rgba(0, 0, 0, 0.06));
+}
+
+.leaflet-popup-close-button {
+  top: 10px !important;
+  right: 10px !important;
+  color: #8a7b6c !important;
+  font-size: 18px !important;
+}
+
+.leaflet-popup-close-button:hover {
+  color: #c4704f !important;
+}
+
 /* Circular map pin used for colony/sighting/emergency markers */
 .felines-pin {
   display: block;

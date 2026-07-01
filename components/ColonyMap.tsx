@@ -55,6 +55,7 @@ type Colony = {
   id: string;
   name: string;
   narrative: string | null;
+  cover_photo_url: string | null;
   latitude_blurred: number;
   longitude_blurred: number;
   latitude_blurred_near: number | null;
@@ -364,7 +365,7 @@ export default function ColonyMap({
         supabase
           .from("colonies")
           .select(
-            "id, name, narrative, latitude_blurred, longitude_blurred, latitude_blurred_near, longitude_blurred_near, castration_status, created_by, verified_status, health_status"
+            "id, name, narrative, cover_photo_url, latitude_blurred, longitude_blurred, latitude_blurred_near, longitude_blurred_near, castration_status, created_by, verified_status, health_status"
           ),
         supabase
           .from("suggested_colonies")
@@ -686,14 +687,24 @@ export default function ColonyMap({
           }
 
           const popupContent = (
-            <Popup minWidth={220} maxWidth={280}>
-              <div className="space-y-2">
+            <Popup minWidth={240} maxWidth={280} className="felines-colony-popup">
+              <div>
+                {colony.cover_photo_url && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={colony.cover_photo_url}
+                    alt={colony.name}
+                    className="-mx-[18px] -mt-[14px] mb-2.5 h-24 w-[calc(100%+36px)] object-cover"
+                    style={{ borderRadius: "14px 14px 0 0" }}
+                  />
+                )}
+
                 <strong className="block text-sm font-semibold text-felines-text-primary">
                   {colony.name}
                 </strong>
 
                 {chips.length > 0 && (
-                  <div className="flex flex-wrap gap-1">
+                  <div className="mt-1.5 flex flex-wrap gap-1">
                     {chips.map((chip) => (
                       <span
                         key={chip.label}
@@ -706,14 +717,16 @@ export default function ColonyMap({
                 )}
 
                 {colony.narrative && (
-                  <p className="text-xs leading-relaxed text-felines-text-secondary">{colony.narrative}</p>
+                  <p className="mt-2 text-xs leading-relaxed text-felines-text-secondary">{colony.narrative}</p>
                 )}
 
-                <p className="text-xs text-felines-text-secondary">
+                <p className="mt-2 text-xs font-medium text-felines-text-secondary">
                   {resolveCastrationLabel(t, colony.castration_status, catCountsByColonyId.get(colony.id))}
                 </p>
 
-                <LocationBlurBadge level={level} />
+                <div className="mt-1.5">
+                  <LocationBlurBadge level={level} />
+                </div>
 
                 {/* The colony page's name and narrative can describe the
                     location in plain language (street names, landmarks),
@@ -729,22 +742,22 @@ export default function ColonyMap({
                   myColonyIds.has(colony.id) ? (
                     <a
                       href={`/colony/${colony.id}`}
-                      className="felines-popup-cta block rounded-full bg-felines-accent px-3 py-1.5 text-center text-xs font-semibold text-white transition-colors hover:bg-felines-accent-hover"
+                      className="felines-popup-cta mt-3 block rounded-full bg-felines-accent px-3 py-2 text-center text-xs font-semibold text-white transition-colors hover:bg-felines-accent-hover"
                     >
-                      Ver colônia
+                      {t("map.viewColonyCta")}
                     </a>
                   ) : (
                     <button
                       type="button"
                       onClick={() => setInterestColonyId(colony.id)}
-                      className="block w-full rounded-full bg-felines-accent px-3 py-1.5 text-center text-xs font-semibold text-white transition-colors hover:bg-felines-accent-hover"
+                      className="mt-3 block w-full rounded-full bg-felines-accent px-3 py-2 text-center text-xs font-semibold text-white transition-colors hover:bg-felines-accent-hover"
                     >
-                      Ver colônia
+                      {t("map.viewColonyCta")}
                     </button>
                   )
                 )}
 
-                <div className="pt-1 text-right">
+                <div className="mt-2 flex justify-end border-t border-felines-border pt-2">
                   <ReportFalsePinButton colonyId={colony.id} />
                 </div>
               </div>
