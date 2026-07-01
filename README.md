@@ -73,9 +73,10 @@ Each colony (`/colony/[id]`) has a full-bleed cover photo, a narrative descripti
 
 - **Gatos** — named cats with photos, castration toggle, and a "last seen" timestamp; a cat unseen for 7+ days gets a visible nudge ("does anyone know if he's okay?") and triggers a notification to caretakers.
 - **Linha do tempo** — a collective, chronological history of everything that's happened: feedings, water check-ins, new cats, castration rounds, edits to the colony's info, cover-photo changes (the previous photo is preserved as a timeline entry instead of just disappearing), and more. Each entry shows who did it, links to their public profile, and can be hearted (❤️) by any signed-in visitor to thank that specific action — which notifies whoever did it.
+- **Necessidades** — castration progress, active help/neutering requests, and **recurring care reminders** (feeding, water, health checks, or a custom task) that a caretaker can set up with a repeat interval in days; each shows an overdue/due-today/due-in-N-days badge computed from `last_done_at + frequency_days`, and any linked caretaker can mark one done. Scoped to caretakers/creator only via RLS — this is a private planning tool, not a public-facing section.
 - **Carta de quem cuidou antes** — a letter caretakers leave for whoever comes next, with full version history.
 
-A weather banner, a rotating fact chip about street cats in general, a thank-you button per caretaker, and a "Sinalizar" (flag) link for reporting fake or harmful colony pages round out the page.
+A weather banner (now labeled with the actual place name, e.g. "Natal, 28°C, few clouds"), a rotating fact chip about street cats in general, a thank-you button per caretaker, and a "Sinalizar" (flag) link for reporting fake or harmful colony pages round out the page.
 
 ### 🚨 Emergency Help Flow
 
@@ -118,37 +119,111 @@ First-time visitors to the home page see a one-time dismissible banner explainin
 
 ---
 
-## Security
+## Security Architecture
+
+This section exists to show the reasoning, not just the mechanism — every
+control below was a deliberate design decision, made when the relevant
+feature was built, not a hardening pass bolted on afterward. (A full audit
+of the *whole* codebase against this design, including what it found, lives
+in [`AUDIT_REPORT.md`](AUDIT_REPORT.md).)
 
 ### Progressive Location Blur
 
-Covered in detail under [Features](#-progressive-location-blur) above. In short: anonymous visitors see a ~500m blur circle, signed-in non-caretakers see a ~100m blur circle, and only a verified caretaker/creator ever receives the exact pin — and only through a server-side RPC that checks the link fresh on every call, never from a cached or client-trusted value.
+**Why this exists at all:** a colony's exact coordinates in the wrong hands
+could be used to find and harm the cats living there. The threat isn't
+"someone sees the map" — it's "someone who wants to hurt animals gets a
+precise address." That risk scales with how much the app can verify about
+who's asking, so the response is a **three-tier trust ladder** instead of a
+single all-or-nothing setting:
 
-### Row Level Security (RLS)
+| Tier | Who | What they get | Column(s) | Why this tier gets this much |
+|---|---|---|---|---|
+| 1 | Anonymous visitor | ~500m blur radius, shown as a visible uncertainty circle (not a precise pin) | `latitude_blurred` / `longitude_blurred` | Enough to see "there's a colony in this neighborhood" — the whole point of the public map — without ever narrowing down to a specific building or lot |
+| 2 | Signed-in, not yet a caretaker | ~100m blur radius | `latitude_blurred_near` / `longitude_blurred_near` | An account is a small trust signal (traceable, rate-limited by Supabase Auth itself) but not enough to hand someone an exact address before they've shown any actual commitment to that colony |
+| 3 | Linked caretaker or the colony's creator | Exact coordinates | `latitude` / `longitude`, **never via a direct column grant** | The person actually feeding/managing this colony needs the real address to get there |
 
-Every one of the 13 application tables has RLS enabled: `colonies`, `cats`, `caretakers`, `reports`, `report_confirmations`, `timeline_events`, `feedings`, `knowledge_progress`, `thanks`, `flags`, `notifications`, `profiles`, and `action_thanks`. None of them carry a permissive "allow everything" policy. Some of the key rules:
+The property that makes this actually enforceable, not just a UI
+convention: `latitude`/`longitude` are **revoked from every role at the
+grant level**, not merely hidden by a row policy —
+[`revoke select (latitude, longitude) on colonies from anon, authenticated`](supabase/migrations/0016_progressive_location_blur.sql).
+That means even a signed-in caretaker's own browser can't fetch those two
+columns directly (`supabase.from("colonies").select("latitude")` fails
+regardless of who's asking); the *only* path to the exact value is
+[`get_colony_exact_location(p_colony_id)`](supabase/migrations/0001_init.sql),
+a `SECURITY DEFINER` function that re-checks the caretaker/creator
+relationship **against the database, on every call** — never from a cached
+session flag, a client-side "isCaretaker" boolean, or anything the client
+could tamper with. The identical pattern (blurred columns for lower tiers,
+a grant-revoked exact column, an RPC gate) was reused for
+[`reports.latitude`/`longitude`](supabase/migrations/0040_blur_report_coordinates.sql)
+once it became clear a report's exact location could otherwise leak a
+colony's near-exact position through its own open reports.
 
-- **`colonies`** — public read of name/narrative/blurred coordinates/castration status; exact `latitude`/`longitude` columns are revoked from both `anon` and `authenticated` at the grant level, not just by policy, and are only reachable via `get_colony_exact_location()`.
-- **`reports`** — anyone can insert (so emergencies never require an account); only authenticated users can read full rows; direct updates are restricted to the report's own creator or a caretaker/creator of its colony, so confirming or resolving a report has to go through the proper RPC/UI flow rather than an arbitrary `UPDATE`.
-- **`caretakers`** — public read (so "who cares for this colony" can be shown to anyone), authenticated insert of your own link, and delete restricted to the caretaker themselves (stepping down) — never by another caretaker.
-- **Storage (`colony-photos` bucket)** — public read, authenticated-only insert, with file size (5MB) and MIME type (`image/jpeg`, `image/png`, `image/webp`, `image/gif`) enforced at the bucket level, not just client-side, since a client check alone is trivially bypassable with a real access token.
+A small lock badge appears over blurred pins on the map specifically so a
+visitor understands what they're looking at is an approximate area, not
+imprecise data — the ambiguity is intentional, and the UI says so.
 
-### Atomic RPCs
+### Row Level Security (RLS), by table
 
-Four `SECURITY DEFINER`/invoker Postgres functions handle every write that needs server-side validation beyond what a plain RLS policy can express:
+Every application table has RLS enabled — there is no table anywhere in
+this schema with a permissive "allow everything" policy, and the design
+default for a new table is "start from zero access, grant back exactly
+what's needed," not the reverse. The reasoning per table, not just the rule:
 
-- **`get_colony_exact_location(p_colony_id)`** — returns exact coordinates only if the caller is the colony's creator or a linked caretaker, checked fresh against the database on every call.
-- **`confirm_report(p_report_id)`** — atomically records a confirmation, increments the counter, auto-resolves at 3 confirmations, and leaves a timeline entry for sensitive reports. Blocks a report's own creator from confirming it, and silently no-ops on a duplicate confirmation instead of erroring.
-- **`mark_cat_seen_today(p_cat_id)`** — updates a cat's `last_seen` timestamp to now.
-- **`thank_action(p_timeline_event_id)`** — records a "heart" on a timeline event and notifies its author; runs as `SECURITY DEFINER` specifically because notifying another user means inserting into *their* `notifications` row, which the caller's own RLS grant wouldn't otherwise allow.
+| Table | Public can | Requires auth | Why |
+|---|---|---|---|
+| [`colonies`](supabase/migrations/0001_init.sql) | Read name/narrative/blurred coordinates/castration status | Insert, update (creator/caretaker only) | The map is meant to be publicly browsable — that's the product. Writes need an identity to attribute the change to. |
+| [`reports`](supabase/migrations/0024_public_report_pins.sql) | Insert (no account needed) | Read full rows, update/resolve | Emergencies (a poisoned cat, active abuse) can't wait for someone to create an account first — but browsing the list and resolving reports is gated so it isn't a fully open read/write surface. |
+| [`caretakers`](supabase/migrations/0001_init.sql) | Read | Insert own link, delete own link only | "Who cares for this colony" is meant to build public trust, so it's readable by anyone; only the caretaker themselves can step down — another caretaker can't remove someone else. |
+| [`knowledge_progress`](supabase/migrations/0001_init.sql) | Nothing | Read/write own rows only | Reading progress is personal — there's no reason another user, or the public, should see which articles you've read. |
+| [`profiles`](supabase/migrations/0066_restrict_streak_columns_to_owner.sql) | Read `id`/`display_name`/`avatar_url`/`created_at` | Own streak fields via `get_own_streak()` RPC only | Display name/avatar are the public-facing identity; care-streak numbers are a private motivational signal, never a leaderboard. |
+| Storage (`colony-photos` bucket) | Read | Insert (size/MIME enforced server-side) | Public photos need public read; uploads need an account, and the 5MB/image-MIME limit is enforced [at the bucket level](supabase/migrations/0026_storage_bucket_limits.sql), not just client-side, since a client-only check is trivially bypassed with a real access token and a raw HTTP request. |
 
-### Security Headers
+### Why RPCs use `SECURITY DEFINER`
 
-`next.config.ts` sets baseline hardening headers on every response: `X-Frame-Options: DENY` (clickjacking protection), `X-Content-Type-Options: nosniff` (MIME-sniffing protection), and `Referrer-Policy: strict-origin-when-cross-origin`.
+A Postgres function needs `SECURITY DEFINER` when it has to do something
+the *calling* role's own grants wouldn't allow on their own — in this
+codebase, that's always one of two shapes:
+
+1. **Writing a row that belongs to someone else** — notifying another
+   user means inserting into *their* `notifications` row, which the
+   caller's own RLS grant on that table doesn't (and shouldn't) permit
+   directly. Examples: `notify_caretakers`, `notify_followers`,
+   `thank_action`, `respond_to_help_request`, `respond_to_resource_post`.
+2. **Authorization logic a row policy can't express** — `get_colony_exact_location`
+   needs to check "is this caller a caretaker of *this specific* colony"
+   and return different data based on the answer, which is a function's
+   job, not a `SELECT ... WHERE` policy's; `confirm_report` needs an
+   atomic counter increment plus a self-confirm guard plus an auto-resolve
+   check, all as one transaction.
+
+The security property that actually matters for each of these: **what can
+the caller control, and where does it end up?** A `SECURITY DEFINER`
+function that just bypasses a check on the caller's *own* data is low
+risk. One that accepts caller-supplied content and writes it somewhere
+another user will see it is where real bugs live — see
+[`AUDIT_REPORT.md §2.1`](AUDIT_REPORT.md#21-notify_caretakersnotify_nearby_caretakers--message-injection-via-direct-rpc-call-fixed-applied)
+for the one place this codebase actually got that wrong (since fixed).
+
+### Rate Limiting
+
+[`lib/rateLimit.ts`](lib/rateLimit.ts) — an in-memory sliding-window limiter
+(10 requests/hour for anonymous callers, 30/hour for authenticated, keyed
+by IP or user id) — guards `/api/reports` specifically, since that's the
+one write path reachable by someone with no account at all. Every other
+user-generated-content path (contacts, stories, resource posts, flags)
+already requires authentication, which changes the abuse math from "free
+and untraceable" to "tied to a real account" — a meaningfully higher cost
+even without a per-endpoint limit, though extending rate limiting to those
+paths too remains on the backlog (see [`AUDIT_REPORT.md §2.9`](AUDIT_REPORT.md#29-rate-limiting)).
 
 ### Report Integrity
 
-A report needs 3 confirmations from 3 *different* people to auto-resolve — enforced by a unique constraint on `(report_id, user_id)` in `report_confirmations`, so the same account can't inflate the count by clicking repeatedly. The report's own creator is blocked from confirming it, both client-side (the button doesn't render for them) and server-side (`confirm_report()` checks `created_by` before recording anything). Sensitive report types (suspected poisoning, suspected abuse, disease outbreak) are marked automatically by a trigger and always leave a permanent timeline trace when resolved, whether that happens via the 3-confirmation threshold or a caretaker's manual resolve — the record of "this happened" never disappears even after the report itself is marked resolved.
+A report needs 3 confirmations from 3 *different* people to auto-resolve — enforced by a unique constraint on `(report_id, user_id)` in `report_confirmations`, so the same account can't inflate the count by clicking repeatedly. The report's own creator is blocked from confirming it, both client-side (the button doesn't render for them) and server-side (`confirm_report()` checks `created_by` before recording anything). Sensitive report types (suspected poisoning, suspected abuse, disease outbreak) are marked automatically by a trigger and always leave a permanent timeline trace when resolved, whether that happens via the 3-confirmation threshold or a caretaker's manual resolve. This is deliberate, not incidental: a poisoning incident from months ago is relevant context for a new caretaker deciding whether to link themselves to that colony, in a way a routine feeding log isn't — so the record of "this happened" never disappears, even after the report itself is marked resolved. See [`AUDIT_REPORT.md §2.7`](AUDIT_REPORT.md#27-why-sensitive-reports-stay-permanent-in-the-timeline) for the full reasoning.
+
+### Security Headers
+
+`next.config.ts` sets `X-Frame-Options: DENY` (clickjacking protection), `X-Content-Type-Options: nosniff` (MIME-sniffing protection), `Referrer-Policy: strict-origin-when-cross-origin`, a `Permissions-Policy` restricting camera/microphone entirely and geolocation to same-origin, and a `Content-Security-Policy` scoped to the app's actual external origins (Supabase, OpenStreetMap tiles, OpenWeatherMap, Nominatim) — nothing else is allowed to load or connect.
 
 ---
 
