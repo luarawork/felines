@@ -8,10 +8,12 @@ import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import { useColonyAccessContext } from "@/components/ColonyAccessProvider";
 import { useEscapeToClose } from "@/lib/useEscapeToClose";
+import { useLanguage } from "@/lib/i18n";
 
 export default function NeuteringRequestButton({ colonyId }: { colonyId: string }) {
   const router = useRouter();
   const { session, canManage, checkingAccess } = useColonyAccessContext();
+  const { t } = useLanguage();
   const [open, setOpen] = useState(false);
   const [catsCount, setCatsCount] = useState(1);
   const [urgency, setUrgency] = useState<"low" | "medium" | "high">("medium");
@@ -30,7 +32,7 @@ export default function NeuteringRequestButton({ colonyId }: { colonyId: string 
 
     if (!session) return;
     if (catsCount < 1) {
-      setError("Informe pelo menos 1 gato.");
+      setError(t("forms.neutering.catsRequired"));
       return;
     }
 
@@ -47,7 +49,7 @@ export default function NeuteringRequestButton({ colonyId }: { colonyId: string 
     setSubmitting(false);
 
     if (insertError) {
-      setError("O pedido não foi enviado. Tenta de novo?");
+      setError(t("forms.neutering.insertError"));
       return;
     }
 
@@ -63,7 +65,7 @@ export default function NeuteringRequestButton({ colonyId }: { colonyId: string 
         onClick={() => setOpen(true)}
         className="rounded-full border border-felines-border px-4 py-2 text-sm font-medium text-felines-text-secondary transition-colors hover:border-felines-accent hover:text-felines-accent-hover"
       >
-        ✂️ Registrar necessidade de castração
+        {t("forms.neutering.trigger")}
       </button>
 
       {open && (
@@ -80,11 +82,11 @@ export default function NeuteringRequestButton({ colonyId }: { colonyId: string 
           >
             <div className="flex items-start justify-between">
               <h2 id="neutering-request-title" className="text-lg font-bold text-felines-text-primary">
-                Registrar necessidade de castração
+                {t("forms.neutering.title")}
               </h2>
               <button
                 onClick={() => setOpen(false)}
-                aria-label="Fechar"
+                aria-label={t("common.close")}
                 className="flex h-11 w-11 flex-shrink-0 items-center justify-center text-xl leading-none text-felines-text-secondary hover:text-felines-text-primary"
               >
                 ×
@@ -94,20 +96,20 @@ export default function NeuteringRequestButton({ colonyId }: { colonyId: string 
             {submitted ? (
               <div className="mt-4">
                 <p className="rounded-lg border border-felines-success bg-felines-success/10 px-4 py-3 text-sm text-felines-success">
-                  Pedido registrado. Fica visível pra comunidade, ONGs e prefeitura até ser concluído.
+                  {t("forms.neutering.submitted")}
                 </p>
                 <button
                   onClick={() => setOpen(false)}
                   className="mt-3 text-sm font-medium text-felines-text-secondary hover:text-felines-text-primary"
                 >
-                  Fechar
+                  {t("common.close")}
                 </button>
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="mt-4 space-y-3">
                 <div>
                   <label htmlFor="cats-count" className="block text-xs font-medium text-felines-text-secondary">
-                    Quantos gatos precisam ser castrados
+                    {t("forms.neutering.catsCountLabel")}
                   </label>
                   <input
                     id="cats-count"
@@ -120,7 +122,7 @@ export default function NeuteringRequestButton({ colonyId }: { colonyId: string 
                 </div>
 
                 <div>
-                  <span className="block text-xs font-medium text-felines-text-secondary">Urgência</span>
+                  <span className="block text-xs font-medium text-felines-text-secondary">{t("forms.neutering.urgencyLabel")}</span>
                   <div className="mt-1 flex gap-2">
                     {(["low", "medium", "high"] as const).map((level) => (
                       <button
@@ -133,7 +135,7 @@ export default function NeuteringRequestButton({ colonyId }: { colonyId: string 
                             : "border-felines-border text-felines-text-secondary"
                         }`}
                       >
-                        {level === "low" ? "Baixa" : level === "medium" ? "Média" : "Alta"}
+                        {t(`urgency.${level}`)}
                       </button>
                     ))}
                   </div>
@@ -141,7 +143,7 @@ export default function NeuteringRequestButton({ colonyId }: { colonyId: string 
 
                 <div>
                   <label htmlFor="transport" className="block text-xs font-medium text-felines-text-secondary">
-                    Transporte
+                    {t("forms.neutering.transportLabel")}
                   </label>
                   <select
                     id="transport"
@@ -149,15 +151,15 @@ export default function NeuteringRequestButton({ colonyId }: { colonyId: string 
                     onChange={(event) => setTransportAvailable(event.target.value as "yes" | "no" | "need_help")}
                     className="mt-1 w-full rounded-md border border-felines-border bg-white px-3 py-2 text-sm"
                   >
-                    <option value="yes">Tenho transporte</option>
-                    <option value="no">Não tenho transporte</option>
-                    <option value="need_help">Preciso de ajuda com transporte</option>
+                    <option value="yes">{t("transport.yes")}</option>
+                    <option value="no">{t("transport.no")}</option>
+                    <option value="need_help">{t("transport.need_help")}</option>
                   </select>
                 </div>
 
                 <div>
                   <label htmlFor="best-times" className="block text-xs font-medium text-felines-text-secondary">
-                    Melhores dias/horários (opcional)
+                    {t("forms.neutering.bestTimesLabel")}
                   </label>
                   <input
                     id="best-times"
@@ -171,7 +173,7 @@ export default function NeuteringRequestButton({ colonyId }: { colonyId: string 
 
                 <div>
                   <label htmlFor="notes" className="block text-xs font-medium text-felines-text-secondary">
-                    Observações (opcional)
+                    {t("forms.neutering.notesLabel")}
                   </label>
                   <textarea
                     id="notes"
@@ -191,7 +193,7 @@ export default function NeuteringRequestButton({ colonyId }: { colonyId: string 
                   aria-busy={submitting}
                   className="rounded-full bg-felines-accent px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-felines-accent-hover disabled:opacity-50"
                 >
-                  {submitting ? "Enviando..." : "Registrar pedido"}
+                  {submitting ? t("forms.neutering.submitting") : t("forms.neutering.submit")}
                 </button>
               </form>
             )}

@@ -9,10 +9,12 @@ import { supabase } from "@/lib/supabaseClient";
 import { useColonyAccessContext } from "@/components/ColonyAccessProvider";
 import { useEscapeToClose } from "@/lib/useEscapeToClose";
 import { HELP_REQUEST_TYPES, getHelpRequestTypeLabel } from "@/lib/helpRequestTypes";
+import { useLanguage } from "@/lib/i18n";
 
 export default function HelpRequestButton({ colonyId }: { colonyId: string }) {
   const router = useRouter();
   const { session, canManage, checkingAccess } = useColonyAccessContext();
+  const { t } = useLanguage();
   const [open, setOpen] = useState(false);
   const [type, setType] = useState(HELP_REQUEST_TYPES[0].value);
   const [description, setDescription] = useState("");
@@ -28,7 +30,7 @@ export default function HelpRequestButton({ colonyId }: { colonyId: string }) {
     setError(null);
 
     if (!description.trim()) {
-      setError("Descreva o que a colônia precisa.");
+      setError(t("forms.helpRequest.descRequired"));
       return;
     }
     if (!session) return;
@@ -44,7 +46,7 @@ export default function HelpRequestButton({ colonyId }: { colonyId: string }) {
     setSubmitting(false);
 
     if (insertError) {
-      setError("O pedido não foi enviado. Tenta de novo?");
+      setError(t("forms.helpRequest.insertError"));
       return;
     }
 
@@ -66,7 +68,7 @@ export default function HelpRequestButton({ colonyId }: { colonyId: string }) {
         onClick={() => setOpen(true)}
         className="rounded-full border border-felines-border px-4 py-2 text-sm font-medium text-felines-text-secondary transition-colors hover:border-felines-accent hover:text-felines-accent-hover"
       >
-        Pedir ajuda à comunidade
+        {t("forms.helpRequest.trigger")}
       </button>
 
       {open && (
@@ -83,11 +85,11 @@ export default function HelpRequestButton({ colonyId }: { colonyId: string }) {
           >
             <div className="flex items-start justify-between">
               <h2 id="help-request-title" className="text-lg font-bold text-felines-text-primary">
-                Pedir ajuda à comunidade
+                {t("forms.helpRequest.title")}
               </h2>
               <button
                 onClick={() => setOpen(false)}
-                aria-label="Fechar"
+                aria-label={t("common.close")}
                 className="flex h-11 w-11 flex-shrink-0 items-center justify-center text-xl leading-none text-felines-text-secondary hover:text-felines-text-primary"
               >
                 ×
@@ -97,20 +99,20 @@ export default function HelpRequestButton({ colonyId }: { colonyId: string }) {
             {submitted ? (
               <div className="mt-4">
                 <p className="rounded-lg border border-felines-success bg-felines-success/10 px-4 py-3 text-sm text-felines-success">
-                  Pedido publicado. Fica visível por 7 dias, ou até alguém marcar como resolvido.
+                  {t("forms.helpRequest.submitted")}
                 </p>
                 <button
                   onClick={() => setOpen(false)}
                   className="mt-3 text-sm font-medium text-felines-text-secondary hover:text-felines-text-primary"
                 >
-                  Fechar
+                  {t("common.close")}
                 </button>
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="mt-4 space-y-3">
                 <div>
                   <label htmlFor="help-type" className="block text-xs font-medium text-felines-text-secondary">
-                    Tipo de ajuda
+                    {t("forms.helpRequest.typeLabel")}
                   </label>
                   <select
                     id="help-type"
@@ -128,7 +130,7 @@ export default function HelpRequestButton({ colonyId }: { colonyId: string }) {
 
                 <div>
                   <label htmlFor="help-description" className="block text-xs font-medium text-felines-text-secondary">
-                    Descrição
+                    {t("forms.helpRequest.descLabel")}
                   </label>
                   <textarea
                     id="help-description"
@@ -141,7 +143,7 @@ export default function HelpRequestButton({ colonyId }: { colonyId: string }) {
                 </div>
 
                 <div>
-                  <span className="block text-xs font-medium text-felines-text-secondary">Urgência</span>
+                  <span className="block text-xs font-medium text-felines-text-secondary">{t("forms.helpRequest.urgencyLabel")}</span>
                   <div className="mt-1 flex gap-2">
                     <button
                       type="button"
@@ -152,7 +154,7 @@ export default function HelpRequestButton({ colonyId }: { colonyId: string }) {
                           : "border-felines-border text-felines-text-secondary"
                       }`}
                     >
-                      Normal
+                      {t("forms.helpRequest.urgencyNormal")}
                     </button>
                     <button
                       type="button"
@@ -163,7 +165,7 @@ export default function HelpRequestButton({ colonyId }: { colonyId: string }) {
                           : "border-felines-border text-felines-text-secondary"
                       }`}
                     >
-                      Urgente
+                      {t("forms.helpRequest.urgencyUrgent")}
                     </button>
                   </div>
                 </div>
@@ -176,7 +178,7 @@ export default function HelpRequestButton({ colonyId }: { colonyId: string }) {
                   aria-busy={submitting}
                   className="rounded-full bg-felines-accent px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-felines-accent-hover disabled:opacity-50"
                 >
-                  {submitting ? "Enviando..." : "Publicar pedido"}
+                  {submitting ? t("forms.helpRequest.submitting") : t("forms.helpRequest.submit")}
                 </button>
               </form>
             )}
