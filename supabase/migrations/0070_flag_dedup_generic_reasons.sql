@@ -1,24 +1,17 @@
--- Two independent hardening fixes found during an auth/colony-detail
--- logic audit:
+-- FlagButton (the general colony/report/profile flag flow, reasons:
+-- fake_location/harmful_content/spam/other — distinct from the
+-- false-pin-specific flow in ReportFalsePinButton, already deduped by
+-- 0069's flags_one_false_pin_per_user_per_colony) had no constraint
+-- stopping the same signed-in user from submitting the same flag
+-- against the same target repeatedly. FlagButton's client UI has no
+-- duplicate check either, so a user could resubmit the same flag
+-- (accidentally or to pad the moderation queue). Anonymous flags
+-- (created_by is null) are intentionally exempt, same as 0069 — no
+-- stable identity to dedupe against for them.
 --
--- 1. `flags` had no constraint stopping the same signed-in user from
---    flagging the same target twice — FlagButton's client UI has no
---    duplicate check either, so a user could resubmit the same flag
---    repeatedly (accidentally or to pad a moderation queue). Anonymous
---    flags (created_by is null) are intentionally exempt, same as
---    before, since there's no stable identity to dedupe against for
---    them — this mirrors the story-reaction pattern (0058) of only
---    deduping when a real user id is present.
-create unique index if not exists flags_unique_per_user_target
+-- Scoped to exclude the false-pin reasons already covered by 0069's
+-- narrower index, so the two constraints don't overlap on the same rows.
+create unique index if not exists flags_unique_per_user_target_reason
   on flags (target_type, target_id, reason, created_by)
-  where created_by is not null;
-
--- 2. ThankYouButton already blocks a caretaker thanking themselves
---    client-side (`userId === caretakerUserId`), but nothing stopped
---    the same insert via a direct RPC/REST call bypassing the client.
---    Enforce it at the DB level too, consistent with how self-confirm
---    (0038) and self-verify (0054) are both blocked server-side, not
---    just in the UI.
-alter table thanks drop constraint if exists thanks_no_self_thank;
-alter table thanks add constraint thanks_no_self_thank
-  check (sender_user_id <> caretaker_user_id);
+  where created_by is not null
+    and reason not in ('never_seen_cats', 'location_doesnt_exist', 'duplicate_colony', 'suspicious_harmful');
