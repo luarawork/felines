@@ -13,6 +13,7 @@ import { supabase } from "@/lib/supabaseClient";
 import { buildSafeStoragePath, validatePhotoFile } from "@/lib/storage";
 import { useColonyAccessContext } from "@/components/ColonyAccessProvider";
 import PhotoUploadButton from "@/components/PhotoUploadButton";
+import { useLanguage } from "@/lib/i18n";
 
 type ManagedCat = {
   id: string;
@@ -39,6 +40,7 @@ async function uploadCatPhoto(colonyId: string, photoFile: File): Promise<string
 export default function CatManager({ colonyId }: { colonyId: string }) {
   const router = useRouter();
   const { session, canManage, checkingAccess } = useColonyAccessContext();
+  const { t } = useLanguage();
 
   const [cats, setCats] = useState<ManagedCat[]>([]);
 
@@ -76,7 +78,7 @@ export default function CatManager({ colonyId }: { colonyId: string }) {
     setError(null);
 
     if (!name.trim()) {
-      setError("Dá um nome pro gato antes de continuar.");
+      setError(t("colony.catManager.nameRequired"));
       return;
     }
     if (!session) return;
@@ -88,7 +90,7 @@ export default function CatManager({ colonyId }: { colonyId: string }) {
       photoUrl = await uploadCatPhoto(colonyId, photoFile);
       if (!photoUrl) {
         setSubmitting(false);
-        setError("A foto do gato não subiu. Tenta de novo?");
+        setError(t("colony.catManager.photoUploadError"));
         return;
       }
     }
@@ -108,7 +110,7 @@ export default function CatManager({ colonyId }: { colonyId: string }) {
     setSubmitting(false);
 
     if (insertError || !newCat) {
-      setError("O gato não foi adicionado. Tenta de novo?");
+      setError(t("colony.catManager.addError"));
       return;
     }
 
@@ -142,7 +144,7 @@ export default function CatManager({ colonyId }: { colonyId: string }) {
       .eq("id", cat.id);
 
     if (updateError) {
-      setError("Não consegui atualizar o gato agora.");
+      setError(t("colony.catManager.toggleError"));
       return;
     }
 
@@ -188,7 +190,7 @@ export default function CatManager({ colonyId }: { colonyId: string }) {
       .eq("id", catId);
 
     if (updateError) {
-      setError("Não consegui marcar como visto hoje.");
+      setError(t("colony.catManager.seenError"));
       return;
     }
 
@@ -203,12 +205,12 @@ export default function CatManager({ colonyId }: { colonyId: string }) {
 
   // Removes a cat from the colony.
   async function handleRemoveCat(catId: string) {
-    const catName = cats.find((c) => c.id === catId)?.name ?? "este gato";
-    if (!window.confirm(`Remover ${catName} da colônia? Essa ação não pode ser desfeita.`)) return;
+    const catName = cats.find((c) => c.id === catId)?.name ?? t("colony.catManager.noName");
+    if (!window.confirm(t("colony.catManager.removeConfirm").replace("{name}", catName))) return;
     const { error: deleteError } = await supabase.from("cats").delete().eq("id", catId);
 
     if (deleteError) {
-      setError("Não consegui remover o gato agora.");
+      setError(t("colony.catManager.removeError"));
       return;
     }
 
@@ -228,7 +230,7 @@ export default function CatManager({ colonyId }: { colonyId: string }) {
   // for the cat currently being edited.
   async function handleSaveEdit(catId: string) {
     if (!editName.trim()) {
-      setError("Dá um nome pro gato antes de continuar.");
+      setError(t("colony.catManager.nameRequired"));
       return;
     }
 
@@ -239,7 +241,7 @@ export default function CatManager({ colonyId }: { colonyId: string }) {
       const uploadedUrl = await uploadCatPhoto(colonyId, editPhotoFile);
       if (!uploadedUrl) {
         setSavingEdit(false);
-        setError("A nova foto não subiu. Tenta de novo?");
+        setError(t("colony.catManager.editPhotoError"));
         return;
       }
       photoUrl = uploadedUrl;
@@ -253,7 +255,7 @@ export default function CatManager({ colonyId }: { colonyId: string }) {
     setSavingEdit(false);
 
     if (updateError) {
-      setError("As alterações não foram salvas. Tenta de novo?");
+      setError(t("colony.catManager.saveEditError"));
       return;
     }
 
@@ -272,12 +274,12 @@ export default function CatManager({ colonyId }: { colonyId: string }) {
 
   return (
     <section className="mt-10 rounded-xl border border-felines-border bg-felines-surface p-5">
-      <h2 className="text-lg font-bold text-felines-text-primary">Os gatos dessa colônia</h2>
+      <h2 className="text-lg font-bold text-felines-text-primary">{t("colony.catManager.sectionTitle")}</h2>
 
       <form onSubmit={handleAddCat} className="mt-4 space-y-3">
         <div>
           <label htmlFor="new-cat-name" className="block text-xs font-medium text-felines-text-secondary">
-            Nome do gato
+            {t("colony.catManager.nameLabel")}
           </label>
           <input
             id="new-cat-name"
@@ -291,7 +293,7 @@ export default function CatManager({ colonyId }: { colonyId: string }) {
 
         <div>
           <label className="block text-xs font-medium text-felines-text-secondary">
-            Foto do gato (opcional)
+            {t("colony.catManager.photoLabel")}
           </label>
           <div className="mt-1">
             <PhotoUploadButton label="Escolher foto" file={photoFile} onChange={setPhotoFile} />
@@ -304,7 +306,7 @@ export default function CatManager({ colonyId }: { colonyId: string }) {
             checked={castrated}
             onChange={(formEvent) => setCastrated(formEvent.target.checked)}
           />
-          Castrado
+          {t("colony.catManager.castrated")}
         </label>
 
         <button
@@ -312,7 +314,7 @@ export default function CatManager({ colonyId }: { colonyId: string }) {
           disabled={submitting}
           className="rounded-full bg-felines-accent px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-felines-accent-hover disabled:opacity-50"
         >
-          {submitting ? "Adicionando..." : "Adicionar esse gato"}
+          {submitting ? t("colony.catManager.addSubmitting") : t("colony.catManager.addSubmit")}
         </button>
       </form>
 
@@ -331,7 +333,7 @@ export default function CatManager({ colonyId }: { colonyId: string }) {
                     htmlFor={`edit-cat-name-${cat.id}`}
                     className="block text-xs font-medium text-felines-text-secondary"
                   >
-                    Nome
+                    {t("colony.catManager.editNameLabel")}
                   </label>
                   <input
                     id={`edit-cat-name-${cat.id}`}
@@ -344,7 +346,7 @@ export default function CatManager({ colonyId }: { colonyId: string }) {
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-felines-text-secondary">
-                    Substituir foto (opcional)
+                    {t("colony.catManager.editPhotoLabel")}
                   </label>
                   <div className="mt-1">
                     <PhotoUploadButton
@@ -360,13 +362,13 @@ export default function CatManager({ colonyId }: { colonyId: string }) {
                     disabled={savingEdit}
                     className="rounded-full bg-felines-accent px-3 py-1 text-xs font-medium text-white disabled:opacity-50"
                   >
-                    {savingEdit ? "Salvando..." : "Salvar"}
+                    {savingEdit ? t("colony.catManager.savingEdit") : t("colony.catManager.saveEdit")}
                   </button>
                   <button
                     onClick={() => setEditingCatId(null)}
                     className="text-xs text-felines-text-secondary"
                   >
-                    Cancelar
+                    {t("common.cancel")}
                   </button>
                 </div>
               </li>
@@ -380,11 +382,11 @@ export default function CatManager({ colonyId }: { colonyId: string }) {
                     href={`/cat/${cat.id}`}
                     className="hover:text-felines-accent hover:underline"
                   >
-                    {cat.name ?? "Sem nome"}
+                    {cat.name ?? t("colony.catManager.noName")}
                   </Link>
                   {cat.last_seen && (
                     <span className="ml-2 text-xs font-normal text-felines-text-secondary">
-                      visto em {new Date(cat.last_seen).toLocaleDateString("pt-BR")}
+                      {t("colony.catManager.lastSeen")} {new Date(cat.last_seen).toLocaleDateString("pt-BR")}
                     </span>
                   )}
                 </span>
@@ -393,25 +395,25 @@ export default function CatManager({ colonyId }: { colonyId: string }) {
                     onClick={() => startEditing(cat)}
                     className="text-felines-text-secondary hover:text-felines-accent"
                   >
-                    Editar
+                    {t("colony.catManager.edit")}
                   </button>
                   <button
                     onClick={() => handleMarkSeenToday(cat.id)}
                     className="text-felines-success hover:underline"
                   >
-                    Visto hoje
+                    {t("colony.catManager.seenToday")}
                   </button>
                   <button
                     onClick={() => handleToggleCastrated(cat)}
                     className="text-felines-accent hover:text-felines-accent-hover"
                   >
-                    {cat.castrated ? "Marcar como não castrado" : "Marcar como castrado"}
+                    {cat.castrated ? t("colony.catManager.markNotCastrated") : t("colony.catManager.markCastrated")}
                   </button>
                   <button
                     onClick={() => handleRemoveCat(cat.id)}
                     className="text-felines-emergency hover:underline"
                   >
-                    Remover
+                    {t("colony.catManager.remove")}
                   </button>
                 </div>
               </li>

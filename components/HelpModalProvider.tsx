@@ -6,6 +6,7 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 import HelpFlow from "@/components/HelpFlow";
 import { useEscapeToClose } from "@/lib/useEscapeToClose";
+import { useLanguage } from "@/lib/i18n";
 
 type HelpModalContextValue = {
   openHelpModal: () => void;
@@ -22,6 +23,7 @@ export function useHelpModal(): HelpModalContextValue {
 }
 
 export default function HelpModalProvider({ children }: { children: React.ReactNode }) {
+  const { t } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
   const dialogRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLElement | null>(null);
@@ -68,15 +70,15 @@ export default function HelpModalProvider({ children }: { children: React.ReactN
             <div className="flex items-start justify-between">
               <div>
                 <h2 id="help-modal-title" className="text-2xl font-bold text-felines-text-primary">
-                  O que está acontecendo?
+                  {t("helpFlow.title")}
                 </h2>
                 <p className="mt-2 text-sm text-felines-text-secondary">
-                  Escolha a situação mais parecida com a sua — a gente mostra o que fazer agora.
+                  {t("helpFlow.subtitle")}
                 </p>
               </div>
               <button
                 onClick={close}
-                aria-label="Fechar"
+                aria-label={t("common.close")}
                 className="flex h-11 w-11 flex-shrink-0 items-center justify-center text-2xl leading-none text-felines-text-secondary hover:text-felines-text-primary"
               >
                 ×
