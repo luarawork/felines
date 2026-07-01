@@ -309,8 +309,7 @@ export default function NewColonyForm() {
               setCityLoading(true);
               try {
                 const res = await fetch(
-                  `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&accept-language=pt-BR`,
-                  { headers: { "User-Agent": "Felines/1.0 (plasticabolha@gmail.com)" } }
+                  `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&accept-language=pt-BR`
                 );
                 const json = await res.json();
                 const addr = json.address ?? {};
