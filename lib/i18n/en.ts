@@ -458,6 +458,9 @@ export const en = {
     readingTime: "min read",
     relatedArticles: "Related articles",
     backToGuide: "← Back to the guide",
+    practiceHeadline: "Want to put this into practice?",
+    practiceMapCta: "See colonies on the map",
+    practiceHelpCta: "Make a report",
   },
 
   learn: {

@@ -460,6 +460,9 @@ export const pt = {
     readingTime: "min de leitura",
     relatedArticles: "Artigos relacionados",
     backToGuide: "← Voltar para o guia",
+    practiceHeadline: "Quer colocar isso em prática?",
+    practiceMapCta: "Ver colônias no mapa",
+    practiceHelpCta: "Fazer um relato",
   },
 
   learn: {

@@ -6,10 +6,15 @@ import Link from "next/link";
 import { getArticleBySlug, getReadingTimeMinutes, getRelatedArticles } from "@/lib/articles";
 import ArticleProgressTracker from "@/components/ArticleProgressTracker";
 import FactChip from "@/components/FactChip";
-import OpenHelpModalButton from "@/components/OpenHelpModalButton";
 import ReadingProgressBar from "@/components/ReadingProgressBar";
 import ArticleNotFound from "@/components/ArticleNotFound";
 import ShareButton from "@/components/ShareButton";
+import {
+  ArticleBackLink,
+  ArticleReadingTime,
+  ArticlePracticeCta,
+  ArticleRelatedHeading,
+} from "@/components/ArticlePageClient";
 
 export async function generateMetadata({
   params,
@@ -55,12 +60,10 @@ export default async function ArticlePage({
       {/* Records this article as read for the signed-in user, if any */}
       <ArticleProgressTracker slug={article.slug} />
 
-      <Link href="/#aprender" className="text-sm text-felines-text-secondary hover:text-felines-accent">
-        ← Voltar ao guia
-      </Link>
+      <ArticleBackLink />
 
       <div className="mt-3 flex items-center justify-between gap-3">
-        <span className="text-xs text-felines-text-secondary">{readingTime} min de leitura</span>
+        <ArticleReadingTime minutes={readingTime} />
         <ShareButton title={article.title} />
       </div>
 
@@ -93,24 +96,11 @@ export default async function ArticlePage({
         </div>
       )}
 
-      <div className="mt-10 rounded-xl border border-felines-border bg-felines-surface p-5">
-        <p className="font-semibold text-felines-text-primary">Quer colocar isso em prática?</p>
-        <div className="mt-3 flex flex-wrap gap-3">
-          <Link
-            href="/map"
-            className="rounded-full bg-felines-accent px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-felines-accent-hover"
-          >
-            Ver colônias no mapa
-          </Link>
-          <OpenHelpModalButton className="rounded-full border border-felines-accent px-4 py-2 text-sm font-medium text-felines-accent transition-colors hover:bg-felines-accent hover:text-white">
-            Fazer um relato
-          </OpenHelpModalButton>
-        </div>
-      </div>
+      <ArticlePracticeCta />
 
       {relatedArticles.length > 0 && (
         <section className="mt-10">
-          <h3 className="text-lg font-bold text-felines-text-primary">Artigos relacionados</h3>
+          <ArticleRelatedHeading />
           <div className="mt-3 grid gap-3 sm:grid-cols-2">
             {relatedArticles.map((related) => (
               <Link
