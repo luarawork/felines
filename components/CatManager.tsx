@@ -210,6 +210,7 @@ export default function CatManager({ colonyId }: { colonyId: string }) {
       return;
     }
 
+    await supabase.rpc("recalculate_colony_health", { p_colony_id: colonyId });
     setCats((previous) => previous.filter((item) => item.id !== catId));
     router.refresh();
   }
