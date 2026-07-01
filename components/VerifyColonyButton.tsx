@@ -8,6 +8,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import { useColonyAccessContext } from "@/components/ColonyAccessProvider";
+import { useLanguage } from "@/lib/i18n";
 
 export default function VerifyColonyButton({
   colonyId,
@@ -18,6 +19,7 @@ export default function VerifyColonyButton({
   verifiedStatus: "unverified" | "community_verified";
   verifiedAt: string | null;
 }) {
+  const { t, language } = useLanguage();
   const { session, canManage, checkingAccess } = useColonyAccessContext();
   const [count, setCount] = useState(0);
   const [hasVerified, setHasVerified] = useState(false);
@@ -62,10 +64,15 @@ export default function VerifyColonyButton({
   }
 
   if (verifiedStatus === "community_verified") {
+    const dateLocale = language === "en" ? "en-US" : "pt-BR";
     return (
       <p className="text-xs font-medium text-felines-success">
-        ✓ Verificada pela comunidade
-        {verifiedAt && ` em ${new Date(verifiedAt).toLocaleDateString("pt-BR")}`}
+        {t("verifyColony.communityVerified")}
+        {verifiedAt &&
+          ` ${t("verifyColony.verifiedOn").replace(
+            "{date}",
+            new Date(verifiedAt).toLocaleDateString(dateLocale)
+          )}`}
       </p>
     );
   }
@@ -75,7 +82,7 @@ export default function VerifyColonyButton({
   if (!session) {
     return (
       <p className="text-xs text-felines-text-secondary">
-        ⏳ Aguardando verificação da comunidade ({count}/3 confirmações)
+        ⏳ {t("verifyColony.awaitingVerification")} {t("verifyColony.confirmationsCount").replace("{count}", String(count))}
       </p>
     );
   }
@@ -87,9 +94,11 @@ export default function VerifyColonyButton({
         disabled={hasVerified || submitting}
         className="text-xs font-medium text-felines-accent-hover hover:underline disabled:no-underline disabled:opacity-60"
       >
-        {hasVerified ? "Você já confirmou ✓" : "Eu já vi gatos aqui ✓"}
+        {hasVerified ? t("verifyColony.alreadyConfirmed") : t("verifyColony.iSawCatsHere")}
       </button>
-      <span className="text-xs text-felines-text-secondary">({count}/3 confirmações)</span>
+      <span className="text-xs text-felines-text-secondary">
+        {t("verifyColony.confirmationsCount").replace("{count}", String(count))}
+      </span>
     </div>
   );
 }

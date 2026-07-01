@@ -53,7 +53,7 @@ export default function HelpRequestButton({ colonyId }: { colonyId: string }) {
     await supabase.rpc("notify_followers", {
       p_colony_id: colonyId,
       p_type: "help_request_posted",
-      p_message: `Uma colônia que você segue precisa de ajuda: ${getHelpRequestTypeLabel(type)}.`,
+      p_message: `Uma colônia que você segue precisa de ajuda: ${getHelpRequestTypeLabel(type, t)}.`,
     });
 
     setSubmitted(true);
@@ -122,7 +122,7 @@ export default function HelpRequestButton({ colonyId }: { colonyId: string }) {
                   >
                     {HELP_REQUEST_TYPES.map((option) => (
                       <option key={option.value} value={option.value}>
-                        {option.icon} {option.label}
+                        {option.icon} {getHelpRequestTypeLabel(option.value, t)}
                       </option>
                     ))}
                   </select>

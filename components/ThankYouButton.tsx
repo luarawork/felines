@@ -8,6 +8,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import { getDisplayName } from "@/lib/profile";
+import { useLanguage } from "@/lib/i18n";
 
 export default function ThankYouButton({
   colonyId,
@@ -18,6 +19,7 @@ export default function ThankYouButton({
   caretakerUserId: string;
   caretakerDisplayName: string;
 }) {
+  const { t } = useLanguage();
   const [userId, setUserId] = useState<string | null>(null);
   const [alreadyThanked, setAlreadyThanked] = useState(false);
   const [sending, setSending] = useState(false);
@@ -65,12 +67,12 @@ export default function ThankYouButton({
       return;
     }
 
-    const senderDisplayName = (await getDisplayName(userId)) || "Um vizinho";
+    const senderDisplayName = (await getDisplayName(userId)) || t("thankYou.aNeighbor");
 
     await supabase.from("timeline_events").insert({
       colony_id: colonyId,
       event_type: "thank_you",
-      description: `${senderDisplayName} agradeceu ${caretakerDisplayName} por cuidar dessa colônia.`,
+      description: `${senderDisplayName} ${t("thankYou.thanked")} ${caretakerDisplayName} ${t("thankYou.forCaringSuffix")}.`,
       created_by: userId,
     });
 
@@ -86,7 +88,7 @@ export default function ThankYouButton({
       disabled={alreadyThanked || sending}
       className="text-xs font-medium text-felines-accent hover:text-felines-accent-hover disabled:text-felines-text-secondary"
     >
-      {alreadyThanked ? "Agradecido ✓" : sending ? "Enviando..." : "Agradecer"}
+      {alreadyThanked ? t("thankYou.thankedDone") : sending ? t("thankYou.sending") : t("thankYou.thankAction")}
     </button>
   );
 }

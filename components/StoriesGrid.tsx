@@ -8,19 +8,18 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import type { StoryWithMeta } from "@/app/stories/page";
 import StoryHeartButton from "@/components/StoryHeartButton";
+import { useLanguage } from "@/lib/i18n";
 
 type SortMode = "all" | "recent" | "reactions";
 
-const SORT_OPTIONS: { value: SortMode; label: string }[] = [
-  { value: "all", label: "Todas" },
-  { value: "recent", label: "Mais recentes" },
-  { value: "reactions", label: "Mais reações" },
-];
-
 function StoryCard({ story }: { story: StoryWithMeta }) {
+  const { t, language } = useLanguage();
   const [expanded, setExpanded] = useState(false);
   const photo = story.photoUrl ?? story.colonyCoverPhotoUrl;
   const isLong = story.storyText.length > 180;
+  const authorName = story.anonymous
+    ? t("common.anonymousCaretaker")
+    : story.authorDisplayName || t("colony.timeline.authorDefault");
 
   return (
     <div className="mb-4 break-inside-avoid rounded-2xl border border-felines-border bg-felines-surface p-4">
@@ -37,7 +36,7 @@ function StoryCard({ story }: { story: StoryWithMeta }) {
           onClick={() => setExpanded((previous) => !previous)}
           className="mt-1 text-xs font-medium text-felines-accent-hover"
         >
-          {expanded ? "Mostrar menos" : "Ler mais"}
+          {expanded ? t("stories.showLess") : t("stories.readMore")}
         </button>
       )}
       <Link
@@ -49,13 +48,13 @@ function StoryCard({ story }: { story: StoryWithMeta }) {
       <div className="mt-2 flex items-center justify-between text-xs text-felines-text-secondary">
         <span>
           {story.anonymous ? (
-            story.authorName
+            authorName
           ) : (
             <Link href={`/u/${story.authorId}`} className="hover:text-felines-accent-hover">
-              {story.authorName}
+              {authorName}
             </Link>
           )}{" "}
-          · {new Date(story.createdAt).toLocaleDateString("pt-BR")}
+          · {new Date(story.createdAt).toLocaleDateString(language === "pt" ? "pt-BR" : "en-US")}
         </span>
         <StoryHeartButton storyId={story.id} initialCount={story.reactionCount} />
       </div>
@@ -64,7 +63,14 @@ function StoryCard({ story }: { story: StoryWithMeta }) {
 }
 
 export default function StoriesGrid({ stories }: { stories: StoryWithMeta[] }) {
+  const { t } = useLanguage();
   const [sortMode, setSortMode] = useState<SortMode>("all");
+
+  const SORT_OPTIONS: { value: SortMode; label: string }[] = [
+    { value: "all", label: t("stories.sortAll") },
+    { value: "recent", label: t("stories.sortRecent") },
+    { value: "reactions", label: t("stories.sortReactions") },
+  ];
 
   const sortedStories = useMemo(() => {
     if (sortMode === "reactions") {

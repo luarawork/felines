@@ -1,4 +1,4 @@
-﻿// /impact route for Felines.
+// /impact route for Felines.
 // Public, no-login page showing live platform-wide statistics — every
 // number here comes from get_platform_impact_stats() and
 // get_recent_platform_activity(), two SECURITY DEFINER RPCs that return
@@ -7,14 +7,9 @@
 // policy at all, by design — this page never widens that, it just asks
 // the database for a count instead of the rows themselves).
 import type { Metadata } from "next";
-import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient";
 import { ARTICLES, getArticleBySlug, getReadingTimeMinutes } from "@/lib/articles";
-import Reveal from "@/components/Reveal";
-import CountUpStat from "@/components/CountUpStat";
-import MapShell from "@/components/MapShell";
-import ShareButton from "@/components/ShareButton";
-import { getHelpRequestTypeIcon, getHelpRequestTypeLabel } from "@/lib/helpRequestTypes";
+import ImpactPageClient from "@/components/ImpactPageClient";
 
 // These are live counts, not content that should be baked in at build
 // time — without this, Next.js would statically render the page once
@@ -45,58 +40,6 @@ type PlatformStats = {
 };
 
 type ActivityRow = { kind: string; occurred_at: string };
-
-// Maps a raw activity "kind" (an event_type, "report:<type>",
-// "notification:<type>", or "article_read") to an anonymized,
-// human-readable sentence — no user names, no colony names, no
-// coordinates, ever. Notifications in particular only ever expose their
-// `type` column here (see migration 0048) — the actual message text
-// often names a specific colony, which would defeat the point.
-function describeActivity(kind: string): string {
-  if (kind === "article_read") return "Alguém terminou de ler um artigo educativo";
-
-  if (kind.startsWith("report:")) {
-    const reportType = kind.slice("report:".length);
-    const reportLabels: Record<string, string> = {
-      no_food_water: "uma colônia sem comida ou água",
-      injured_sick: "um gato ferido ou doente",
-      new_kitten: "um filhote novo",
-      missing_cat: "um gato desaparecido",
-      suspected_poisoning: "uma suspeita de envenenamento",
-      suspected_abuse: "uma suspeita de maus-tratos",
-      disease_outbreak: "um surto de doença",
-      threat_to_colony: "uma ameaça a uma colônia",
-      sighting: "um avistamento de gato",
-    };
-    return `Alguém relatou ${reportLabels[reportType] ?? "algo"} perto de uma colônia`;
-  }
-
-  if (kind.startsWith("notification:")) {
-    const notificationType = kind.slice("notification:".length);
-    const notificationLabels: Record<string, string> = {
-      extreme_weather: "Um alerta de clima extremo foi enviado a um cuidador",
-      cat_unseen: "Um cuidador foi avisado sobre um gato não visto há um tempo",
-      sighting_cluster: "Avistamentos sugeriram uma possível nova colônia",
-      action_thanks: "Alguém agradeceu uma ação de cuidado",
-    };
-    return notificationLabels[notificationType] ?? "Uma notificação foi enviada a um cuidador";
-  }
-
-  const eventLabels: Record<string, string> = {
-    colony_created: "Uma colônia foi cadastrada",
-    new_caretaker: "Um cuidador passou a olhar por uma colônia",
-    new_cat: "Um gato foi adicionado a uma colônia",
-    cat_castrated: "Um gato foi castrado",
-    feeding: "Alguém registrou uma alimentação",
-    water: "Alguém registrou a troca de água",
-    thank_you: "Alguém agradeceu um cuidador",
-    report_resolved: "Um relato foi resolvido",
-    colony_info_updated: "As informações de uma colônia foram atualizadas",
-    cover_photo_changed: "A foto de capa de uma colônia foi trocada",
-    caretaker_letter_updated: "Um cuidador deixou um recado pro próximo",
-  };
-  return eventLabels[kind] ?? "Algo aconteceu em uma colônia";
-}
 
 export default async function ImpactPage() {
   const [
@@ -151,7 +94,7 @@ export default async function ImpactPage() {
   const activity = (activityRows as ActivityRow[] | null) ?? [];
 
   // Group consecutive identical actions by (kind + date) so the feed
-  // doesn't show 10 identical "Alguém registrou uma alimentação" lines.
+  // doesn't show 10 identical lines in a row.
   type GroupedActivity = { kind: string; date: string; count: number };
   const groupedActivity: GroupedActivity[] = [];
   for (const item of activity) {
@@ -171,269 +114,20 @@ export default async function ImpactPage() {
     ? getArticleBySlug(stats.most_read_article_slug)
     : null;
 
-  const STAT_CARDS: { value: number; label: string }[] = [
-    { value: stats.total_colonies, label: "Colônias mapeadas" },
-    { value: stats.total_cats, label: "Gatos nomeados cadastrados" },
-    { value: stats.total_cats_castrated, label: "Gatos castrados" },
-    { value: stats.total_reports, label: "Relatos enviados" },
-    { value: stats.total_reports_resolved, label: "Relatos resolvidos" },
-    { value: stats.total_feedings, label: "Check-ins de alimentação" },
-    { value: stats.total_caretakers, label: "Cuidadores ativos" },
-    { value: stats.total_articles_read, label: "Artigos lidos" },
-  ];
-
   return (
-    <div>
-      {/* Hero */}
-      <section className="bg-[#2D1810] py-20">
-        <div className="mx-auto max-w-6xl px-4 text-center sm:px-6">
-          <div className="mb-4 flex justify-center">
-            <ShareButton title="Impacto do Felines" onDark />
-          </div>
-          <Reveal>
-            <h1 className="text-4xl font-bold leading-tight text-white sm:text-5xl">
-              Cada ação deixa uma marca.
-            </h1>
-            <p className="mx-auto mt-4 max-w-xl text-lg text-felines-text-secondary-on-dark">
-              Veja o que a comunidade do Felines já fez até agora.
-            </p>
-          </Reveal>
-        </div>
-      </section>
-
-      {/* Live stats grid */}
-      <section className="bg-[#2D1810] pb-20">
-        <div className="mx-auto max-w-6xl px-4 sm:px-6">
-          <div className="grid grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-4">
-            {STAT_CARDS.map((stat, index) => (
-              <Reveal key={stat.label} delayMs={index * 80}>
-                <div className="text-center">
-                  <p className="text-[56px] font-bold leading-none text-felines-accent">
-                    <CountUpStat value={String(stat.value)} />
-                  </p>
-                  <p className="mt-2 text-sm text-felines-text-secondary-on-dark">{stat.label}</p>
-                </div>
-              </Reveal>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Colony map preview */}
-      <section className="bg-felines-background py-20">
-        <div className="mx-auto max-w-6xl px-4 sm:px-6">
-          <Reveal>
-            <p className="text-xs font-semibold uppercase tracking-[0.1em] text-felines-accent-hover">
-              Alcance geográfico
-            </p>
-            <h2 className="mt-3 text-3xl font-bold leading-tight text-felines-text-primary">
-              Cada pin é uma colônia que alguém está cuidando.
-            </h2>
-          </Reveal>
-          <Reveal delayMs={100}>
-            <div className="mt-8 h-96 w-full overflow-hidden rounded-2xl border border-felines-border shadow-[0_8px_24px_rgba(0,0,0,0.08)]">
-              <MapShell compact />
-            </div>
-          </Reveal>
-        </div>
-      </section>
-
-      {/* Active help requests */}
-      {activeHelpRequests.length > 0 && (
-        <section className="bg-felines-surface py-20">
-          <div className="mx-auto max-w-6xl px-4 sm:px-6">
-            <Reveal>
-              <p className="text-xs font-semibold uppercase tracking-[0.1em] text-felines-accent-hover">
-                Quem precisa de uma mão
-              </p>
-              <h2 className="mt-3 text-3xl font-bold leading-tight text-felines-text-primary">
-                Necessidades da comunidade agora
-              </h2>
-            </Reveal>
-            <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {activeHelpRequests.map((request, index) => (
-                <Reveal key={request.id} delayMs={index * 60}>
-                  <Link
-                    href={`/colony/${request.colonyId}`}
-                    className={`block h-full rounded-2xl border p-5 transition-all duration-200 hover:-translate-y-1 ${
-                      request.urgency === "urgent"
-                        ? "border-felines-emergency bg-felines-emergency/5"
-                        : "border-felines-border bg-felines-background"
-                    }`}
-                  >
-                    <p className="text-sm font-semibold text-felines-text-primary">
-                      {getHelpRequestTypeIcon(request.type)} {getHelpRequestTypeLabel(request.type)}
-                    </p>
-                    <p className="mt-1 text-sm text-felines-text-secondary">{request.description}</p>
-                    <p className="mt-2 text-xs font-medium text-felines-accent-hover">{request.colonyName}</p>
-                  </Link>
-                </Reveal>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* Neutering needs */}
-      {catsAwaitingNeutering > 0 && (
-        <section className="bg-felines-background py-16">
-          <div className="mx-auto max-w-6xl px-4 text-center sm:px-6">
-            <Reveal>
-              <p className="text-xs font-semibold uppercase tracking-[0.1em] text-felines-accent-hover">
-                Necessidades de castração
-              </p>
-              <p className="mt-3 text-4xl font-bold leading-tight text-felines-text-primary">
-                {catsAwaitingNeutering}
-              </p>
-              <p className="mt-1 text-base text-felines-text-secondary">
-                {catsAwaitingNeutering === 1 ? "gato" : "gatos"} esperando castração em colônias
-                cadastradas no Felines
-              </p>
-            </Reveal>
-          </div>
-        </section>
-      )}
-
-      {/* Colony health overview */}
-      <section className="bg-felines-surface py-16">
-        <div className="mx-auto max-w-6xl px-4 sm:px-6">
-          <Reveal>
-            <p className="text-xs font-semibold uppercase tracking-[0.1em] text-felines-accent-hover">
-              Saúde das colônias
-            </p>
-            <h2 className="mt-3 text-3xl font-bold leading-tight text-felines-text-primary">
-              Visão geral de saúde
-            </h2>
-          </Reveal>
-          <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-4">
-            {[
-              { label: "🟢 Prósperas", value: healthCounts.thriving },
-              { label: "🟡 Estáveis", value: healthCounts.stable },
-              { label: "🟠 Precisam de atenção", value: healthCounts.needs_attention },
-              { label: "🔴 Em risco", value: healthCounts.at_risk },
-            ].map((item) => (
-              <div key={item.label} className="text-center">
-                <p className="text-3xl font-bold text-felines-text-primary">{item.value}</p>
-                <p className="mt-1 text-xs text-felines-text-secondary">{item.label}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Recent activity feed */}
-      <section className="bg-felines-surface py-20">
-        <div className="mx-auto max-w-3xl px-4 sm:px-6">
-          <Reveal>
-            <p className="text-xs font-semibold uppercase tracking-[0.1em] text-felines-accent-hover">
-              Acontecendo agora
-            </p>
-            <h2 className="mt-3 text-3xl font-bold leading-tight text-felines-text-primary">
-              Atividade recente
-            </h2>
-          </Reveal>
-
-          {groupedActivity.length === 0 ? (
-            <p className="mt-6 text-sm text-felines-text-secondary">
-              Nada registrado ainda — seja a primeira pessoa a deixar uma marca.
-            </p>
-          ) : (
-            <ol className="mt-8 space-y-3">
-              {groupedActivity.map((item, index) => (
-                <Reveal key={`${item.kind}-${item.date}-${index}`} delayMs={Math.min(index, 10) * 40}>
-                  <li className="flex items-center justify-between rounded-xl border border-felines-border bg-felines-background px-4 py-3 text-sm">
-                    <span className="text-felines-text-primary">{describeActivity(item.kind)}</span>
-                    <span className="flex items-center gap-2 text-xs text-felines-text-secondary">
-                      {item.count > 1 && (
-                        <span className="rounded-full bg-felines-accent/10 px-2 py-0.5 font-semibold text-felines-accent">
-                          {item.count}×
-                        </span>
-                      )}
-                      {item.date}
-                    </span>
-                  </li>
-                </Reveal>
-              ))}
-            </ol>
-          )}
-        </div>
-      </section>
-
-      {/* Educational impact */}
-      <section className="bg-felines-background py-20">
-        <div className="mx-auto max-w-6xl px-4 sm:px-6">
-          <Reveal>
-            <p className="text-xs font-semibold uppercase tracking-[0.1em] text-felines-accent-hover">
-              Educação
-            </p>
-            <h2 className="mt-3 text-3xl font-bold leading-tight text-felines-text-primary">
-              Conhecimento se espalhando
-            </h2>
-          </Reveal>
-          <div className="mt-8 grid gap-6 sm:grid-cols-3">
-            <Reveal>
-              <p className="text-[40px] font-bold leading-none text-felines-accent">{ARTICLES.length}</p>
-              <p className="mt-2 text-sm text-felines-text-secondary">Artigos publicados</p>
-            </Reveal>
-            <Reveal delayMs={80}>
-              <p className="text-[40px] font-bold leading-none text-felines-accent">
-                {averageReadingTime} min
-              </p>
-              <p className="mt-2 text-sm text-felines-text-secondary">Tempo médio de leitura</p>
-            </Reveal>
-            <Reveal delayMs={160}>
-              <p className="text-lg font-semibold leading-tight text-felines-text-primary">
-                {mostReadArticle ? mostReadArticle.title : "Nenhum artigo lido ainda"}
-              </p>
-              <p className="mt-2 text-sm text-felines-text-secondary">Artigo mais lido</p>
-            </Reveal>
-          </div>
-        </div>
-      </section>
-
-      {/* Caretaker recognition */}
-      <section className="bg-felines-background py-16">
-        <div className="mx-auto max-w-3xl px-4 text-center sm:px-6">
-          <Reveal>
-            <p className="text-[56px] font-bold leading-none text-felines-accent">
-              {stats.total_caretakers}
-            </p>
-            <p className="mt-3 text-xl font-semibold text-felines-text-primary">
-              {stats.total_caretakers === 1
-                ? "pessoa cuida de colônias no Felines."
-                : "pessoas cuidam de colônias no Felines."}
-            </p>
-            <p className="mx-auto mt-3 max-w-lg text-base leading-relaxed text-felines-text-secondary">
-              Cada check-in de alimentação, cada castração organizada, cada relato enviado é feito
-              por alguém que poderia ignorar e não ignorou. Obrigado a cada uma dessas pessoas.
-            </p>
-          </Reveal>
-        </div>
-      </section>
-
-      {/* CTA */}
-      <section className="bg-felines-dark py-16">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-4 px-4 sm:px-6">
-          <Link
-            href="/map"
-            className="rounded-full bg-felines-accent px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-felines-accent-hover"
-          >
-            Veja o que está acontecendo perto de você
-          </Link>
-          <Link
-            href="/#aprender"
-            className="rounded-full border-2 border-white px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-white hover:text-felines-dark"
-          >
-            Comece a aprender
-          </Link>
-          <Link
-            href="/stories"
-            className="rounded-full border-2 border-white px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-white hover:text-felines-dark"
-          >
-            Veja histórias da comunidade
-          </Link>
-        </div>
-      </section>
-    </div>
+    <ImpactPageClient
+      stats={stats}
+      activeHelpRequests={activeHelpRequests}
+      catsAwaitingNeutering={catsAwaitingNeutering}
+      healthCounts={healthCounts}
+      groupedActivity={groupedActivity}
+      articlesCount={ARTICLES.length}
+      averageReadingTime={averageReadingTime}
+      mostReadArticle={
+        mostReadArticle
+          ? { title: mostReadArticle.title, title_en: mostReadArticle.title_en }
+          : null
+      }
+    />
   );
 }

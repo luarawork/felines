@@ -16,7 +16,26 @@ export type ToxicPlant = {
   onsetTime: string;
   imageUrl: string | null;
   notes?: string;
+  commonName_en?: string;
+  toxicParts_en?: string[];
+  symptoms_en?: string[];
+  onsetTime_en?: string;
+  notes_en?: string;
 };
+
+// Picks the English variant fields when language is "en", falling back to
+// the Portuguese originals otherwise (and if an _en field is missing).
+export function localizeToxicPlant(plant: ToxicPlant, language: "pt" | "en"): ToxicPlant {
+  if (language !== "en") return plant;
+  return {
+    ...plant,
+    commonName: plant.commonName_en ?? plant.commonName,
+    toxicParts: plant.toxicParts_en ?? plant.toxicParts,
+    symptoms: plant.symptoms_en ?? plant.symptoms,
+    onsetTime: plant.onsetTime_en ?? plant.onsetTime,
+    notes: plant.notes_en ?? plant.notes,
+  };
+}
 
 export const TOXIC_PLANTS: ToxicPlant[] = [
   {
@@ -37,6 +56,19 @@ export const TOXIC_PLANTS: ToxicPlant[] = [
     imageUrl: null,
     notes:
       "Uma das plantas mais perigosas do Brasil. Muito comum em cercas vivas, calçadas e praças.",
+    commonName_en: "Oleander",
+    toxicParts_en: ["leaves", "flowers", "stems", "sap"],
+    symptoms_en: [
+      "excessive drooling",
+      "vomiting",
+      "diarrhea",
+      "muscle tremors",
+      "cardiac arrhythmia",
+      "collapse",
+    ],
+    onsetTime_en: "30 minutes to 2 hours",
+    notes_en:
+      "One of the most dangerous plants in Brazil. Very common in hedges, sidewalks, and public squares.",
   },
   {
     slug: "comigo-ninguem-pode",
@@ -55,6 +87,18 @@ export const TOXIC_PLANTS: ToxicPlant[] = [
     imageUrl: null,
     notes:
       "Os cristais de oxalato de cálcio presentes na seiva causam ardência imediata. Pode obstruir as vias aéreas em casos graves.",
+    commonName_en: "Dumbcane",
+    toxicParts_en: ["leaves", "stems", "sap"],
+    symptoms_en: [
+      "intense burning in mouth and throat",
+      "excessive drooling",
+      "difficulty swallowing",
+      "swelling of tongue and lips",
+      "vomiting",
+    ],
+    onsetTime_en: "immediate on contact with mucous membranes",
+    notes_en:
+      "The calcium oxalate crystals in the sap cause immediate burning. Can obstruct the airway in severe cases.",
   },
   {
     slug: "lirio-da-paz",
@@ -70,6 +114,15 @@ export const TOXIC_PLANTS: ToxicPlant[] = [
     ],
     onsetTime: "até 2 horas",
     imageUrl: null,
+    commonName_en: "Peace lily",
+    toxicParts_en: ["all parts of the plant"],
+    symptoms_en: [
+      "excessive drooling",
+      "burning in the mouth",
+      "vomiting",
+      "difficulty swallowing",
+    ],
+    onsetTime_en: "up to 2 hours",
   },
   {
     slug: "lirio-verdadeiro",
@@ -87,6 +140,17 @@ export const TOXIC_PLANTS: ToxicPlant[] = [
     imageUrl: null,
     notes:
       "Especialmente perigoso para gatos. Mesmo pequenas quantidades podem causar insuficiência renal fatal. Lirio-da-paz (Spathiphyllum) não é Lilium e tem toxicidade menor.",
+    commonName_en: "True lily",
+    toxicParts_en: ["all parts — including pollen and vase water"],
+    symptoms_en: [
+      "vomiting",
+      "lethargy",
+      "loss of appetite",
+      "acute kidney failure",
+    ],
+    onsetTime_en: "0 to 12 hours (kidney failure within 24–72 h)",
+    notes_en:
+      "Especially dangerous for cats. Even small amounts can cause fatal kidney failure. Peace lily (Spathiphyllum) is not a true Lilium and is much less toxic.",
   },
   {
     slug: "aveloz",
@@ -105,6 +169,18 @@ export const TOXIC_PLANTS: ToxicPlant[] = [
     onsetTime: "imediato no contato com seiva",
     imageUrl: null,
     notes: "Muito comum em calçadas e terrenos baldios no Nordeste. O látex é extremamente irritante.",
+    commonName_en: "Pencil cactus / Firestick plant",
+    toxicParts_en: ["latex (white sap)"],
+    symptoms_en: [
+      "burning in eyes and skin",
+      "conjunctivitis",
+      "temporary blindness",
+      "vomiting",
+      "diarrhea",
+      "drooling",
+    ],
+    onsetTime_en: "immediate on contact with sap",
+    notes_en: "Very common on sidewalks and vacant lots in Brazil's Northeast. The latex is extremely irritating.",
   },
   {
     slug: "sete-sangrias",
@@ -115,6 +191,10 @@ export const TOXIC_PLANTS: ToxicPlant[] = [
     symptoms: ["irritação gastrointestinal leve", "vômitos ocasionais"],
     onsetTime: "1 a 4 horas",
     imageUrl: null,
+    commonName_en: "Cuphea / Tarweed",
+    toxicParts_en: ["leaves", "flowers"],
+    symptoms_en: ["mild gastrointestinal irritation", "occasional vomiting"],
+    onsetTime_en: "1 to 4 hours",
   },
   {
     slug: "copo-de-leite",
@@ -131,6 +211,16 @@ export const TOXIC_PLANTS: ToxicPlant[] = [
     onsetTime: "imediato a 2 horas",
     imageUrl: null,
     notes: "Também contém cristais de oxalato de cálcio, como a comigo-ninguém-pode.",
+    commonName_en: "Calla lily",
+    toxicParts_en: ["all parts of the plant"],
+    symptoms_en: [
+      "intense burning in the mouth",
+      "excessive drooling",
+      "vomiting",
+      "difficulty swallowing",
+    ],
+    onsetTime_en: "immediate to 2 hours",
+    notes_en: "Also contains calcium oxalate crystals, like dumbcane.",
   },
   {
     slug: "boa-noite",
@@ -148,6 +238,17 @@ export const TOXIC_PLANTS: ToxicPlant[] = [
     onsetTime: "30 minutos a 3 horas",
     imageUrl: null,
     notes: "Muito comum em canteiros de rua e jardins no Brasil inteiro.",
+    commonName_en: "Madagascar periwinkle",
+    toxicParts_en: ["all parts of the plant"],
+    symptoms_en: [
+      "vomiting",
+      "diarrhea",
+      "neurological depression",
+      "tremors",
+      "seizures",
+    ],
+    onsetTime_en: "30 minutes to 3 hours",
+    notes_en: "Very common in street planters and gardens across Brazil.",
   },
   {
     slug: "samambaias-de-samambaia",
@@ -160,6 +261,12 @@ export const TOXIC_PLANTS: ToxicPlant[] = [
     imageUrl: null,
     notes:
       "A samambaia-preta (Pteridium) é a mais preocupante em terrenos baldios. A samambaia-aspargo (Asparagus) é comum em jardins.",
+    commonName_en: "Ferns (some species)",
+    toxicParts_en: ["young leaves", "shoots"],
+    symptoms_en: ["vomiting", "diarrhea", "lethargy"],
+    onsetTime_en: "2 to 6 hours",
+    notes_en:
+      "Bracken fern (Pteridium) is the biggest concern on vacant lots. Asparagus fern (Asparagus) is common in gardens.",
   },
   {
     slug: "primavera",
@@ -171,6 +278,11 @@ export const TOXIC_PLANTS: ToxicPlant[] = [
     onsetTime: "contato direto",
     imageUrl: null,
     notes: "O risco principal é o contato com a seiva — ingestão raramente causa sintomas graves.",
+    commonName_en: "Bougainvillea",
+    toxicParts_en: ["leaves", "sap"],
+    symptoms_en: ["mild skin irritation", "contact dermatitis"],
+    onsetTime_en: "direct contact",
+    notes_en: "The main risk is contact with the sap — ingestion rarely causes serious symptoms.",
   },
   {
     slug: "coroa-de-cristo",
@@ -187,6 +299,16 @@ export const TOXIC_PLANTS: ToxicPlant[] = [
     onsetTime: "imediato no contato com seiva",
     imageUrl: null,
     notes: "Muito presente em calçadas. Os espinhos também representam risco físico.",
+    commonName_en: "Crown of thorns",
+    toxicParts_en: ["latex (white sap)"],
+    symptoms_en: [
+      "burning in the mouth",
+      "drooling",
+      "vomiting",
+      "skin irritation",
+    ],
+    onsetTime_en: "immediate on contact with sap",
+    notes_en: "Very common on sidewalks. The thorns also pose a physical risk.",
   },
   {
     slug: "beladona-brasileira",
@@ -203,6 +325,16 @@ export const TOXIC_PLANTS: ToxicPlant[] = [
     ],
     onsetTime: "30 minutos a 2 horas",
     imageUrl: null,
+    commonName_en: "Brazilian raintree / Yesterday-today-and-tomorrow",
+    toxicParts_en: ["fruit", "flowers", "leaves", "stems"],
+    symptoms_en: [
+      "vomiting",
+      "muscle tremors",
+      "ataxia (loss of balance)",
+      "seizures",
+      "nystagmus (involuntary eye movement)",
+    ],
+    onsetTime_en: "30 minutes to 2 hours",
   },
 ];
 
@@ -214,4 +346,10 @@ export const TOXICITY_LABELS: Record<ToxicityLevel, { label: string; color: stri
   high: { label: "Alta toxicidade", color: "felines-emergency", emoji: "🔴" },
   moderate: { label: "Toxicidade moderada", color: "felines-warning", emoji: "🟠" },
   low: { label: "Baixa toxicidade", color: "felines-success", emoji: "🟡" },
+};
+
+export const TOXICITY_LABELS_EN: Record<ToxicityLevel, { label: string; color: string; emoji: string }> = {
+  high: { label: "High toxicity", color: "felines-emergency", emoji: "🔴" },
+  moderate: { label: "Moderate toxicity", color: "felines-warning", emoji: "🟠" },
+  low: { label: "Low toxicity", color: "felines-success", emoji: "🟡" },
 };

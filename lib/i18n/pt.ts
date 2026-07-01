@@ -76,6 +76,42 @@ export const pt = {
     footerAbout: "Saiba mais sobre esse produto",
   },
 
+  catsConflict: {
+    trigger: "Quer se livrar dos gatos da sua rua? Leia isso antes",
+    title: "Quer se livrar dos gatos? A gente entende.",
+    close: "Fechar",
+    intro:
+      "Cheiro de urina, miado de madrugada, arranhão no carro. Esses incômodos são reais e ninguém precisa aguentar em silêncio. Mas existe algo importante que a maioria não sabe antes de tentar resolver o problema:",
+    removalTitle: "🔄 Remover os gatos não funciona de verdade",
+    removalBody:
+      "Cidades inteiras já tentaram isso, em décadas diferentes, em vários países. O resultado foi sempre o mesmo: o território esvaziado atrai um grupo novo em poucos meses — geralmente maior e não castrado. Isso tem nome: {vacuumEffect}. Enquanto houver comida e abrigo no local, sempre haverá gatos.",
+    vacuumEffect: "efeito vácuo",
+    lawTitle: "⚖️ Maltratar é crime no Brasil",
+    lawBody:
+      "A Lei Sansão (Lei 14.064/2020) prevê pena de 2 a 5 anos de prisão por maus-tratos a cães e gatos — isso inclui envenenamento, agressão física e abandono em condição de sofrimento. Não é só o certo a fazer; é obrigação legal.",
+    worksTitle: "✅ O que realmente funciona",
+    worksBody:
+      "A castração em massa — método TNR (Captura, Castração, Devolução) — é a única estratégia que reduz a população de forma duradoura. Gatos castrados brigam menos, cheiram menos e o grupo para de crescer. Com o tempo, a colônia diminui naturalmente, sem conflito.",
+    worksSub:
+      "Muitos bairros já têm alguém cuidando da colônia perto de você. Falar com esse cuidador costuma resolver muito mais rápido do que uma reclamação formal.",
+    seeCaretakersOnMap: "Ver cuidadores no mapa",
+    readMoreVacuumEffect: "Ler mais sobre o efeito vácuo",
+  },
+
+  stories: {
+    pageTitle: "Histórias da comunidade",
+    pageSub: "Momentos especiais contados por quem cuida das colônias.",
+    empty: "Nenhuma história ainda. Seja a primeira pessoa a compartilhar um momento da sua colônia.",
+    emptyCta: "Ver colônias no mapa",
+    sortAll: "Todas",
+    sortRecent: "Mais recentes",
+    sortReactions: "Mais reações",
+    readMore: "Ler mais",
+    showLess: "Mostrar menos",
+    reactAria: "Reagir a essa história",
+    alreadyReactedAria: "Você já reagiu a essa história",
+  },
+
   reports: {
     title: "O que estão relatando",
     subtitle: "Relatos, recursos, histórias e contatos úteis da comunidade de cuidadores.",
@@ -195,6 +231,9 @@ export const pt = {
     waterError: "A água não foi registrada. Tenta de novo?",
     joinError: "Não foi possível te vincular como cuidador. Tenta de novo?",
     leaveError: "Não consegui te desvincular agora. Tenta de novo?",
+    feedingEventDesc: "Alguém alimentou a colônia.",
+    waterEventDesc: "Alguém trocou a água da colônia.",
+    newCaretakerEventDesc: "Um novo cuidador passou a olhar por essa colônia.",
     falsePinWarning:
       "⚠️ Essa colônia foi sinalizada por membros da comunidade. Confira as informações antes de visitar o local.",
     castration: {
@@ -207,6 +246,58 @@ export const pt = {
       stable: "🟡 Estável",
       needs_attention: "🟠 Precisa de atenção",
       at_risk: "🔴 Em risco",
+    },
+    statsTab: {
+      catsRegistered: "Gatos cadastrados",
+      catsCastrated: "Gatos castrados",
+      feedingCheckIns: "Check-ins de alimentação",
+      reportsSubmitted: "Relatos enviados",
+      reportsResolved: "Relatos resolvidos",
+      daysSinceRegistered: "Dias desde o cadastro",
+      currentCaretakers: "Cuidadores atuais",
+      timelineEvents: "Eventos na linha do tempo",
+      weatherEvents: "Eventos climáticos",
+      healthIndex: "Índice de saúde",
+      healthExplainer:
+        "Calculado automaticamente a partir de 5 fatores: frequência de alimentação registrada, avistamentos recentes dos gatos, porcentagem de castração, ausência de relatos graves abertos e cobertura de cuidadores. Atualizado a cada nova ação na colônia.",
+      factors: {
+        feeding: {
+          label: "Alimentação recente",
+          how: "Sobe com cada check-in de alimentação registrado nos últimos 30 dias. Chega a 30 com 10 ou mais check-ins no período.",
+        },
+        sighting: {
+          label: "Gatos vistos recentemente",
+          how: "Baseado em avistamentos e relatos de gatos nos últimos 7 dias. Chega a 25 quando pelo menos 3 gatos foram vistos no período.",
+        },
+        castration: {
+          label: "Taxa de castração",
+          how: "Proporcional ao percentual de gatos cadastrados que já foram castrados. 100% de castração vale 20 pontos.",
+        },
+        reports: {
+          label: "Ausência de relatos graves",
+          how: "Começa em 15. Perde pontos por cada relato grave (envenenamento, maus-tratos, surto de doença) ainda sem resolução.",
+        },
+        caretaker: {
+          label: "Cobertura de cuidadores",
+          how: "Vale 10 se a colônia tiver pelo menos um cuidador vinculado, 0 se não tiver nenhum.",
+        },
+      },
+      castrationSummary: "{castrated} de {total} gatos castrados ({percent}%)",
+      castrationFooter: "Colônias totalmente castradas estabilizam a população com o tempo.",
+      weeklyFeedingsTitle: "Check-ins de alimentação por semana",
+      monthlyReportsTitle: "Relatos por mês",
+      monthlyWeatherTitle: "Eventos climáticos por mês",
+      monthlyWeatherSub: "Calor extremo, frio extremo ou chuva forte registrados automaticamente.",
+      reportBreakdownTitle: "Tipos de relato mais comuns",
+      reportBreakdownEmpty: "Nenhum relato registrado ainda.",
+      neuteringRequestsTitle: "Pedidos de castração",
+      catSingular: "gato",
+      catPlural: "gatos",
+      status: {
+        completed: "Concluído",
+        in_progress: "Em andamento",
+        open: "Aberto",
+      },
     },
     caretakersLabel: "Quem cuida",
     cats: {
@@ -485,6 +576,11 @@ export const pt = {
   },
 
   profile: {
+    quizModalAriaLabel: "Quiz: que tipo de vizinho você é?",
+    someoneFromCommunity: "alguém da comunidade",
+    genericColonyName: "Colônia",
+    avatarUploadError: "A foto não subiu. Tenta de novo?",
+    avatarSaveError: "A foto não foi salva. Tenta de novo?",
     header: {
       nameLabel: "Nome de exibição",
       namePlaceholder: "Como você quer ser chamado",
@@ -588,8 +684,10 @@ export const pt = {
     close: "Fechar",
     learnMore: "Saiba mais",
     anonymous: "Anônimo",
+    anonymousCaretaker: "Cuidador anônimo",
     you: "Você",
     community: "Alguém da comunidade",
+    backHome: "← Início",
     searchPlaceholder: "Buscar colônias, artigos, termos do glossário...",
     searchLabel: "Campo de busca",
     searchAriaLabel: "Buscar",
@@ -829,11 +927,185 @@ export const pt = {
     need_help: "Preciso de ajuda com transporte",
   },
 
+  resourceTypes: {
+    food_supplies: "Comida / suprimentos",
+    equipment: "Equipamento (caixas, potes, abrigos)",
+    transport: "Transporte",
+    medication: "Medicamento / suprimentos veterinários",
+    volunteer_time: "Tempo voluntário",
+    other: "Outro",
+  },
+
   map: {
     quizButton: "Não sabe o que está vendo?",
+    castrationNone: "Nenhum gato castrado",
+    castrationNoneYet: "Nenhum gato castrado ainda",
+    castrationPartial: "Castração parcial",
+    castrationFull: "Colônia totalmente castrada",
+    castrationAll: "Todos os gatos castrados",
+    castrationXOfY: "{castrated} de {total} gatos castrados",
+    pinTypeColonies: "Colônias",
+    pinTypeSightings: "Avistamentos",
+    pinTypeEmergencies: "Emergências",
+    flaggedPin: "⚠️ Pin sinalizado",
+    castrationPending: "✂️ Castração pendente",
+    unverified: "Não verificada",
+    searchColonyLabel: "Buscar colônia pelo nome",
+    searchColonyPlaceholder: "Buscar colônia pelo nome",
+    unmappedSightingMain: "Pessoas avistaram gatos aqui, mas ninguém mapeou uma colônia ainda. Será que você pode ser essa pessoa?",
+    registerColonyCta: "Cadastrar uma colônia",
+    noColonyMappedMain: "Nenhuma colônia mapeada aqui ainda — mas isso não significa que não existam.",
+    learnWhatToLookFor: "Não tem certeza? Aprenda o que procurar primeiro",
+    manyCatsSeenHere: "Vários gatos foram avistados aqui.",
+    unregisteredColonyHint: "Isso pode ser uma colônia ainda não registrada.",
+    registerColonyHereCta: "Cadastrar uma colônia aqui",
+    thanksForConfirming: "Obrigado por confirmar!",
+    alsoSawCatsHere: "Também vi gatos aqui",
+    sending: "Enviando...",
+    urgentHelp: "🆘 Ajuda urgente",
+    heatMapLegend: "🟠 com relato aberto ou sem alimentação há 7+ dias · 🔴 os dois ao mesmo tempo",
+    showAttentionColonies: "Mostrar colônias que precisam de atenção",
+    hideAttentionColonies: "Ocultar colônias que precisam de atenção",
+    hideActivityListAria: "Ocultar lista de atividades",
+    showActivityListAria: "Mostrar lista de atividades",
+    hideList: "Ocultar lista",
+    showList: "Mostrar lista",
+    beFirstToMap: "Viu gatos por aqui? Seja o primeiro a mapear",
+    needsHelp: "🙋 Precisa de ajuda",
+    showColonyHealth: "Mostrar saúde da colônia",
+    hideColonyHealth: "Ocultar saúde da colônia",
+    activityInArea: "Atividade nesta área",
+    moveToUpdateList: "Mova ou dê zoom no mapa para atualizar a lista.",
+    noneVisibleInArea: "Nenhuma colônia ou relato visível nesta área do mapa.",
+  },
+
+  quiz: {
+    yourProfile: "Seu perfil",
+    suggestedFirstAction: "Primeira ação sugerida: {action}",
+    seeIfNearYou: "Agora que você já sabe o que é uma colônia, quer ver se existe uma perto de você?",
+    seeMap: "Ver o mapa",
+    heading: "Que tipo de vizinho você é?",
+    noWrongAnswer: "Não existe resposta errada — isso é só pra te ajudar a achar seu primeiro passo.",
+    back: "← Voltar",
+    seeMyProfile: "Ver meu perfil",
+    doItLater: "Fazer isso depois",
+  },
+
+  sightingReportButton: {
+    thankYouOwnerNotified: "Obrigado! O dono será avisado.",
+    trigger: "Avistei esse gato",
+    whereYouSaw: "Onde você viu",
+    notePlaceholder: "Nota (opcional)",
+    descriptionWithNote: "Possível avistamento do gato perdido: {note}",
+    descriptionNoNote: "Possível avistamento do gato perdido.",
+  },
+
+  locationBlur: {
+    signIn: "Entre para ver mais perto",
+    becomeCaretaker: "Torne-se cuidador para ver a localização exata",
+  },
+
+  flag: {
+    reasons: {
+      fake_location: "Localização falsa",
+      harmful_content: "Conteúdo nocivo",
+      spam: "Spam",
+      other: "Outro",
+    },
+    submitted: "Sinalização enviada.",
+    trigger: "Sinalizar",
+    reasonLabel: "Por que você está sinalizando isso?",
+    detailsAriaLabel: "Detalhes adicionais da denúncia",
+    detailsPlaceholder: "Detalhes (opcional)",
+    cancel: "Cancelar",
+  },
+
+  share: {
+    copied: "Link copiado!",
+    trigger: "Compartilhar",
+  },
+
+  follow: {
+    following: "Seguindo ✓",
+    follow: "Seguir essa colônia",
+    followerSingular: "pessoa seguindo",
+    followerPlural: "pessoas seguindo",
+  },
+
+  helpRequestBanner: {
+    needsHelp: "Essa colônia precisa de ajuda:",
+    canHelp: "Eu posso ajudar",
+    caretakerNotified: "Cuidador avisado ✓",
+    helpReceived: "Ajuda recebida ✓",
+    renew: "Renovar por mais 7 dias",
+  },
+
+  articleNotFound: {
+    heading: "Ainda não escrevemos sobre isso — mas gostaríamos.",
+    prompt: "O que você quer saber?",
+    exploreCta: "Explorar o que já temos",
+  },
+
+  createAccountInvite: {
+    prompt: "Quer acompanhar esse relato depois?",
+    cta: "Crie uma conta",
+    suffix: "— é rápido e não é obrigatório.",
+  },
+
+  thankYou: {
+    aNeighbor: "Um vizinho",
+    thanked: "agradeceu",
+    forCaringSuffix: "por cuidar dessa colônia",
+    thankedDone: "Agradecido ✓",
+    sending: "Enviando...",
+    thankAction: "Agradecer",
+  },
+
+  verifyColony: {
+    communityVerified: "✓ Verificada pela comunidade",
+    verifiedOn: "em {date}",
+    awaitingVerification: "Aguardando verificação da comunidade",
+    iSawCatsHere: "Eu já vi gatos aqui ✓",
+    alreadyConfirmed: "Você já confirmou ✓",
+    confirmationsCount: "({count}/3 confirmações)",
+  },
+
+  markCatSeen: {
+    thanks: "Obrigado por avisar!",
+    sawCatToday: "Vi {catName} hoje",
+    sending: "Enviando...",
+  },
+
+  milestones: {
+    heading: "Milestones",
+    comingSoon: "Em breve",
+    colonyRegistered: "Colônia cadastrada",
+    firstCaretaker: "Primeiro cuidador",
+    firstCat: "Primeiro gato cadastrado",
+    firstCatNamed: "Primeiro gato nomeado",
+    firstCastration: "Primeira castração",
+    firstThankYou: "Primeiro agradecimento",
+    firstTimelinePhoto: "Primeira foto na linha do tempo",
+    yearsSingular: "{years} ano de colônia",
+    yearsPlural: "{years} anos de colônia",
+    fiveCatsRegistered: "5 gatos cadastrados",
+    tenCheckIns: "10 check-ins registrados",
+    firstReportResolved: "Primeiro relato resolvido",
   },
 
   contacts: {
+    pageTitle: "Contatos úteis",
+    pageDescription:
+      "Clínicas, ONGs, abrigos e grupos de resgate cadastrados pela comunidade. Se você conhece um contato que ainda não está aqui, adicione.",
+    categories: {
+      vet: "Clínica veterinária",
+      shelter: "Abrigo",
+      ngo: "ONG",
+      rescue: "Grupo de resgate",
+      transport: "Transporte de animais",
+      legal: "Apoio jurídico",
+      general: "Contato geral",
+    },
     filterPlaceholder: "Filtrar por cidade…",
     newContactBtn: "+ Cadastrar contato",
     cancelBtn: "Cancelar",
@@ -854,6 +1126,9 @@ export const pt = {
   },
 
   newColony: {
+    pageLabel: "Nova colônia",
+    pageTitle: "Coloque essa colônia no mapa",
+    pageSub: "Com isso, qualquer vizinho consegue encontrar e ajudar a cuidar dela também.",
     validationLegend: "Antes de continuar, 4 perguntas rápidas",
     q1: "Tem mais de um gato nesse lugar?",
     q2: "Você vê eles ali com frequência, sempre no mesmo lugar?",
@@ -927,5 +1202,114 @@ export const pt = {
     hoursAgo: "{count} hora atrás",
     hoursAgoPlural: "{count} horas atrás",
     justNow: "agora mesmo",
+  },
+
+  plants: {
+    backHome: "← Início",
+    title: "Plantas tóxicas para gatos",
+    description:
+      "Muitas plantas comuns em calçadas, praças e terrenos baldios no Brasil podem intoxicar gatos — especialmente filhotes curiosos. Esta página é um guia rápido de identificação e primeiros sinais de intoxicação.",
+    poisoningWarningTitle: "Em caso de suspeita de intoxicação:",
+    poisoningWarningBody:
+      "leve o gato a um veterinário o mais rápido possível. Não induza vômito sem orientação profissional. Se souber o nome da planta, leve uma amostra ou foto.",
+    legendLabel: "Legenda:",
+    toxicityHigh: "Alta toxicidade",
+    toxicityModerate: "Toxicidade moderada",
+    toxicityLow: "Baixa toxicidade",
+    toxicPartsLabel: "Partes tóxicas",
+    symptomsLabel: "Sintomas",
+    onsetLabel: "Início dos sintomas",
+    illustrationAlt: "Ilustração de {name}",
+    disclaimerTitle: "Esta lista não é exaustiva.",
+    disclaimerBody: "O Brasil tem centenas de espécies tóxicas. Sempre que tiver dúvida sobre uma planta, consulte um médico-veterinário. Em casos de emergência, o",
+    disclaimerLink: "guia de contatos",
+    disclaimerSuffix: "tem clínicas e ONGs cadastradas na sua cidade.",
+  },
+
+  curso: {
+    backToProfile: "← Meu perfil",
+    title: "Cuidador Preparado",
+    subtitlePrefix: "5 artigos curtos + 1 quiz. Quem termina ganha o badge",
+    badgeName: "🎓 Cuidador Preparado",
+    subtitleSuffix: "no perfil público.",
+    loadingProgress: "Carregando seu progresso…",
+    alreadyCertifiedTitle: "🎓 Você já tem a certificação Cuidador Preparado!",
+    alreadyCertifiedBody: "O badge já aparece no seu perfil público.",
+    modulesHeading: "Módulos",
+    readDone: "Lido ✓",
+    readCta: "Ler",
+    startQuiz: "Fazer o quiz final",
+    unlockQuizHint: "Leia todos os {count} módulos para desbloquear o quiz.",
+    loginPrompt: "Faça login",
+    loginPromptSuffix: "para salvar seu progresso e ganhar o badge ao terminar.",
+    questionCounter: "Pergunta {current} de {total}",
+    back: "← Voltar",
+    seeResult: "Ver resultado",
+    savingResult: "Salvando…",
+    passedTitle: "Você é um Cuidador Preparado!",
+    passedBody: "{score} de {total} respostas corretas. Badge adicionado ao seu perfil.",
+    seeProfile: "Ver meu perfil",
+    failedTitle: "Quase lá! {score} de {total} corretas.",
+    failedBody: "Precisamos de pelo menos {passing} acertos. Revise os módulos e tente de novo.",
+    tryAgain: "Tentar novamente",
+  },
+
+  standaloneQuiz: {
+    questions: "perguntas",
+    previous: "Anterior",
+    next: "Próxima",
+    seeResult: "Ver resultado",
+    passed: "Boa! Você passou.",
+    almostThere: "Quase lá — tente de novo!",
+    answerPrefix: "Resposta:",
+    tryAgain: "Tentar novamente",
+  },
+
+  quizContent: {
+    q1: {
+      question: "Quando você vê gatos na sua rua, qual é a sua primeira sensação?",
+      options: {
+        0: "Curiosidade — eu fico pensando quem cuida deles",
+        1: "Preocupação — eu me preocupo com o bem-estar deles",
+        2: "Incômodo — eles causam problemas no meu prédio",
+        3: "Neutro — nunca tinha pensado muito nisso",
+      },
+    },
+    q2: {
+      question: "Quanto tempo você poderia dedicar de verdade?",
+      options: {
+        0: "Posso passar por ali e ver como eles estão de vez em quando",
+        1: "Posso ajudar quando alguém precisar de um apoio",
+        2: "Estou pronto para assumir um papel regular",
+      },
+    },
+    q3: {
+      question: "O que parece mais natural pra você?",
+      options: {
+        0: "Aprender mais antes de fazer qualquer coisa",
+        1: "Fazer uma pequena ação agora mesmo",
+        2: "Me conectar com quem já está ajudando",
+      },
+    },
+    profiles: {
+      observer: {
+        title: "O Observador",
+        description:
+          "Você prefere entender antes de agir. Isso já é um ótimo primeiro passo — quem observa com atenção é quem nota quando algo realmente precisa de ajuda.",
+        firstAction: "Comece dando uma olhada no mapa pra ver quais colônias já estão mapeadas perto de você.",
+      },
+      backup: {
+        title: "O Apoio",
+        description:
+          "Você não precisa adotar uma colônia inteira pra fazer diferença. Um apoio pontual, na hora certa, já ajuda bastante quem está cuidando todos os dias.",
+        firstAction: "Apoie um cuidador que já existe: registre um relato quando notar algo, ou ofereça ração quando puder.",
+      },
+      guardian: {
+        title: "O Guardião",
+        description:
+          "Você está pronto pra um papel mais constante. E colônias inteiras só se sustentam porque alguém topa fazer exatamente isso.",
+        firstAction: "Veja as colônias já mapeadas e veja se alguma delas faz sentido pra você cuidar.",
+      },
+    },
   },
 };

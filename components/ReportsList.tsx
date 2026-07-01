@@ -163,7 +163,7 @@ export default function ReportsList() {
             const report = (flaggedReports ?? []).find((row) => row.id === flag.target_id);
             return {
               ...flag,
-              targetLabel: report ? `${t("reportStatus.reportLabel")} ${getReportTypeLabel(report.type)}` : t("reportStatus.reportLabel"),
+              targetLabel: report ? `${t("reportStatus.reportLabel")} ${getReportTypeLabel(report.type, t)}` : t("reportStatus.reportLabel"),
               targetHref: `#report-${flag.target_id}`,
             };
           })
@@ -242,7 +242,7 @@ export default function ReportsList() {
       await supabase.from("timeline_events").insert({
         colony_id: resolvedReport.colony_id,
         event_type: "report_resolved",
-        description: `Relato sensível (${getReportTypeLabel(resolvedReport.type)}) resolvido manualmente.`,
+        description: `Relato sensível (${getReportTypeLabel(resolvedReport.type, t)}) resolvido manualmente.`,
         created_by: session.user.id,
       });
     }
@@ -291,7 +291,7 @@ export default function ReportsList() {
           <option value="all">{t("reportTypes.all")}</option>
           {REPORT_TYPES.map((reportType) => (
             <option key={reportType.value} value={reportType.value}>
-              {reportType.label}
+              {getReportTypeLabel(reportType.value, t)}
             </option>
           ))}
         </select>
@@ -342,13 +342,13 @@ export default function ReportsList() {
                       // eslint-disable-next-line @next/next/no-img-element
                       <img
                         src={report.photo_url}
-                        alt={getReportTypeLabel(report.type)}
+                        alt={getReportTypeLabel(report.type, t)}
                         className="h-16 w-16 flex-shrink-0 rounded-lg object-cover"
                       />
                     )}
                     <div>
                       <p className="font-semibold text-felines-text-primary">
-                        {getReportTypeLabel(report.type)}
+                        {getReportTypeLabel(report.type, t)}
                         {report.sensitive && (
                           <span className="ml-2 text-xs font-normal text-felines-emergency">
                             {t("reportStatus.sensitive")}
@@ -463,7 +463,7 @@ export default function ReportsList() {
                   ) : (
                     flag.targetLabel
                   )}{" "}
-                  · {getFlagReasonLabel(flag.reason)}
+                  · {getFlagReasonLabel(flag.reason, t)}
                 </p>
                 {flag.details && (
                   <p className="mt-1 text-felines-text-secondary">{flag.details}</p>

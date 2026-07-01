@@ -5,8 +5,7 @@
 // ShareStoryButton on the colony page, gated by RLS on insert).
 import type { Metadata } from "next";
 import { supabase } from "@/lib/supabaseClient";
-import StoriesGrid from "@/components/StoriesGrid";
-import EmptyState from "@/components/EmptyState";
+import StoriesPageClient from "@/components/StoriesPageClient";
 
 export const dynamic = "force-dynamic";
 
@@ -31,7 +30,7 @@ export type StoryWithMeta = {
   photoUrl: string | null;
   anonymous: boolean;
   authorId: string;
-  authorName: string;
+  authorDisplayName: string | null;
   createdAt: string;
   reactionCount: number;
 };
@@ -43,19 +42,7 @@ export default async function StoriesPage() {
     .order("created_at", { ascending: false });
 
   if (!storyRows || storyRows.length === 0) {
-    return (
-      <div className="mx-auto max-w-2xl px-4 py-16 sm:px-6">
-        <h1 className="text-2xl font-bold text-felines-text-primary sm:text-3xl">
-          Histórias da comunidade
-        </h1>
-        <div className="mt-8">
-          <EmptyState
-            main="Nenhuma história ainda. Seja a primeira pessoa a compartilhar um momento da sua colônia."
-            ctas={[{ label: "Ver colônias no mapa", href: "/map" }]}
-          />
-        </div>
-      </div>
-    );
+    return <StoriesPageClient stories={[]} />;
   }
 
   const colonyIds = Array.from(new Set(storyRows.map((row) => row.colony_id)));
@@ -86,21 +73,11 @@ export default async function StoriesPage() {
       photoUrl: row.photo_url,
       anonymous: row.anonymous,
       authorId: row.created_by,
-      authorName: row.anonymous ? "Cuidador anônimo" : profile?.display_name || "Alguém da comunidade",
+      authorDisplayName: row.anonymous ? null : profile?.display_name || null,
       createdAt: row.created_at,
       reactionCount: reactionCounts.get(row.id) ?? 0,
     };
   });
 
-  return (
-    <div className="mx-auto max-w-5xl px-4 py-16 sm:px-6">
-      <h1 className="text-2xl font-bold text-felines-text-primary sm:text-3xl">
-        Histórias da comunidade
-      </h1>
-      <p className="mt-2 text-base text-felines-text-secondary">
-        Momentos especiais contados por quem cuida das colônias.
-      </p>
-      <StoriesGrid stories={stories} />
-    </div>
-  );
+  return <StoriesPageClient stories={stories} />;
 }

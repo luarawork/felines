@@ -11,8 +11,10 @@ import MapShell from "@/components/MapShell";
 import WeatherBanner from "@/components/WeatherBanner";
 import NeighborhoodQuizButton from "@/components/NeighborhoodQuizButton";
 import { NATAL_COORDS } from "@/lib/weather";
+import { useLanguage } from "@/lib/i18n";
 
 export default function MapPageClient() {
+  const { t } = useLanguage();
   const [mapCenter, setMapCenter] = useState<{ lat: number; lon: number }>({
     lat: NATAL_COORDS.lat,
     lon: NATAL_COORDS.lon,
@@ -39,7 +41,7 @@ export default function MapPageClient() {
       <div className="absolute bottom-6 right-6 z-[1000]">
         <NeighborhoodQuizButton
           triggerClassName="rounded-full border border-felines-border bg-white px-4 py-2.5 text-sm font-medium text-felines-text-secondary shadow-lg transition-colors hover:border-felines-accent hover:text-felines-accent"
-          triggerLabel="Não sabe o que está vendo?"
+          triggerLabel={t("map.quizButton")}
         />
       </div>
     </div>

@@ -1,13 +1,10 @@
 // Shared labels for neutering_requests, matching the database check
-// constraints.
-export const URGENCY_LABELS: Record<string, string> = {
-  low: "Baixa",
-  medium: "Média",
-  high: "Alta",
-};
+// constraints. Labels live in lib/i18n/pt.ts and lib/i18n/en.ts under
+// `urgency` and `transport`.
+export function getUrgencyLabel(value: string, t: (key: string) => string): string {
+  return t(`urgency.${value}`);
+}
 
-export const TRANSPORT_LABELS: Record<string, string> = {
-  yes: "Tenho transporte",
-  no: "Não tenho transporte",
-  need_help: "Preciso de ajuda com transporte",
-};
+export function getTransportLabel(value: string, t: (key: string) => string): string {
+  return t(`transport.${value}`);
+}

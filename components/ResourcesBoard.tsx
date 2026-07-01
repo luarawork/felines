@@ -215,7 +215,7 @@ export default function ResourcesBoard() {
           >
             {RESOURCE_CATEGORIES.map((option) => (
               <option key={option.value} value={option.value}>
-                {option.icon} {option.label}
+                {option.icon} {getResourceCategoryLabel(option.value, t)}
               </option>
             ))}
           </select>
@@ -278,7 +278,7 @@ export default function ResourcesBoard() {
                 <span className="text-xs text-felines-text-secondary">{timeAgo(post.created_at, t)}</span>
               </div>
               <p className="mt-2 font-semibold text-felines-text-primary">{post.title}</p>
-              <p className="text-xs text-felines-text-secondary">{getResourceCategoryLabel(post.category)}</p>
+              <p className="text-xs text-felines-text-secondary">{getResourceCategoryLabel(post.category, t)}</p>
               <p className="mt-1 text-sm text-felines-text-secondary">{post.description}</p>
               {post.location_hint && (
                 <p className="mt-1 text-xs text-felines-text-secondary">📍 {post.location_hint}</p>

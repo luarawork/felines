@@ -1,4 +1,4 @@
-﻿// /curso — "Cuidador Preparado" mini-course.
+// /curso — "Cuidador Preparado" mini-course.
 // 5 existing learn articles in a fixed order + a 5-question quiz.
 // Article completion is tracked via the existing knowledge_progress
 // table. Certification is written by earn_caretaker_certification()
@@ -9,11 +9,22 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient";
-import { COURSE_MODULES, COURSE_QUIZ, PASSING_SCORE } from "@/lib/caretakerCourse";
+import {
+  COURSE_MODULES,
+  COURSE_QUIZ,
+  PASSING_SCORE,
+  localizeCourseModules,
+  localizeQuestions,
+} from "@/lib/caretakerCourse";
+import { useLanguage } from "@/lib/i18n";
 
 type Phase = "modules" | "quiz" | "result";
 
 export default function CursoPage() {
+  const { t, language } = useLanguage();
+  const courseModules = localizeCourseModules(COURSE_MODULES, language);
+  const courseQuiz = localizeQuestions(COURSE_QUIZ, language);
+
   const [readSlugs, setReadSlugs] = useState<Set<string>>(new Set());
   const [certified, setCertified] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -21,12 +32,12 @@ export default function CursoPage() {
 
   // Quiz state
   const [phase, setPhase] = useState<Phase>("modules");
-  const [answers, setAnswers] = useState<(number | null)[]>(COURSE_QUIZ.map(() => null));
+  const [answers, setAnswers] = useState<(number | null)[]>(courseQuiz.map(() => null));
   const [currentQ, setCurrentQ] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const [score, setScore] = useState<number | null>(null);
 
-  const allModulesRead = COURSE_MODULES.every((m) => readSlugs.has(m.articleSlug));
+  const allModulesRead = courseModules.every((m) => readSlugs.has(m.articleSlug));
 
   useEffect(() => {
     async function load() {
@@ -67,7 +78,7 @@ export default function CursoPage() {
     next[currentQ] = optionIndex;
     setAnswers(next);
 
-    if (currentQ < COURSE_QUIZ.length - 1) {
+    if (currentQ < courseQuiz.length - 1) {
       setTimeout(() => setCurrentQ((q) => q + 1), 200);
     }
   }
@@ -75,7 +86,7 @@ export default function CursoPage() {
   async function handleSubmitQuiz() {
     const correct = answers.reduce<number>(
       (total, answer, index) =>
-        answer === COURSE_QUIZ[index].correctIndex ? total + 1 : total,
+        answer === courseQuiz[index].correctIndex ? total + 1 : total,
       0
     );
     setScore(correct);
@@ -92,7 +103,7 @@ export default function CursoPage() {
   if (loading) {
     return (
       <div className="mx-auto max-w-2xl px-4 py-20 text-center text-sm text-felines-text-secondary">
-        Carregando seu progresso…
+        {t("curso.loadingProgress")}
       </div>
     );
   }
@@ -100,34 +111,27 @@ export default function CursoPage() {
   return (
     <div className="mx-auto max-w-2xl px-4 py-12 sm:px-6">
       <Link href="/profile" className="text-sm text-felines-text-secondary hover:text-felines-accent">
-        ← Meu perfil
+        {t("curso.backToProfile")}
       </Link>
 
-      <h1 className="mt-4 text-3xl font-bold text-felines-text-primary">
-        Cuidador Preparado
-      </h1>
+      <h1 className="mt-4 text-3xl font-bold text-felines-text-primary">{t("curso.title")}</h1>
       <p className="mt-2 text-base text-felines-text-secondary">
-        5 artigos curtos + 1 quiz. Quem termina ganha o badge{" "}
-        <strong>🎓 Cuidador Preparado</strong> no perfil público.
+        {t("curso.subtitlePrefix")} <strong>{t("curso.badgeName")}</strong> {t("curso.subtitleSuffix")}
       </p>
 
       {certified && (
         <div className="mt-4 rounded-xl border border-felines-success/30 bg-felines-success/10 px-5 py-4">
-          <p className="font-semibold text-felines-success">
-            🎓 Você já tem a certificação Cuidador Preparado!
-          </p>
-          <p className="mt-1 text-sm text-felines-text-secondary">
-            O badge já aparece no seu perfil público.
-          </p>
+          <p className="font-semibold text-felines-success">{t("curso.alreadyCertifiedTitle")}</p>
+          <p className="mt-1 text-sm text-felines-text-secondary">{t("curso.alreadyCertifiedBody")}</p>
         </div>
       )}
 
       {/* Modules list */}
       {(phase === "modules" || certified) && (
         <section className="mt-8">
-          <h2 className="text-lg font-semibold text-felines-text-primary">Módulos</h2>
+          <h2 className="text-lg font-semibold text-felines-text-primary">{t("curso.modulesHeading")}</h2>
           <ol className="mt-4 space-y-3">
-            {COURSE_MODULES.map((mod) => {
+            {courseModules.map((mod) => {
               const done = readSlugs.has(mod.articleSlug);
               return (
                 <li key={mod.articleSlug}>
@@ -155,7 +159,7 @@ export default function CursoPage() {
                       </div>
                     </div>
                     <span className="text-xs text-felines-text-secondary">
-                      {done ? "Lido ✓" : "Ler"}
+                      {done ? t("curso.readDone") : t("curso.readCta")}
                     </span>
                   </Link>
                 </li>
@@ -170,16 +174,16 @@ export default function CursoPage() {
                   onClick={() => {
                     setPhase("quiz");
                     setCurrentQ(0);
-                    setAnswers(COURSE_QUIZ.map(() => null));
+                    setAnswers(courseQuiz.map(() => null));
                     setScore(null);
                   }}
                   className="rounded-full bg-felines-accent px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-felines-accent-hover"
                 >
-                  Fazer o quiz final
+                  {t("curso.startQuiz")}
                 </button>
               ) : (
                 <p className="text-sm text-felines-text-secondary">
-                  Leia todos os {COURSE_MODULES.length} módulos para desbloquear o quiz.
+                  {t("curso.unlockQuizHint").replace("{count}", String(courseModules.length))}
                 </p>
               )}
             </div>
@@ -188,9 +192,9 @@ export default function CursoPage() {
           {!userId && (
             <p className="mt-5 text-sm text-felines-text-secondary">
               <Link href="/login" className="font-medium text-felines-accent-hover hover:underline">
-                Faça login
+                {t("curso.loginPrompt")}
               </Link>{" "}
-              para salvar seu progresso e ganhar o badge ao terminar.
+              {t("curso.loginPromptSuffix")}
             </p>
           )}
         </section>
@@ -200,7 +204,7 @@ export default function CursoPage() {
       {phase === "quiz" && (
         <section className="mt-8">
           <div className="mb-4 flex gap-1.5">
-            {COURSE_QUIZ.map((_, i) => (
+            {courseQuiz.map((_, i) => (
               <span
                 key={i}
                 className={`h-1.5 flex-1 rounded-full transition-colors ${
@@ -212,13 +216,15 @@ export default function CursoPage() {
 
           <div className="rounded-xl border border-felines-border bg-felines-surface p-6">
             <p className="text-xs font-semibold uppercase tracking-wide text-felines-text-secondary">
-              Pergunta {currentQ + 1} de {COURSE_QUIZ.length}
+              {t("curso.questionCounter")
+                .replace("{current}", String(currentQ + 1))
+                .replace("{total}", String(courseQuiz.length))}
             </p>
             <p className="mt-2 text-base font-medium text-felines-text-primary">
-              {COURSE_QUIZ[currentQ].question}
+              {courseQuiz[currentQ].question}
             </p>
             <div className="mt-4 space-y-2">
-              {COURSE_QUIZ[currentQ].options.map((option, optIndex) => (
+              {courseQuiz[currentQ].options.map((option, optIndex) => (
                 <button
                   key={optIndex}
                   type="button"
@@ -240,17 +246,17 @@ export default function CursoPage() {
                   onClick={() => setCurrentQ((q) => q - 1)}
                   className="text-sm text-felines-text-secondary hover:text-felines-accent"
                 >
-                  ← Voltar
+                  {t("curso.back")}
                 </button>
               )}
-              {currentQ === COURSE_QUIZ.length - 1 &&
+              {currentQ === courseQuiz.length - 1 &&
                 answers.every((a) => a !== null) && (
                   <button
                     onClick={handleSubmitQuiz}
                     disabled={submitting}
                     className="rounded-full bg-felines-accent px-5 py-2 text-sm font-semibold text-white disabled:opacity-50"
                   >
-                    {submitting ? "Salvando…" : "Ver resultado"}
+                    {submitting ? t("curso.savingResult") : t("curso.seeResult")}
                   </button>
                 )}
             </div>
@@ -265,37 +271,41 @@ export default function CursoPage() {
             <div className="rounded-xl border border-felines-success/30 bg-felines-success/10 p-7 text-center">
               <p className="text-5xl">🎓</p>
               <h2 className="mt-3 text-2xl font-bold text-felines-text-primary">
-                Você é um Cuidador Preparado!
+                {t("curso.passedTitle")}
               </h2>
               <p className="mt-2 text-base text-felines-text-secondary">
-                {score} de {COURSE_QUIZ.length} respostas corretas. Badge adicionado ao seu perfil.
+                {t("curso.passedBody")
+                  .replace("{score}", String(score))
+                  .replace("{total}", String(courseQuiz.length))}
               </p>
               <Link
                 href="/profile"
                 className="mt-5 inline-block rounded-full bg-felines-success px-6 py-2.5 text-sm font-semibold text-white"
               >
-                Ver meu perfil
+                {t("curso.seeProfile")}
               </Link>
             </div>
           ) : (
             <div className="rounded-xl border border-felines-border bg-felines-surface p-7 text-center">
               <p className="text-5xl">📚</p>
               <h2 className="mt-3 text-xl font-bold text-felines-text-primary">
-                Quase lá! {score} de {COURSE_QUIZ.length} corretas.
+                {t("curso.failedTitle")
+                  .replace("{score}", String(score))
+                  .replace("{total}", String(courseQuiz.length))}
               </h2>
               <p className="mt-2 text-sm text-felines-text-secondary">
-                Precisamos de pelo menos {PASSING_SCORE} acertos. Revise os módulos e tente de novo.
+                {t("curso.failedBody").replace("{passing}", String(PASSING_SCORE))}
               </p>
               <button
                 onClick={() => {
                   setPhase("quiz");
                   setCurrentQ(0);
-                  setAnswers(COURSE_QUIZ.map(() => null));
+                  setAnswers(courseQuiz.map(() => null));
                   setScore(null);
                 }}
                 className="mt-4 rounded-full border border-felines-border px-5 py-2 text-sm font-medium text-felines-text-secondary hover:border-felines-accent hover:text-felines-accent"
               >
-                Tentar novamente
+                {t("curso.tryAgain")}
               </button>
             </div>
           )}

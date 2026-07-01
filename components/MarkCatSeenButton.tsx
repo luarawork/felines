@@ -6,6 +6,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
+import { useLanguage } from "@/lib/i18n";
 
 export default function MarkCatSeenButton({
   catId,
@@ -17,6 +18,7 @@ export default function MarkCatSeenButton({
   colonyId: string;
 }) {
   const router = useRouter();
+  const { t } = useLanguage();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(false);
@@ -43,7 +45,7 @@ export default function MarkCatSeenButton({
   }
 
   if (done) {
-    return <p className="mt-1 text-xs text-felines-success">Obrigado por avisar!</p>;
+    return <p className="mt-1 text-xs text-felines-success">{t("markCatSeen.thanks")}</p>;
   }
 
   if (!isLoggedIn) return null;
@@ -54,7 +56,7 @@ export default function MarkCatSeenButton({
       disabled={submitting}
       className="mt-1 text-xs font-medium text-felines-accent hover:text-felines-accent-hover disabled:opacity-50"
     >
-      {submitting ? "Enviando..." : `Vi ${catName} hoje`}
+      {submitting ? t("markCatSeen.sending") : t("markCatSeen.sawCatToday").replace("{catName}", catName)}
     </button>
   );
 }

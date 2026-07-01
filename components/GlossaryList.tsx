@@ -6,17 +6,23 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import type { GlossaryTerm } from "@/lib/glossary";
-import { getArticleBySlug } from "@/lib/articles";
+import { localizeGlossaryTerm } from "@/lib/glossary";
+import { getArticleBySlug, localizeArticle } from "@/lib/articles";
 import FactChip from "@/components/FactChip";
 import { useLanguage } from "@/lib/i18n";
 
 export default function GlossaryList({ terms }: { terms: GlossaryTerm[] }) {
   const [search, setSearch] = useState("");
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+
+  const localizedTerms = useMemo(
+    () => terms.map((term) => localizeGlossaryTerm(term, language)),
+    [terms, language]
+  );
 
   const sortedTerms = useMemo(
-    () => [...terms].sort((a, b) => a.term.localeCompare(b.term, "pt-BR")),
-    [terms]
+    () => [...localizedTerms].sort((a, b) => a.term.localeCompare(b.term, language === "en" ? "en" : "pt-BR")),
+    [localizedTerms, language]
   );
 
   const filteredTerms = useMemo(() => {
@@ -84,13 +90,14 @@ export default function GlossaryList({ terms }: { terms: GlossaryTerm[] }) {
                     {item.relatedArticleSlugs.map((slug) => {
                       const article = getArticleBySlug(slug);
                       if (!article) return null;
+                      const localizedArticle = localizeArticle(article, language);
                       return (
                         <Link
                           key={slug}
                           href={`/learn/${slug}`}
                           className="text-sm font-medium text-felines-accent-hover"
                         >
-                          {article.title}
+                          {localizedArticle.title}
                         </Link>
                       );
                     })}

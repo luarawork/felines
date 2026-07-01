@@ -2,13 +2,15 @@
 // existing `flags` table (target_type: "colony") instead of a new
 // table, since flags already supports exactly this shape (reason,
 // optional details, optional anonymous created_by).
-export const FALSE_PIN_REASONS: { value: string; label: string }[] = [
-  { value: "never_seen_cats", label: "Nunca vi gatos aqui" },
-  { value: "location_doesnt_exist", label: "Esse local não existe" },
-  { value: "duplicate_colony", label: "Parece duplicado de outra colônia" },
-  { value: "suspicious_harmful", label: "Conteúdo suspeito ou nocivo" },
+// Labels live in lib/i18n/pt.ts and lib/i18n/en.ts under `falsePinReasons`,
+// keyed by the same value strings below.
+export const FALSE_PIN_REASONS: { value: string }[] = [
+  { value: "never_seen_cats" },
+  { value: "location_doesnt_exist" },
+  { value: "duplicate_colony" },
+  { value: "suspicious_harmful" },
 ];
 
-export function getFalsePinReasonLabel(value: string): string {
-  return FALSE_PIN_REASONS.find((reason) => reason.value === value)?.label ?? value;
+export function getFalsePinReasonLabel(value: string, t: (key: string) => string): string {
+  return t(`falsePinReasons.${value}`);
 }

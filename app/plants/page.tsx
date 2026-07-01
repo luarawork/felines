@@ -1,20 +1,16 @@
+"use client";
+
 // /plants — reference page listing plants toxic to cats that commonly
 // grow in Brazilian streets, lots, and gardens. Static content —
 // no DB queries needed. Images are optional; each card falls back to
 // a color-coded emoji badge when imageUrl is null.
-import type { Metadata } from "next";
 import Link from "next/link";
-import { TOXIC_PLANTS, TOXICITY_LABELS, type ToxicityLevel } from "@/lib/toxicPlants";
+import { TOXIC_PLANTS, TOXICITY_LABELS, TOXICITY_LABELS_EN, localizeToxicPlant, type ToxicityLevel } from "@/lib/toxicPlants";
 import Reveal from "@/components/Reveal";
+import { useLanguage } from "@/lib/i18n";
 
-export const metadata: Metadata = {
-  title: "Plantas tóxicas para gatos — Felines",
-  description:
-    "Guia visual das plantas mais comuns no Brasil que podem ser perigosas para gatos de rua.",
-};
-
-function ToxicityBadge({ level }: { level: ToxicityLevel }) {
-  const meta = TOXICITY_LABELS[level];
+function ToxicityBadge({ level, language }: { level: ToxicityLevel; language: "pt" | "en" }) {
+  const meta = (language === "en" ? TOXICITY_LABELS_EN : TOXICITY_LABELS)[level];
   const colorMap: Record<ToxicityLevel, string> = {
     high: "border-felines-emergency/30 bg-felines-emergency/10 text-felines-emergency",
     moderate: "border-amber-300/40 bg-amber-50 text-amber-700",
@@ -30,48 +26,46 @@ function ToxicityBadge({ level }: { level: ToxicityLevel }) {
 }
 
 export default function PlantsPage() {
-  const highRisk = TOXIC_PLANTS.filter((p) => p.toxicityLevel === "high");
-  const moderate = TOXIC_PLANTS.filter((p) => p.toxicityLevel === "moderate");
-  const low = TOXIC_PLANTS.filter((p) => p.toxicityLevel === "low");
+  const { t, language } = useLanguage();
+  const localizedPlants = TOXIC_PLANTS.map((plant) => localizeToxicPlant(plant, language));
+  const highRisk = localizedPlants.filter((p) => p.toxicityLevel === "high");
+  const moderate = localizedPlants.filter((p) => p.toxicityLevel === "moderate");
+  const low = localizedPlants.filter((p) => p.toxicityLevel === "low");
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6">
       <Link href="/" className="text-sm text-felines-text-secondary hover:text-felines-accent">
-        ← Início
+        {t("plants.backHome")}
       </Link>
 
       <Reveal>
         <h1 className="mt-4 text-3xl font-bold text-felines-text-primary sm:text-4xl">
-          Plantas tóxicas para gatos
+          {t("plants.title")}
         </h1>
         <p className="mt-3 max-w-2xl text-base leading-relaxed text-felines-text-secondary">
-          Muitas plantas comuns em calçadas, praças e terrenos baldios no Brasil podem intoxicar
-          gatos — especialmente filhotes curiosos. Esta página é um guia rápido de identificação e
-          primeiros sinais de intoxicação.
+          {t("plants.description")}
         </p>
       </Reveal>
 
       <Reveal delayMs={80}>
         <div className="mt-5 rounded-xl border border-felines-emergency/20 bg-felines-emergency/5 p-4 text-sm leading-relaxed text-felines-emergency">
-          <strong>Em caso de suspeita de intoxicação:</strong> leve o gato a um veterinário o mais
-          rápido possível. Não induza vômito sem orientação profissional. Se souber o nome da
-          planta, leve uma amostra ou foto.
+          <strong>{t("plants.poisoningWarningTitle")}</strong> {t("plants.poisoningWarningBody")}
         </div>
       </Reveal>
 
       {/* Legend */}
       <div className="mt-8 flex flex-wrap items-center gap-3 text-sm text-felines-text-secondary">
-        <span className="font-medium">Legenda:</span>
+        <span className="font-medium">{t("plants.legendLabel")}</span>
         {(["high", "moderate", "low"] as ToxicityLevel[]).map((level) => (
-          <ToxicityBadge key={level} level={level} />
+          <ToxicityBadge key={level} level={level} language={language} />
         ))}
       </div>
 
       {/* Plants grid */}
       {[
-        { label: "Alta toxicidade", plants: highRisk, level: "high" as ToxicityLevel },
-        { label: "Toxicidade moderada", plants: moderate, level: "moderate" as ToxicityLevel },
-        { label: "Baixa toxicidade", plants: low, level: "low" as ToxicityLevel },
+        { label: t("plants.toxicityHigh"), plants: highRisk, level: "high" as ToxicityLevel },
+        { label: t("plants.toxicityModerate"), plants: moderate, level: "moderate" as ToxicityLevel },
+        { label: t("plants.toxicityLow"), plants: low, level: "low" as ToxicityLevel },
       ].map(
         (group) =>
           group.plants.length > 0 && (
@@ -87,7 +81,7 @@ export default function PlantsPage() {
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src={`/images/plants/${plant.slug}.svg`}
-                        alt={`Ilustração de ${plant.commonName}`}
+                        alt={t("plants.illustrationAlt").replace("{name}", plant.commonName)}
                         className="mb-4 h-40 w-full rounded-xl object-cover"
                       />
 
@@ -99,12 +93,12 @@ export default function PlantsPage() {
                               {plant.scientificName}
                             </p>
                           </div>
-                          <ToxicityBadge level={plant.toxicityLevel} />
+                          <ToxicityBadge level={plant.toxicityLevel} language={language} />
                         </div>
 
                         <div>
                           <p className="text-xs font-semibold uppercase tracking-wide text-felines-text-secondary">
-                            Partes tóxicas
+                            {t("plants.toxicPartsLabel")}
                           </p>
                           <p className="text-xs text-felines-text-secondary">
                             {plant.toxicParts.join(", ")}
@@ -113,7 +107,7 @@ export default function PlantsPage() {
 
                         <div>
                           <p className="text-xs font-semibold uppercase tracking-wide text-felines-text-secondary">
-                            Sintomas
+                            {t("plants.symptomsLabel")}
                           </p>
                           <ul className="mt-0.5 space-y-0.5 text-xs text-felines-text-secondary">
                             {plant.symptoms.map((s) => (
@@ -127,7 +121,7 @@ export default function PlantsPage() {
 
                         <div>
                           <p className="text-xs font-semibold uppercase tracking-wide text-felines-text-secondary">
-                            Início dos sintomas
+                            {t("plants.onsetLabel")}
                           </p>
                           <p className="text-xs text-felines-text-secondary">{plant.onsetTime}</p>
                         </div>
@@ -149,15 +143,14 @@ export default function PlantsPage() {
       <Reveal>
         <div className="mt-14 rounded-xl border border-felines-border bg-felines-surface p-6 text-sm leading-relaxed text-felines-text-secondary">
           <p className="font-semibold text-felines-text-primary">
-            Esta lista não é exaustiva.
+            {t("plants.disclaimerTitle")}
           </p>
           <p className="mt-1">
-            O Brasil tem centenas de espécies tóxicas. Sempre que tiver dúvida sobre uma planta,
-            consulte um médico-veterinário. Em casos de emergência, o{" "}
+            {t("plants.disclaimerBody")}{" "}
             <Link href="/contacts" className="font-medium text-felines-accent-hover hover:underline">
-              guia de contatos
+              {t("plants.disclaimerLink")}
             </Link>{" "}
-            tem clínicas e ONGs cadastradas na sua cidade.
+            {t("plants.disclaimerSuffix")}
           </p>
         </div>
       </Reveal>

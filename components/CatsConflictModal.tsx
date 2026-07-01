@@ -1,14 +1,19 @@
-﻿"use client";
+"use client";
 
 import { useState } from "react";
 import Link from "next/link";
 import { useEscapeToClose } from "@/lib/useEscapeToClose";
 import { createPortal } from "react-dom";
+import { useLanguage } from "@/lib/i18n";
 
 export default function CatsConflictModal() {
+  const { t } = useLanguage();
   const [open, setOpen] = useState(false);
 
   useEscapeToClose(open, () => setOpen(false));
+
+  const vacuumEffect = t("catsConflict.vacuumEffect");
+  const [removalBodyBefore, removalBodyAfter] = t("catsConflict.vacuumBody").split("{vacuumEffect}");
 
   return (
     <>
@@ -17,7 +22,7 @@ export default function CatsConflictModal() {
         className="inline-flex items-center gap-2 rounded-full border border-felines-border bg-felines-surface px-4 py-2 text-sm text-felines-text-secondary shadow-sm transition-all hover:border-felines-accent hover:text-felines-accent"
       >
         <span>😤</span>
-        <span>Quer se livrar dos gatos da sua rua? Leia isso antes</span>
+        <span>{t("catsConflict.trigger")}</span>
       </button>
 
       {open &&
@@ -38,11 +43,11 @@ export default function CatsConflictModal() {
                   id="cats-conflict-title"
                   className="text-xl font-bold text-felines-text-primary"
                 >
-                  Quer se livrar dos gatos? A gente entende.
+                  {t("catsConflict.title")}
                 </h2>
                 <button
                   onClick={() => setOpen(false)}
-                  aria-label="Fechar"
+                  aria-label={t("catsConflict.close")}
                   className="flex h-10 w-10 flex-shrink-0 items-center justify-center text-xl text-felines-text-secondary hover:text-felines-text-primary"
                 >
                   ×
@@ -50,37 +55,39 @@ export default function CatsConflictModal() {
               </div>
 
               <p className="mt-3 text-sm leading-relaxed text-felines-text-secondary">
-                Cheiro de urina, miado de madrugada, arranhão no carro. Esses incômodos são reais e ninguém precisa aguentar em silêncio. Mas existe algo importante que a maioria não sabe antes de tentar resolver o problema:
+                {t("catsConflict.intro")}
               </p>
 
               <div className="mt-5 space-y-4">
                 <div className="rounded-xl border border-felines-border bg-felines-surface p-4">
                   <p className="font-semibold text-felines-text-primary">
-                    🔄 Remover os gatos não funciona de verdade
+                    {t("catsConflict.vacuumTitle")}
                   </p>
                   <p className="mt-1 text-sm leading-relaxed text-felines-text-secondary">
-                    Cidades inteiras já tentaram isso, em décadas diferentes, em vários países. O resultado foi sempre o mesmo: o território esvaziado atrai um grupo novo em poucos meses — geralmente maior e não castrado. Isso tem nome: <strong>efeito vácuo</strong>. Enquanto houver comida e abrigo no local, sempre haverá gatos.
+                    {removalBodyBefore}
+                    <strong>{vacuumEffect}</strong>
+                    {removalBodyAfter}
                   </p>
                 </div>
 
                 <div className="rounded-xl border border-felines-border bg-felines-surface p-4">
                   <p className="font-semibold text-felines-text-primary">
-                    ⚖️ Maltratar é crime no Brasil
+                    {t("catsConflict.lawTitle")}
                   </p>
                   <p className="mt-1 text-sm leading-relaxed text-felines-text-secondary">
-                    A Lei Sansão (Lei 14.064/2020) prevê pena de 2 a 5 anos de prisão por maus-tratos a cães e gatos — isso inclui envenenamento, agressão física e abandono em condição de sofrimento. Não é só o certo a fazer; é obrigação legal.
+                    {t("catsConflict.lawBody")}
                   </p>
                 </div>
 
                 <div className="rounded-xl border border-felines-success/30 bg-felines-success/5 p-4">
                   <p className="font-semibold text-felines-text-primary">
-                    ✅ O que realmente funciona
+                    {t("catsConflict.worksTitle")}
                   </p>
                   <p className="mt-1 text-sm leading-relaxed text-felines-text-secondary">
-                    A castração em massa — método TNR (Captura, Castração, Devolução) — é a única estratégia que reduz a população de forma duradoura. Gatos castrados brigam menos, cheiram menos e o grupo para de crescer. Com o tempo, a colônia diminui naturalmente, sem conflito.
+                    {t("catsConflict.worksBody")}
                   </p>
                   <p className="mt-2 text-sm text-felines-text-secondary">
-                    Muitos bairros já têm alguém cuidando da colônia perto de você. Falar com esse cuidador costuma resolver muito mais rápido do que uma reclamação formal.
+                    {t("catsConflict.worksSub")}
                   </p>
                 </div>
               </div>
@@ -91,14 +98,14 @@ export default function CatsConflictModal() {
                   onClick={() => setOpen(false)}
                   className="rounded-full bg-felines-accent px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-felines-accent-hover"
                 >
-                  Ver cuidadores no mapa
+                  {t("catsConflict.seeCaretakers")}
                 </Link>
                 <Link
                   href="/learn/why-removing-cats-doesnt-work"
                   onClick={() => setOpen(false)}
                   className="rounded-full border border-felines-border px-5 py-2 text-sm font-medium text-felines-text-secondary transition-colors hover:border-felines-accent hover:text-felines-accent"
                 >
-                  Ler mais sobre o efeito vácuo
+                  {t("catsConflict.readMoreVacuum")}
                 </Link>
               </div>
             </div>

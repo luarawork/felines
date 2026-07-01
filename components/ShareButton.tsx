@@ -6,6 +6,7 @@
 "use client";
 
 import { useState } from "react";
+import { useLanguage } from "@/lib/i18n";
 
 export default function ShareButton({
   title,
@@ -17,6 +18,7 @@ export default function ShareButton({
   // onDark prop.
   onDark?: boolean;
 }) {
+  const { t } = useLanguage();
   const [copied, setCopied] = useState(false);
 
   async function handleShare() {
@@ -39,7 +41,7 @@ export default function ShareButton({
   return (
     <button
       onClick={handleShare}
-      aria-label="Compartilhar"
+      aria-label={t("share.trigger")}
       className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors hover:border-felines-accent hover:text-felines-accent ${
         onDark
           ? "border-felines-border-on-dark text-felines-text-secondary-on-dark"
@@ -47,7 +49,7 @@ export default function ShareButton({
       }`}
     >
       <span aria-hidden="true">🔗</span>
-      <span className="hidden sm:inline">{copied ? "Link copiado!" : "Compartilhar"}</span>
+      <span className="hidden sm:inline">{copied ? t("share.copied") : t("share.trigger")}</span>
     </button>
   );
 }

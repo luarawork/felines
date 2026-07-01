@@ -16,8 +16,25 @@ export type Article = {
   summary: string;
   body: string[];
   factChips?: string[];
+  title_en?: string;
+  summary_en?: string;
+  body_en?: string[];
+  factChips_en?: string[];
   href?: string; // overrides /learn/slug when set (e.g. for dedicated sub-pages)
 };
+
+// Picks the English variant fields when language is "en", falling back to
+// the Portuguese originals otherwise (and if an _en field is missing).
+export function localizeArticle(article: Article, language: "pt" | "en"): Article {
+  if (language !== "en") return article;
+  return {
+    ...article,
+    title: article.title_en ?? article.title,
+    summary: article.summary_en ?? article.summary,
+    body: article.body_en ?? article.body,
+    factChips: article.factChips_en ?? article.factChips,
+  };
+}
 
 export const ARTICLES: Article[] = [
   {
@@ -39,6 +56,22 @@ export const ARTICLES: Article[] = [
       "📊 Estima-se que existam mais de 10 milhões de gatos de rua só no Brasil",
       "📊 Um território com comida e abrigo raramente fica vazio por muito tempo",
     ],
+    title_en: "What exactly is a cat colony?",
+    summary_en: "Spoiler: it's not just \"a bunch of cats.\" There's a pattern behind it, and it matters.",
+    body_en: [
+      "You walk down the same street every day and always see 3, 4, 5 cats on the same vacant lot. They're not always the same cats you saw a year ago — but the spot is never empty. That's not a coincidence. It's a colony.",
+      "### What turns a group of cats into a colony",
+      "A colony is a group of stray cats that lives in a stable way within a fixed territory — a lot, a backyard, a square, a cluster of neighboring yards. What sets it apart from spotting a lone cat passing through is permanence: these cats keep coming back, there's a recognizable food or shelter spot, and usually someone in the neighborhood already knows they're there, even without officially caring for them.",
+      "### Why there, and not somewhere else",
+      "Colonies form wherever three things exist at once: food (trash, someone feeding them), shelter (an empty lot, a construction gap, under parked cars), and no large predators. Remove any one of the three and the colony tends to move or shrink.",
+      "That's why a colony can stay in the same spot for years, even as individual cats come and go: the territory keeps providing what they need.",
+      "### Why it's worth identifying the colony, not just the cat",
+      "When you recognize a group as a colony — instead of just reporting an isolated cat — it becomes much easier to organize neutering, feeding, and care in a coordinated way, rather than trying to solve things one cat at a time.",
+    ],
+    factChips_en: [
+      "📊 An estimated 10+ million stray cats live in Brazil alone",
+      "📊 A territory with food and shelter rarely stays empty for long",
+    ],
   },
   {
     slug: "por-que-existem-gatos-de-rua",
@@ -57,6 +90,21 @@ export const ARTICLES: Article[] = [
     factChips: [
       "📊 Comida, abrigo e ausência de predadores são os 3 fatores que sustentam uma colônia",
       "📊 Remover gatos sem resolver a causa costuma trazer um grupo novo — e maior — em poucos meses",
+    ],
+    title_en: "Why cats always come back to the same spot",
+    summary_en: "Ever tried to get rid of a colony and it just... came back? There's an explanation for that.",
+    body_en: [
+      "There's a question almost everyone who lives near a colony has asked: why are these cats here, and why does it seem impossible for them to ever really leave?",
+      "### The answer is simpler than it looks",
+      "Stray cats settle wherever they find territory, food, and shelter — usually near exposed trash, vacant lots, or someone who already feeds them, even informally. They don't pick the spot by chance: the place offers what they need to survive.",
+      "### Why removal doesn't solve it",
+      "Taking cats out of an area without changing what attracted them there (the food, the shelter) just frees up the territory — and a free territory with resources on offer attracts a new group fast. It's basically opening a vacancy for another colony to move in.",
+      "### What actually works",
+      "The most effective way to reduce the stray cat population long-term isn't removal. It's neutering. Without fertile females entering the cycle, the group stops growing and naturally shrinks over time.",
+    ],
+    factChips_en: [
+      "📊 Food, shelter, and the absence of predators are the 3 factors that sustain a colony",
+      "📊 Removing cats without addressing the cause usually brings in a new — and bigger — group within a few months",
     ],
   },
   {
@@ -77,6 +125,21 @@ export const ARTICLES: Article[] = [
       "📊 O comportamento territorial cai bastante poucas semanas depois da castração",
       "📊 Colônias castradas têm menos briga, menos miado noturno e menos cheiro de urina",
     ],
+    title_en: "Neutering resolves more conflict than any complaint ever will",
+    summary_en: "Strong odor, howling at 3am, rooftop fights. There's one common cause behind almost all of it.",
+    body_en: [
+      "If there's one thing that generates neighbor complaints about street cats, it's strong urine smell and late-night howling. The good news: it has an identifiable cause, and that cause has a solution.",
+      "### Why unneutered cats cause so much noise",
+      "Intact (unneutered) cats mark territory with much stronger-smelling urine, and fight frequently over females. That combination — smell plus fighting plus howling — is the biggest source of complaints about colonies.",
+      "### What changes after neutering",
+      "A few weeks after being neutered, territorial behavior drops sharply. Less marking, less fighting, less mating-related howling. And the colony stops growing, since there's no more reproduction.",
+      "### The result, over time",
+      "Neutered colonies tend to become more stable and quieter, and the relationship with the surrounding neighborhood improves — not because the cats disappeared, but because the behavior that caused friction largely goes away.",
+    ],
+    factChips_en: [
+      "📊 Territorial behavior drops sharply within a few weeks of neutering",
+      "📊 Neutered colonies have less fighting, less nighttime howling, and less urine odor",
+    ],
   },
   {
     slug: "why-removing-cats-doesnt-work",
@@ -96,6 +159,22 @@ export const ARTICLES: Article[] = [
     factChips: [
       "📊 Cidades que tentaram remoção em massa viram a população voltar ao normal em 1 a 2 anos",
       "📊 A Organização Mundial da Saúde recomenda TNR como método de controle populacional",
+    ],
+    title_en: "Why removing cats never actually solves anything",
+    summary_en: "Entire cities have tried this, across different decades. The result was always the same.",
+    body_en: [
+      "Imagine spending months removing an entire colony from a lot — and, a year later, finding the same lot with another group of cats, just as bad or worse than before. This isn't hypothetical. It has happened, repeatedly, in cities of different sizes and different countries.",
+      "### The vacuum effect",
+      "When a colony is removed, the territory doesn't stay empty for long. Food, shelter, and the absence of predators are all still there, drawing in new cats. This has a name: the vacuum effect.",
+      "Within a few months, the emptied territory tends to be occupied by another group — often bigger and less stable than the previous one, since the newcomers aren't neutered yet and aren't used to the place.",
+      "### What history has already shown",
+      "Several cities, on different continents, tried mass-removal programs throughout the 20th century. In nearly all of them, the stray cat population grew back within 1 to 2 years.",
+      "### The one method that actually works",
+      "Mass neutering — known as TNR (Trap-Neuter-Return) — is the only strategy that reduces the population in a lasting way. Without fertile females, the group stops growing and naturally shrinks over time.",
+    ],
+    factChips_en: [
+      "📊 Cities that tried mass removal saw the population return to normal within 1 to 2 years",
+      "📊 The World Health Organization recommends TNR as a population control method",
     ],
   },
   {
@@ -118,6 +197,23 @@ export const ARTICLES: Article[] = [
       "📊 A Organização Mundial da Saúde recomenda TNR como método preferencial de controle populacional",
       "📊 Uma colônia totalmente castrada para de crescer dentro de uma geração",
     ],
+    title_en: "TNR: the 3 letters that actually solve the problem",
+    summary_en: "Trap, neuter, return. Sounds simple — and it works better than any alternative.",
+    body_en: [
+      "If you only remember one acronym after reading this guide, make it this one: TNR. It's the method that actually works to stabilize a colony, and anyone can help make it happen.",
+      "### What it stands for",
+      "TNR stands for Trap-Neuter-Return: trap the colony's cats, neuter them at a vet clinic, and return them to the same territory they came from.",
+      "### Why return them instead of removing them",
+      "Unlike removal, TNR keeps the territory occupied by the cats already there — just now unable to reproduce. This avoids the vacuum effect: there's no empty space for a new, unneutered group to move into.",
+      "### What happens over time",
+      "The colony stops growing. Territorial fights decrease. Urine marking drops sharply. And the existing population gradually declines over the years, with no forced removal at all.",
+      "### Where you come in",
+      "Identifying a colony, arranging neutering with a clinic or a community campaign, and returning the cats to the same place after recovery — that's TNR in practice, and it requires no technical veterinary knowledge.",
+    ],
+    factChips_en: [
+      "📊 The World Health Organization recommends TNR as the preferred population control method",
+      "📊 A fully neutered colony stops growing within one generation",
+    ],
   },
   {
     slug: "how-to-approach-a-stray-cat",
@@ -138,6 +234,23 @@ export const ARTICLES: Article[] = [
     factChips: [
       "📊 Abaixar-se à altura do gato reduz a sensação de ameaça muito mais do que se inclinar sobre ele",
       "📊 Gatos ferais fogem ao menor movimento brusco — gatos socializados toleram mais contato",
+    ],
+    title_en: "How to approach a stray cat without getting bitten",
+    summary_en: "Approaching the wrong way scares the cat off — and might cost you a scratch. Here's the right way.",
+    body_en: [
+      "You see a good-looking cat, want to pet it, and go straight for its face. Likely result: it runs, or worse, it scratches you. The good news is there's an approach that works much better.",
+      "### First, ask if it wants company",
+      "Not every street cat needs or wants human contact. Before approaching, watch: is it calm, eating, curious — or already on alert, ready to flee?",
+      "### How to actually approach",
+      "Go slowly, from the side — never head-on, which reads as threatening to a cat. Avoid staring directly into its eyes for too long. Crouch down to the cat's level instead of leaning over it. Extend your hand slowly and let it decide to close the distance, instead of you closing it yourself.",
+      "### How to tell if it's feral or socialized",
+      "Feral cats (that never had human contact) keep their distance, don't meow for attention, and flee at the slightest sudden movement. Socialized cats tend to meow, approach on their own, and tolerate more contact.",
+      "### The rule that never changes",
+      "Never chase, grab, or corner a street cat. Even a gentle cat can bite or scratch out of fear when it feels it has no way out.",
+    ],
+    factChips_en: [
+      "📊 Crouching to the cat's level reduces the sense of threat far more than leaning over it",
+      "📊 Feral cats flee at the slightest sudden movement — socialized cats tolerate more contact",
     ],
   },
   {
@@ -160,6 +273,23 @@ export const ARTICLES: Article[] = [
       "📊 A Lei Sansão prevê pena de 2 a 5 anos de prisão para maus-tratos a cães e gatos",
       "📊 O Disque Denúncia 181 aceita denúncias anônimas na maioria dos estados",
     ],
+    title_en: "Animal abuse is a crime. Here's how to report it properly",
+    summary_en: "Good documentation makes all the difference between a report that becomes an investigation and one that goes nowhere.",
+    body_en: [
+      "Witnessing animal abuse is infuriating, and the first instinct is usually to confront whoever did it. Don't. There's a more effective path — and a safer one, both for you and the animal.",
+      "### This is a crime, not just bad manners",
+      "Animal cruelty is a crime — physical assault, poisoning, extreme deprivation of food or water, abandonment, and any act causing avoidable suffering all count as abuse under the law.",
+      "### What to document before reporting",
+      "Photos and videos with a visible date. Exact location. Approximate time of the incident. Any witness willing to confirm what they saw. The more detailed, the stronger the report.",
+      "### Where to report",
+      "You can report anonymously through the local animal-cruelty tip line, available in most regions. In case of an incident in progress or immediate risk to the animal, call emergency services. You can also file a police report, which is usually necessary to open a formal investigation.",
+      "### After reporting",
+      "The case is normally investigated by environmental or civil police. Not every case ends in an immediate arrest, but the formal record creates a paper trail — and that matters, even when the response feels slow.",
+    ],
+    factChips_en: [
+      "📊 Animal cruelty laws in Brazil provide for 2 to 5 years in prison for abuse of dogs and cats",
+      "📊 Anonymous tip lines accept animal cruelty reports in most states",
+    ],
   },
   {
     slug: "found-a-kitten-alone",
@@ -180,6 +310,23 @@ export const ARTICLES: Article[] = [
     factChips: [
       "📊 A maioria dos \"filhotes abandonados\" tem a mãe por perto, caçando comida",
       "📊 Leite de vaca causa diarreia grave em filhotes — eles não digerem lactose",
+    ],
+    title_en: "Found a lone kitten? Take a breath before acting",
+    summary_en: "The most important rule here is the hardest to follow: do nothing for a few hours.",
+    body_en: [
+      "You see a kitten alone, meowing, looking helpless. The instinct is to scoop it up and take it home right now. But that might be the worst thing to do — at least in the first few hours.",
+      "### Why waiting is rule number one",
+      "The mother cat is usually nearby, hunting for food, and can take hours to come back. Watch from a safe distance for at least 2 to 4 hours (or until nightfall, if it's morning) before doing anything. Clean, warm, calm kittens are probably already being cared for normally.",
+      "### When it really is time to step in",
+      "Signs the kitten needs immediate help: it's very cold to the touch, crying nonstop, dirty or thin, with eyes still closed (under 2 weeks old), and clearly without any adult around for many hours.",
+      "### If you need to step in",
+      "Keep the kitten warm — a towel underneath, not prolonged direct contact — and seek guidance from an NGO or vet before feeding. Very young kittens have very specific nutritional needs.",
+      "### The mistake that hurts kittens the most",
+      "Never give cow's milk: kittens can't digest lactose, and it causes severe diarrhea and dehydration. If you need to feed before getting guidance, use only kitten-specific formula. And don't take the kitten home just because it looks alone — separating a healthy kitten from its mother without need greatly reduces its chances of surviving well.",
+    ],
+    factChips_en: [
+      "📊 Most \"abandoned kittens\" have a mother nearby, hunting for food",
+      "📊 Cow's milk causes severe diarrhea in kittens — they can't digest lactose",
     ],
   },
   {
@@ -204,6 +351,25 @@ export const ARTICLES: Article[] = [
       "📊 Cobrir a cabeça do gato suavemente com uma toalha tende a calmá-lo no transporte",
       "📊 Gatos feridos perdem temperatura corporal rápido — mantê-los aquecidos é prioridade",
     ],
+    title_en: "Injured cat on the street: 5 steps, no overthinking",
+    summary_en: "You don't need to be an expert. You just need to follow the right order.",
+    body_en: [
+      "Finding an injured cat on the street shakes anyone up. The urge to help is immediate — but acting in the wrong order can hurt the cat more, or hurt you. Here's the step-by-step.",
+      "### Step 1 — Assess from a distance",
+      "Is it conscious, reacting to sound or movement? Injured animals can bite or scratch out of pain and fear, even if normally gentle. Don't touch yet.",
+      "### Step 2 — Contain carefully",
+      "If it's safe, use a cardboard box with ventilation holes, or a thick towel to wrap the cat — never bare hands. Gently covering the head with the towel tends to calm the animal during transport.",
+      "### Step 3 — Keep it warm and quiet",
+      "Injured cats lose body heat fast. A quiet environment, without bright light or noise, helps a lot during the trip.",
+      "### Step 4 — Seek professional help",
+      "Call ahead if possible, describing the type of injury — that way the team can prepare. Many areas have low-cost or free-of-charge emergency clinics or NGOs.",
+      "### Step 5 — Don't improvise treatment",
+      "Don't give food, water, or any medication on your own. That can complicate a necessary anesthesia, or mask symptoms important for diagnosis.",
+    ],
+    factChips_en: [
+      "📊 Gently covering the cat's head with a towel tends to calm it during transport",
+      "📊 Injured cats lose body heat fast — keeping them warm is a priority",
+    ],
   },
   {
     slug: "cats-bothering-your-building",
@@ -225,6 +391,23 @@ export const ARTICLES: Article[] = [
       "📊 Território esvaziado por remoção costuma ser reocupado em poucos meses",
       "📊 Colônias totalmente castradas reduzem bastante o comportamento de marcação territorial",
     ],
+    title_en: "Cats bothering your building? Here's what actually works",
+    summary_en: "Smell, noise, and scratching are real problems. The solution isn't the one most people try first.",
+    body_en: [
+      "Urine smell, howling at 3am, scratching at the building door. These annoyances are real, and ignoring them doesn't help either the neighbors or the cats. But the most common reaction — trying to remove the cats — almost never works.",
+      "### Why removal alone doesn't work",
+      "An empty territory attracts new cats fast — the so-called vacuum effect. The cycle of annoyance just repeats, now with a newly arrived, still-unneutered group.",
+      "### What actually works",
+      "The combination of neutering with controlled feeding. Neutered cats mark territory much less and fight much less, and the group stops growing. Food at a fixed time and place, without leftovers exposed, reduces pest attraction and bad odor.",
+      "### Before complaining to building management",
+      "Check whether someone is already caring for this colony — you can look it up on the Felines map. Talking directly to that person usually resolves things faster than filing a formal complaint.",
+      "### For specific spots",
+      "If the problem is a hallway or balcony where cats shouldn't be, motion-activated deterrents (ultrasonic or water spray) keep them away without hurting them — and without affecting the rest of the colony.",
+    ],
+    factChips_en: [
+      "📊 Territory emptied by removal is usually reoccupied within a few months",
+      "📊 Fully neutered colonies significantly reduce territorial marking behavior",
+    ],
   },
   {
     slug: "como-ajudar-sem-adotar",
@@ -244,6 +427,21 @@ export const ARTICLES: Article[] = [
       "📊 Apoiar um cuidador que já existe tem mais impacto do que tentar cuidar de uma colônia do zero",
       "📊 Relatar o que você vê ajuda cuidadores a agir mais rápido, mesmo sem você adotar nenhum gato",
     ],
+    title_en: "You don't need to adopt a single cat to make a difference",
+    summary_en: "It's not about loving cats. It's about a few small actions, at the right moment.",
+    body_en: [
+      "Some people avoid getting involved with colonies because they think it means adopting a cat, or becoming a full-time caretaker. That's not true. There are several ways to help that fit into any routine.",
+      "### Reporting already helps more than it seems",
+      "Reporting injured cats, lone kittens, or suspected abuse helps whoever already cares for the colony act faster, even if you never touch a cat yourself.",
+      "### Supporting existing caretakers",
+      "Helping an existing caretaker financially or with food has more impact than trying to start caring for a colony from scratch, alone.",
+      "### Pointing people in the right direction helps too",
+      "Know a low-cost neutering clinic or a free campaign? Passing that information to a caretaker is a simple, real contribution.",
+    ],
+    factChips_en: [
+      "📊 Supporting an existing caretaker has more impact than trying to care for a colony from scratch",
+      "📊 Reporting what you see helps caretakers act faster, even without you adopting any cat",
+    ],
   },
   {
     slug: "tornando-se-cuidador",
@@ -262,6 +460,21 @@ export const ARTICLES: Article[] = [
     factChips: [
       "📊 Cuidadores podem deixar uma carta de transição com histórico e contatos pro próximo",
       "📊 Qualquer colônia mapeada pode receber um novo cuidador vinculado a qualquer momento",
+    ],
+    title_en: "What nobody tells you before you become a caretaker",
+    summary_en: "Caring for a colony is a long-term commitment. Here's what to really expect.",
+    body_en: [
+      "Becoming a colony's caretaker isn't just \"feeding it once in a while.\" It's a commitment that stretches over months, sometimes years — and it's worth understanding that before taking it on.",
+      "### What the role actually involves",
+      "A caretaker ensures regular feeding, watches the cats' health, and organizes the colony's neutering over time. You don't need to be perfect from day one — you need to be consistent.",
+      "### The letter that connects generations of caretakers",
+      "Many caretakers leave a letter for the next person, with the colony's history, each cat's habits, and useful contacts. It's a way to keep the care going even when someone needs to step away.",
+      "### How to get started",
+      "Any already-mapped colony can get a new caretaker linked directly from its page. There's no selection process — there's responsibility.",
+    ],
+    factChips_en: [
+      "📊 Caretakers can leave a handoff letter with history and contacts for the next person",
+      "📊 Any mapped colony can get a new linked caretaker at any time",
     ],
   },
   {
@@ -284,6 +497,23 @@ export const ARTICLES: Article[] = [
       "📊 Boa parte do incômodo com colônias tem solução prática, sem precisar remover os gatos",
       "📊 Falar com o cuidador responsável costuma resolver mais rápido do que abrir uma reclamação formal",
     ],
+    title_en: "Living well with the colony near you",
+    summary_en: "Living near street cats doesn't have to mean conflict.",
+    body_en: [
+      "Most friction with cat colonies doesn't come from the cats — it comes from a lack of information. Smell, howling, and fighting usually have an identifiable, treatable cause.",
+      "### Start by finding out if someone's already caring for it",
+      "If the colony near you already has a linked caretaker, talk to that person directly. They can adjust feeding spots, timing, or reinforce neutering — usually faster than any formal complaint.",
+      "### If no one is caring for it yet",
+      "Considering becoming a caretaker — even partially, splitting tasks with neighbors — usually resolves things faster than waiting for building or street management to do something.",
+      "### Small adjustments that change everything",
+      "Food at a fixed time with no leftovers exposed, water changed often, discreet shelter. This significantly reduces perceived annoyance without harming the cats.",
+      "### What healthy coexistence doesn't require",
+      "You don't need to touch, adopt, or remove any cat for the relationship with the neighborhood to work well. Respecting their rhythm is already enough.",
+    ],
+    factChips_en: [
+      "📊 Most colony-related annoyances have a practical solution that doesn't require removing the cats",
+      "📊 Talking to the responsible caretaker usually resolves things faster than filing a formal complaint",
+    ],
   },
   {
     slug: "small-actions-real-impact",
@@ -304,6 +534,23 @@ export const ARTICLES: Article[] = [
     factChips: [
       "📊 Confirmar relatos que você também viu ajuda a comunidade a priorizar casos reais",
       "📊 Contribuições pequenas e recorrentes tendem a durar mais que um esforço único e grande",
+    ],
+    title_en: "Small actions that really make a difference",
+    summary_en: "Becoming a full-time caretaker isn't the only way to matter to a colony.",
+    body_en: [
+      "There's an idea that helping street cats is all-or-nothing — either you become a caretaker, or you do nothing. It's not like that. Small actions, done regularly, add up a lot.",
+      "### What counts as real help",
+      "Confirming a report you also witnessed. Making a one-time food donation to a caretaker you know. Letting someone know about something odd in the colony. All of that is real contribution.",
+      "### Sharing helps too",
+      "Showing neighbors where a colony is located helps the community organize faster in an emergency.",
+      "### Use what you're already good at",
+      "Photography, design, contacts at vet clinics — any specific skill you already have is worth more offered to a caretaker than trying to do everything alone.",
+      "### Consistency beats intensity",
+      "One small action, repeated every week, usually lasts and helps more than one big effort that happens once and never repeats.",
+    ],
+    factChips_en: [
+      "📊 Confirming reports you also witnessed helps the community prioritize real cases",
+      "📊 Small, recurring contributions tend to last longer than one big one-time effort",
     ],
   },
   {
@@ -326,6 +573,23 @@ export const ARTICLES: Article[] = [
       "📊 Clínicas populares e universidades com curso de veterinária costumam ter atendimento de baixo custo",
       "📊 Sempre que possível, o objetivo é tratar e devolver o gato ao território de origem",
     ],
+    title_en: "The injured cat survived the rescue. Now what?",
+    summary_en: "First aid is only the beginning. The part that decides recovery comes after.",
+    body_en: [
+      "You've already done the rescue, the cat is with a vet. Great — but this is where a lot of people give up, thinking there's nothing more they can do. Actually, there's still plenty that helps.",
+      "### The biggest obstacle is usually cost",
+      "Before assuming there's no affordable option, it's worth researching low-cost clinics, veterinary schools, and local NGOs — many offer low-cost or free care.",
+      "### You don't have to pay for it all alone",
+      "Reaching out to a caretaker already linked to the colony, or a local NGO, to split cost or logistics usually works better than giving up the case for lack of resources.",
+      "### Follow-up after treatment",
+      "Cats returning to the colony need a few weeks of observation. A linked caretaker can log this on the colony's timeline, so the community knows the case is being followed.",
+      "### The end goal",
+      "Whenever possible, treat and return the cat to its original territory — the same principle as TNR. Permanently removing an injured cat from the colony is rarely necessary.",
+    ],
+    factChips_en: [
+      "📊 Low-cost clinics and veterinary schools often offer low-cost care",
+      "📊 Whenever possible, the goal is to treat and return the cat to its home territory",
+    ],
   },
   {
     slug: "stray-cats-in-brazil-the-numbers",
@@ -346,6 +610,23 @@ export const ARTICLES: Article[] = [
     factChips: [
       "📊 Mais de 10 milhões de gatos de rua no Brasil, e 480 milhões no mundo",
       "📊 40% das pessoas já tiveram conflito com vizinhos envolvendo animais",
+    ],
+    title_en: "The numbers that show the real size of the problem",
+    summary_en: "Some data helps explain why mass neutering isn't overkill — it's a necessity.",
+    body_en: [
+      "It's easy to think the stray cat problem is just \"a few too many cats in your neighborhood.\" The numbers tell a much bigger story.",
+      "### The scale is global",
+      "Estimates point to more than 10 million stray cats in Brazil alone, part of an estimated 480 million worldwide.",
+      "### Shelters already can't keep up",
+      "NGOs and shelters mostly already operate beyond capacity — an estimated 185,000 animals are in that situation, which makes mass removal and sheltering unfeasible as a long-term solution.",
+      "### The conflict is measurable too",
+      "About 40% of people have faced some kind of conflict with neighbors involving animals — a good portion of those cases are linked to unneutered street cats.",
+      "### What these numbers mean in practice",
+      "There isn't enough shelter capacity to remove street cats at scale, and isolated removal doesn't solve anything lastingly. That's why mass neutering (TNR) is the recommendation, not removal.",
+    ],
+    factChips_en: [
+      "📊 More than 10 million stray cats in Brazil, and 480 million worldwide",
+      "📊 40% of people have had conflict with neighbors involving animals",
     ],
   },
   {
@@ -370,6 +651,25 @@ export const ARTICLES: Article[] = [
       "📊 Alimentar gatos de rua não aumenta a população — a falta de castração que aumenta",
       "📊 A maioria dos filhotes \"abandonados\" tem a mãe por perto, caçando comida",
     ],
+    title_en: "5 myths about street cats worth debunking right now",
+    summary_en: "Some popular beliefs aren't just wrong — they make the situation worse.",
+    body_en: [
+      "A lot of people make decisions about street cats based on beliefs that were never checked. Let's take down the most common ones, one by one.",
+      "### Myth 1: \"street cats are always sick or dangerous\"",
+      "In reality, most avoid human contact out of instinct, not aggression — and many are just as healthy as a house cat when well fed.",
+      "### Myth 2: \"removing the cats solves the problem\"",
+      "Decades of attempts in different cities show the opposite: an empty territory gets occupied quickly by another group, usually bigger and still unneutered.",
+      "### Myth 3: \"feeding street cats increases the population\"",
+      "What actually increases the population is the lack of neutering, not the food. Fed and neutered colonies tend to be stable, not growing.",
+      "### Myth 4: \"a lone kitten is an abandoned kitten\"",
+      "Most of the time, the mother is nearby hunting for food. Acting quickly without observing can needlessly separate a healthy kitten from its mother.",
+      "### Myth 5: \"street cats can never be touched, period\"",
+      "Socialized cats (that have had human contact) tolerate gradual approach. What varies is each cat's level of socialization, not a fixed rule for all of them.",
+    ],
+    factChips_en: [
+      "📊 Feeding street cats doesn't increase the population — lack of neutering does",
+      "📊 Most \"abandoned\" kittens have a mother nearby, hunting for food",
+    ],
   },
   {
     slug: "plantas-toxicas",
@@ -381,6 +681,13 @@ export const ARTICLES: Article[] = [
     factChips: [
       "📊 A espirradeira (Nerium oleander) é uma das plantas mais perigosas e aparece em calçadas e praças",
       "📊 Intoxicação por lírio (Lilium spp.) pode causar insuficiência renal fatal em gatos em menos de 72h",
+    ],
+    title_en: "Toxic plants for cats that grow on the street",
+    summary_en: "Oleander, dumbcane, periwinkle and 9 other plants common in Brazil that can poison cats. With illustrations for identification.",
+    body_en: [],
+    factChips_en: [
+      "📊 Oleander (Nerium oleander) is one of the most dangerous plants and shows up on sidewalks and in public squares",
+      "📊 Lily poisoning (Lilium spp.) can cause fatal kidney failure in cats in under 72 hours",
     ],
   },
   {
@@ -404,6 +711,25 @@ export const ARTICLES: Article[] = [
     factChips: [
       "📊 O nível de socialização, não a espécie, é o que define como um gato de rua reage a humanos",
       "📊 Filhotes têm uma janela de algumas semanas em que a socialização é mais fácil de desenvolver",
+    ],
+    title_en: "Feral, semi-feral, or socialized? Behavior explains everything",
+    summary_en: "Not every street cat reacts the same way — and that difference completely changes how to help.",
+    body_en: [
+      "You've probably seen one street cat that vanishes at the slightest sudden move, and another that comes straight up asking for food. It's not luck or random personality: it's each cat's level of socialization, and it changes what does or doesn't work when helping.",
+      "### Feral cat",
+      "Never had close contact with humans, or had so little that no trust was built. Keeps a safe distance, doesn't meow for attention, avoids eye contact, and flees at the smallest sign of approach. It's not \"wild\" or naturally aggressive — it's cautious, because humans have always represented risk to it.",
+      "### Semi-feral cat",
+      "Had some human contact, usually indirect — grew up near a feeding spot, or was cared for from a distance by someone in the neighborhood. Tolerates human presence at a certain distance, may approach to eat when the person steps back a bit, but rarely accepts direct touch.",
+      "### Socialized cat",
+      "Has already had close, positive contact with people — may have been a house cat before, or been born to a socialized mother and exposed to humans since kittenhood. Meows for attention, approaches on its own, and tolerates physical contact, petting, and even being held.",
+      "### Why this difference matters in practice",
+      "Trying to touch or capture a feral cat the same way you would a socialized one tends to scare the animal and creates a risk of biting or scratching — not out of malice, but pure defensive instinct. A socialized cat, on the other hand, may actually suffer more from losing human contact than from staying on the street, which changes the priority of help (seeking adoption instead of just TNR, for example).",
+      "### The level of socialization isn't fixed forever",
+      "A feral kitten can become socialized with gradual, positive exposure to humans, especially in the first weeks of life. A feral adult, on the other hand, rarely changes much — and that's normal, not anyone's failure.",
+    ],
+    factChips_en: [
+      "📊 The level of socialization, not the species, is what determines how a street cat reacts to humans",
+      "📊 Kittens have a window of a few weeks in which socialization is easier to develop",
     ],
   },
 ];

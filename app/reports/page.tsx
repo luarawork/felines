@@ -7,7 +7,7 @@ import ReportsList from "@/components/ReportsList";
 import ResourcesBoard from "@/components/ResourcesBoard";
 import StoriesGrid from "@/components/StoriesGrid";
 import ContactsBoard from "@/components/ContactsBoard";
-import EmptyState from "@/components/EmptyState";
+import ReportsStoriesEmpty from "@/components/ReportsStoriesEmpty";
 import ColonyTabs from "@/components/ColonyTabs";
 import ReportsPageHeader from "@/components/ReportsPageHeader";
 import type { StoryWithMeta } from "@/app/stories/page";
@@ -80,9 +80,7 @@ export default async function ReportsPage({
         photoUrl: row.photo_url,
         anonymous: row.anonymous,
         authorId: row.created_by,
-        authorName: row.anonymous
-          ? "Cuidador anônimo"
-          : profile?.display_name || "Alguém da comunidade",
+        authorDisplayName: row.anonymous ? null : profile?.display_name || null,
         createdAt: row.created_at,
         reactionCount: reactionCounts.get(row.id) ?? 0,
       };
@@ -97,15 +95,7 @@ export default async function ReportsPage({
   }, {});
 
   const storiesContent =
-    stories.length === 0 ? (
-      <EmptyState
-        main="Nenhuma história ainda."
-        sub="Histórias são compartilhadas pelos cuidadores diretamente na página da colônia."
-        ctas={[{ label: "Ver colônias no mapa", href: "/map" }]}
-      />
-    ) : (
-      <StoriesGrid stories={stories} />
-    );
+    stories.length === 0 ? <ReportsStoriesEmpty /> : <StoriesGrid stories={stories} />;
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6">

@@ -8,7 +8,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import { useColonyAccessContext } from "@/components/ColonyAccessProvider";
-import { URGENCY_LABELS } from "@/lib/neuteringRequestTypes";
+import { getUrgencyLabel } from "@/lib/neuteringRequestTypes";
+import { useLanguage } from "@/lib/i18n";
 
 export type ActiveNeuteringRequest = {
   id: string;
@@ -26,6 +27,7 @@ export default function NeuteringRequestBanner({
 }) {
   const router = useRouter();
   const { session, canManage } = useColonyAccessContext();
+  const { t } = useLanguage();
   const [updating, setUpdating] = useState(false);
 
   async function handleMarkInProgress() {
@@ -63,7 +65,7 @@ export default function NeuteringRequestBanner({
     <div className="mb-6 rounded-xl border border-felines-border bg-felines-accent-light px-4 py-3 text-sm">
       <p className="font-medium text-felines-text-primary">
         ✂️ Castração necessária para {request.cats_count}{" "}
-        {request.cats_count === 1 ? "gato" : "gatos"} — urgência {URGENCY_LABELS[request.urgency]}
+        {request.cats_count === 1 ? "gato" : "gatos"} — urgência {getUrgencyLabel(request.urgency, t)}
         {request.status === "in_progress" && " · em andamento"}
       </p>
       {canManage && (

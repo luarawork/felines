@@ -1,9 +1,10 @@
 // Horizontal strip of milestone cards shown above the main timeline
 // feed — the colony's "highlight reel" instead of having to scroll
 // through the full chronological history to find the meaningful firsts.
-// Pure presentation over already-fetched data (no client interactivity
-// needed; the horizontal scroll is plain CSS), so this stays a server
-// component like the rest of the colony page.
+"use client";
+
+import { useLanguage } from "@/lib/i18n";
+
 export type TimelineEventLike = {
   event_type: string;
   created_at: string;
@@ -24,10 +25,11 @@ const MS_PER_YEAR = 1000 * 60 * 60 * 24 * 365;
 export function computeMilestones(
   colonyCreatedAt: string,
   catCount: number,
-  timelineEvents: TimelineEventLike[]
+  timelineEvents: TimelineEventLike[],
+  t: (key: string) => string
 ): Milestone[] {
   const milestones: Milestone[] = [
-    { emoji: "🎉", label: "Colônia cadastrada", date: new Date(colonyCreatedAt) },
+    { emoji: "🎉", label: t("milestones.colonyRegistered"), date: new Date(colonyCreatedAt) },
   ];
 
   const ascending = [...timelineEvents].sort(
@@ -38,27 +40,27 @@ export function computeMilestones(
 
   const firstCaretaker = firstOf("new_caretaker");
   if (firstCaretaker) {
-    milestones.push({ emoji: "👤", label: "Primeiro cuidador", date: new Date(firstCaretaker.created_at) });
+    milestones.push({ emoji: "👤", label: t("milestones.firstCaretaker"), date: new Date(firstCaretaker.created_at) });
   }
 
   const firstCat = firstOf("new_cat");
   if (firstCat) {
-    milestones.push({ emoji: "🐾", label: "Primeiro gato cadastrado", date: new Date(firstCat.created_at) });
+    milestones.push({ emoji: "🐾", label: t("milestones.firstCat"), date: new Date(firstCat.created_at) });
   }
 
   const firstCastration = firstOf("cat_castrated");
   if (firstCastration) {
-    milestones.push({ emoji: "✂️", label: "Primeira castração", date: new Date(firstCastration.created_at) });
+    milestones.push({ emoji: "✂️", label: t("milestones.firstCastration"), date: new Date(firstCastration.created_at) });
   }
 
   const firstThankYou = firstOf("thank_you");
   if (firstThankYou) {
-    milestones.push({ emoji: "🙏", label: "Primeiro agradecimento", date: new Date(firstThankYou.created_at) });
+    milestones.push({ emoji: "🙏", label: t("milestones.firstThankYou"), date: new Date(firstThankYou.created_at) });
   }
 
   const firstPhoto = ascending.find((event) => event.photo_url);
   if (firstPhoto) {
-    milestones.push({ emoji: "📸", label: "Primeira foto na linha do tempo", date: new Date(firstPhoto.created_at) });
+    milestones.push({ emoji: "📸", label: t("milestones.firstTimelinePhoto"), date: new Date(firstPhoto.created_at) });
   }
 
   const yearsSinceCreation = (Date.now() - new Date(colonyCreatedAt).getTime()) / MS_PER_YEAR;
@@ -66,7 +68,10 @@ export function computeMilestones(
     const years = Math.floor(yearsSinceCreation);
     milestones.push({
       emoji: "🎂",
-      label: `${years} ${years === 1 ? "ano" : "anos"} de colônia`,
+      label: (years === 1 ? t("milestones.yearsSingular") : t("milestones.yearsPlural")).replace(
+        "{years}",
+        String(years)
+      ),
       date: new Date(colonyCreatedAt),
     });
   }
@@ -75,29 +80,31 @@ export function computeMilestones(
     const fifthCatEvent = ascending.filter((event) => event.event_type === "new_cat")[4];
     milestones.push({
       emoji: "🏆",
-      label: "5 gatos cadastrados",
+      label: t("milestones.fiveCatsRegistered"),
       date: fifthCatEvent ? new Date(fifthCatEvent.created_at) : new Date(),
     });
   }
 
   const checkIns = ascending.filter((event) => event.event_type === "feeding" || event.event_type === "water");
   if (checkIns.length >= 10) {
-    milestones.push({ emoji: "🏆", label: "10 check-ins registrados", date: new Date(checkIns[9].created_at) });
+    milestones.push({ emoji: "🏆", label: t("milestones.tenCheckIns"), date: new Date(checkIns[9].created_at) });
   }
 
   const firstResolved = firstOf("report_resolved");
   if (firstResolved) {
-    milestones.push({ emoji: "🏆", label: "Primeiro relato resolvido", date: new Date(firstResolved.created_at) });
+    milestones.push({ emoji: "🏆", label: t("milestones.firstReportResolved"), date: new Date(firstResolved.created_at) });
   }
 
   return milestones.sort((a, b) => a.date.getTime() - b.date.getTime());
 }
 
-const PENDING_PLACEHOLDERS: { eventType: string; emoji: string; label: string }[] = [
-  { eventType: "new_caretaker", emoji: "👤", label: "Primeiro cuidador" },
-  { eventType: "new_cat", emoji: "🐾", label: "Primeiro gato nomeado" },
-  { eventType: "cat_castrated", emoji: "✂️", label: "Primeira castração" },
-];
+function getPendingPlaceholders(t: (key: string) => string): { eventType: string; emoji: string; label: string }[] {
+  return [
+    { eventType: "new_caretaker", emoji: "👤", label: t("milestones.firstCaretaker") },
+    { eventType: "new_cat", emoji: "🐾", label: t("milestones.firstCatNamed") },
+    { eventType: "cat_castrated", emoji: "✂️", label: t("milestones.firstCastration") },
+  ];
+}
 
 export default function ColonyMilestones({
   colonyCreatedAt,
@@ -108,16 +115,18 @@ export default function ColonyMilestones({
   catCount: number;
   timelineEvents: TimelineEventLike[];
 }) {
-  const milestones = computeMilestones(colonyCreatedAt, catCount, timelineEvents);
+  const { t, language } = useLanguage();
+  const milestones = computeMilestones(colonyCreatedAt, catCount, timelineEvents, t);
   const achievedEventTypes = new Set(
     timelineEvents.map((event) => event.event_type).filter(Boolean)
   );
-  const pending = PENDING_PLACEHOLDERS.filter((placeholder) => !achievedEventTypes.has(placeholder.eventType));
+  const pending = getPendingPlaceholders(t).filter((placeholder) => !achievedEventTypes.has(placeholder.eventType));
+  const dateLocale = language === "en" ? "en-US" : "pt-BR";
 
   return (
     <div className="mb-6">
       <p className="text-xs font-semibold uppercase tracking-[0.1em] text-felines-accent-hover">
-        Milestones
+        {t("milestones.heading")}
       </p>
       <div className="mt-3 flex gap-3 overflow-x-auto pb-2">
         {milestones.map((milestone, index) => (
@@ -131,7 +140,7 @@ export default function ColonyMilestones({
             </span>
             <p className="text-sm font-medium text-felines-text-primary">{milestone.label}</p>
             <p className="text-xs text-felines-text-secondary">
-              {milestone.date.toLocaleDateString("pt-BR")}
+              {milestone.date.toLocaleDateString(dateLocale)}
             </p>
           </div>
         ))}
@@ -144,7 +153,7 @@ export default function ColonyMilestones({
               {placeholder.emoji}
             </span>
             <p className="text-sm font-medium text-felines-text-secondary">{placeholder.label}</p>
-            <p className="text-xs text-felines-text-secondary">Em breve</p>
+            <p className="text-xs text-felines-text-secondary">{t("milestones.comingSoon")}</p>
           </div>
         ))}
       </div>

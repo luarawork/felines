@@ -1,3 +1,5 @@
+"use client";
+
 // /colony/new route for Felines.
 // Requires authentication. Renders the NewColonyForm client component,
 // which lets a signed-in user register a colony with validation
@@ -6,20 +8,22 @@
 // rest of the site, instead of a bare form dropped on a blank page.
 import NewColonyForm from "@/components/NewColonyForm";
 import Reveal from "@/components/Reveal";
+import { useLanguage } from "@/lib/i18n";
 
 export default function NewColonyPage() {
+  const { t } = useLanguage();
   return (
     <section className="bg-felines-background py-16">
       <div className="mx-auto max-w-2xl px-4 sm:px-6">
         <Reveal>
           <p className="text-xs font-semibold uppercase tracking-[0.1em] text-felines-accent-hover">
-            Nova colônia
+            {t("newColony.pageLabel")}
           </p>
           <h1 className="mt-3 text-3xl font-bold leading-tight text-felines-text-primary sm:text-[40px]">
-            Coloque essa colônia no mapa
+            {t("newColony.pageTitle")}
           </h1>
           <p className="mt-3 text-base leading-relaxed text-felines-text-secondary">
-            Com isso, qualquer vizinho consegue encontrar e ajudar a cuidar dela também.
+            {t("newColony.pageSub")}
           </p>
         </Reveal>
 

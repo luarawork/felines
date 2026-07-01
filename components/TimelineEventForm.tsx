@@ -29,7 +29,7 @@ export default function TimelineEventForm({ colonyId }: { colonyId: string }) {
   const { session, canManage, checkingAccess } = useColonyAccessContext();
   const { t } = useLanguage();
 
-  const [eventType, setEventType] = useState(EVENT_TYPE_KEYS[0]);
+  const [eventType, setEventType] = useState<(typeof EVENT_TYPE_KEYS)[number]>(EVENT_TYPE_KEYS[0]);
   const [description, setDescription] = useState("");
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [submitting, setSubmitting] = useState(false);

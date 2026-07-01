@@ -9,13 +9,17 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { NEIGHBOR_PROFILES, QUIZ_QUESTIONS, type NeighborProfileKey } from "@/lib/quiz";
+import { getNeighborProfiles, getQuizQuestions, type NeighborProfileKey } from "@/lib/quiz";
+import { useLanguage } from "@/lib/i18n";
 
 // Index of the question whose answer determines the resulting profile —
 // see lib/quiz.ts for why only this one is scored.
 const SCORING_QUESTION_INDEX = 1;
 
 export default function Quiz({ onSkip }: { onSkip?: () => void }) {
+  const { t } = useLanguage();
+  const QUIZ_QUESTIONS = getQuizQuestions(t);
+  const NEIGHBOR_PROFILES = getNeighborProfiles(t);
   // Tracks which option index was picked per question — not the profile
   // value itself, since several options in the same question can share
   // a profile (selecting by value would highlight all of them at once).
@@ -55,7 +59,7 @@ export default function Quiz({ onSkip }: { onSkip?: () => void }) {
   if (submitted && resultProfile) {
     return (
       <div className="mt-4 rounded-xl border border-felines-border bg-felines-surface p-5">
-        <p className="text-sm font-medium text-felines-text-secondary">Seu perfil</p>
+        <p className="text-sm font-medium text-felines-text-secondary">{t("quiz.yourProfile")}</p>
         <h3 className="mt-1 text-lg font-bold text-felines-text-primary">
           {resultProfile.title}
         </h3>
@@ -63,16 +67,16 @@ export default function Quiz({ onSkip }: { onSkip?: () => void }) {
           {resultProfile.description}
         </p>
         <p className="mt-3 text-sm font-medium text-felines-text-primary">
-          Primeira ação sugerida: {resultProfile.firstAction}
+          {t("quiz.suggestedFirstAction").replace("{action}", resultProfile.firstAction)}
         </p>
         <p className="mt-4 text-sm text-felines-text-secondary">
-          Agora que você já sabe o que é uma colônia, quer ver se existe uma perto de você?
+          {t("quiz.seeIfNearYou")}
         </p>
         <Link
           href="/map"
           className="mt-2 inline-block rounded-full bg-felines-accent px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-felines-accent-hover"
         >
-          Ver o mapa
+          {t("quiz.seeMap")}
         </Link>
       </div>
     );
@@ -84,15 +88,15 @@ export default function Quiz({ onSkip }: { onSkip?: () => void }) {
 
   return (
     <div className="mt-4 rounded-xl border border-felines-border bg-felines-surface p-5">
-      <h3 className="font-semibold text-felines-text-primary">Que tipo de vizinho você é?</h3>
+      <h3 className="font-semibold text-felines-text-primary">{t("quiz.heading")}</h3>
       <p className="mt-1 text-xs text-felines-text-secondary">
-        Não existe resposta errada — isso é só pra te ajudar a achar seu primeiro passo.
+        {t("quiz.noWrongAnswer")}
       </p>
 
       <div className="mt-3 flex gap-1.5">
         {QUIZ_QUESTIONS.map((quizQuestion, index) => (
           <span
-            key={quizQuestion.question}
+            key={index}
             className={`h-1.5 flex-1 rounded-full transition-colors ${
               index <= currentQuestion ? "bg-felines-accent" : "bg-felines-border"
             }`}
@@ -110,7 +114,7 @@ export default function Quiz({ onSkip }: { onSkip?: () => void }) {
 
             return (
               <button
-                key={option.label}
+                key={optionIndex}
                 type="button"
                 onClick={() => selectAnswer(currentQuestion, optionIndex)}
                 className={`block w-full rounded-md border px-3 py-2 text-left text-sm transition-colors ${
@@ -135,7 +139,7 @@ export default function Quiz({ onSkip }: { onSkip?: () => void }) {
             }}
             className="text-sm font-medium text-felines-text-secondary hover:text-felines-accent"
           >
-            ← Voltar
+            {t("quiz.back")}
           </button>
         )}
         {isLastQuestion && allAnswered && (
@@ -143,14 +147,14 @@ export default function Quiz({ onSkip }: { onSkip?: () => void }) {
             onClick={() => setSubmitted(true)}
             className="rounded-full bg-felines-accent px-4 py-2 text-sm font-medium text-white"
           >
-            Ver meu perfil
+            {t("quiz.seeMyProfile")}
           </button>
         )}
         <button
           onClick={onSkip}
           className="text-sm font-medium text-felines-text-secondary hover:text-felines-accent"
         >
-          Fazer isso depois
+          {t("quiz.doItLater")}
         </button>
       </div>
     </div>

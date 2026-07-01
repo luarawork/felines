@@ -1,41 +1,11 @@
 // /colony/:id route for Felines.
-// Server component that loads a single colony's public data (name,
-// narrative, castration status, named cats, and timeline) and renders
-// the colony detail page in the same editorial style as the home page
-// and /profile: a full-bleed hero with a gradient overlay, Reveal-animated
-// sections, and card styles consistent with the rest of the site. Exact
-// coordinates are never fetched here — only data already safe for public
-// display. Sections below the hero are organized into tabs to keep the
-// page scannable instead of one long scroll.
+// Server component that fetches all colony data and passes it to
+// ColonyDetailClient, a client component that handles i18n and interactive
+// rendering. Exact coordinates are never fetched here.
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
-import ShareButton from "@/components/ShareButton";
-import ShareStoryButton from "@/components/ShareStoryButton";
-import HelpRequestButton from "@/components/HelpRequestButton";
-import HelpRequestBanner from "@/components/HelpRequestBanner";
-import FollowColonyButton from "@/components/FollowColonyButton";
-import VerifyColonyButton from "@/components/VerifyColonyButton";
-import NeuteringRequestButton from "@/components/NeuteringRequestButton";
-import ColonyActions from "@/components/ColonyActions";
-import WeatherBanner from "@/components/WeatherBanner";
-import CatManager from "@/components/CatManager";
-import CaretakerLetters from "@/components/CaretakerLetters";
-import TimelineEventForm from "@/components/TimelineEventForm";
-import ColonyTabs from "@/components/ColonyTabs";
-import EditColonyButton from "@/components/EditColonyButton";
-import EmptyState from "@/components/EmptyState";
-import ThankYouButton from "@/components/ThankYouButton";
-import MarkCatSeenButton from "@/components/MarkCatSeenButton";
-import FlagButton from "@/components/FlagButton";
-import ColonyAccessProvider from "@/components/ColonyAccessProvider";
-import Reveal from "@/components/Reveal";
-import RotatingSingleFact from "@/components/RotatingSingleFact";
-import TimelinePhoto from "@/components/TimelinePhoto";
-import ColonyMilestones from "@/components/ColonyMilestones";
-import ColonyStatsTab from "@/components/ColonyStatsTab";
-import ActionThanksButton from "@/components/ActionThanksButton";
-import Link from "next/link";
+import ColonyDetailClient from "@/components/ColonyDetailClient";
 
 // Contextual facts shown on every colony page — general background on
 // street cats, not specific to this particular colony, but relevant
@@ -57,86 +27,6 @@ const COLONY_FACT_CHIPS: string[] = [
   "📊 Gatos de rua vivem em média 3 a 5 anos; os cuidados aumentam essa estimativa",
   "📊 No Brasil, gatos são os animais com maior índice de abandono",
 ];
-
-type Cat = {
-  id: string;
-  name: string | null;
-  photo_url: string | null;
-  castrated: boolean;
-  last_seen: string | null;
-};
-
-type TimelineEvent = {
-  id: string;
-  event_type: string;
-  description: string | null;
-  photo_url: string | null;
-  created_at: string;
-  created_by: string | null;
-};
-
-const CASTRATION_LABELS: Record<string, string> = {
-  none: "Ninguém castrado ainda",
-  partial: "Castração em andamento",
-  full: "Todo mundo castrado",
-};
-
-const HEALTH_STATUS_LABELS: Record<string, string> = {
-  thriving: "🟢 Próspera",
-  stable: "🟡 Estável",
-  needs_attention: "🟠 Precisa de atenção",
-  at_risk: "🔴 Em risco",
-};
-
-// timeline_events.event_type has no check constraint (see
-// TimelineEventForm), so values come from a few different places —
-// this just needs to cover every value any of them actually inserts.
-const EVENT_TYPE_LABELS: Record<string, string> = {
-  colony_created: "Colônia cadastrada",
-  feeding: "Alimentação registrada",
-  water: "Água registrada",
-  new_caretaker: "Novo cuidador",
-  new_cat: "Novo gato na colônia",
-  cat_castrated: "Gato castrado",
-  caretaker_letter_updated: "Carta de cuidador atualizada",
-  colony_info_updated: "Informações da colônia atualizadas",
-  cover_photo_changed: "Foto de capa trocada",
-  report_resolved: "Relato resolvido",
-  thank_you: "Agradecimento",
-  castration_round: "Rodada de castração",
-  health_issue: "Problema de saúde",
-  feeding_change: "Mudança na alimentação",
-  relocation: "Mudança de local",
-  photo_update: "Foto da colônia",
-  other: "Outra atualização",
-  extreme_heat: "🌡️ Calor extremo",
-  extreme_cold: "🌡️ Frio extremo",
-  heavy_rain: "🌧️ Chuva forte",
-  neutering_completed: "✂️ Castração concluída",
-  colony_edited: "Informações atualizadas",
-};
-
-// System-generated events (weather, automated detections) and edit-log
-// entries — rendered with lighter styling than user actions so they
-// don't visually compete with what a caretaker actually did.
-const SYSTEM_EVENT_TYPES = new Set(["extreme_heat", "extreme_cold", "heavy_rain", "colony_edited"]);
-
-function eventTypeLabel(eventType: string): string {
-  return EVENT_TYPE_LABELS[eventType] ?? eventType.replace(/_/g, " ");
-}
-
-// Castration status is a manual field set at registration/edit time, but
-// once cats are individually tracked, the count of cats actually marked
-// castrated is more trustworthy than that one static field — this shows
-// the live count whenever there's at least one cat registered, and only
-// falls back to the manual status for colonies with no cats yet.
-function resolveCastrationLabel(castrationStatus: string, cats: Cat[]): string {
-  if (cats.length === 0) return CASTRATION_LABELS[castrationStatus] ?? castrationStatus;
-  const castratedCount = cats.filter((cat) => cat.castrated).length;
-  if (castratedCount === 0) return "Nenhum gato castrado ainda";
-  if (castratedCount === cats.length) return "Todos os gatos castrados";
-  return `${castratedCount} de ${cats.length} gatos castrados`;
-}
 
 export async function generateMetadata({
   params,
@@ -207,7 +97,7 @@ export default async function ColonyDetailPage({
     .eq("colony_id", id)
     .eq("status", "open")
     .gt("expires_at", new Date().toISOString())
-    .order("urgency", { ascending: false }) // "urgent" sorts before "normal" alphabetically
+    .order("urgency", { ascending: false })
     .order("created_at", { ascending: false })
     .limit(1);
 
@@ -258,13 +148,13 @@ export default async function ColonyDetailPage({
       ? await supabase.from("profiles").select("id, display_name, avatar_url").in("id", allAuthorIds)
       : { data: [] };
 
-  function authorName(userId: string) {
-    return (authorProfiles ?? []).find((profile) => profile.id === userId)?.display_name || "Alguém da comunidade";
-  }
-
-  function authorAvatar(userId: string) {
-    return (authorProfiles ?? []).find((profile) => profile.id === userId)?.avatar_url ?? null;
-  }
+  const caretakers = caretakerUserIds.map((userId) => ({
+    userId,
+    displayName:
+      (authorProfiles ?? []).find((p) => p.id === userId)?.display_name ?? "",
+    avatarUrl:
+      (authorProfiles ?? []).find((p) => p.id === userId)?.avatar_url ?? null,
+  }));
 
   // Powers the "Relatórios" tab. All four are SECURITY DEFINER RPCs
   // (0046) returning aggregates only, scoped to this one colony — not a
@@ -305,423 +195,23 @@ export default async function ColonyDetailPage({
     days_since_registered: 0,
   };
 
-  const caretakers = caretakerUserIds.map((userId) => ({
-    userId,
-    displayName: authorName(userId),
-    avatarUrl: authorAvatar(userId),
-  }));
-
-  // This is a server component rendered fresh per request, not a
-  // client component re-rendered in place — Date.now() here just reads
-  // the request time once, it isn't a purity hazard in practice.
-  const now = Date.now(); // eslint-disable-line react-hooks/purity
-
-  const catsSection = (
-    <>
-      {!cats || cats.length === 0 ? (
-        <EmptyState
-          main="Ainda não tem nenhum gato cadastrado aqui."
-          sub="Quem cuida dessa colônia pode adicionar os gatos um por um, com nome e foto."
-        />
-      ) : (
-        <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
-          {(cats as Cat[]).map((cat, index) => {
-            const daysSinceSeen = cat.last_seen
-              ? (now - new Date(cat.last_seen).getTime()) / (1000 * 60 * 60 * 24)
-              : null;
-            const isStale = daysSinceSeen === null || daysSinceSeen >= 7;
-
-            return (
-              <Reveal key={cat.id} delayMs={Math.min(index, 6) * 60}>
-                <div className="h-full rounded-2xl border border-felines-border bg-felines-surface p-4 shadow-[0_2px_8px_rgba(0,0,0,0.05)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(0,0,0,0.10)]">
-                  {cat.photo_url ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={cat.photo_url}
-                      alt={cat.name ?? "Gato da colônia"}
-                      className="h-32 w-full rounded-xl object-cover"
-                    />
-                  ) : (
-                    <div className="h-32 w-full rounded-xl bg-felines-border" />
-                  )}
-                  <p className="mt-3 font-semibold text-felines-text-primary">
-                    {cat.name ?? "Sem nome"}
-                  </p>
-                  <p className="text-xs text-felines-text-secondary">
-                    {cat.castrated ? "Já castrado" : "Ainda não castrado"}
-                    {cat.last_seen &&
-                      ` · Visto em ${new Date(cat.last_seen).toLocaleDateString("pt-BR")}`}
-                  </p>
-                  {isStale && (
-                    <>
-                      <p className="mt-1 text-xs text-felines-warning">
-                        Ninguém viu {cat.name ?? "ele"} há um tempo. Sabe se ele está bem?
-                      </p>
-                      <MarkCatSeenButton catId={cat.id} catName={cat.name ?? "esse gato"} colonyId={colony.id} />
-                    </>
-                  )}
-                </div>
-              </Reveal>
-            );
-          })}
-        </div>
-      )}
-
-      {/* Cat management, visible only to the colony's creator/caretakers */}
-      <CatManager colonyId={colony.id} />
-    </>
-  );
-
-  const uncastratedCats = (cats as Cat[] | null)?.filter((cat) => !cat.castrated) ?? [];
-  const totalCats = (cats as Cat[] | null)?.length ?? 0;
-  const castratedCount = (cats as Cat[] | null)?.filter((cat) => cat.castrated).length ?? 0;
-
-  const needsSection = (
-    <div className="space-y-6">
-      {/* Castration needs */}
-      <div>
-        <p className="text-sm font-semibold text-felines-text-primary">
-          Situação das castrações
-        </p>
-        {totalCats === 0 ? (
-          <p className="mt-2 text-sm text-felines-text-secondary">
-            Nenhum gato cadastrado ainda. Cadastre os gatos na aba Gatos para acompanhar a castração.
-          </p>
-        ) : (
-          <>
-            <div className="mt-2 h-3 w-full max-w-sm rounded-full bg-felines-border">
-              <div
-                className="h-3 rounded-full transition-all duration-700 ease-out"
-                style={{ width: `${Math.round((castratedCount / totalCats) * 100)}%`, backgroundColor: "#6B8F6A" }}
-              />
-            </div>
-            <p className="mt-1 text-sm text-felines-text-secondary">
-              {castratedCount} de {totalCats} gato{totalCats !== 1 ? "s" : ""} castrado{castratedCount !== 1 ? "s" : ""}
-            </p>
-            {uncastratedCats.length > 0 && (
-              <div className="mt-3">
-                <p className="text-xs font-medium text-felines-text-secondary uppercase tracking-wide">
-                  Ainda precisam castrar
-                </p>
-                <div className="mt-2 flex flex-wrap gap-2">
-                  {uncastratedCats.map((cat) => (
-                    <span
-                      key={cat.id}
-                      className="rounded-full border border-felines-warning bg-felines-warning/10 px-3 py-1 text-xs font-medium text-felines-warning"
-                    >
-                      {cat.name ?? "Sem nome"}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
-          </>
-        )}
-      </div>
-
-      {/* Active neutering request */}
-      {activeNeuteringRequest && (
-        <div className="rounded-xl border border-felines-accent/30 bg-felines-accent-light p-4">
-          <p className="text-sm font-semibold text-felines-text-primary">
-            ✂️ Pedido de castração ativo
-          </p>
-          <p className="mt-1 text-sm text-felines-text-secondary">
-            {activeNeuteringRequest.cats_count} gato{activeNeuteringRequest.cats_count !== 1 ? "s" : ""} aguardando castração ·{" "}
-            urgência {activeNeuteringRequest.urgency === "high" ? "alta" : activeNeuteringRequest.urgency === "medium" ? "média" : "baixa"}
-          </p>
-        </div>
-      )}
-
-      {/* Active help request */}
-      {activeHelpRequest && (
-        <div className="rounded-xl border border-felines-emergency/30 bg-felines-emergency/5 p-4">
-          <p className="text-sm font-semibold text-felines-text-primary">
-            🆘 Pedido de ajuda ativo
-          </p>
-          <p className="mt-1 text-sm text-felines-text-secondary">
-            {activeHelpRequest.description || activeHelpRequest.type}
-          </p>
-        </div>
-      )}
-
-      {/* No needs */}
-      {!activeNeuteringRequest && !activeHelpRequest && uncastratedCats.length === 0 && totalCats > 0 && (
-        <div className="rounded-xl border border-felines-success/30 bg-felines-success/5 p-4">
-          <p className="font-semibold text-felines-success">✅ Tudo em ordem</p>
-          <p className="mt-1 text-sm text-felines-text-secondary">
-            Todos os gatos cadastrados estão castrados e não há pedidos de ajuda ativos.
-          </p>
-        </div>
-      )}
-
-      <div className="pt-2">
-        <NeuteringRequestButton colonyId={colony.id} />
-      </div>
-    </div>
-  );
-
-  const hasNoTimelineEntriesEver = !timelineEvents || timelineEvents.length === 0;
-  const mostRecentEventDate = timelineEvents?.[0]?.created_at
-    ? new Date(timelineEvents[0].created_at)
-    : null;
-  const daysSinceLastUpdate = mostRecentEventDate
-    ? (now - mostRecentEventDate.getTime()) / (1000 * 60 * 60 * 24)
-    : null;
-  const hasStaleUpdates =
-    !hasNoTimelineEntriesEver && daysSinceLastUpdate !== null && daysSinceLastUpdate >= 7;
-
-  const timelineSection = (
-    <>
-      <ColonyMilestones
-        colonyCreatedAt={colony.created_at}
-        catCount={cats?.length ?? 0}
-        timelineEvents={timelineEvents ?? []}
-      />
-
-      <TimelineEventForm colonyId={colony.id} />
-
-      {hasNoTimelineEntriesEver && (
-        <div className="mt-4">
-          <EmptyState
-            main="A linha do tempo dessa colônia ainda está em branco."
-            sub="Alimentação, gato novo, castração — qualquer atualização ajuda quem passar por aqui depois."
-            ctas={[{ label: "Contar algo →", href: "#colony-report-button" }]}
-          />
-        </div>
-      )}
-
-      {hasStaleUpdates && (
-        <div className="mt-4">
-          <EmptyState
-            main="Faz um tempo que ninguém atualiza essa colônia. Sabe o que está acontecendo aqui?"
-            ctas={[{ label: "Contar algo →", href: "#colony-report-button" }]}
-          />
-        </div>
-      )}
-
-      {!timelineEvents || timelineEvents.length === 0 ? null : (
-        <ol className="mt-4 space-y-4 border-l-2 border-felines-accent pl-5">
-          {(timelineEvents as TimelineEvent[]).map((event, index) => (
-            <Reveal key={event.id} delayMs={Math.min(index, 8) * 60}>
-              <li>
-                <div
-                  className={`rounded-xl border p-4 ${
-                    SYSTEM_EVENT_TYPES.has(event.event_type)
-                      ? "border-felines-border/60 bg-felines-surface/60"
-                      : "border-felines-border bg-felines-surface"
-                  }`}
-                >
-                  <p
-                    className={`text-sm font-medium ${
-                      SYSTEM_EVENT_TYPES.has(event.event_type)
-                        ? "text-felines-text-secondary"
-                        : "text-felines-text-primary"
-                    }`}
-                  >
-                    {eventTypeLabel(event.event_type)}
-                  </p>
-                  {/* colony_edited's description is a JSON-encoded
-                      field/old/new payload (see lib/colonyEditHistory.ts)
-                      meant for EditHistorySection's expandable detail,
-                      not for display here — the main timeline only shows
-                      the generic "Informações atualizadas" title + author. */}
-                  {event.description && event.event_type !== "colony_edited" && (
-                    <p className="mt-1 text-sm text-felines-text-secondary">
-                      {event.description}
-                    </p>
-                  )}
-                  {event.photo_url && (
-                    <TimelinePhoto src={event.photo_url} alt={eventTypeLabel(event.event_type)} />
-                  )}
-                  <div className="mt-1 flex flex-wrap items-center justify-between gap-2">
-                    <p className="text-xs text-felines-text-secondary">
-                      {event.created_by && (
-                        <>
-                          <Link href={`/u/${event.created_by}`} className="text-felines-accent-hover">
-                            {authorName(event.created_by)}
-                          </Link>{" "}
-                          ·{" "}
-                        </>
-                      )}
-                      {new Date(event.created_at).toLocaleDateString("pt-BR")}
-                    </p>
-                    <ActionThanksButton timelineEventId={event.id} />
-                  </div>
-                </div>
-              </li>
-            </Reveal>
-          ))}
-        </ol>
-      )}
-    </>
-  );
-
   return (
-    <div>
-      {/* Shared across the whole page (not just the action card below)
-          so the "Editar" button in the hero itself only renders once
-          access is confirmed, same as everything else gated by it. */}
-      <ColonyAccessProvider colonyId={colony.id}>
-        {/* Hero */}
-        <div className="relative h-72 w-full sm:h-80">
-          {colony.cover_photo_url ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={colony.cover_photo_url}
-              alt={`Foto de capa da colônia ${colony.name}`}
-              className="absolute inset-0 h-full w-full object-cover"
-            />
-          ) : (
-            <div className="absolute inset-0 h-full w-full bg-felines-dark" />
-          )}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
-          <div className="absolute right-4 top-4">
-            <EditColonyButton
-              colonyId={colony.id}
-              initialName={colony.name}
-              initialNarrative={colony.narrative}
-              initialCastrationStatus={colony.castration_status}
-              initialCoverPhotoUrl={colony.cover_photo_url}
-            />
-          </div>
-          <div className="absolute inset-x-0 bottom-0 mx-auto max-w-4xl px-4 pb-6 sm:px-6">
-            <h1 className="text-3xl font-bold leading-tight text-white sm:text-[40px]">
-              {colony.name}
-            </h1>
-            <div className="mt-2 flex flex-wrap gap-2">
-              <span className="inline-block rounded-full bg-white/90 px-3 py-1 text-xs font-medium text-felines-text-primary">
-                {resolveCastrationLabel(colony.castration_status, (cats as Cat[] | null) ?? [])}
-              </span>
-              <span className="inline-block rounded-full bg-white/90 px-3 py-1 text-xs font-medium text-felines-text-primary">
-                {HEALTH_STATUS_LABELS[colony.health_status] ?? colony.health_status}
-              </span>
-            </div>
-          </div>
-        </div>
-
-        <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6">
-          {hasFalsePinWarning && (
-            <div className="mb-6 rounded-xl border border-felines-emergency bg-felines-emergency/10 px-4 py-3 text-sm text-felines-text-primary">
-              ⚠️ Essa colônia foi sinalizada por membros da comunidade. Confira as informações antes
-              de visitar o local.
-            </div>
-          )}
-          {activeHelpRequest && <HelpRequestBanner request={activeHelpRequest} />}
-
-          <div className="mb-6 flex flex-wrap items-start justify-between gap-3">
-            <div className="flex-1">
-              <WeatherBanner lat={colony.latitude_blurred} lon={colony.longitude_blurred} />
-            </div>
-            <div className="flex items-center gap-3">
-              <FollowColonyButton colonyId={colony.id} />
-              <ShareButton title={`${colony.name} — Felines`} />
-            </div>
-          </div>
-
-          {caretakers.length > 0 && (
-            <Reveal>
-              <p className="text-xs font-semibold uppercase tracking-[0.1em] text-felines-accent-hover">
-                Quem cuida
-              </p>
-              <div className="mt-3 flex flex-wrap gap-4">
-                {caretakers.map((caretaker) => (
-                  <div key={caretaker.userId} className="flex flex-col items-center gap-1.5 text-center">
-                    <Link href={`/u/${caretaker.userId}`}>
-                      {caretaker.avatarUrl ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
-                          src={caretaker.avatarUrl}
-                          alt={caretaker.displayName}
-                          className="h-16 w-16 rounded-full border border-felines-border object-cover"
-                        />
-                      ) : (
-                        <div className="h-16 w-16 rounded-full border border-felines-border bg-felines-accent-light" />
-                      )}
-                    </Link>
-                    <Link
-                      href={`/u/${caretaker.userId}`}
-                      className="max-w-[80px] truncate text-xs font-medium text-felines-text-primary hover:text-felines-accent-hover"
-                    >
-                      {caretaker.displayName}
-                    </Link>
-                    <ThankYouButton
-                      colonyId={colony.id}
-                      caretakerUserId={caretaker.userId}
-                      caretakerDisplayName={caretaker.displayName}
-                    />
-                  </div>
-                ))}
-              </div>
-            </Reveal>
-          )}
-
-          <div className="mt-4">
-            <VerifyColonyButton
-              colonyId={colony.id}
-              verifiedStatus={colony.verified_status}
-              verifiedAt={colony.verified_at}
-            />
-          </div>
-
-          <Reveal delayMs={80}>
-            {colony.narrative && (
-              <p className="mt-6 max-w-2xl text-base leading-relaxed text-felines-text-secondary">
-                {colony.narrative}
-              </p>
-            )}
-
-            <div className="mt-4">
-              <RotatingSingleFact facts={COLONY_FACT_CHIPS} />
-            </div>
-          </Reveal>
-
-          {/* Available actions, scoped by the visitor's access level */}
-          <ColonyActions colonyId={colony.id} />
-
-          <div className="mt-6 flex flex-wrap gap-3">
-            <ShareStoryButton colonyId={colony.id} />
-            <HelpRequestButton colonyId={colony.id} />
-            <NeuteringRequestButton colonyId={colony.id} />
-          </div>
-
-          <ColonyTabs
-            tabs={[
-              { id: "timeline", label: "Linha do tempo", content: timelineSection },
-              { id: "cats", label: "Gatos", content: catsSection },
-              { id: "needs", label: "Necessidades", content: needsSection },
-              {
-                id: "reports",
-                label: "Relatórios",
-                content: (
-                  <ColonyStatsTab
-                    stats={colonyStats}
-                    weeklyFeedings={weeklyFeedingRows ?? []}
-                    monthlyReports={monthlyReportRows ?? []}
-                    reportBreakdown={reportBreakdownRows ?? []}
-                    monthlyWeather={monthlyWeatherRows ?? []}
-                    neuteringRequests={neuteringHistoryRows ?? []}
-                    healthScore={colony.health_score}
-                    healthStatus={colony.health_status}
-                    healthBreakdown={healthBreakdown}
-                    colonyCreatedAt={colony.created_at}
-                    timelineEvents={timelineEvents ?? []}
-                  />
-                ),
-              },
-              {
-                id: "letter",
-                label: "Carta de quem cuidou antes",
-                content: <CaretakerLetters colonyId={colony.id} />,
-              },
-            ]}
-            footer={
-              <div className="mt-8">
-                <FlagButton targetType="colony" targetId={colony.id} />
-              </div>
-            }
-          />
-        </div>
-      </ColonyAccessProvider>
-    </div>
+    <ColonyDetailClient
+      colony={colony}
+      cats={(cats ?? []) as Parameters<typeof ColonyDetailClient>[0]["cats"]}
+      timelineEvents={(timelineEvents ?? []) as Parameters<typeof ColonyDetailClient>[0]["timelineEvents"]}
+      caretakers={caretakers}
+      activeHelpRequest={activeHelpRequest}
+      activeNeuteringRequest={activeNeuteringRequest}
+      neuteringHistoryRows={neuteringHistoryRows ?? []}
+      hasFalsePinWarning={hasFalsePinWarning}
+      colonyStats={colonyStats}
+      weeklyFeedingRows={weeklyFeedingRows ?? []}
+      monthlyReportRows={monthlyReportRows ?? []}
+      reportBreakdownRows={reportBreakdownRows ?? []}
+      monthlyWeatherRows={monthlyWeatherRows ?? []}
+      healthBreakdown={healthBreakdown}
+      colonyFactChips={COLONY_FACT_CHIPS}
+    />
   );
 }

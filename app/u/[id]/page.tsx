@@ -8,7 +8,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient";
-import { getReportTypeLabel } from "@/lib/reportTypes";
+import ReportTypeLabel from "@/components/ReportTypeLabel";
 import Reveal from "@/components/Reveal";
 import FlagButton from "@/components/FlagButton";
 
@@ -214,7 +214,7 @@ export default async function CaretakerPublicPage({
               {madeReportRows.map((report, index) => (
                 <Reveal key={report.id} delayMs={Math.min(index, 8) * 60}>
                   <li className="flex items-center justify-between rounded-xl border border-felines-border-on-dark bg-felines-dark-accent px-4 py-3 text-sm">
-                    <span className="text-white">{getReportTypeLabel(report.type)}</span>
+                    <span className="text-white"><ReportTypeLabel value={report.type} /></span>
                     <span className="text-xs text-felines-text-secondary-on-dark">
                       {report.status === "resolved" ? "resolvido" : "aberto"} ·{" "}
                       {new Date(report.created_at).toLocaleDateString("pt-BR")}
@@ -240,7 +240,7 @@ export default async function CaretakerPublicPage({
               {confirmedReports.map((item, index) => (
                 <Reveal key={item.report.id + item.confirmedAt} delayMs={Math.min(index, 8) * 60}>
                   <li className="flex items-center justify-between rounded-xl border border-felines-border-on-dark bg-felines-dark-accent px-4 py-3 text-sm">
-                    <span className="text-white">{getReportTypeLabel(item.report.type)}</span>
+                    <span className="text-white"><ReportTypeLabel value={item.report.type} /></span>
                     <span className="text-xs text-felines-text-secondary-on-dark">
                       {new Date(item.confirmedAt).toLocaleDateString("pt-BR")}
                     </span>

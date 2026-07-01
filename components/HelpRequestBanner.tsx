@@ -10,6 +10,7 @@ import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import { useColonyAccessContext } from "@/components/ColonyAccessProvider";
 import { getHelpRequestTypeIcon, getHelpRequestTypeLabel } from "@/lib/helpRequestTypes";
+import { useLanguage } from "@/lib/i18n";
 
 export type ActiveHelpRequest = {
   id: string;
@@ -21,6 +22,7 @@ export type ActiveHelpRequest = {
 export default function HelpRequestBanner({ request }: { request: ActiveHelpRequest }) {
   const router = useRouter();
   const { session, canManage } = useColonyAccessContext();
+  const { t } = useLanguage();
   const [responding, setResponding] = useState(false);
   const [responded, setResponded] = useState(false);
   const [resolving, setResolving] = useState(false);
@@ -62,8 +64,8 @@ export default function HelpRequestBanner({ request }: { request: ActiveHelpRequ
       }`}
     >
       <p className="font-medium">
-        {getHelpRequestTypeIcon(request.type)} Essa colônia precisa de ajuda:{" "}
-        {getHelpRequestTypeLabel(request.type)} — {request.description}
+        {getHelpRequestTypeIcon(request.type)} {t("helpRequestBanner.needsHelp")}{" "}
+        {getHelpRequestTypeLabel(request.type, t)} — {request.description}
       </p>
       <div className="mt-2 flex flex-wrap items-center gap-3">
         {session && !canManage && (
@@ -72,7 +74,11 @@ export default function HelpRequestBanner({ request }: { request: ActiveHelpRequ
             disabled={responding || responded}
             className="rounded-full bg-felines-accent px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-felines-accent-hover disabled:opacity-50"
           >
-            {responded ? "Cuidador avisado ✓" : responding ? "Enviando..." : "Eu posso ajudar"}
+            {responded
+              ? t("helpRequestBanner.caretakerNotified")
+              : responding
+                ? t("thankYou.sending")
+                : t("helpRequestBanner.canHelp")}
           </button>
         )}
         {canManage && (
@@ -82,13 +88,13 @@ export default function HelpRequestBanner({ request }: { request: ActiveHelpRequ
               disabled={resolving}
               className="rounded-full bg-felines-success px-3 py-1.5 text-xs font-medium text-white transition-colors hover:opacity-90 disabled:opacity-50"
             >
-              Ajuda recebida ✓
+              {t("helpRequestBanner.helpReceived")}
             </button>
             <button
               onClick={handleRenew}
               className="rounded-full border border-felines-border px-3 py-1.5 text-xs font-medium text-felines-text-secondary hover:border-felines-accent"
             >
-              Renovar por mais 7 dias
+              {t("helpRequestBanner.renew")}
             </button>
           </>
         )}

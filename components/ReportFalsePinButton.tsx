@@ -7,9 +7,11 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
-import { FALSE_PIN_REASONS } from "@/lib/falsePinReasons";
+import { FALSE_PIN_REASONS, getFalsePinReasonLabel } from "@/lib/falsePinReasons";
+import { useLanguage } from "@/lib/i18n";
 
 export default function ReportFalsePinButton({ colonyId }: { colonyId: string }) {
+  const { t } = useLanguage();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [open, setOpen] = useState(false);
   const [reason, setReason] = useState(FALSE_PIN_REASONS[0].value);
@@ -44,7 +46,7 @@ export default function ReportFalsePinButton({ colonyId }: { colonyId: string })
   if (!isLoggedIn) return null;
 
   if (submitted) {
-    return <p className="mt-2 text-xs text-felines-text-secondary">Sinalização enviada.</p>;
+    return <p className="mt-2 text-xs text-felines-text-secondary">{t("flag.submitted")}</p>;
   }
 
   if (!open) {
@@ -54,7 +56,7 @@ export default function ReportFalsePinButton({ colonyId }: { colonyId: string })
         onClick={() => setOpen(true)}
         className="mt-2 block text-xs text-felines-text-secondary underline hover:text-felines-emergency"
       >
-        Sinalizar esse pin
+        {t("flag.trigger")}
       </button>
     );
   }
@@ -62,29 +64,29 @@ export default function ReportFalsePinButton({ colonyId }: { colonyId: string })
   return (
     <form onSubmit={handleSubmit} className="mt-2 max-w-[220px] space-y-1.5">
       <select
-        aria-label="Motivo da sinalização"
+        aria-label={t("flag.reasonLabel")}
         value={reason}
         onChange={(event) => setReason(event.target.value)}
         className="w-full rounded-md border border-felines-border bg-white px-2 py-1 text-xs"
       >
         {FALSE_PIN_REASONS.map((option) => (
           <option key={option.value} value={option.value}>
-            {option.label}
+            {getFalsePinReasonLabel(option.value, t)}
           </option>
         ))}
       </select>
       <textarea
-        aria-label="Nota adicional (opcional)"
+        aria-label={t("flag.detailsPlaceholder")}
         value={note}
         onChange={(event) => setNote(event.target.value)}
-        placeholder="Nota (opcional)"
+        placeholder={t("flag.detailsPlaceholder")}
         maxLength={100}
         rows={2}
         className="w-full rounded-md border border-felines-border bg-white px-2 py-1 text-xs"
       />
       <label className="flex items-center gap-1.5 text-xs text-felines-text-secondary">
         <input type="checkbox" checked={anonymous} onChange={(event) => setAnonymous(event.target.checked)} />
-        Enviar anonimamente
+        {t("common.anonymous")}
       </label>
       <div className="flex gap-2">
         <button
@@ -92,10 +94,10 @@ export default function ReportFalsePinButton({ colonyId }: { colonyId: string })
           disabled={submitting}
           className="rounded-full bg-felines-emergency px-2.5 py-1 text-xs font-medium text-white disabled:opacity-50"
         >
-          {submitting ? "Enviando..." : "Enviar"}
+          {submitting ? t("forms.report.submitting") : t("forms.report.submit")}
         </button>
         <button type="button" onClick={() => setOpen(false)} className="text-xs text-felines-text-secondary">
-          Cancelar
+          {t("flag.cancel")}
         </button>
       </div>
     </form>

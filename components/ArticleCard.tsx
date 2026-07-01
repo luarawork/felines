@@ -7,7 +7,7 @@
 "use client";
 import Link from "next/link";
 import type { Article } from "@/lib/articles";
-import { getReadingTimeMinutes } from "@/lib/articles";
+import { getReadingTimeMinutes, localizeArticle } from "@/lib/articles";
 import { useLanguage } from "@/lib/i18n";
 
 export default function ArticleCard({
@@ -19,10 +19,11 @@ export default function ArticleCard({
   isDark?: boolean;
   isRead?: boolean;
 }) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const localized = localizeArticle(article, language);
   return (
     <Link
-      href={article.href ?? `/learn/${article.slug}`}
+      href={localized.href ?? `/learn/${localized.slug}`}
       className={
         isDark
           ? "block h-full rounded-2xl border border-felines-border-on-dark bg-felines-dark-accent p-5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(0,0,0,0.25)]"
@@ -35,7 +36,7 @@ export default function ArticleCard({
             isDark ? "text-white" : "text-felines-text-primary"
           }`}
         >
-          {article.title}
+          {localized.title}
         </h3>
         {isRead && (
           <span className="flex-shrink-0 rounded-full bg-felines-success px-2 py-0.5 text-xs font-semibold text-white">
@@ -48,7 +49,7 @@ export default function ArticleCard({
           isDark ? "text-felines-text-secondary-on-dark" : "text-felines-text-secondary"
         }`}
       >
-        {article.summary}
+        {localized.summary}
       </p>
       <p
         className={`mt-4 border-t pt-3 text-xs uppercase tracking-[0.06em] ${
@@ -57,7 +58,7 @@ export default function ArticleCard({
             : "border-felines-border text-felines-text-secondary"
         }`}
       >
-        {getReadingTimeMinutes(article)} {t("article.readingTime")}
+        {getReadingTimeMinutes(localized)} {t("article.readingTime")}
       </p>
     </Link>
   );

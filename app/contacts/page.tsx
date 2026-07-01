@@ -3,9 +3,8 @@
 // read; any authenticated user can add a new entry.
 // Server component renders the list; client component handles the form.
 import type { Metadata } from "next";
-import Link from "next/link";
 import { createClient } from "@supabase/supabase-js";
-import ContactsBoard from "@/components/ContactsBoard";
+import ContactsPageClient from "@/components/ContactsPageClient";
 
 export const metadata: Metadata = {
   title: "Contatos úteis — Felines",
@@ -62,20 +61,6 @@ export default async function ContactsPage() {
   }, {});
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-12 sm:px-6">
-      <Link href="/" className="text-sm text-felines-text-secondary hover:text-felines-accent">
-        ← Início
-      </Link>
-
-      <h1 className="mt-4 text-3xl font-bold text-felines-text-primary">
-        Contatos úteis
-      </h1>
-      <p className="mt-2 max-w-xl text-base text-felines-text-secondary">
-        Clínicas, ONGs, abrigos e grupos de resgate cadastrados pela comunidade. Se você conhece
-        um contato que ainda não está aqui, adicione.
-      </p>
-
-      <ContactsBoard initialByCity={byCity} categoryLabels={CATEGORY_LABELS} />
-    </div>
+    <ContactsPageClient byCity={byCity} categoryLabels={CATEGORY_LABELS} />
   );
 }

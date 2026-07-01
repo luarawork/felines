@@ -4,8 +4,10 @@ import { useState } from "react";
 import { createPortal } from "react-dom";
 import type { StandaloneQuiz } from "@/lib/caretakerCourse";
 import { useEscapeToClose } from "@/lib/useEscapeToClose";
+import { useLanguage } from "@/lib/i18n";
 
 export default function StandaloneQuizModal({ quiz }: { quiz: StandaloneQuiz }) {
+  const { t } = useLanguage();
   const [open, setOpen] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selected, setSelected] = useState<(number | null)[]>(
@@ -39,7 +41,7 @@ export default function StandaloneQuizModal({ quiz }: { quiz: StandaloneQuiz }) 
         <p className="mt-2 font-semibold text-felines-text-primary">{quiz.title}</p>
         <p className="mt-1 text-xs text-felines-text-secondary">{quiz.description}</p>
         <p className="mt-3 text-xs font-medium text-felines-accent-hover">
-          {quiz.questions.length} perguntas
+          {quiz.questions.length} {t("standaloneQuiz.questions")}
         </p>
       </button>
 
@@ -63,7 +65,7 @@ export default function StandaloneQuizModal({ quiz }: { quiz: StandaloneQuiz }) 
                   </div>
                   <button
                     onClick={() => setOpen(false)}
-                    aria-label="Fechar"
+                    aria-label={t("common.close")}
                     className="flex h-8 w-8 flex-shrink-0 items-center justify-center text-lg text-felines-text-secondary hover:text-felines-text-primary"
                   >
                     ×
@@ -118,7 +120,7 @@ export default function StandaloneQuizModal({ quiz }: { quiz: StandaloneQuiz }) 
                           onClick={() => setCurrentIndex((i) => i - 1)}
                           className="rounded-full border border-felines-border px-4 py-2 text-sm text-felines-text-secondary hover:border-felines-accent"
                         >
-                          Anterior
+                          {t("standaloneQuiz.previous")}
                         </button>
                       )}
                       <div className="ml-auto">
@@ -128,7 +130,7 @@ export default function StandaloneQuizModal({ quiz }: { quiz: StandaloneQuiz }) 
                             disabled={selected[currentIndex] === null}
                             className="rounded-full bg-felines-accent px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-felines-accent-hover disabled:opacity-40"
                           >
-                            Próxima
+                            {t("standaloneQuiz.next")}
                           </button>
                         ) : (
                           <button
@@ -136,7 +138,7 @@ export default function StandaloneQuizModal({ quiz }: { quiz: StandaloneQuiz }) 
                             disabled={!allAnswered}
                             className="rounded-full bg-felines-accent px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-felines-accent-hover disabled:opacity-40"
                           >
-                            Ver resultado
+                            {t("standaloneQuiz.seeResult")}
                           </button>
                         )}
                       </div>
@@ -155,7 +157,7 @@ export default function StandaloneQuizModal({ quiz }: { quiz: StandaloneQuiz }) 
                         {correctCount}/{quiz.questions.length}
                       </p>
                       <p className="mt-1 font-semibold text-felines-text-primary">
-                        {passed ? "Boa! Você passou." : "Quase lá — tente de novo!"}
+                        {passed ? t("standaloneQuiz.passed") : t("standaloneQuiz.almostThere")}
                       </p>
                     </div>
 
@@ -170,7 +172,7 @@ export default function StandaloneQuizModal({ quiz }: { quiz: StandaloneQuiz }) 
                                 isCorrect ? "text-felines-success" : "text-felines-emergency"
                               }`}
                             >
-                              {isCorrect ? "✓ " : "✗ Resposta: "}
+                              {isCorrect ? "✓ " : `✗ ${t("standaloneQuiz.answerPrefix")} `}
                               {q.options[q.correctIndex]}
                             </p>
                           </div>
@@ -187,13 +189,13 @@ export default function StandaloneQuizModal({ quiz }: { quiz: StandaloneQuiz }) 
                         }}
                         className="rounded-full border border-felines-border px-5 py-2 text-sm font-medium text-felines-text-secondary hover:border-felines-accent"
                       >
-                        Tentar novamente
+                        {t("standaloneQuiz.tryAgain")}
                       </button>
                       <button
                         onClick={() => setOpen(false)}
                         className="rounded-full bg-felines-accent px-5 py-2 text-sm font-semibold text-white hover:bg-felines-accent-hover"
                       >
-                        Fechar
+                        {t("common.close")}
                       </button>
                     </div>
                   </div>

@@ -18,11 +18,11 @@ export default function WeatherBanner({
   lon?: number;
 }) {
   const [weather, setWeather] = useState<WeatherSnapshot | null>(null);
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   useEffect(() => {
-    getWeatherAt(lat, lon).then(setWeather);
-  }, [lat, lon]);
+    getWeatherAt(lat, lon, language).then(setWeather);
+  }, [lat, lon, language]);
 
   if (!weather) return null;
 

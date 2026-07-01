@@ -3,9 +3,12 @@
 // server-side via the get_colony_* RPCs (app/colony/[id]/page.tsx) — no
 // charting library in this project, so the two time-series charts are
 // plain CSS bars rather than a canvas/SVG chart.
+"use client";
+
+import { useLanguage } from "@/lib/i18n";
 import { getReportTypeLabel } from "@/lib/reportTypes";
 import { computeMilestones, type TimelineEventLike } from "@/components/ColonyMilestones";
-import { URGENCY_LABELS } from "@/lib/neuteringRequestTypes";
+import { getUrgencyLabel } from "@/lib/neuteringRequestTypes";
 
 type Stats = {
   total_cats: number;
@@ -36,13 +39,6 @@ type HealthBreakdown = {
   castration_score: number;
   reports_score: number;
   caretaker_score: number;
-};
-
-const HEALTH_STATUS_LABELS: Record<string, string> = {
-  thriving: "🟢 Próspera",
-  stable: "🟡 Estável",
-  needs_attention: "🟠 Precisa de atenção",
-  at_risk: "🔴 Em risco",
 };
 
 function BarChart({
@@ -94,20 +90,22 @@ export default function ColonyStatsTab({
   colonyCreatedAt: string;
   timelineEvents: TimelineEventLike[];
 }) {
-  const milestones = computeMilestones(colonyCreatedAt, stats.total_cats, timelineEvents);
+  const { t, language } = useLanguage();
+  const dateLocale = language === "en" ? "en-US" : "pt-BR";
+  const milestones = computeMilestones(colonyCreatedAt, stats.total_cats, timelineEvents, t);
   const castrationPercent =
     stats.total_cats > 0 ? Math.round((stats.cats_castrated / stats.total_cats) * 100) : 0;
 
   const SUMMARY_CARDS = [
-    { label: "Gatos cadastrados", value: stats.total_cats },
-    { label: "Gatos castrados", value: `${stats.cats_castrated} (${castrationPercent}%)` },
-    { label: "Check-ins de alimentação", value: stats.total_feedings },
-    { label: "Relatos enviados", value: stats.total_reports },
-    { label: "Relatos resolvidos", value: stats.total_reports_resolved },
-    { label: "Dias desde o cadastro", value: stats.days_since_registered },
-    { label: "Cuidadores atuais", value: stats.total_caretakers },
-    { label: "Eventos na linha do tempo", value: stats.total_timeline_events },
-    { label: "Eventos climáticos", value: stats.total_weather_events },
+    { label: t("colony.statsTab.catsRegistered"), value: stats.total_cats },
+    { label: t("colony.statsTab.catsCastrated"), value: `${stats.cats_castrated} (${castrationPercent}%)` },
+    { label: t("colony.statsTab.feedingCheckIns"), value: stats.total_feedings },
+    { label: t("colony.statsTab.reportsSubmitted"), value: stats.total_reports },
+    { label: t("colony.statsTab.reportsResolved"), value: stats.total_reports_resolved },
+    { label: t("colony.statsTab.daysSinceRegistered"), value: stats.days_since_registered },
+    { label: t("colony.statsTab.currentCaretakers"), value: stats.total_caretakers },
+    { label: t("colony.statsTab.timelineEvents"), value: stats.total_timeline_events },
+    { label: t("colony.statsTab.weatherEvents"), value: stats.total_weather_events },
   ];
 
   return (
@@ -124,48 +122,48 @@ export default function ColonyStatsTab({
       <div>
         <div className="flex flex-wrap items-center gap-3">
           <p className="text-sm font-semibold text-felines-text-primary">
-            Índice de saúde: {healthScore}/100 — {HEALTH_STATUS_LABELS[healthStatus] ?? healthStatus}
+            {t("colony.statsTab.healthIndex")}: {healthScore}/100 — {t(`colony.health.${healthStatus}`)}
           </p>
         </div>
         <p className="mt-1 text-xs text-felines-text-secondary max-w-xl">
-          Calculado automaticamente a partir de 5 fatores: frequência de alimentação registrada, avistamentos recentes dos gatos, porcentagem de castração, ausência de relatos graves abertos e cobertura de cuidadores. Atualizado a cada nova ação na colônia.
+          {t("colony.statsTab.healthExplainer")}
         </p>
         <div className="mt-4 space-y-4">
           {[
             {
-              label: "Alimentação recente",
+              label: t("colony.statsTab.factors.feeding.label"),
               weight: 30,
               value: healthBreakdown.feeding_score,
               max: 30,
-              how: "Sobe com cada check-in de alimentação registrado nos últimos 30 dias. Chega a 30 com 10 ou mais check-ins no período.",
+              how: t("colony.statsTab.factors.feeding.how"),
             },
             {
-              label: "Gatos vistos recentemente",
+              label: t("colony.statsTab.factors.sighting.label"),
               weight: 25,
               value: healthBreakdown.sighting_score,
               max: 25,
-              how: "Baseado em avistamentos e relatos de gatos nos últimos 7 dias. Chega a 25 quando pelo menos 3 gatos foram vistos no período.",
+              how: t("colony.statsTab.factors.sighting.how"),
             },
             {
-              label: "Taxa de castração",
+              label: t("colony.statsTab.factors.castration.label"),
               weight: 20,
               value: healthBreakdown.castration_score,
               max: 20,
-              how: "Proporcional ao percentual de gatos cadastrados que já foram castrados. 100% de castração vale 20 pontos.",
+              how: t("colony.statsTab.factors.castration.how"),
             },
             {
-              label: "Ausência de relatos graves",
+              label: t("colony.statsTab.factors.reports.label"),
               weight: 15,
               value: healthBreakdown.reports_score,
               max: 15,
-              how: "Começa em 15. Perde pontos por cada relato grave (envenenamento, maus-tratos, surto de doença) ainda sem resolução.",
+              how: t("colony.statsTab.factors.reports.how"),
             },
             {
-              label: "Cobertura de cuidadores",
+              label: t("colony.statsTab.factors.caretaker.label"),
               weight: 10,
               value: healthBreakdown.caretaker_score,
               max: 10,
-              how: "Vale 10 se a colônia tiver pelo menos um cuidador vinculado, 0 se não tiver nenhum.",
+              how: t("colony.statsTab.factors.caretaker.how"),
             },
           ].map((factor) => (
             <div key={factor.label}>
@@ -191,7 +189,10 @@ export default function ColonyStatsTab({
 
       <div>
         <p className="text-sm font-semibold text-felines-text-primary">
-          {stats.cats_castrated} de {stats.total_cats} gatos castrados ({castrationPercent}%)
+          {t("colony.statsTab.castrationSummary")
+            .replace("{castrated}", String(stats.cats_castrated))
+            .replace("{total}", String(stats.total_cats))
+            .replace("{percent}", String(castrationPercent))}
         </p>
         <div className="mt-2 h-3 w-full rounded-full bg-felines-border">
           <div
@@ -200,53 +201,53 @@ export default function ColonyStatsTab({
           />
         </div>
         <p className="mt-2 text-xs text-felines-text-secondary">
-          Colônias totalmente castradas estabilizam a população com o tempo.
+          {t("colony.statsTab.castrationFooter")}
         </p>
       </div>
 
       <div className="grid gap-8 sm:grid-cols-2">
         <div>
           <p className="text-sm font-semibold text-felines-text-primary">
-            Check-ins de alimentação por semana
+            {t("colony.statsTab.weeklyFeedingsTitle")}
           </p>
           <div className="mt-4">
             <BarChart
               data={weeklyFeedings.map((week) => ({ label: week.week_start, value: week.check_in_count }))}
               labelFormatter={(label) =>
-                new Date(label).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" })
+                new Date(label).toLocaleDateString(dateLocale, { day: "2-digit", month: "2-digit" })
               }
             />
           </div>
         </div>
         <div>
-          <p className="text-sm font-semibold text-felines-text-primary">Relatos por mês</p>
+          <p className="text-sm font-semibold text-felines-text-primary">{t("colony.statsTab.monthlyReportsTitle")}</p>
           <div className="mt-4">
             <BarChart
               data={monthlyReports.map((month) => ({ label: month.month_start, value: month.report_count }))}
-              labelFormatter={(label) => new Date(label).toLocaleDateString("pt-BR", { month: "short" })}
+              labelFormatter={(label) => new Date(label).toLocaleDateString(dateLocale, { month: "short" })}
             />
           </div>
         </div>
         <div>
           <p className="text-sm font-semibold text-felines-text-primary">
-            Eventos climáticos por mês
+            {t("colony.statsTab.monthlyWeatherTitle")}
           </p>
           <p className="mt-1 text-xs text-felines-text-secondary">
-            Calor extremo, frio extremo ou chuva forte registrados automaticamente.
+            {t("colony.statsTab.monthlyWeatherSub")}
           </p>
           <div className="mt-4">
             <BarChart
               data={monthlyWeather.map((month) => ({ label: month.month_start, value: month.event_count }))}
-              labelFormatter={(label) => new Date(label).toLocaleDateString("pt-BR", { month: "short" })}
+              labelFormatter={(label) => new Date(label).toLocaleDateString(dateLocale, { month: "short" })}
             />
           </div>
         </div>
       </div>
 
       <div>
-        <p className="text-sm font-semibold text-felines-text-primary">Tipos de relato mais comuns</p>
+        <p className="text-sm font-semibold text-felines-text-primary">{t("colony.statsTab.reportBreakdownTitle")}</p>
         {reportBreakdown.length === 0 ? (
-          <p className="mt-2 text-sm text-felines-text-secondary">Nenhum relato registrado ainda.</p>
+          <p className="mt-2 text-sm text-felines-text-secondary">{t("colony.statsTab.reportBreakdownEmpty")}</p>
         ) : (
           <ul className="mt-3 space-y-2">
             {reportBreakdown.map((row) => {
@@ -255,7 +256,7 @@ export default function ColonyStatsTab({
               return (
                 <li key={row.report_type}>
                   <div className="flex items-center justify-between text-xs text-felines-text-secondary">
-                    <span>{getReportTypeLabel(row.report_type)}</span>
+                    <span>{getReportTypeLabel(row.report_type, t)}</span>
                     <span>{row.report_count}</span>
                   </div>
                   <div className="mt-1 h-2 w-full rounded-full bg-felines-border">
@@ -273,7 +274,7 @@ export default function ColonyStatsTab({
 
       {neuteringRequests.length > 0 && (
         <div>
-          <p className="text-sm font-semibold text-felines-text-primary">Pedidos de castração</p>
+          <p className="text-sm font-semibold text-felines-text-primary">{t("colony.statsTab.neuteringRequestsTitle")}</p>
           <ul className="mt-3 space-y-2">
             {neuteringRequests.map((request) => (
               <li
@@ -281,16 +282,17 @@ export default function ColonyStatsTab({
                 className="flex items-center justify-between rounded-md border border-felines-border px-3 py-2 text-sm"
               >
                 <span className="text-felines-text-primary">
-                  ✂️ {request.cats_count} {request.cats_count === 1 ? "gato" : "gatos"} ·{" "}
-                  {URGENCY_LABELS[request.urgency]}
+                  ✂️ {request.cats_count}{" "}
+                  {request.cats_count === 1 ? t("colony.statsTab.catSingular") : t("colony.statsTab.catPlural")} ·{" "}
+                  {getUrgencyLabel(request.urgency, t)}
                 </span>
                 <span className="text-xs text-felines-text-secondary">
                   {request.status === "completed"
-                    ? "Concluído"
+                    ? t("colony.statsTab.status.completed")
                     : request.status === "in_progress"
-                      ? "Em andamento"
-                      : "Aberto"}{" "}
-                  · {new Date(request.created_at).toLocaleDateString("pt-BR")}
+                      ? t("colony.statsTab.status.in_progress")
+                      : t("colony.statsTab.status.open")}{" "}
+                  · {new Date(request.created_at).toLocaleDateString(dateLocale)}
                 </span>
               </li>
             ))}
@@ -299,7 +301,7 @@ export default function ColonyStatsTab({
       )}
 
       <div>
-        <p className="text-sm font-semibold text-felines-text-primary">Milestones</p>
+        <p className="text-sm font-semibold text-felines-text-primary">{t("milestones.heading")}</p>
         <ul className="mt-3 space-y-2">
           {milestones.map((milestone, index) => (
             <li
@@ -310,7 +312,7 @@ export default function ColonyStatsTab({
                 {milestone.emoji} {milestone.label}
               </span>
               <span className="text-xs text-felines-text-secondary">
-                {milestone.date.toLocaleDateString("pt-BR")}
+                {milestone.date.toLocaleDateString(dateLocale)}
               </span>
             </li>
           ))}

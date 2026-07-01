@@ -21,13 +21,19 @@ export type WeatherSnapshot = {
 // Fetches the current weather for the given coordinates. Returns null if
 // the API key is missing or the request fails, so the UI can simply omit
 // the banner.
-export async function getWeatherAt(lat: number, lon: number): Promise<WeatherSnapshot | null> {
+export async function getWeatherAt(
+  lat: number,
+  lon: number,
+  language: "pt" | "en" = "pt"
+): Promise<WeatherSnapshot | null> {
   const apiKey = process.env.NEXT_PUBLIC_WEATHER_API_KEY;
   if (!apiKey) return null;
 
+  const owmLang = language === "en" ? "en" : "pt_br";
+
   try {
     const response = await fetch(
-      `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&lang=pt_br&appid=${apiKey}`,
+      `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&lang=${owmLang}&appid=${apiKey}`,
       { next: { revalidate: 1800 } } // cache for 30 minutes
     );
 

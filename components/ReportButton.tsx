@@ -7,7 +7,7 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
-import { REPORT_TYPES } from "@/lib/reportTypes";
+import { REPORT_TYPES, getReportTypeLabel } from "@/lib/reportTypes";
 import { submitReport } from "@/lib/submitReport";
 import AnonymousReportNotice from "@/components/AnonymousReportNotice";
 import CreateAccountInvite from "@/components/CreateAccountInvite";
@@ -124,7 +124,7 @@ export default function ReportButton({ colonyId }: { colonyId: string }) {
                 >
                   {REPORT_TYPES.map((reportType) => (
                     <option key={reportType.value} value={reportType.value}>
-                      {reportType.label}
+                      {getReportTypeLabel(reportType.value, t)}
                     </option>
                   ))}
                 </select>

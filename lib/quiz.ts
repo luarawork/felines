@@ -16,55 +16,58 @@ export type QuizQuestion = {
 // Only the commitment question (Q2) determines the resulting profile —
 // it's the most direct signal of how someone wants to participate. The
 // other two questions exist to make the quiz feel personal, not to be
-// scored.
-export const QUIZ_QUESTIONS: QuizQuestion[] = [
-  {
-    question: "Quando você vê gatos na sua rua, qual é a sua primeira sensação?",
-    options: [
-      { label: "Curiosidade — eu fico pensando quem cuida deles", profile: "observer" },
-      { label: "Preocupação — eu me preocupo com o bem-estar deles", profile: "observer" },
-      { label: "Incômodo — eles causam problemas no meu prédio", profile: "backup" },
-      { label: "Neutro — nunca tinha pensado muito nisso", profile: "observer" },
-    ],
-  },
-  {
-    question: "Quanto tempo você poderia dedicar de verdade?",
-    options: [
-      { label: "Posso passar por ali e ver como eles estão de vez em quando", profile: "observer" },
-      { label: "Posso ajudar quando alguém precisar de um apoio", profile: "backup" },
-      { label: "Estou pronto para assumir um papel regular", profile: "guardian" },
-    ],
-  },
-  {
-    question: "O que parece mais natural pra você?",
-    options: [
-      { label: "Aprender mais antes de fazer qualquer coisa", profile: "observer" },
-      { label: "Fazer uma pequena ação agora mesmo", profile: "backup" },
-      { label: "Me conectar com quem já está ajudando", profile: "guardian" },
-    ],
-  },
-];
+// scored. Translated strings come from lib/i18n/{pt,en}.ts under
+// "quizContent.*" — this function only assembles the structure, so `t`
+// is a parameter rather than calling useLanguage() here (this file has
+// no React context of its own).
+export function getQuizQuestions(t: (key: string) => string): QuizQuestion[] {
+  return [
+    {
+      question: t("quizContent.q1.question"),
+      options: [
+        { label: t("quizContent.q1.options.0"), profile: "observer" },
+        { label: t("quizContent.q1.options.1"), profile: "observer" },
+        { label: t("quizContent.q1.options.2"), profile: "backup" },
+        { label: t("quizContent.q1.options.3"), profile: "observer" },
+      ],
+    },
+    {
+      question: t("quizContent.q2.question"),
+      options: [
+        { label: t("quizContent.q2.options.0"), profile: "observer" },
+        { label: t("quizContent.q2.options.1"), profile: "backup" },
+        { label: t("quizContent.q2.options.2"), profile: "guardian" },
+      ],
+    },
+    {
+      question: t("quizContent.q3.question"),
+      options: [
+        { label: t("quizContent.q3.options.0"), profile: "observer" },
+        { label: t("quizContent.q3.options.1"), profile: "backup" },
+        { label: t("quizContent.q3.options.2"), profile: "guardian" },
+      ],
+    },
+  ];
+}
 
-export const NEIGHBOR_PROFILES: Record<
-  NeighborProfileKey,
-  { title: string; description: string; firstAction: string }
-> = {
-  observer: {
-    title: "O Observador",
-    description:
-      "Você prefere entender antes de agir. Isso já é um ótimo primeiro passo — quem observa com atenção é quem nota quando algo realmente precisa de ajuda.",
-    firstAction: "Comece dando uma olhada no mapa pra ver quais colônias já estão mapeadas perto de você.",
-  },
-  backup: {
-    title: "O Apoio",
-    description:
-      "Você não precisa adotar uma colônia inteira pra fazer diferença. Um apoio pontual, na hora certa, já ajuda bastante quem está cuidando todos os dias.",
-    firstAction: "Apoie um cuidador que já existe: registre um relato quando notar algo, ou ofereça ração quando puder.",
-  },
-  guardian: {
-    title: "O Guardião",
-    description:
-      "Você está pronto pra um papel mais constante. E colônias inteiras só se sustentam porque alguém topa fazer exatamente isso.",
-    firstAction: "Veja as colônias já mapeadas e veja se alguma delas faz sentido pra você cuidar.",
-  },
-};
+export function getNeighborProfiles(
+  t: (key: string) => string
+): Record<NeighborProfileKey, { title: string; description: string; firstAction: string }> {
+  return {
+    observer: {
+      title: t("quizContent.profiles.observer.title"),
+      description: t("quizContent.profiles.observer.description"),
+      firstAction: t("quizContent.profiles.observer.firstAction"),
+    },
+    backup: {
+      title: t("quizContent.profiles.backup.title"),
+      description: t("quizContent.profiles.backup.description"),
+      firstAction: t("quizContent.profiles.backup.firstAction"),
+    },
+    guardian: {
+      title: t("quizContent.profiles.guardian.title"),
+      description: t("quizContent.profiles.guardian.description"),
+      firstAction: t("quizContent.profiles.guardian.firstAction"),
+    },
+  };
+}

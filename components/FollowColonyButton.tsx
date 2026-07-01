@@ -8,8 +8,10 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import { useColonyAccessContext } from "@/components/ColonyAccessProvider";
+import { useLanguage } from "@/lib/i18n";
 
 export default function FollowColonyButton({ colonyId }: { colonyId: string }) {
+  const { t } = useLanguage();
   const { session, canManage, checkingAccess } = useColonyAccessContext();
   const [following, setFollowing] = useState(false);
   const [followerCount, setFollowerCount] = useState(0);
@@ -77,10 +79,10 @@ export default function FollowColonyButton({ colonyId }: { colonyId: string }) {
             : "border-felines-border text-felines-text-secondary hover:border-felines-accent hover:text-felines-accent-hover"
         }`}
       >
-        {following ? "Seguindo ✓" : "Seguir essa colônia"}
+        {following ? t("follow.following") : t("follow.follow")}
       </button>
       <span className="text-xs text-felines-text-secondary">
-        {followerCount} {followerCount === 1 ? "pessoa seguindo" : "pessoas seguindo"}
+        {followerCount} {followerCount === 1 ? t("follow.followerSingular") : t("follow.followerPlural")}
       </span>
     </div>
   );

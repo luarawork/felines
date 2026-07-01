@@ -32,9 +32,10 @@ import "leaflet.markercluster/dist/MarkerCluster.css";
 import "leaflet.markercluster/dist/MarkerCluster.Default.css";
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabaseClient";
-import LocationBlurBadge, { BADGE_TEXT, type LocationAccessLevel } from "@/components/LocationBlurBadge";
+import LocationBlurBadge, { type LocationAccessLevel } from "@/components/LocationBlurBadge";
 import EmptyState from "@/components/EmptyState";
 import { getReportTypeLabel } from "@/lib/reportTypes";
+import { useLanguage } from "@/lib/i18n";
 import { submitReport } from "@/lib/submitReport";
 import ReportFalsePinButton from "@/components/ReportFalsePinButton";
 import { FALSE_PIN_REASONS } from "@/lib/falsePinReasons";
@@ -216,30 +217,35 @@ const EMERGENCY_REPORT_TYPES = [
   "threat_to_colony",
 ];
 
-const CASTRATION_LABELS: Record<CastrationStatus, string> = {
-  none: "Nenhum gato castrado",
-  partial: "Castração parcial",
-  full: "Colônia totalmente castrada",
-};
-
 // Once a colony has cats individually registered, the live count is
 // more trustworthy than the manually-set castration_status field —
 // same logic as the colony detail page's resolveCastrationLabel.
 function resolveCastrationLabel(
+  t: (key: string) => string,
   castrationStatus: CastrationStatus,
   catCounts?: { total: number; castrated: number }
 ): string {
-  if (!catCounts || catCounts.total === 0) return CASTRATION_LABELS[castrationStatus];
-  if (catCounts.castrated === 0) return "Nenhum gato castrado ainda";
-  if (catCounts.castrated === catCounts.total) return "Todos os gatos castrados";
-  return `${catCounts.castrated} de ${catCounts.total} gatos castrados`;
+  if (!catCounts || catCounts.total === 0) {
+    if (castrationStatus === "partial") return t("map.castrationPartial");
+    if (castrationStatus === "full") return t("map.castrationFull");
+    return t("map.castrationNone");
+  }
+  if (catCounts.castrated === 0) return t("map.castrationNoneYet");
+  if (catCounts.castrated === catCounts.total) return t("map.castrationAll");
+  return t("map.castrationXOfY")
+    .replace("{castrated}", String(catCounts.castrated))
+    .replace("{total}", String(catCounts.total));
 }
 
-const PIN_TYPE_OPTIONS: { value: PinType; label: string; color: string }[] = [
-  { value: "colony", label: "Colônias", color: "#C4704F" },
-  { value: "sighting", label: "Avistamentos", color: "#6B6B6B" },
-  { value: "emergency", label: "Emergências", color: "#C0392B" },
-];
+function PIN_TYPE_OPTIONS(
+  t: (key: string) => string
+): { value: PinType; label: string; color: string }[] {
+  return [
+    { value: "colony", label: t("map.pinTypeColonies"), color: "#C4704F" },
+    { value: "sighting", label: t("map.pinTypeSightings"), color: "#6B6B6B" },
+    { value: "emergency", label: t("map.pinTypeEmergencies"), color: "#C0392B" },
+  ];
+}
 
 // Uncertainty circle radius (meters) drawn around blurred pins, so the
 // approximation is visually obvious even to someone who doesn't know
@@ -267,6 +273,7 @@ export default function ColonyMap({
   // each other instead of stacking. Just the pins are the point there.
   compact?: boolean;
 }) {
+  const { t } = useLanguage();
   const [colonies, setColonies] = useState<Colony[]>([]);
   const [visibleBounds, setVisibleBounds] = useState<L.LatLngBounds | null>(null);
   // The activity panel itself is always on screen; this only toggles
@@ -565,15 +572,15 @@ export default function ColonyMap({
       <div className="absolute left-4 top-4 z-[1000] w-64 space-y-2 rounded-xl border border-felines-border bg-felines-surface p-3 shadow-lg">
         <input
           type="text"
-          aria-label="Buscar colônia pelo nome"
+          aria-label={t("map.searchColonyLabel")}
           value={searchTerm}
           onChange={(formEvent) => setSearchTerm(formEvent.target.value)}
-          placeholder="Buscar colônia pelo nome"
+          placeholder={t("map.searchColonyPlaceholder")}
           className="w-full rounded-md border border-felines-border bg-white px-3 py-2 text-sm"
         />
 
         <div className="flex flex-wrap gap-2">
-          {PIN_TYPE_OPTIONS.map((option) => {
+          {PIN_TYPE_OPTIONS(t).map((option) => {
             const isActive = visiblePinTypes.has(option.value);
             return (
               <button
@@ -607,11 +614,11 @@ export default function ColonyMap({
                   : "border-felines-border text-felines-text-secondary"
               }`}
             >
-              {heatMapOn ? "Ocultar" : "Mostrar"} colônias que precisam de atenção
+              {heatMapOn ? t("map.hideAttentionColonies") : t("map.showAttentionColonies")}
             </button>
             {heatMapOn && (
               <p className="mt-1 text-xs text-felines-text-secondary">
-                🟠 com relato aberto ou sem alimentação há 7+ dias · 🔴 os dois ao mesmo tempo
+                {t("map.heatMapLegend")}
               </p>
             )}
             <button
@@ -623,7 +630,7 @@ export default function ColonyMap({
                   : "border-felines-border text-felines-text-secondary"
               }`}
             >
-              {showColonyHealth ? "Ocultar" : "Mostrar"} saúde da colônia
+              {showColonyHealth ? t("map.hideColonyHealth") : t("map.showColonyHealth")}
             </button>
           </div>
         )}
@@ -650,30 +657,30 @@ export default function ColonyMap({
           const chips: { label: string; className: string }[] = [];
           if (isFlagged) {
             chips.push({
-              label: "⚠️ Pin sinalizado",
+              label: t("map.flaggedPin"),
               className: "border-felines-emergency bg-felines-emergency/10 text-felines-emergency",
             });
           }
           if (helpUrgency === "urgent") {
             chips.push({
-              label: "🆘 Ajuda urgente",
+              label: t("map.urgentHelp"),
               className: "border-felines-emergency bg-felines-emergency/10 text-felines-emergency",
             });
           } else if (helpUrgency === "normal") {
             chips.push({
-              label: "🙋 Precisa de ajuda",
+              label: t("map.needsHelp"),
               className: "border-felines-warning bg-felines-warning/10 text-felines-warning",
             });
           }
           if (needsNeutering) {
             chips.push({
-              label: "✂️ Castração pendente",
+              label: t("map.castrationPending"),
               className: "border-felines-border bg-felines-surface text-felines-text-secondary",
             });
           }
           if (colony.verified_status === "unverified") {
             chips.push({
-              label: "Não verificada",
+              label: t("map.unverified"),
               className: "border-felines-border bg-felines-surface text-felines-text-secondary",
             });
           }
@@ -703,7 +710,7 @@ export default function ColonyMap({
                 )}
 
                 <p className="text-xs text-felines-text-secondary">
-                  {resolveCastrationLabel(colony.castration_status, catCountsByColonyId.get(colony.id))}
+                  {resolveCastrationLabel(t, colony.castration_status, catCountsByColonyId.get(colony.id))}
                 </p>
 
                 <LocationBlurBadge level={level} />
@@ -762,7 +769,7 @@ export default function ColonyMap({
               eventHandlers={{ click: handleColonyPinClick }}
             >
               <Tooltip direction="top" opacity={1}>
-                🔒 {BADGE_TEXT[level]}
+                🔒 {level === 1 ? t("locationBlur.signIn") : t("locationBlur.becomeCaretaker")}
               </Tooltip>
               {popupContent}
             </Circle>
@@ -788,7 +795,7 @@ export default function ColonyMap({
             const chips: { label: string; className: string }[] = [];
             if (isFlagged) {
               chips.push({
-                label: "⚠️ Pin sinalizado",
+                label: t("map.flaggedPin"),
                 className: "border-felines-emergency bg-felines-emergency/10 text-felines-emergency",
               });
             }
@@ -805,13 +812,13 @@ export default function ColonyMap({
             }
             if (needsNeutering) {
               chips.push({
-                label: "✂️ Castração pendente",
+                label: t("map.castrationPending"),
                 className: "border-felines-border bg-felines-surface text-felines-text-secondary",
               });
             }
             if (colony.verified_status === "unverified") {
               chips.push({
-                label: "Não verificada",
+                label: t("map.unverified"),
                 className: "border-felines-border bg-felines-surface text-felines-text-secondary",
               });
             }
@@ -855,7 +862,7 @@ export default function ColonyMap({
                     )}
 
                     <p className="text-xs text-felines-text-secondary">
-                      {resolveCastrationLabel(colony.castration_status, catCountsByColonyId.get(colony.id))}
+                      {resolveCastrationLabel(t, colony.castration_status, catCountsByColonyId.get(colony.id))}
                     </p>
 
                     {session &&
@@ -908,7 +915,7 @@ export default function ColonyMap({
           const isExact = report.latitude != null;
           const popupContent = (
             <Popup>
-              <strong>{getReportTypeLabel(report.type)}</strong>
+              <strong>{getReportTypeLabel(report.type, t)}</strong>
               {!isExact && (
                 <p className="mt-1 text-xs text-felines-text-secondary">
                   🔒 Localização aproximada
@@ -944,7 +951,7 @@ export default function ColonyMap({
           const isExact = report.latitude != null;
           const popupContent = (
             <Popup>
-              <strong>Alerta: {getReportTypeLabel(report.type)}</strong>
+              <strong>Alerta: {getReportTypeLabel(report.type, t)}</strong>
               {!isExact && (
                 <p className="mt-1 text-xs text-felines-text-secondary">
                   🔒 Localização aproximada
@@ -1012,17 +1019,17 @@ export default function ColonyMap({
             href="/reports"
             className="text-sm font-bold text-felines-text-primary hover:text-felines-accent-hover"
           >
-            Atividade nesta área
+            {t("map.activityInArea")}
           </Link>
           <p className="text-xs text-felines-text-secondary">
-            Mova ou dê zoom no mapa para atualizar a lista.
+            {t("map.moveToUpdateList")}
           </p>
         </div>
         {listExpanded && (
           <div className="flex-1 space-y-2 overflow-y-auto p-3">
             {panelColonies.length === 0 && panelEmergencies.length === 0 && panelSightings.length === 0 ? (
               <p className="text-sm text-felines-text-secondary">
-                Nenhuma colônia ou relato visível nesta área do mapa.
+                {t("map.noneVisibleInArea")}
               </p>
             ) : (
               <>
@@ -1033,7 +1040,7 @@ export default function ColonyMap({
                     className="block rounded-md border border-felines-emergency/40 bg-felines-emergency/5 px-3 py-2 text-sm transition-colors hover:border-felines-emergency"
                   >
                     <span className="font-medium text-felines-text-primary">
-                      ⚠ {getReportTypeLabel(report.type)}
+                      ⚠ {getReportTypeLabel(report.type, t)}
                     </span>
                     {report.description && (
                       <p className="mt-1 line-clamp-2 text-xs text-felines-text-secondary">
@@ -1050,7 +1057,7 @@ export default function ColonyMap({
                   >
                     <span className="font-medium text-felines-text-primary">{colony.name}</span>
                     <p className="mt-1 text-xs text-felines-text-secondary">
-                      {resolveCastrationLabel(colony.castration_status, catCountsByColonyId.get(colony.id))}
+                      {resolveCastrationLabel(t, colony.castration_status, catCountsByColonyId.get(colony.id))}
                     </p>
                   </Link>
                 ))}
@@ -1061,7 +1068,7 @@ export default function ColonyMap({
                     className="block rounded-md border border-felines-border px-3 py-2 text-sm transition-colors hover:border-felines-accent"
                   >
                     <span className="font-medium text-felines-text-primary">
-                      {getReportTypeLabel(report.type)}
+                      {getReportTypeLabel(report.type, t)}
                     </span>
                     {report.description && (
                       <p className="mt-1 line-clamp-2 text-xs text-felines-text-secondary">
@@ -1078,10 +1085,10 @@ export default function ColonyMap({
           <button
             onClick={() => setListExpanded((previous) => !previous)}
             aria-expanded={listExpanded}
-            aria-label={listExpanded ? "Ocultar lista de atividades" : "Mostrar lista de atividades"}
+            aria-label={listExpanded ? t("map.hideActivityListAria") : t("map.showActivityListAria")}
             className="flex w-full items-center justify-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium text-felines-text-secondary transition-colors hover:text-felines-accent-hover"
           >
-            <span>{listExpanded ? "Ocultar lista" : "Mostrar lista"}</span>
+            <span>{listExpanded ? t("map.hideList") : t("map.showList")}</span>
             <span aria-hidden="true">{listExpanded ? "▲" : "▼"}</span>
           </button>
         </div>
@@ -1094,16 +1101,16 @@ export default function ColonyMap({
         <div className="absolute bottom-24 left-1/2 z-[1000] w-[90%] max-w-md -translate-x-1/2">
           {panelSightings.length > 0 ? (
             <EmptyState
-              main="Pessoas avistaram gatos aqui, mas ninguém mapeou uma colônia ainda. Será que você pode ser essa pessoa?"
-              ctas={[{ label: "Cadastrar uma colônia", href: "/colony/new" }]}
+              main={t("map.unmappedSightingMain")}
+              ctas={[{ label: t("map.registerColonyCta"), href: "/colony/new" }]}
             />
           ) : (
             <EmptyState
-              main="Nenhuma colônia mapeada aqui ainda — mas isso não significa que não existam."
+              main={t("map.noColonyMappedMain")}
               ctas={[
-                { label: "Viu gatos por aqui? Seja o primeiro a mapear", href: "/colony/new" },
+                { label: t("map.beFirstToMap"), href: "/colony/new" },
                 {
-                  label: "Não tem certeza? Aprenda o que procurar primeiro",
+                  label: t("map.learnWhatToLookFor"),
                   href: "/learn/what-is-a-cat-colony",
                 },
               ]}
@@ -1119,6 +1126,7 @@ export default function ColonyMap({
 // offers two actions — register it for real (pre-filling the location)
 // or add one more sighting confirmation at this exact spot.
 function SuggestedColonyPopup({ suggestion }: { suggestion: SuggestedColony }) {
+  const { t } = useLanguage();
   const [confirming, setConfirming] = useState(false);
   const [confirmed, setConfirmed] = useState(false);
 
@@ -1136,19 +1144,19 @@ function SuggestedColonyPopup({ suggestion }: { suggestion: SuggestedColony }) {
 
   return (
     <Popup>
-      <p className="text-sm font-medium">Vários gatos foram avistados aqui.</p>
+      <p className="text-sm font-medium">{t("map.manyCatsSeenHere")}</p>
       <p className="mt-1 text-xs text-felines-text-secondary">
-        Isso pode ser uma colônia ainda não registrada.
+        {t("map.unregisteredColonyHint")}
       </p>
       <div className="mt-2 flex flex-col gap-1">
         <a
           href={`/colony/new?lat=${suggestion.latitude}&lng=${suggestion.longitude}`}
           className="text-xs font-medium text-felines-accent-hover"
         >
-          Cadastrar uma colônia aqui
+          {t("map.registerColonyHereCta")}
         </a>
         {confirmed ? (
-          <span className="text-xs text-felines-success">Obrigado por confirmar!</span>
+          <span className="text-xs text-felines-success">{t("map.thanksForConfirming")}</span>
         ) : (
           <button
             type="button"
@@ -1156,7 +1164,7 @@ function SuggestedColonyPopup({ suggestion }: { suggestion: SuggestedColony }) {
             disabled={confirming}
             className="text-left text-xs font-medium text-felines-text-secondary hover:text-felines-accent disabled:opacity-50"
           >
-            {confirming ? "Enviando..." : "Também vi gatos aqui"}
+            {confirming ? t("map.sending") : t("map.alsoSawCatsHere")}
           </button>
         )}
       </div>

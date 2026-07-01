@@ -76,6 +76,42 @@ export const en = {
     footerAbout: "Learn more about this product",
   },
 
+  catsConflict: {
+    trigger: "Want the cats on your street gone? Read this first",
+    title: "Want the cats gone? We get it.",
+    close: "Close",
+    intro:
+      "The smell of urine, meowing at 3am, a scratched car. Those complaints are real and no one has to just put up with them. But there's something important most people don't know before trying to fix the problem:",
+    removalTitle: "🔄 Removing the cats doesn't actually work",
+    removalBody:
+      "Whole cities have tried this, across different decades, in several countries. The result was always the same: an emptied territory attracts a new group within a few months — usually bigger and unneutered. There's a name for this: {vacuumEffect}. As long as there's food and shelter, there will be cats.",
+    vacuumEffect: "the vacuum effect",
+    lawTitle: "⚖️ Animal cruelty is a crime in Brazil",
+    lawBody:
+      "The Sansão Law (Law 14.064/2020) carries a 2-to-5-year prison sentence for animal cruelty toward dogs and cats — including poisoning, physical abuse, and abandonment in distressing conditions. It's not just the right thing to do; it's a legal obligation.",
+    worksTitle: "✅ What actually works",
+    worksBody:
+      "Mass neutering — the TNR method (Trap, Neuter, Return) — is the only strategy that reduces the population over the long term. Neutered cats fight less, smell less, and the group stops growing. Over time, the colony naturally shrinks, without conflict.",
+    worksSub:
+      "Many neighborhoods already have someone caring for the colony near you. Talking to that caretaker usually resolves things much faster than a formal complaint.",
+    seeCaretakersOnMap: "See caretakers on the map",
+    readMoreVacuumEffect: "Read more about the vacuum effect",
+  },
+
+  stories: {
+    pageTitle: "Community stories",
+    pageSub: "Special moments told by the people who care for the colonies.",
+    empty: "No stories yet. Be the first person to share a moment from your colony.",
+    emptyCta: "See colonies on the map",
+    sortAll: "All",
+    sortRecent: "Most recent",
+    sortReactions: "Most reactions",
+    readMore: "Read more",
+    showLess: "Show less",
+    reactAria: "React to this story",
+    alreadyReactedAria: "You already reacted to this story",
+  },
+
   reports: {
     title: "What people are reporting",
     subtitle: "Reports, resources, stories and useful contacts from the caretaker community.",
@@ -194,6 +230,9 @@ export const en = {
     waterError: "The water check-in wasn't logged. Try again?",
     joinError: "Couldn't link you as a caretaker. Try again?",
     leaveError: "Couldn't unlink you right now. Try again?",
+    feedingEventDesc: "Someone fed the colony.",
+    waterEventDesc: "Someone changed the colony's water.",
+    newCaretakerEventDesc: "A new caretaker started watching over this colony.",
     falsePinWarning:
       "⚠️ This colony has been flagged by community members. Please check the information before visiting.",
     castration: {
@@ -206,6 +245,58 @@ export const en = {
       stable: "🟡 Stable",
       needs_attention: "🟠 Needs attention",
       at_risk: "🔴 At risk",
+    },
+    statsTab: {
+      catsRegistered: "Cats registered",
+      catsCastrated: "Cats neutered",
+      feedingCheckIns: "Feeding check-ins",
+      reportsSubmitted: "Reports submitted",
+      reportsResolved: "Reports resolved",
+      daysSinceRegistered: "Days since registered",
+      currentCaretakers: "Current caretakers",
+      timelineEvents: "Timeline events",
+      weatherEvents: "Weather events",
+      healthIndex: "Health index",
+      healthExplainer:
+        "Automatically calculated from 5 factors: recorded feeding frequency, recent cat sightings, neutering percentage, absence of open serious reports, and caretaker coverage. Updated with every new action on the colony.",
+      factors: {
+        feeding: {
+          label: "Recent feeding",
+          how: "Rises with each feeding check-in logged in the last 30 days. Reaches 30 with 10 or more check-ins in that period.",
+        },
+        sighting: {
+          label: "Cats seen recently",
+          how: "Based on sightings and cat reports in the last 7 days. Reaches 25 when at least 3 cats were seen in that period.",
+        },
+        castration: {
+          label: "Neutering rate",
+          how: "Proportional to the percentage of registered cats already neutered. 100% neutering is worth 20 points.",
+        },
+        reports: {
+          label: "Absence of serious reports",
+          how: "Starts at 15. Loses points for each serious report (poisoning, abuse, disease outbreak) still unresolved.",
+        },
+        caretaker: {
+          label: "Caretaker coverage",
+          how: "Worth 10 if the colony has at least one linked caretaker, 0 if it has none.",
+        },
+      },
+      castrationSummary: "{castrated} of {total} cats neutered ({percent}%)",
+      castrationFooter: "Fully neutered colonies stabilize their population over time.",
+      weeklyFeedingsTitle: "Weekly feeding check-ins",
+      monthlyReportsTitle: "Reports per month",
+      monthlyWeatherTitle: "Weather events per month",
+      monthlyWeatherSub: "Extreme heat, extreme cold, or heavy rain logged automatically.",
+      reportBreakdownTitle: "Most common report types",
+      reportBreakdownEmpty: "No reports logged yet.",
+      neuteringRequestsTitle: "Neutering requests",
+      catSingular: "cat",
+      catPlural: "cats",
+      status: {
+        completed: "Completed",
+        in_progress: "In progress",
+        open: "Open",
+      },
     },
     caretakersLabel: "Who's caring",
     cats: {
@@ -483,6 +574,11 @@ export const en = {
   },
 
   profile: {
+    quizModalAriaLabel: "Quiz: what kind of neighbor are you?",
+    someoneFromCommunity: "someone from the community",
+    genericColonyName: "Colony",
+    avatarUploadError: "The photo didn't upload. Try again?",
+    avatarSaveError: "The photo wasn't saved. Try again?",
     header: {
       nameLabel: "Display name",
       namePlaceholder: "What do you want to be called",
@@ -586,8 +682,10 @@ export const en = {
     close: "Close",
     learnMore: "Learn more",
     anonymous: "Anonymous",
+    anonymousCaretaker: "Anonymous caretaker",
     you: "You",
     community: "Someone from the community",
+    backHome: "← Home",
     searchPlaceholder: "Search colonies, articles, glossary terms...",
     searchLabel: "Search field",
     searchAriaLabel: "Search",
@@ -822,6 +920,15 @@ export const en = {
 
   urgency: { low: "Low", medium: "Medium", high: "High" },
 
+  resourceTypes: {
+    food_supplies: "Food / supplies",
+    equipment: "Equipment (traps, bowls, shelters)",
+    transport: "Transport",
+    medication: "Medication / vet supplies",
+    volunteer_time: "Volunteer time",
+    other: "Other",
+  },
+
   transport: {
     yes: "I have transport",
     no: "I don't have transport",
@@ -830,9 +937,174 @@ export const en = {
 
   map: {
     quizButton: "Not sure what you're looking at?",
+    castrationNone: "No cats neutered",
+    castrationNoneYet: "No cats neutered yet",
+    castrationPartial: "Partially neutered",
+    castrationFull: "Colony fully neutered",
+    castrationAll: "All cats neutered",
+    castrationXOfY: "{castrated} of {total} cats neutered",
+    pinTypeColonies: "Colonies",
+    pinTypeSightings: "Sightings",
+    pinTypeEmergencies: "Emergencies",
+    flaggedPin: "⚠️ Flagged pin",
+    castrationPending: "✂️ Neutering pending",
+    unverified: "Not verified",
+    searchColonyLabel: "Search colony by name",
+    searchColonyPlaceholder: "Search colony by name",
+    unmappedSightingMain: "People have spotted cats here, but no one has mapped a colony yet. Could that be you?",
+    registerColonyCta: "Register a colony",
+    noColonyMappedMain: "No colony mapped here yet — but that doesn't mean there isn't one.",
+    learnWhatToLookFor: "Not sure? Learn what to look for first",
+    manyCatsSeenHere: "Several cats have been spotted here.",
+    unregisteredColonyHint: "This might be an unregistered colony.",
+    registerColonyHereCta: "Register a colony here",
+    thanksForConfirming: "Thanks for confirming!",
+    alsoSawCatsHere: "I also saw cats here",
+    sending: "Sending...",
+    urgentHelp: "🆘 Urgent help",
+    heatMapLegend: "🟠 open report or no feeding for 7+ days · 🔴 both at the same time",
+    showAttentionColonies: "Show colonies that need attention",
+    hideAttentionColonies: "Hide colonies that need attention",
+    hideActivityListAria: "Hide activity list",
+    showActivityListAria: "Show activity list",
+    hideList: "Hide list",
+    showList: "Show list",
+    beFirstToMap: "Saw cats around here? Be the first to map it",
+    needsHelp: "🙋 Needs help",
+    showColonyHealth: "Show colony health",
+    hideColonyHealth: "Hide colony health",
+    activityInArea: "Activity in this area",
+    moveToUpdateList: "Move or zoom the map to update the list.",
+    noneVisibleInArea: "No colonies or reports visible in this map area.",
+  },
+
+  quiz: {
+    yourProfile: "Your profile",
+    suggestedFirstAction: "Suggested first action: {action}",
+    seeIfNearYou: "Now that you know what a colony is, want to see if there's one near you?",
+    seeMap: "See the map",
+    heading: "What kind of neighbor are you?",
+    noWrongAnswer: "There are no wrong answers — this is just to help you find your first step.",
+    back: "← Back",
+    seeMyProfile: "See my profile",
+    doItLater: "Do this later",
+  },
+
+  sightingReportButton: {
+    thankYouOwnerNotified: "Thanks! The owner will be notified.",
+    trigger: "I saw this cat",
+    whereYouSaw: "Where you saw it",
+    notePlaceholder: "Note (optional)",
+    descriptionWithNote: "Possible sighting of the lost cat: {note}",
+    descriptionNoNote: "Possible sighting of the lost cat.",
+  },
+
+  locationBlur: {
+    signIn: "Sign in to see it closer",
+    becomeCaretaker: "Become a caretaker to see the exact location",
+  },
+
+  flag: {
+    reasons: {
+      fake_location: "Fake location",
+      harmful_content: "Harmful content",
+      spam: "Spam",
+      other: "Other",
+    },
+    submitted: "Flag submitted.",
+    trigger: "Flag",
+    reasonLabel: "Why are you flagging this?",
+    detailsAriaLabel: "Additional details for the report",
+    detailsPlaceholder: "Details (optional)",
+    cancel: "Cancel",
+  },
+
+  share: {
+    copied: "Link copied!",
+    trigger: "Share",
+  },
+
+  follow: {
+    following: "Following ✓",
+    follow: "Follow this colony",
+    followerSingular: "person following",
+    followerPlural: "people following",
+  },
+
+  helpRequestBanner: {
+    needsHelp: "This colony needs help:",
+    canHelp: "I can help",
+    caretakerNotified: "Caretaker notified ✓",
+    helpReceived: "Help received ✓",
+    renew: "Renew for 7 more days",
+  },
+
+  articleNotFound: {
+    heading: "We haven't written about this yet — but we'd like to.",
+    prompt: "What do you want to know?",
+    exploreCta: "Explore what we already have",
+  },
+
+  createAccountInvite: {
+    prompt: "Want to keep track of this report later?",
+    cta: "Create an account",
+    suffix: "— it's quick and not required.",
+  },
+
+  thankYou: {
+    aNeighbor: "A neighbor",
+    thanked: "thanked",
+    forCaringSuffix: "for caring for this colony",
+    thankedDone: "Thanked ✓",
+    sending: "Sending...",
+    thankAction: "Thank",
+  },
+
+  verifyColony: {
+    communityVerified: "✓ Verified by the community",
+    verifiedOn: "on {date}",
+    awaitingVerification: "Awaiting community verification",
+    iSawCatsHere: "I've seen cats here ✓",
+    alreadyConfirmed: "You already confirmed ✓",
+    confirmationsCount: "({count}/3 confirmations)",
+  },
+
+  markCatSeen: {
+    thanks: "Thanks for letting us know!",
+    sawCatToday: "I saw {catName} today",
+    sending: "Sending...",
+  },
+
+  milestones: {
+    heading: "Milestones",
+    comingSoon: "Coming soon",
+    colonyRegistered: "Colony registered",
+    firstCaretaker: "First caretaker",
+    firstCat: "First cat registered",
+    firstCatNamed: "First cat named",
+    firstCastration: "First neutering",
+    firstThankYou: "First thank-you",
+    firstTimelinePhoto: "First timeline photo",
+    yearsSingular: "{years} year with the colony",
+    yearsPlural: "{years} years with the colony",
+    fiveCatsRegistered: "5 cats registered",
+    tenCheckIns: "10 check-ins logged",
+    firstReportResolved: "First report resolved",
   },
 
   contacts: {
+    pageTitle: "Useful contacts",
+    pageDescription:
+      "Clinics, NGOs, shelters, and rescue groups registered by the community. If you know a contact that isn't here yet, add it.",
+    categories: {
+      vet: "Veterinary clinic",
+      shelter: "Shelter",
+      ngo: "NGO",
+      rescue: "Rescue group",
+      transport: "Animal transport",
+      legal: "Legal support",
+      general: "General contact",
+    },
     filterPlaceholder: "Filter by city…",
     newContactBtn: "+ Add contact",
     cancelBtn: "Cancel",
@@ -853,6 +1125,9 @@ export const en = {
   },
 
   newColony: {
+    pageLabel: "New colony",
+    pageTitle: "Put this colony on the map",
+    pageSub: "This way, any neighbor can find it and help look after it too.",
     validationLegend: "Before you continue — 4 quick questions",
     q1: "Are there more than one cat in that spot?",
     q2: "Do you see them there regularly, always in the same place?",
@@ -926,5 +1201,114 @@ export const en = {
     hoursAgo: "{count} hour ago",
     hoursAgoPlural: "{count} hours ago",
     justNow: "just now",
+  },
+
+  plants: {
+    backHome: "← Home",
+    title: "Plants toxic to cats",
+    description:
+      "Many common plants found on sidewalks, squares, and vacant lots in Brazil can poison cats — especially curious kittens. This page is a quick guide for identification and early signs of poisoning.",
+    poisoningWarningTitle: "If you suspect poisoning:",
+    poisoningWarningBody:
+      "take the cat to a veterinarian as soon as possible. Do not induce vomiting without professional guidance. If you know the plant's name, bring a sample or photo.",
+    legendLabel: "Legend:",
+    toxicityHigh: "High toxicity",
+    toxicityModerate: "Moderate toxicity",
+    toxicityLow: "Low toxicity",
+    toxicPartsLabel: "Toxic parts",
+    symptomsLabel: "Symptoms",
+    onsetLabel: "Onset of symptoms",
+    illustrationAlt: "Illustration of {name}",
+    disclaimerTitle: "This list is not exhaustive.",
+    disclaimerBody: "Brazil has hundreds of toxic species. Whenever you're unsure about a plant, consult a veterinarian. In emergencies, the",
+    disclaimerLink: "contacts guide",
+    disclaimerSuffix: "has clinics and NGOs registered in your city.",
+  },
+
+  curso: {
+    backToProfile: "← My profile",
+    title: "Prepared Caretaker",
+    subtitlePrefix: "5 short articles + 1 quiz. Whoever finishes earns the",
+    badgeName: "🎓 Prepared Caretaker",
+    subtitleSuffix: "badge on their public profile.",
+    loadingProgress: "Loading your progress…",
+    alreadyCertifiedTitle: "🎓 You already have the Prepared Caretaker certification!",
+    alreadyCertifiedBody: "The badge already appears on your public profile.",
+    modulesHeading: "Modules",
+    readDone: "Read ✓",
+    readCta: "Read",
+    startQuiz: "Take the final quiz",
+    unlockQuizHint: "Read all {count} modules to unlock the quiz.",
+    loginPrompt: "Sign in",
+    loginPromptSuffix: "to save your progress and earn the badge when you finish.",
+    questionCounter: "Question {current} of {total}",
+    back: "← Back",
+    seeResult: "See result",
+    savingResult: "Saving…",
+    passedTitle: "You're a Prepared Caretaker!",
+    passedBody: "{score} out of {total} correct answers. Badge added to your profile.",
+    seeProfile: "See my profile",
+    failedTitle: "Almost there! {score} out of {total} correct.",
+    failedBody: "You need at least {passing} correct answers. Review the modules and try again.",
+    tryAgain: "Try again",
+  },
+
+  standaloneQuiz: {
+    questions: "questions",
+    previous: "Previous",
+    next: "Next",
+    seeResult: "See result",
+    passed: "Nice! You passed.",
+    almostThere: "Almost there — try again!",
+    answerPrefix: "Answer:",
+    tryAgain: "Try again",
+  },
+
+  quizContent: {
+    q1: {
+      question: "When you see cats on your street, what's your first reaction?",
+      options: {
+        0: "Curiosity — I wonder who's looking after them",
+        1: "Concern — I worry about their well-being",
+        2: "Annoyance — they cause problems around my building",
+        3: "Neutral — I'd never really thought about it",
+      },
+    },
+    q2: {
+      question: "How much time could you realistically commit?",
+      options: {
+        0: "I could swing by every so often to see how they're doing",
+        1: "I could help out when someone needs backup",
+        2: "I'm ready to take on a regular role",
+      },
+    },
+    q3: {
+      question: "What feels most natural to you?",
+      options: {
+        0: "Learning more before doing anything",
+        1: "Taking a small action right now",
+        2: "Connecting with people who are already helping",
+      },
+    },
+    profiles: {
+      observer: {
+        title: "The Observer",
+        description:
+          "You'd rather understand before acting. That's already a great first step — people who pay close attention are the ones who notice when something really needs help.",
+        firstAction: "Start by checking the map to see which colonies are already mapped near you.",
+      },
+      backup: {
+        title: "The Backup",
+        description:
+          "You don't need to adopt an entire colony to make a difference. A bit of support at the right moment already helps a lot for whoever's caring for it every day.",
+        firstAction: "Support an existing caretaker: log a report when you notice something, or offer food when you can.",
+      },
+      guardian: {
+        title: "The Guardian",
+        description:
+          "You're ready for a more consistent role. Whole colonies only hold together because someone's willing to step up and do exactly that.",
+        firstAction: "Check out the colonies already mapped and see if one of them makes sense for you to care for.",
+      },
+    },
   },
 };

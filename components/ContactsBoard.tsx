@@ -239,9 +239,16 @@ export default function ContactsBoard({
               <h2 className="text-lg font-bold text-felines-text-primary">{cityName}</h2>
               <div className="mt-3 grid gap-4 sm:grid-cols-2">
                 {byCity[cityName].map((contact) => {
-                  const cat = categoryLabels[contact.category] ?? {
+                  const catMeta = categoryLabels[contact.category] ?? {
                     label: contact.category,
                     emoji: "📋",
+                  };
+                  const translatedLabel = t(`contacts.categories.${contact.category}`);
+                  const cat = {
+                    ...catMeta,
+                    label: translatedLabel.startsWith("contacts.categories.")
+                      ? catMeta.label
+                      : translatedLabel,
                   };
                   return (
                     <div

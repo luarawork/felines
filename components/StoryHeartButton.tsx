@@ -9,6 +9,7 @@
 
 import { useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
+import { useLanguage } from "@/lib/i18n";
 
 const STORAGE_KEY = "felines_hearted_stories";
 
@@ -29,6 +30,7 @@ export default function StoryHeartButton({
   storyId: string;
   initialCount: number;
 }) {
+  const { t } = useLanguage();
   const [count, setCount] = useState(initialCount);
   const [hearted, setHearted] = useState(() => getHeartedStoryIds().includes(storyId));
   const [sending, setSending] = useState(false);
@@ -52,7 +54,7 @@ export default function StoryHeartButton({
     <button
       onClick={handleHeart}
       disabled={hearted || sending}
-      aria-label={hearted ? "Você já reagiu a essa história" : "Reagir a essa história"}
+      aria-label={hearted ? t("stories.alreadyReactedAria") : t("stories.reactAria")}
       className={`inline-flex items-center gap-1 text-xs transition-colors ${
         hearted ? "text-felines-emergency" : "text-felines-text-secondary hover:text-felines-emergency"
       }`}

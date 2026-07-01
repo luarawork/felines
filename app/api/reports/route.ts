@@ -84,13 +84,12 @@ export async function POST(request: NextRequest) {
 
   // All post-insert side-effects are independent — run them in parallel
   // so the response time is bounded by the slowest one, not their sum.
+  // notify_caretakers/notify_nearby_caretakers build their notification
+  // text server-side from p_type/p_report_type (see migration 0065) —
+  // they no longer accept a free-text message from the caller, since
+  // both are callable by anon and a caller-supplied message would let
+  // anyone spam/phish any colony's caretakers directly via the RPC.
   const SERIOUS_TYPES = ["suspected_poisoning", "suspected_abuse", "disease_outbreak", "threat_to_colony"];
-  const SERIOUS_TYPE_LABELS: Record<string, string> = {
-    suspected_poisoning: "suspeita de envenenamento",
-    suspected_abuse: "maus-tratos",
-    disease_outbreak: "surto de doença",
-    threat_to_colony: "ameaça a colônia",
-  };
 
   await Promise.all([
     // notify_followers is granted to `authenticated` only — anon callers
@@ -107,7 +106,6 @@ export async function POST(request: NextRequest) {
       ? supabase.rpc("notify_caretakers", {
           p_colony_id: colony_id,
           p_type: "report_submitted",
-          p_message: "Alguém relatou que uma colônia que você cuida precisa de atenção.",
         })
       : Promise.resolve(),
 
@@ -116,8 +114,7 @@ export async function POST(request: NextRequest) {
           p_latitude: latitude,
           p_longitude: longitude,
           p_radius_km: 1,
-          p_type: "area_alert",
-          p_message: `⚠️ Alerta de área: foi registrado um relato de "${SERIOUS_TYPE_LABELS[type] ?? type}" perto de uma colônia que você cuida.`,
+          p_report_type: type,
         })
       : Promise.resolve(),
 
