@@ -100,7 +100,7 @@ export default function ColonyActions({ colonyId }: { colonyId: string }) {
         <button
           onClick={() => handleLogCheckIn("water")}
           disabled={waterLogged || checkInPending !== null}
-          className="rounded-full border border-felines-accent px-4 py-2 text-sm font-medium text-felines-accent transition-colors hover:bg-felines-accent hover:text-white disabled:opacity-50"
+          className="rounded-full border border-felines-accent px-4 py-2 text-sm font-medium text-felines-accent-hover transition-colors hover:bg-felines-accent hover:text-white disabled:opacity-50"
         >
           {waterLogged ? t("colony.waterLogged") : t("colony.logWater")}
         </button>

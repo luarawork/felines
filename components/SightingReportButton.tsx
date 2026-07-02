@@ -46,7 +46,7 @@ export default function SightingReportButton({ lostCatReportId }: { lostCatRepor
     return (
       <button
         onClick={() => setOpen(true)}
-        className="rounded-full border border-felines-accent px-3 py-1 text-xs font-medium text-felines-accent transition-colors hover:bg-felines-accent hover:text-white"
+        className="rounded-full border border-felines-accent px-3 py-1 text-xs font-medium text-felines-accent-hover transition-colors hover:bg-felines-accent hover:text-white"
       >
         {t("sightingReportButton.trigger")}
       </button>

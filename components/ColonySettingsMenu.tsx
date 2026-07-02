@@ -42,8 +42,10 @@ export default function ColonySettingsMenu({
         type="button"
         onClick={() => setOpen((value) => !value)}
         aria-label={t("colony.settingsMenu")}
+        aria-haspopup="menu"
         aria-expanded={open}
-        className="flex h-10 w-10 items-center justify-center rounded-full bg-black/30 text-lg text-white backdrop-blur-sm transition-colors hover:bg-black/45"
+        aria-controls="colony-settings-menu"
+        className="flex h-11 w-11 items-center justify-center rounded-full bg-black/30 text-lg text-white backdrop-blur-sm transition-colors hover:bg-black/45"
       >
         ⋮
       </button>
@@ -51,7 +53,12 @@ export default function ColonySettingsMenu({
       {open && (
         <>
           <div className="fixed inset-0 z-[1900]" onClick={() => setOpen(false)} />
-          <div className="absolute right-0 top-12 z-[2000] w-52 rounded-xl border border-felines-border bg-felines-surface p-1.5 shadow-lg">
+          <div
+            id="colony-settings-menu"
+            role="menu"
+            aria-label={t("colony.settingsMenu")}
+            className="absolute right-0 top-12 z-[2000] w-52 rounded-xl border border-felines-border bg-felines-surface p-1.5 shadow-lg"
+          >
             <EditColonyButton
               colonyId={colonyId}
               initialName={initialName}

@@ -214,7 +214,7 @@ export default function NewColonyForm() {
             <button
               type="button"
               onClick={() => setShowSightingForm(true)}
-              className="mt-2 rounded-full border border-felines-accent px-3 py-1 text-xs font-medium text-felines-accent transition-colors hover:bg-felines-accent hover:text-white"
+              className="mt-2 rounded-full border border-felines-accent px-3 py-1 text-xs font-medium text-felines-accent-hover transition-colors hover:bg-felines-accent hover:text-white"
             >
               {t("newColony.sightingCta")}
             </button>

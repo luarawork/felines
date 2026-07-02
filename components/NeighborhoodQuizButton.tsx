@@ -62,7 +62,7 @@ export default function NeighborhoodQuizButton({
         onClick={() => setOpen(true)}
         className={
           triggerClassName ??
-          "rounded-full border border-felines-accent px-4 py-2 text-sm font-medium text-felines-accent transition-colors hover:bg-felines-accent hover:text-white"
+          "rounded-full border border-felines-accent px-4 py-2 text-sm font-medium text-felines-accent-hover transition-colors hover:bg-felines-accent hover:text-white"
         }
       >
         {triggerLabel}

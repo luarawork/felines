@@ -85,7 +85,7 @@ export default function FelinesAssistant({
                 onComplete();
               }}
               aria-label={t("assistant.dismiss")}
-              className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full text-felines-text-secondary hover:text-felines-text-primary"
+              className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full text-felines-text-secondary hover:text-felines-text-primary"
             >
               ✕
             </button>
@@ -113,7 +113,7 @@ export default function FelinesAssistant({
                 type="button"
                 onClick={handleDismiss}
                 aria-label={t("assistant.dismiss")}
-                className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full text-felines-text-secondary hover:text-felines-text-primary"
+                className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full text-felines-text-secondary hover:text-felines-text-primary"
               >
                 ✕
               </button>

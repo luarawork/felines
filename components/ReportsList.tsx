@@ -422,7 +422,7 @@ export default function ReportsList() {
                           onClick={() => handleConfirm(report.id)}
                           disabled={confirmedReportIds.has(report.id)}
                           title={t("reportStatus.confirmTitle")}
-                          className="rounded-full border border-felines-accent px-3 py-1 text-xs font-medium text-felines-accent transition-colors hover:bg-felines-accent hover:text-white disabled:opacity-50"
+                          className="rounded-full border border-felines-accent px-3 py-1 text-xs font-medium text-felines-accent-hover transition-colors hover:bg-felines-accent hover:text-white disabled:opacity-50"
                         >
                           {confirmedReportIds.has(report.id) ? t("reportStatus.alreadyConfirmed") : t("reportStatus.iAlsoSaw")}
                         </button>
