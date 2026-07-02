@@ -29,7 +29,6 @@ async function uploadCatPhoto(colonyId: string, photoFile: File): Promise<string
   if (validatePhotoFile(photoFile)) return null;
 
   const filePath = buildSafeStoragePath(`cats/${colonyId}`, photoFile);
-  if (filePath.includes('..')) throw new Error('Invalid file path');
   const { error: uploadError } = await supabase.storage
     .from("colony-photos")
     .upload(filePath, photoFile);
