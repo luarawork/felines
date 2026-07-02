@@ -8,6 +8,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import { decodeColonyEdit, getFieldLabel } from "@/lib/colonyEditHistory";
+import { useLanguage } from "@/lib/i18n";
 
 type EditEntry = {
   id: string;
@@ -19,6 +20,7 @@ type EditEntry = {
 };
 
 export default function EditHistorySection({ colonyId }: { colonyId: string }) {
+  const { t } = useLanguage();
   const [entries, setEntries] = useState<EditEntry[]>([]);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
@@ -63,7 +65,7 @@ export default function EditHistorySection({ colonyId }: { colonyId: string }) {
           createdAt: row.createdAt,
           authorName:
             (profiles ?? []).find((profile) => profile.id === row.createdBy)?.display_name ||
-            "Alguém da comunidade",
+            t("nav.anonymousCommunityMember"),
           field: row.field,
           oldValue: row.oldValue,
           newValue: row.newValue,
@@ -73,7 +75,7 @@ export default function EditHistorySection({ colonyId }: { colonyId: string }) {
     }
 
     load();
-  }, [colonyId]);
+  }, [colonyId, t]);
 
   if (loading || entries.length === 0) return null;
 

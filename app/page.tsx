@@ -228,7 +228,7 @@ export default function Home() {
         <div className="mx-auto grid max-w-6xl gap-12 px-4 sm:px-6 lg:grid-cols-2 lg:items-center">
           <Reveal className="order-2 lg:order-1">
             <div className="overflow-hidden rounded-2xl border border-felines-border shadow-[0_8px_24px_rgba(0,0,0,0.08)]">
-              <MapPreviewIllustration />
+              <MapPreviewIllustration label={t("nav.mapIllustrationAlt")} />
             </div>
           </Reveal>
           <Reveal className="order-1 lg:order-2">

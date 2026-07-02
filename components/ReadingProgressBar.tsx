@@ -27,7 +27,14 @@ export default function ReadingProgressBar() {
   if (progress >= 100) return null;
 
   return (
-    <div className="fixed left-0 top-0 z-50 h-1 w-full bg-transparent">
+    <div
+      role="progressbar"
+      aria-label="Reading progress"
+      aria-valuenow={Math.round(progress)}
+      aria-valuemin={0}
+      aria-valuemax={100}
+      className="fixed left-0 top-0 z-50 h-1 w-full bg-transparent"
+    >
       <div
         className="h-1 bg-felines-accent transition-[width]"
         style={{ width: `${progress}%` }}

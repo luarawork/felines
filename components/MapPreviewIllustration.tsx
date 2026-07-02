@@ -2,9 +2,9 @@
 // section — stylized streets and pins rather than a real screenshot, so
 // it reads intentionally as an illustration matching the rest of the
 // page instead of a stale, soon-outdated capture of the real map.
-export default function MapPreviewIllustration() {
+export default function MapPreviewIllustration({ label }: { label: string }) {
   return (
-    <svg viewBox="0 0 480 360" className="h-full w-full" role="img" aria-label="Ilustração do mapa de colônias">
+    <svg viewBox="0 0 480 360" className="h-full w-full" role="img" aria-label={label}>
       <rect width="480" height="360" rx="20" fill="#F2F2F2" />
       <path d="M0 90 H480" stroke="#E8E4DF" strokeWidth="10" />
       <path d="M0 240 H480" stroke="#E8E4DF" strokeWidth="10" />

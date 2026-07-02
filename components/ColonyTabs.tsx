@@ -59,7 +59,7 @@ export default function ColonyTabs({
 
   return (
     <div className="mt-8">
-      <div role="tablist" aria-label="Seções da colônia" className="flex flex-nowrap gap-2 overflow-x-auto border-b border-felines-border [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <div role="tablist" aria-label={t("nav.colonyTabsAriaLabel")} className="flex flex-nowrap gap-2 overflow-x-auto border-b border-felines-border [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {tabs.map((tab, index) => {
           const isActive = tab.id === activeTabId;
           return (
