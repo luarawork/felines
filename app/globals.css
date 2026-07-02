@@ -14,13 +14,10 @@
   /* Felines brand palette */
   --color-felines-background: #f9f6f2;
   --color-felines-surface: #ffffff;
-  /* Dark coffee-brown, used for alternating dark sections — the
-     canonical brand palette (see the UI consistency/modernization
-     audit) specifies #2D1810/#3D2318 here; deliberately darker than
-     the caramel brown this used to be, for stronger contrast against
-     the warm cream background of the light sections. */
-  --color-felines-dark: #2d1810;
-  --color-felines-dark-accent: #3d2318;
+  /* Caramel brown, used for alternating dark sections — a nod to the
+     Felines mascot (a caramel-colored cat), not a near-black brown. */
+  --color-felines-dark: #8a5a35;
+  --color-felines-dark-accent: #a4734a;
 
   --color-felines-text-primary: #2d2d2d;
   --color-felines-text-primary-on-dark: #ffffff;
@@ -28,7 +25,7 @@
   --color-felines-text-secondary-on-dark: #c4a090;
 
   --color-felines-border: #e8e4df;
-  --color-felines-border-on-dark: #4d3020;
+  --color-felines-border-on-dark: #a4734a;
 
   --color-felines-accent: #c4704f;
   --color-felines-accent-hover: #a85a3a;
@@ -111,11 +108,14 @@ summary:focus-visible,
 }
 
 /* leaflet.css sets `.leaflet-popup-content a { color: #0078A8 }`, which
-   has higher specificity than Tailwind's single-class `.text-white` and
-   was overriding it on the popup's "Ver colônia" link — white text was
-   showing as Leaflet's default link blue against the accent background. */
-.leaflet-popup-content a.felines-popup-cta {
-  color: #fff;
+   loads after this file (see note below) and was overriding any
+   Tailwind text-color class on links inside popups — "Ver colônia" and
+   "Ver relato" links were showing Leaflet's default blue instead of
+   their intended color. Neutralizing it globally so every popup link
+   just uses its own className, instead of requiring a special class
+   on each one (which is how one popup implementation got missed). */
+.leaflet-popup-content a {
+  color: inherit !important;
 }
 
 /* Restyles Leaflet's default popup chrome (flat white box, hard-edged

@@ -581,6 +581,137 @@ export default function ColonyMap({
   const panelEmergencies = filteredEmergencies.filter(isInBounds);
   const panelSightings = filteredSightings.filter(isInBounds);
 
+  // Shared by both the blur-circle (levels 1/2) and exact-location marker
+  // (level 3) rendering paths below, so the two never drift into two
+  // different designs again like they did before this was extracted.
+  function renderColonyPopup(colony: Colony, level: 1 | 2 | 3) {
+    const helpUrgency = helpUrgencyByColonyId.get(colony.id);
+    const isFlagged = flaggedColonyIds.has(colony.id);
+    const needsNeutering = neuteringColonyIds.has(colony.id);
+    const chips: { label: string; className: string }[] = [];
+    if (isFlagged) {
+      chips.push({
+        label: t("map.flaggedPin"),
+        className: "border-felines-emergency bg-felines-emergency/10 text-felines-emergency",
+      });
+    }
+    if (helpUrgency === "urgent") {
+      chips.push({
+        label: t("map.urgentHelp"),
+        className: "border-felines-emergency bg-felines-emergency/10 text-felines-emergency",
+      });
+    } else if (helpUrgency === "normal") {
+      chips.push({
+        label: t("map.needsHelp"),
+        className: "border-felines-warning bg-felines-warning/10 text-felines-warning",
+      });
+    }
+    if (needsNeutering) {
+      chips.push({
+        label: t("map.castrationPending"),
+        className: "border-felines-border bg-felines-surface text-felines-text-secondary",
+      });
+    }
+    if (colony.verified_status === "unverified") {
+      chips.push({
+        label: t("map.unverified"),
+        className: "border-felines-border bg-felines-surface text-felines-text-secondary",
+      });
+    }
+
+    const castrationLabel = resolveCastrationLabel(
+      t,
+      colony.castration_status,
+      catCountsByColonyId.get(colony.id)
+    );
+
+    return (
+      <Popup minWidth={264} maxWidth={264} className="felines-colony-popup">
+        <div>
+          {/* Header strip: always present so every popup has the
+              same visual anchor, whether or not the colony has a
+              cover photo — a plain title floating with no header
+              at all was part of what made this feel unfinished. */}
+          {colony.cover_photo_url ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={colony.cover_photo_url}
+              alt={colony.name}
+              className="h-20 w-full object-cover"
+            />
+          ) : (
+            <div className="flex h-20 w-full items-center justify-center bg-felines-accent-light">
+              <span className="text-3xl" aria-hidden="true">🐾</span>
+            </div>
+          )}
+
+          <div className="p-3.5">
+            <strong className="block text-sm font-bold leading-snug text-felines-text-primary">
+              {colony.name}
+            </strong>
+
+            {chips.length > 0 && (
+              <div className="mt-2 flex flex-wrap gap-1">
+                {chips.map((chip) => (
+                  <span
+                    key={chip.label}
+                    className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-semibold leading-none ${chip.className}`}
+                  >
+                    {chip.label}
+                  </span>
+                ))}
+              </div>
+            )}
+
+            {colony.narrative && (
+              <p className="mt-2 line-clamp-2 text-xs leading-relaxed text-felines-text-secondary">
+                {colony.narrative}
+              </p>
+            )}
+
+            <div className="mt-3 space-y-1.5 border-t border-felines-border pt-2.5">
+              <p className="text-[11px] font-medium text-felines-text-secondary">{castrationLabel}</p>
+              {level !== 3 && <LocationBlurBadge level={level} />}
+            </div>
+
+            {/* The colony page's name and narrative can describe the
+                location in plain language (street names, landmarks),
+                so this is only offered to signed-in visitors —
+                anonymous visitors get the blurred pin and nothing more.
+                The detail page is meant for people who'd realistically
+                look after the colony, so a short interest check comes
+                before the link, instead of going straight there. */}
+            {session && (
+              // Caretakers/creators already manage this colony, so the
+              // "are you interested in becoming a caretaker?" gate
+              // would be nonsensical for them — go straight to the page.
+              myColonyIds.has(colony.id) ? (
+                <a
+                  href={`/colony/${colony.id}`}
+                  className="felines-popup-cta mt-3 block rounded-full bg-felines-accent py-2 text-center text-xs font-semibold text-white transition-colors hover:bg-felines-accent-hover"
+                >
+                  {t("map.viewColonyCta")}
+                </a>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setInterestColonyId(colony.id)}
+                  className="mt-3 block w-full rounded-full bg-felines-accent py-2 text-center text-xs font-semibold text-white transition-colors hover:bg-felines-accent-hover"
+                >
+                  {t("map.viewColonyCta")}
+                </button>
+              )
+            )}
+
+            <div className="mt-2 flex justify-end">
+              <ReportFalsePinButton colonyId={colony.id} />
+            </div>
+          </div>
+        </div>
+      </Popup>
+    );
+  }
+
   return (
     <div className="relative h-full w-full">
       <div className="absolute left-4 top-4 z-[1000] w-64 space-y-2 rounded-xl border border-felines-border bg-felines-surface p-3 shadow-lg">
@@ -665,131 +796,7 @@ export default function ColonyMap({
 
         {filteredColonies.map((colony) => {
           const { position, level } = resolveColonyPosition(colony);
-          const helpUrgency = helpUrgencyByColonyId.get(colony.id);
-          const isFlagged = flaggedColonyIds.has(colony.id);
-          const needsNeutering = neuteringColonyIds.has(colony.id);
-          const chips: { label: string; className: string }[] = [];
-          if (isFlagged) {
-            chips.push({
-              label: t("map.flaggedPin"),
-              className: "border-felines-emergency bg-felines-emergency/10 text-felines-emergency",
-            });
-          }
-          if (helpUrgency === "urgent") {
-            chips.push({
-              label: t("map.urgentHelp"),
-              className: "border-felines-emergency bg-felines-emergency/10 text-felines-emergency",
-            });
-          } else if (helpUrgency === "normal") {
-            chips.push({
-              label: t("map.needsHelp"),
-              className: "border-felines-warning bg-felines-warning/10 text-felines-warning",
-            });
-          }
-          if (needsNeutering) {
-            chips.push({
-              label: t("map.castrationPending"),
-              className: "border-felines-border bg-felines-surface text-felines-text-secondary",
-            });
-          }
-          if (colony.verified_status === "unverified") {
-            chips.push({
-              label: t("map.unverified"),
-              className: "border-felines-border bg-felines-surface text-felines-text-secondary",
-            });
-          }
-
-          const castrationLabel = resolveCastrationLabel(
-            t,
-            colony.castration_status,
-            catCountsByColonyId.get(colony.id)
-          );
-
-          const popupContent = (
-            <Popup minWidth={264} maxWidth={264} className="felines-colony-popup">
-              <div>
-                {/* Header strip: always present so every popup has the
-                    same visual anchor, whether or not the colony has a
-                    cover photo — a plain title floating with no header
-                    at all was part of what made this feel unfinished. */}
-                {colony.cover_photo_url ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={colony.cover_photo_url}
-                    alt={colony.name}
-                    className="h-20 w-full object-cover"
-                  />
-                ) : (
-                  <div className="flex h-20 w-full items-center justify-center bg-felines-accent-light">
-                    <span className="text-3xl" aria-hidden="true">🐾</span>
-                  </div>
-                )}
-
-                <div className="p-3.5">
-                  <strong className="block text-sm font-bold leading-snug text-felines-text-primary">
-                    {colony.name}
-                  </strong>
-
-                  {chips.length > 0 && (
-                    <div className="mt-2 flex flex-wrap gap-1">
-                      {chips.map((chip) => (
-                        <span
-                          key={chip.label}
-                          className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-semibold leading-none ${chip.className}`}
-                        >
-                          {chip.label}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-
-                  {colony.narrative && (
-                    <p className="mt-2 line-clamp-2 text-xs leading-relaxed text-felines-text-secondary">
-                      {colony.narrative}
-                    </p>
-                  )}
-
-                  <div className="mt-3 space-y-1.5 border-t border-felines-border pt-2.5">
-                    <p className="text-[11px] font-medium text-felines-text-secondary">{castrationLabel}</p>
-                    {level !== 3 && <LocationBlurBadge level={level} />}
-                  </div>
-
-                  {/* The colony page's name and narrative can describe the
-                      location in plain language (street names, landmarks),
-                      so this is only offered to signed-in visitors —
-                      anonymous visitors get the blurred pin and nothing more.
-                      The detail page is meant for people who'd realistically
-                      look after the colony, so a short interest check comes
-                      before the link, instead of going straight there. */}
-                  {session && (
-                    // Caretakers/creators already manage this colony, so the
-                    // "are you interested in becoming a caretaker?" gate
-                    // would be nonsensical for them — go straight to the page.
-                    myColonyIds.has(colony.id) ? (
-                      <a
-                        href={`/colony/${colony.id}`}
-                        className="felines-popup-cta mt-3 block rounded-full bg-felines-accent py-2 text-center text-xs font-semibold text-white transition-colors hover:bg-felines-accent-hover"
-                      >
-                        {t("map.viewColonyCta")}
-                      </a>
-                    ) : (
-                      <button
-                        type="button"
-                        onClick={() => setInterestColonyId(colony.id)}
-                        className="mt-3 block w-full rounded-full bg-felines-accent py-2 text-center text-xs font-semibold text-white transition-colors hover:bg-felines-accent-hover"
-                      >
-                        {t("map.viewColonyCta")}
-                      </button>
-                    )
-                  )}
-
-                  <div className="mt-2 flex justify-end">
-                    <ReportFalsePinButton colonyId={colony.id} />
-                  </div>
-                </div>
-              </div>
-            </Popup>
-          );
+          const popupContent = renderColonyPopup(colony, level);
 
           // Levels 1 and 2 only ever render the uncertainty circle — no
           // marker pin — because a precise-looking pin defeats the blur
@@ -829,40 +836,6 @@ export default function ColonyMap({
             const { position, level } = resolveColonyPosition(colony);
             if (level !== 3) return null;
 
-            const helpUrgency = helpUrgencyByColonyId.get(colony.id);
-            const isFlagged = flaggedColonyIds.has(colony.id);
-            const needsNeutering = neuteringColonyIds.has(colony.id);
-            const chips: { label: string; className: string }[] = [];
-            if (isFlagged) {
-              chips.push({
-                label: t("map.flaggedPin"),
-                className: "border-felines-emergency bg-felines-emergency/10 text-felines-emergency",
-              });
-            }
-            if (helpUrgency === "urgent") {
-              chips.push({
-                label: "🆘 Ajuda urgente",
-                className: "border-felines-emergency bg-felines-emergency/10 text-felines-emergency",
-              });
-            } else if (helpUrgency === "normal") {
-              chips.push({
-                label: "🙋 Precisa de ajuda",
-                className: "border-felines-warning bg-felines-warning/10 text-felines-warning",
-              });
-            }
-            if (needsNeutering) {
-              chips.push({
-                label: t("map.castrationPending"),
-                className: "border-felines-border bg-felines-surface text-felines-text-secondary",
-              });
-            }
-            if (colony.verified_status === "unverified") {
-              chips.push({
-                label: t("map.unverified"),
-                className: "border-felines-border bg-felines-surface text-felines-text-secondary",
-              });
-            }
-
             const icon = showColonyHealth
               ? healthRingIcons[colony.health_status] ?? colonyIcon
               : colony.verified_status === "unverified"
@@ -876,58 +849,7 @@ export default function ColonyMap({
                 icon={icon}
                 eventHandlers={{ click: handleColonyPinClick }}
               >
-                <Popup minWidth={220} maxWidth={280}>
-                  <div className="space-y-2">
-                    <strong className="block text-sm font-semibold text-felines-text-primary">
-                      {colony.name}
-                    </strong>
-
-                    {chips.length > 0 && (
-                      <div className="flex flex-wrap gap-1">
-                        {chips.map((chip) => (
-                          <span
-                            key={chip.label}
-                            className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-medium ${chip.className}`}
-                          >
-                            {chip.label}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-
-                    {colony.narrative && (
-                      <p className="text-xs leading-relaxed text-felines-text-secondary">
-                        {colony.narrative}
-                      </p>
-                    )}
-
-                    <p className="text-xs text-felines-text-secondary">
-                      {resolveCastrationLabel(t, colony.castration_status, catCountsByColonyId.get(colony.id))}
-                    </p>
-
-                    {session &&
-                      (myColonyIds.has(colony.id) ? (
-                        <a
-                          href={`/colony/${colony.id}`}
-                          className="block rounded-full bg-felines-accent px-3 py-1.5 text-center text-xs font-semibold text-white transition-colors hover:bg-felines-accent-hover"
-                        >
-                          Ver colônia
-                        </a>
-                      ) : (
-                        <button
-                          type="button"
-                          onClick={() => setInterestColonyId(colony.id)}
-                          className="block w-full rounded-full bg-felines-accent px-3 py-1.5 text-center text-xs font-semibold text-white transition-colors hover:bg-felines-accent-hover"
-                        >
-                          Ver colônia
-                        </button>
-                      ))}
-
-                    <div className="pt-1 text-right">
-                      <ReportFalsePinButton colonyId={colony.id} />
-                    </div>
-                  </div>
-                </Popup>
+                {renderColonyPopup(colony, level)}
               </Marker>
             );
           })}
