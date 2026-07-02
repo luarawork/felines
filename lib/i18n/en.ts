@@ -246,6 +246,8 @@ export const en = {
       reports: "Reports",
       letter: "Letter from previous caretakers",
     },
+    loginRequiredTitle: "Sign in to see {name}",
+    loginRequiredBody: "Each colony's details — cats, timeline, who cares for it — are only visible to signed-in visitors.",
     whatYouCanDo: "What you can do here",
     settingsMenu: "More options",
     communityLabel: "Community",
@@ -822,6 +824,26 @@ export const en = {
     searchGroupContacts: "Contacts",
     firstVisit:
       "👋 First time here? Felines helps you understand the street cats in your area, see who's already caring for them, and report what you find — no account needed for most things.",
+    firstVisitLearnMore: "Click here to learn more.",
+    aboutFelines: {
+      title: "About Felines",
+      subtitle: "The reality of street cats, what Felines does, and how it helps people and cats.",
+      realityTitle: "The reality of street cats",
+      realityBody:
+        "There are hundreds of millions of street cats worldwide, and most of them already live close to people — in squares, alleys, parking lots, empty lots. They didn't choose to be alone: most of the time, someone in the neighborhood is already feeding them, taking them to be neutered, or caring for them informally, but with no record of it, no support, and no one else even knowing that work exists. When that person moves away or gives up, the whole colony goes unassisted overnight.",
+      whatIsTitle: "What Felines is",
+      whatIsBody:
+        "Felines is a community platform that maps street cat colonies and connects whoever already cares for them with whoever wants to help — without needing to become an expert first.",
+      featuresTitle: "Main features",
+      feature1: "🗺️ Colony map — see where street cats are in your area and who already cares for them.",
+      feature2: "📣 Report what you find — a spotted cat, an emergency, a new colony, no account needed for most of it.",
+      feature3: "🤝 Become a caretaker — take over an existing colony's care, or register a new one.",
+      feature4: "📚 Learn the essentials — short articles on neutering (TNR), what to do and what to avoid.",
+      howWeHelpTitle: "How this helps people and cats",
+      howWeHelpBody:
+        "For caretakers: visibility, a support network, and continuity — if something happens to them, the colony doesn't go invisible again. For anyone who just wants to understand or help: a clear way to know what already exists near you and what to do with what you find, without neighborhood drama or rushed decisions. For the cats: more colonies neutered, fed, and closely watched — which reduces suffering and also reduces overpopulation, without needing removal or extermination.",
+      cta: "Explore the map",
+    },
     weather: {
       now: "Now:",
       extremeHeat:

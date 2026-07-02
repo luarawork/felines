@@ -6,6 +6,7 @@
 
 import { useEffect, useState } from "react";
 import { useLanguage } from "@/lib/i18n";
+import AboutFelinesModal from "@/components/AboutFelinesModal";
 
 const STORAGE_KEY = "felines_seen_first_visit_banner";
 
@@ -29,7 +30,19 @@ export default function FirstVisitBanner() {
 
   return (
     <div className="mb-8 flex items-start justify-between gap-4 rounded-xl border border-felines-accent/30 bg-felines-accent/5 px-4 py-3 text-sm">
-      <p className="text-felines-text-primary">{t("common.firstVisit")}</p>
+      <p className="text-felines-text-primary">
+        {t("common.firstVisit")}{" "}
+        <AboutFelinesModal
+          trigger={(open) => (
+            <button
+              onClick={open}
+              className="font-semibold text-felines-accent-hover underline hover:text-felines-accent"
+            >
+              {t("common.firstVisitLearnMore")}
+            </button>
+          )}
+        />
+      </p>
       <button
         onClick={dismiss}
         aria-label={t("common.close")}

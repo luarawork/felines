@@ -8,6 +8,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import type { Session } from "@supabase/supabase-js";
 import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
@@ -102,6 +103,7 @@ export default function GlobalSearchButton() {
   const [colonyResults, setColonyResults] = useState<SearchResult[]>([]);
   const [contactResults, setContactResults] = useState<SearchResult[]>([]);
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
+  const [session, setSession] = useState<Session | null>(null);
   const [selectedIndex, setSelectedIndex] = useState(0);
   // Drives the enter transition: mounts hidden, then flips to the
   // "-in" classes a frame later for a fade + slide-up entrance instead
@@ -146,6 +148,10 @@ export default function GlobalSearchButton() {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setRecentSearches(loadRecentSearches());
       setTimeout(() => inputRef.current?.focus(), 50);
+      // Colony results require a session (see the search effect below)
+      // — re-checked every time the modal opens so a sign-in/out since
+      // the last search is reflected immediately.
+      supabase.auth.getSession().then(({ data }) => setSession(data.session));
     }
   }, [open]);
 
@@ -170,12 +176,18 @@ export default function GlobalSearchButton() {
     let cancelled = false;
 
     async function runSearch() {
+      // Colony detail pages require a session (ColonyDetailClient
+      // gates them) — surfacing colonies to a signed-out searcher would
+      // just be a dead-end result that bounces to a login wall, so
+      // skip that query entirely instead of running it for nothing.
       const [{ data: colonyRows }, { data: contactRows }] = await Promise.all([
-        supabase
-          .from("colonies")
-          .select("id, name, narrative")
-          .or(`name.ilike.%${normalized}%,narrative.ilike.%${normalized}%`)
-          .limit(MAX_RESULTS_PER_GROUP),
+        session
+          ? supabase
+              .from("colonies")
+              .select("id, name, narrative")
+              .or(`name.ilike.%${normalized}%,narrative.ilike.%${normalized}%`)
+              .limit(MAX_RESULTS_PER_GROUP)
+          : Promise.resolve({ data: [] }),
         supabase
           .from("community_contacts")
           .select("id, city, name, category, notes")
@@ -212,7 +224,7 @@ export default function GlobalSearchButton() {
     return () => {
       cancelled = true;
     };
-  }, [debouncedQuery, open]);
+  }, [debouncedQuery, open, session]);
 
   const contentResults = debouncedQuery.trim() ? searchArticlesAndGlossary(debouncedQuery, language) : [];
   const allResults = [...colonyResults, ...contactResults, ...contentResults];

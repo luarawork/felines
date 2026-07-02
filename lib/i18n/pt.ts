@@ -247,6 +247,8 @@ export const pt = {
       reports: "Relatórios",
       letter: "Carta de quem cuidou antes",
     },
+    loginRequiredTitle: "Entre para ver {name}",
+    loginRequiredBody: "Os detalhes de cada colônia — gatos, linha do tempo, quem cuida — ficam visíveis só para quem tem conta.",
     whatYouCanDo: "O que você pode fazer aqui",
     settingsMenu: "Mais opções",
     communityLabel: "Comunidade",
@@ -824,6 +826,26 @@ export const pt = {
     searchGroupContacts: "Contatos",
     firstVisit:
       "👋 Primeira vez por aqui? O Felines te ajuda a entender os gatos de rua da sua região, ver quem já cuida deles e relatar o que você encontrar — sem precisar de conta para a maioria das coisas.",
+    firstVisitLearnMore: "Clique aqui para entender melhor.",
+    aboutFelines: {
+      title: "Sobre o Felines",
+      subtitle: "A realidade dos gatos de rua, o que o Felines faz e como ele ajuda pessoas e gatos.",
+      realityTitle: "A realidade dos gatos de rua",
+      realityBody:
+        "Existem centenas de milhões de gatos de rua no mundo, e boa parte deles já vive perto de gente — em praças, becos, estacionamentos, terrenos baldios. Eles não escolheram estar sozinhos: na maioria das vezes, alguém da vizinhança já alimenta, leva pra castrar ou cuida deles informalmente, mas sem nenhum registro, sem apoio e sem ninguém mais saber que aquele trabalho existe. Quando essa pessoa se muda ou desiste, a colônia inteira fica desassistida do dia pra noite.",
+      whatIsTitle: "O que é o Felines",
+      whatIsBody:
+        "Felines é uma plataforma comunitária que mapeia colônias de gatos de rua e conecta quem já cuida delas com quem quer ajudar — sem precisar virar especialista antes.",
+      featuresTitle: "Principais funcionalidades",
+      feature1: "🗺️ Mapa de colônias — veja onde tem gatos de rua na sua região e quem já cuida deles.",
+      feature2: "📣 Relatar o que você encontrar — um gato avistado, uma emergência, uma colônia nova, sem precisar de conta pra maioria das coisas.",
+      feature3: "🤝 Virar cuidador — assuma o cuidado de uma colônia já existente ou cadastre uma nova.",
+      feature4: "📚 Aprender o essencial — artigos curtos sobre castração (TNR), o que fazer e o que evitar.",
+      howWeHelpTitle: "Como isso ajuda pessoas e gatos",
+      howWeHelpBody:
+        "Pra quem cuida: visibilidade, uma rede de apoio e continuidade — se algo acontecer, a colônia não fica invisível de novo. Pra quem só quer entender ou ajudar: um jeito claro de saber o que já existe perto de você e o que fazer com o que encontrar, sem karma de vizinhança nem decisões precipitadas. Pros gatos: mais colônias castradas, alimentadas e observadas de perto — o que reduz sofrimento e reduz também a superpopulação, sem precisar de remoção ou extermínio.",
+      cta: "Explorar o mapa",
+    },
     weather: {
       now: "Agora:",
       extremeHeat:

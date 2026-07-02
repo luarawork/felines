@@ -23,7 +23,8 @@ import VerifyColonyButton from "@/components/VerifyColonyButton";
 import ThankYouButton from "@/components/ThankYouButton";
 import MarkCatSeenButton from "@/components/MarkCatSeenButton";
 import FlagButton from "@/components/FlagButton";
-import ColonyAccessProvider from "@/components/ColonyAccessProvider";
+import ColonyAccessProvider, { useColonyAccessContext } from "@/components/ColonyAccessProvider";
+import AuthRequiredNotice from "@/components/AuthRequiredNotice";
 import RotatingSingleFact from "@/components/RotatingSingleFact";
 import ColonyStatsTab from "@/components/ColonyStatsTab";
 import ActionThanksButton from "@/components/ActionThanksButton";
@@ -396,6 +397,7 @@ export default function ColonyDetailClient({
   return (
     <div>
       <ColonyAccessProvider colonyId={colony.id}>
+      <ColonyAccessGate colonyName={colony.name}>
         {/* Hero */}
         <div className="relative h-72 w-full sm:h-80">
           {colony.cover_photo_url ? (
@@ -568,7 +570,38 @@ export default function ColonyDetailClient({
             }
           />
         </div>
+      </ColonyAccessGate>
       </ColonyAccessProvider>
     </div>
   );
+}
+
+// Colony pages are otherwise fully server-rendered and public — this
+// is the one place access actually gets enforced, and it has to happen
+// client-side (like every other auth check in this app) since there's
+// no cookie-based SSR session, only a browser-held one. Without this,
+// anyone with a link (or a search result) could view full colony
+// details — cats, timeline, caretakers — without ever signing in.
+function ColonyAccessGate({ colonyName, children }: { colonyName: string; children: React.ReactNode }) {
+  const { session, checkingAccess } = useColonyAccessContext();
+  const { t } = useLanguage();
+
+  if (checkingAccess) return null;
+
+  if (!session) {
+    return (
+      <div className="mx-auto max-w-md px-4 py-20 text-center">
+        <p className="text-2xl" aria-hidden="true">🔒</p>
+        <h1 className="mt-3 text-xl font-bold text-felines-text-primary">
+          {t("colony.loginRequiredTitle").replace("{name}", colonyName)}
+        </h1>
+        <p className="mt-2 text-sm text-felines-text-secondary">{t("colony.loginRequiredBody")}</p>
+        <div className="mt-5">
+          <AuthRequiredNotice />
+        </div>
+      </div>
+    );
+  }
+
+  return <>{children}</>;
 }
