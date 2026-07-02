@@ -794,6 +794,41 @@ export const en = {
     dismiss: "Dismiss",
   },
 
+  actionThanks: {
+    loginRequired: "Sign in to thank this action",
+    alreadyThanked: "You already said thanks",
+    thankAction: "Thank this action",
+  },
+
+  catPage: {
+    notFound: "Cat not found.",
+    viewMap: "View the map →",
+    photoAlt: "Cat photo",
+    noName: "Unnamed cat",
+    castrated: "✓ Neutered",
+    notCastrated: "Not neutered",
+    seenOn: "Seen on {date}",
+  },
+
+  publicProfile: {
+    anonymousName: "Someone from the community",
+    avatarAlt: "Caretaker",
+    caresForColony: "Cares for {count} colony.",
+    caresForColonies: "Cares for {count} colonies.",
+    badgesLabel: "Achievements",
+    badgesTitle: "Badges",
+    whereTheyCareLabel: "Where they care",
+    coloniesTitle: "Colonies",
+    noColonies: "Doesn't care for any colony yet.",
+    contributionsLabel: "Contributions",
+    reportsMadeTitle: "Reports made",
+    noReportsYet: "No reports yet.",
+    statusResolved: "resolved",
+    statusOpen: "open",
+    confirmationsGivenTitle: "Confirmations given",
+    noConfirmationsYet: "No confirmations yet.",
+  },
+
   common: {
     loading: "Loading...",
     error: "Something went wrong. Try again?",
@@ -977,6 +1012,8 @@ export const en = {
       validationError: "Please choose whether you're offering or looking for something.",
       fieldsError: "Please fill in the title and description.",
       insertError: "Listing wasn't published. Try again?",
+      loginPromptPre: "Sign in",
+      loginPromptPost: "to view and post donation/exchange listings.",
     },
     catNote: {
       submit: "Save observation",

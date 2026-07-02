@@ -6,11 +6,8 @@
 // visibility and trust, not to gate information. Styled with the same
 // full-bleed section rhythm as /profile and the home page.
 import { notFound } from "next/navigation";
-import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient";
-import ReportTypeLabel from "@/components/ReportTypeLabel";
-import Reveal from "@/components/Reveal";
-import FlagButton from "@/components/FlagButton";
+import CaretakerPublicPageClient from "@/components/CaretakerPublicPageClient";
 
 export default async function CaretakerPublicPage({
   params,
@@ -89,14 +86,14 @@ export default async function CaretakerPublicPage({
       colony !== null
     );
 
-  const badges: { icon: string; label: string }[] = [];
-  if (colonies.length > 0) badges.push({ icon: "🤝", label: "Cuidador" });
-  if ((createdColonyCount ?? 0) > 0) badges.push({ icon: "🐾", label: "Cadastrou uma colônia" });
-  if ((feedingCount ?? 0) > 0) badges.push({ icon: "🍽️", label: "Alimentou uma colônia" });
-  if ((foodDonationCount ?? 0) > 0) badges.push({ icon: "🥫", label: "Doou ração" });
-  if ((madeReportRows?.length ?? 0) > 0) badges.push({ icon: "🚨", label: "Enviou um relato" });
-  if ((thanksReceivedCount ?? 0) > 0) badges.push({ icon: "🙏", label: "Foi agradecido" });
-  if (certRow) badges.push({ icon: "🎓", label: "Cuidador Preparado" });
+  const badges: { icon: string; labelKey: string }[] = [];
+  if (colonies.length > 0) badges.push({ icon: "🤝", labelKey: "profile.badges.caretaker" });
+  if ((createdColonyCount ?? 0) > 0) badges.push({ icon: "🐾", labelKey: "profile.badges.registeredColony" });
+  if ((feedingCount ?? 0) > 0) badges.push({ icon: "🍽️", labelKey: "profile.badges.fed" });
+  if ((foodDonationCount ?? 0) > 0) badges.push({ icon: "🥫", labelKey: "profile.badges.donated" });
+  if ((madeReportRows?.length ?? 0) > 0) badges.push({ icon: "🚨", labelKey: "profile.badges.reported" });
+  if ((thanksReceivedCount ?? 0) > 0) badges.push({ icon: "🙏", labelKey: "profile.badges.thanked" });
+  if (certRow) badges.push({ icon: "🎓", labelKey: "profile.badges.certified" });
 
   const confirmedReports = (confirmationRows ?? [])
     .map((row) => ({
@@ -108,156 +105,15 @@ export default async function CaretakerPublicPage({
     );
 
   return (
-    <div>
-      {/* Header */}
-      <section className="bg-felines-background py-16">
-        <div className="mx-auto max-w-6xl px-4 sm:px-6">
-          <Reveal>
-            <div className="flex items-center gap-5">
-              {profile.avatar_url ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={profile.avatar_url}
-                  alt={profile.display_name ?? "Cuidador"}
-                  className="h-20 w-20 rounded-full object-cover shadow-[0_2px_8px_rgba(0,0,0,0.10)]"
-                />
-              ) : (
-                <div className="h-20 w-20 rounded-full bg-felines-border" />
-              )}
-              <div>
-                <h1 className="text-3xl font-bold leading-tight text-felines-text-primary sm:text-[40px]">
-                  {profile.display_name || "Alguém da comunidade"}
-                </h1>
-                <p className="mt-1 text-sm text-felines-text-secondary">
-                  Cuida de {colonies.length} {colonies.length === 1 ? "colônia" : "colônias"}.
-                </p>
-                {profile.public_contact && (
-                  <p className="mt-1 text-sm text-felines-text-secondary">📞 {profile.public_contact}</p>
-                )}
-              </div>
-            </div>
-          </Reveal>
-        </div>
-      </section>
-
-      {/* Badges */}
-      {badges.length > 0 && (
-        <section className="bg-felines-surface py-12">
-          <div className="mx-auto max-w-6xl px-4 sm:px-6">
-            <Reveal>
-              <p className="text-xs font-semibold uppercase tracking-[0.1em] text-felines-accent-hover">
-                Conquistas
-              </p>
-              <h2 className="mt-3 text-2xl font-bold text-felines-text-primary">Badges</h2>
-            </Reveal>
-            <div className="mt-6 flex flex-wrap gap-3">
-              {badges.map((badge) => (
-                <div
-                  key={badge.label}
-                  className="flex items-center gap-2 rounded-2xl border border-felines-border bg-felines-background px-4 py-3 shadow-[0_2px_8px_rgba(0,0,0,0.05)]"
-                >
-                  <span className="text-2xl">{badge.icon}</span>
-                  <span className="text-sm font-medium text-felines-text-primary">{badge.label}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* Colonies */}
-      <section className="bg-felines-background py-16">
-        <div className="mx-auto max-w-6xl px-4 sm:px-6">
-          <Reveal>
-            <p className="text-xs font-semibold uppercase tracking-[0.1em] text-felines-accent-hover">
-              Onde cuida
-            </p>
-            <h2 className="mt-3 text-3xl font-bold leading-tight text-felines-text-primary">
-              Colônias
-            </h2>
-          </Reveal>
-
-          {colonies.length === 0 ? (
-            <p className="mt-6 text-sm text-felines-text-secondary">
-              Ainda não cuida de nenhuma colônia.
-            </p>
-          ) : (
-            <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {colonies.map((colony, index) => (
-                <Reveal key={colony.id} delayMs={index * 80}>
-                  <Link
-                    href={`/colony/${colony.id}`}
-                    className="block h-full rounded-2xl border border-felines-border bg-felines-background p-5 shadow-[0_2px_8px_rgba(0,0,0,0.05)] transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_8px_24px_rgba(0,0,0,0.10)]"
-                  >
-                    <p className="font-semibold text-felines-text-primary">{colony.name}</p>
-                  </Link>
-                </Reveal>
-              ))}
-            </div>
-          )}
-        </div>
-      </section>
-
-      {/* Activity — dark section, same rhythm as /profile's journey timeline */}
-      <section className="bg-felines-dark py-16">
-        <div className="mx-auto max-w-6xl px-4 sm:px-6">
-          <Reveal>
-            <p className="text-xs font-semibold uppercase tracking-[0.1em] text-felines-text-secondary-on-dark">
-              Contribuições
-            </p>
-            <h2 className="mt-3 text-3xl font-bold leading-tight text-white">
-              Relatos que fez
-            </h2>
-          </Reveal>
-
-          {!madeReportRows || madeReportRows.length === 0 ? (
-            <p className="mt-6 text-sm text-felines-text-secondary-on-dark">Nenhum relato ainda.</p>
-          ) : (
-            <ul className="mt-6 max-w-3xl space-y-3">
-              {madeReportRows.map((report, index) => (
-                <Reveal key={report.id} delayMs={Math.min(index, 8) * 60}>
-                  <li className="flex items-center justify-between rounded-xl border border-felines-border-on-dark bg-felines-dark-accent px-4 py-3 text-sm">
-                    <span className="text-white"><ReportTypeLabel value={report.type} /></span>
-                    <span className="text-xs text-felines-text-secondary-on-dark">
-                      {report.status === "resolved" ? "resolvido" : "aberto"} ·{" "}
-                      {new Date(report.created_at).toLocaleDateString("pt-BR")}
-                    </span>
-                  </li>
-                </Reveal>
-              ))}
-            </ul>
-          )}
-
-          <Reveal delayMs={100}>
-            <h2 className="mt-12 text-3xl font-bold leading-tight text-white">
-              Confirmações dadas
-            </h2>
-          </Reveal>
-
-          {confirmedReports.length === 0 ? (
-            <p className="mt-6 text-sm text-felines-text-secondary-on-dark">
-              Nenhuma confirmação ainda.
-            </p>
-          ) : (
-            <ul className="mt-6 max-w-3xl space-y-3">
-              {confirmedReports.map((item, index) => (
-                <Reveal key={item.report.id + item.confirmedAt} delayMs={Math.min(index, 8) * 60}>
-                  <li className="flex items-center justify-between rounded-xl border border-felines-border-on-dark bg-felines-dark-accent px-4 py-3 text-sm">
-                    <span className="text-white"><ReportTypeLabel value={item.report.type} /></span>
-                    <span className="text-xs text-felines-text-secondary-on-dark">
-                      {new Date(item.confirmedAt).toLocaleDateString("pt-BR")}
-                    </span>
-                  </li>
-                </Reveal>
-              ))}
-            </ul>
-          )}
-
-          <div className="mt-12">
-            <FlagButton targetType="profile" targetId={profile.id} onDark />
-          </div>
-        </div>
-      </section>
-    </div>
+    <CaretakerPublicPageClient
+      profileId={profile.id}
+      displayName={profile.display_name}
+      avatarUrl={profile.avatar_url}
+      publicContact={profile.public_contact}
+      colonies={colonies}
+      badges={badges}
+      madeReportRows={madeReportRows ?? []}
+      confirmedReports={confirmedReports}
+    />
   );
 }

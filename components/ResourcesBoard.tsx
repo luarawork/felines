@@ -1,10 +1,11 @@
-// The actual /resources board: auth-gated (redirects to /login like
-// /reports does), two tabs (Available/Needed), a post form, and
-// "I'm interested"/"Exchanged ✓" actions per card.
+// The actual /resources board: two tabs (Available/Needed), a post
+// form, and "I'm interested"/"Exchanged ✓" actions per card. Signed-out
+// visitors see an inline sign-in prompt instead of the board — this
+// tab lives alongside others on /reports (all mounted at once by
+// ColonyTabs), so it must not redirect the whole page away.
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabaseClient";
@@ -39,7 +40,6 @@ function timeAgo(dateString: string, t: (key: string) => string): string {
 }
 
 export default function ResourcesBoard() {
-  const router = useRouter();
   const { t } = useLanguage();
   const [session, setSession] = useState<Session | null>(null);
   const [checkingSession, setCheckingSession] = useState(true);
@@ -63,8 +63,15 @@ export default function ResourcesBoard() {
       setSession(sessionData.session);
       setCheckingSession(false);
 
+      // Was previously a hard router.push("/login") here — since this
+      // board is one of several tabs on /reports, all rendered at once
+      // (ColonyTabs keeps every tab's content mounted and just toggles
+      // `hidden`), redirecting on mount hijacked the *entire* /reports
+      // page for anonymous visitors the instant it loaded, regardless
+      // of which tab was actually active. Now it shows an inline
+      // sign-in prompt instead, same pattern as ReportsList uses for
+      // its own tab, and only that tab's content is affected.
       if (!sessionData.session) {
-        router.push("/login?returnTo=/resources");
         return;
       }
 
@@ -122,7 +129,7 @@ export default function ResourcesBoard() {
     }
 
     load();
-  }, [router, t]);
+  }, [t]);
 
   async function handleSubmit(formEvent: React.FormEvent) {
     formEvent.preventDefault();
@@ -179,7 +186,18 @@ export default function ResourcesBoard() {
     setPosts((previous) => previous.filter((post) => post.id !== postId));
   }
 
-  if (checkingSession || !session) return null;
+  if (checkingSession) return null;
+
+  if (!session) {
+    return (
+      <p className="mt-8 rounded-lg border border-felines-border bg-felines-surface px-4 py-3 text-sm text-felines-text-secondary">
+        <Link href="/login?returnTo=/resources" className="font-medium text-felines-accent-hover">
+          {t("forms.resource.loginPromptPre")}
+        </Link>{" "}
+        {t("forms.resource.loginPromptPost")}
+      </p>
+    );
+  }
 
   const filteredPosts = posts.filter((post) => post.type === activeTab);
 

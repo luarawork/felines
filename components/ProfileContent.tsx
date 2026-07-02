@@ -661,10 +661,10 @@ export default function ProfileContent() {
                       <p className="font-semibold text-felines-text-primary">{colony.name}</p>
                       {openCount > 0 ? (
                         <p className="mt-2 inline-block rounded-full bg-felines-warning-light px-2 py-0.5 text-xs font-medium text-felines-warning-hover">
-                          {openCount} {openCount === 1 ? "relato aberto" : "relatos abertos"}
+                          {openCount} {openCount === 1 ? t("profile.colonies.reportOpen") : t("profile.colonies.reportsOpen")}
                         </p>
                       ) : (
-                        <p className="mt-2 text-xs text-felines-text-secondary">Sem relatos abertos</p>
+                        <p className="mt-2 text-xs text-felines-text-secondary">{t("profile.colonies.noReports")}</p>
                       )}
                     </Link>
                   </Reveal>

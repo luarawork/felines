@@ -796,6 +796,41 @@ export const pt = {
     dismiss: "Dispensar",
   },
 
+  actionThanks: {
+    loginRequired: "Entre para agradecer essa ação",
+    alreadyThanked: "Você já agradeceu",
+    thankAction: "Agradecer essa ação",
+  },
+
+  catPage: {
+    notFound: "Gato não encontrado.",
+    viewMap: "Ver o mapa →",
+    photoAlt: "Foto do gato",
+    noName: "Gato sem nome",
+    castrated: "✓ Castrado",
+    notCastrated: "Não castrado",
+    seenOn: "Visto em {date}",
+  },
+
+  publicProfile: {
+    anonymousName: "Alguém da comunidade",
+    avatarAlt: "Cuidador",
+    caresForColony: "Cuida de {count} colônia.",
+    caresForColonies: "Cuida de {count} colônias.",
+    badgesLabel: "Conquistas",
+    badgesTitle: "Badges",
+    whereTheyCareLabel: "Onde cuida",
+    coloniesTitle: "Colônias",
+    noColonies: "Ainda não cuida de nenhuma colônia.",
+    contributionsLabel: "Contribuições",
+    reportsMadeTitle: "Relatos que fez",
+    noReportsYet: "Nenhum relato ainda.",
+    statusResolved: "resolvido",
+    statusOpen: "aberto",
+    confirmationsGivenTitle: "Confirmações dadas",
+    noConfirmationsYet: "Nenhuma confirmação ainda.",
+  },
+
   common: {
     loading: "Carregando...",
     error: "Algo deu errado. Tenta de novo?",
@@ -979,6 +1014,8 @@ export const pt = {
       validationError: "Escolha se você está oferecendo ou procurando algo.",
       fieldsError: "Preencha o título e a descrição.",
       insertError: "O anúncio não foi publicado. Tenta de novo?",
+      loginPromptPre: "Entre na sua conta",
+      loginPromptPost: "para ver e publicar anúncios de doação e troca.",
     },
     catNote: {
       submit: "Salvar observação",

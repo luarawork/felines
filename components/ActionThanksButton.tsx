@@ -8,8 +8,10 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
+import { useLanguage } from "@/lib/i18n";
 
 export default function ActionThanksButton({ timelineEventId }: { timelineEventId: string }) {
+  const { t } = useLanguage();
   const [userId, setUserId] = useState<string | null>(null);
   const [count, setCount] = useState(0);
   const [thanked, setThanked] = useState(false);
@@ -64,7 +66,7 @@ export default function ActionThanksButton({ timelineEventId }: { timelineEventI
     <button
       onClick={handleClick}
       disabled={!userId || thanked}
-      title={!userId ? "Entre para agradecer essa ação" : thanked ? "Você já agradeceu" : "Agradecer essa ação"}
+      title={!userId ? t("actionThanks.loginRequired") : thanked ? t("actionThanks.alreadyThanked") : t("actionThanks.thankAction")}
       className={`inline-flex min-h-[44px] items-center gap-1 px-2 text-xs transition-colors ${
         thanked ? "text-felines-emergency" : "text-felines-text-secondary hover:text-felines-emergency"
       } ${!userId ? "cursor-default opacity-60" : ""}`}
