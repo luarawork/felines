@@ -125,11 +125,17 @@ export default function ColonyStatsTab({
       </div>
 
       <div>
-        <div className="flex flex-wrap items-center gap-3">
-          <p className="text-2xl font-bold text-felines-text-primary">
+        <div
+          role="group"
+          aria-label={t("colony.statsTab.healthAriaLabel")
+            .replace("{status}", t(`colony.health.${healthStatus}`))
+            .replace("{score}", String(healthScore))}
+          className="flex flex-wrap items-center gap-3"
+        >
+          <p className="text-2xl font-bold text-felines-text-primary" aria-hidden="true">
             {healthScore}<span className="text-sm font-medium text-felines-text-secondary">/100</span>
           </p>
-          <span className="rounded-full bg-felines-accent-light px-3 py-1 text-xs font-semibold text-felines-accent-hover">
+          <span className="rounded-full bg-felines-accent-light px-3 py-1 text-xs font-semibold text-felines-accent-hover" aria-hidden="true">
             {t(`colony.health.${healthStatus}`)}
           </span>
         </div>
@@ -193,7 +199,14 @@ export default function ColonyStatsTab({
                   {Math.round(factor.value * 10) / 10}/{factor.max}
                 </span>
               </div>
-              <div className="mt-1 h-2 w-full rounded-full bg-felines-border">
+              <div
+                role="progressbar"
+                aria-valuenow={Math.round(factor.value * 10) / 10}
+                aria-valuemin={0}
+                aria-valuemax={factor.max}
+                aria-label={factor.label}
+                className="mt-1 h-2 w-full rounded-full bg-felines-border"
+              >
                 <div
                   className="h-2 rounded-full bg-felines-accent"
                   style={{ width: `${Math.max(2, (factor.value / factor.max) * 100)}%` }}
@@ -213,7 +226,14 @@ export default function ColonyStatsTab({
             .replace("{total}", String(stats.total_cats))
             .replace("{percent}", String(castrationPercent))}
         </p>
-        <div className="mt-2 h-3 w-full rounded-full bg-felines-border">
+        <div
+          role="progressbar"
+          aria-valuenow={castrationPercent}
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-label={t("colony.statsTab.castrationProgressAriaLabel").replace("{percent}", String(castrationPercent))}
+          className="mt-2 h-3 w-full rounded-full bg-felines-border"
+        >
           <div
             className="h-3 rounded-full bg-felines-success transition-all duration-700 ease-out"
             style={{ width: `${castrationPercent}%` }}

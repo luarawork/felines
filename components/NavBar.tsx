@@ -193,7 +193,7 @@ export default function NavBar() {
             <div ref={menuRef} className="relative">
               <button
                 onClick={() => setMenuOpen((previous) => !previous)}
-                aria-label={t("nav.menuLabel")}
+                aria-label={unreadCount > 0 ? t("nav.menuLabelUnread").replace("{count}", String(unreadCount)) : t("nav.menuLabel")}
                 aria-haspopup="true"
                 aria-expanded={menuOpen}
                 className="relative flex h-11 w-11 items-center justify-center overflow-hidden rounded-full border border-felines-border bg-felines-accent-light text-sm font-semibold text-felines-accent-hover transition-colors hover:bg-felines-accent hover:text-white"

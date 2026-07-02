@@ -134,6 +134,19 @@ function BoundsTracker({
   return null;
 }
 
+// MapContainer only forwards className/id/style to its DOM node — any
+// other prop (including aria-label) is silently swallowed into
+// Leaflet's map options instead. Setting it imperatively on the actual
+// container element is the only way it reaches assistive tech.
+function MapAriaLabel({ label }: { label: string }) {
+  const map = useMapEvents({});
+  useEffect(() => {
+    map.getContainer().setAttribute("aria-label", label);
+    map.getContainer().setAttribute("role", "application");
+  }, [map, label]);
+  return null;
+}
+
 type PinType = "colony" | "sighting" | "emergency" | "suggested";
 
 // Builds a circular Leaflet divIcon with the given color and size.
@@ -732,6 +745,7 @@ export default function ColonyMap({
                 key={option.value}
                 type="button"
                 onClick={() => togglePinType(option.value)}
+                aria-pressed={isActive}
                 className={`flex items-center gap-1 rounded-full border px-2 py-1 text-xs font-medium transition-colors ${
                   isActive
                     ? "border-felines-accent text-felines-text-primary"
@@ -753,6 +767,7 @@ export default function ColonyMap({
             <button
               type="button"
               onClick={() => setHeatMapOn((previous) => !previous)}
+              aria-pressed={heatMapOn}
               className={`w-full rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
                 heatMapOn
                   ? "border-felines-emergency bg-felines-emergency text-white"
@@ -769,6 +784,7 @@ export default function ColonyMap({
             <button
               type="button"
               onClick={() => setShowColonyHealth((previous) => !previous)}
+              aria-pressed={showColonyHealth}
               className={`mt-2 w-full rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
                 showColonyHealth
                   ? "border-felines-accent bg-felines-accent text-white"
@@ -788,6 +804,7 @@ export default function ColonyMap({
         className="h-full w-full"
       >
         <BoundsTracker onBoundsChange={setVisibleBounds} onCenterChange={onCenterChange} />
+        <MapAriaLabel label={t("map.interactiveMapAria")} />
         <ZoomControl position="bottomleft" />
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
