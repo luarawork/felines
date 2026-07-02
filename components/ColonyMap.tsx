@@ -189,9 +189,9 @@ const unverifiedColonyIcon = L.divIcon({
 // than combined with help/neutering/verification badges, to keep the
 // two visual languages from competing on the same pin.
 const HEALTH_RING_COLORS: Record<string, string> = {
-  thriving: "#2E7D32",
+  thriving: "#6B8F6A",
   stable: "#DA8433",
-  needs_attention: "#E07B39",
+  needs_attention: "#B66119",
   at_risk: "#C0392B",
 };
 

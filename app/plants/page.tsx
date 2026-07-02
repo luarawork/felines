@@ -13,7 +13,7 @@ function ToxicityBadge({ level, language }: { level: ToxicityLevel; language: "p
   const meta = (language === "en" ? TOXICITY_LABELS_EN : TOXICITY_LABELS)[level];
   const colorMap: Record<ToxicityLevel, string> = {
     high: "border-felines-emergency/30 bg-felines-emergency/10 text-felines-emergency",
-    moderate: "border-amber-300/40 bg-amber-50 text-amber-700",
+    moderate: "border-felines-warning/40 bg-felines-warning-light text-felines-warning-hover",
     low: "border-felines-success/30 bg-felines-success/10 text-felines-success-hover",
   };
   return (
