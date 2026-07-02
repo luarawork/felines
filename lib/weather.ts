@@ -9,6 +9,8 @@
 // (client-side, so it can refetch as the map moves) and
 // lib/notifications.ts call this directly, which means the
 // NEXT_PUBLIC_WEATHER_API_KEY appid in the URL runs in the browser.
+import { validateCoordinates } from "@/lib/validateCoordinates";
+
 export const NATAL_COORDS = { lat: -5.7945, lon: -35.211 };
 
 export type WeatherSnapshot = {
@@ -32,10 +34,22 @@ export async function getWeatherAt(
   const owmLang = language === "en" ? "en" : "pt_br";
 
   try {
-    const response = await fetch(
-      `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&lang=${owmLang}&appid=${apiKey}`,
-      { next: { revalidate: 1800 } } // cache for 30 minutes
-    );
+    // Same SSRF-class issue Aikido flagged in lib/geocode.ts — lat/lon
+    // reached this URL via string interpolation with no range check.
+    // Not part of the original report (only geocode.ts and
+    // NewColonyForm.tsx were flagged), found while re-verifying that fix.
+    const safe = validateCoordinates(lat, lon);
+    const url = new URL("https://api.openweathermap.org/data/2.5/weather");
+    url.searchParams.set("lat", String(safe.lat));
+    url.searchParams.set("lon", String(safe.lon));
+    url.searchParams.set("units", "metric");
+    url.searchParams.set("lang", owmLang);
+    url.searchParams.set("appid", apiKey);
+
+    const response = await fetch(url, {
+      redirect: "error",
+      next: { revalidate: 1800 }, // cache for 30 minutes
+    });
 
     if (!response.ok) return null;
 
