@@ -17,12 +17,16 @@ export default function EditColonyButton({
   initialNarrative,
   initialCastrationStatus,
   initialCoverPhotoUrl,
+  menuItem = false,
 }: {
   colonyId: string;
   initialName: string;
   initialNarrative: string | null;
   initialCastrationStatus: CastrationStatus;
   initialCoverPhotoUrl: string | null;
+  // Renders as a plain full-width row instead of a standalone pill
+  // button, for use inside ColonySettingsMenu's dropdown.
+  menuItem?: boolean;
 }) {
   const { canManage, checkingAccess } = useColonyAccessContext();
   const [open, setOpen] = useState(false);
@@ -34,7 +38,11 @@ export default function EditColonyButton({
     <>
       <button
         onClick={() => setOpen(true)}
-        className="rounded-full border border-felines-border px-4 py-2 text-sm font-medium text-felines-text-secondary transition-colors hover:border-felines-accent hover:text-felines-accent-hover"
+        className={
+          menuItem
+            ? "block w-full rounded-lg px-3 py-2 text-left text-sm font-medium text-felines-text-secondary transition-colors hover:bg-felines-background hover:text-felines-text-primary"
+            : "rounded-full border border-felines-border px-4 py-2 text-sm font-medium text-felines-text-secondary transition-colors hover:border-felines-accent hover:text-felines-accent-hover"
+        }
       >
         Editar colônia
       </button>

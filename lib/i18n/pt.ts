@@ -247,6 +247,8 @@ export const pt = {
       letter: "Carta de quem cuidou antes",
     },
     whatYouCanDo: "O que você pode fazer aqui",
+    settingsMenu: "Mais opções",
+    communityLabel: "Comunidade",
     foodLogged: "Alimentação registrada ✓",
     logFood: "Alimentei essa colônia hoje",
     waterLogged: "Água registrada ✓",

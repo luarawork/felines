@@ -246,6 +246,8 @@ export const en = {
       letter: "Letter from previous caretakers",
     },
     whatYouCanDo: "What you can do here",
+    settingsMenu: "More options",
+    communityLabel: "Community",
     foodLogged: "Feeding logged ✓",
     logFood: "I fed this colony today",
     waterLogged: "Water logged ✓",

@@ -14,7 +14,7 @@ import HelpRequestButton from "@/components/HelpRequestButton";
 import NeuteringRequestButton from "@/components/NeuteringRequestButton";
 import ColonyActions from "@/components/ColonyActions";
 import WeatherBanner from "@/components/WeatherBanner";
-import EditColonyButton from "@/components/EditColonyButton";
+import ColonySettingsMenu from "@/components/ColonySettingsMenu";
 import FollowColonyButton from "@/components/FollowColonyButton";
 import ShareButton from "@/components/ShareButton";
 import HelpRequestBanner from "@/components/HelpRequestBanner";
@@ -305,6 +305,10 @@ export default function ColonyDetailClient({
 
       <TimelineEventForm colonyId={colony.id} />
 
+      <div className="mt-3">
+        <ShareStoryButton colonyId={colony.id} />
+      </div>
+
       {hasNoTimelineEntriesEver && (
         <div className="mt-4">
           <EmptyState
@@ -405,7 +409,7 @@ export default function ColonyDetailClient({
           )}
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
           <div className="absolute right-4 top-4">
-            <EditColonyButton
+            <ColonySettingsMenu
               colonyId={colony.id}
               initialName={colony.name}
               initialNarrative={colony.narrative}
@@ -453,18 +457,12 @@ export default function ColonyDetailClient({
             />
           )}
 
-          <div className="mb-6 flex flex-wrap items-start justify-between gap-3">
-            <div className="flex-1">
-              <WeatherBanner
-                lat={colony.latitude_blurred}
-                lon={colony.longitude_blurred}
-                locationName={colony.name}
-              />
-            </div>
-            <div className="flex items-center gap-3">
-              <FollowColonyButton colonyId={colony.id} />
-              <ShareButton title={`${colony.name} — Felines`} />
-            </div>
+          <div className="mb-6">
+            <WeatherBanner
+              lat={colony.latitude_blurred}
+              lon={colony.longitude_blurred}
+              locationName={colony.name}
+            />
           </div>
 
           {caretakers.length > 0 && (
@@ -504,14 +502,6 @@ export default function ColonyDetailClient({
             </Reveal>
           )}
 
-          <div className="mt-4">
-            <VerifyColonyButton
-              colonyId={colony.id}
-              verifiedStatus={(colony.verified_status ?? "unverified") as "unverified" | "community_verified"}
-              verifiedAt={colony.verified_at}
-            />
-          </div>
-
           <Reveal delayMs={80}>
             {colony.narrative && (
               <p className="mt-6 max-w-2xl text-lg leading-relaxed text-felines-text-primary">
@@ -525,12 +515,6 @@ export default function ColonyDetailClient({
           </Reveal>
 
           <ColonyActions colonyId={colony.id} />
-
-          <div className="mt-6 flex flex-wrap gap-3">
-            <ShareStoryButton colonyId={colony.id} />
-            <HelpRequestButton colonyId={colony.id} />
-            <NeuteringRequestButton colonyId={colony.id} />
-          </div>
 
           <ColonyTabs
             tabs={[
@@ -565,7 +549,20 @@ export default function ColonyDetailClient({
               },
             ]}
             footer={
-              <div className="mt-8">
+              <div className="mt-8 space-y-4 border-t border-felines-border pt-6">
+                <p className="text-xs font-semibold uppercase tracking-[0.1em] text-felines-accent-hover">
+                  {t("colony.communityLabel")}
+                </p>
+                <div className="flex flex-wrap items-center gap-3">
+                  <FollowColonyButton colonyId={colony.id} />
+                  <ShareButton title={`${colony.name} — Felines`} />
+                  <HelpRequestButton colonyId={colony.id} />
+                </div>
+                <VerifyColonyButton
+                  colonyId={colony.id}
+                  verifiedStatus={(colony.verified_status ?? "unverified") as "unverified" | "community_verified"}
+                  verifiedAt={colony.verified_at}
+                />
                 <FlagButton targetType="colony" targetId={colony.id} />
               </div>
             }
