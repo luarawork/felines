@@ -10,7 +10,7 @@ import { useRouter } from "next/navigation";
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabaseClient";
 import MapMarkerPickerShell from "@/components/MapMarkerPickerShell";
-import { buildSafeStoragePath, validatePhotoFile } from "@/lib/storage";
+import { assertSafeStoragePath, buildSafeStoragePath, validatePhotoFile } from "@/lib/storage";
 import AuthRequiredNotice from "@/components/AuthRequiredNotice";
 import PhotoUploadButton from "@/components/PhotoUploadButton";
 import QuickSightingForm from "@/components/QuickSightingForm";
@@ -118,6 +118,7 @@ export default function NewColonyForm() {
     setSubmitting(true);
 
     const filePath = buildSafeStoragePath(session.user.id, photoFile);
+    assertSafeStoragePath(filePath);
     const { error: uploadError } = await supabase.storage
       .from("colony-photos")
       .upload(filePath, photoFile);
