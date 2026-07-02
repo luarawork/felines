@@ -277,8 +277,9 @@ export default function ColonyDetailClient({
         </div>
       )}
 
-      <div className="pt-2">
+      <div className="flex flex-wrap gap-3 pt-2">
         <NeuteringRequestButton colonyId={colony.id} />
+        <HelpRequestButton colonyId={colony.id} />
       </div>
 
       <CareReminders colonyId={colony.id} />
@@ -556,7 +557,6 @@ export default function ColonyDetailClient({
                 <div className="flex flex-wrap items-center gap-3">
                   <FollowColonyButton colonyId={colony.id} />
                   <ShareButton title={`${colony.name} — Felines`} />
-                  <HelpRequestButton colonyId={colony.id} />
                 </div>
                 <VerifyColonyButton
                   colonyId={colony.id}
