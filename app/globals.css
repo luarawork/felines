@@ -8,35 +8,33 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f9f6f2;
+  --background: #f2f2f2;
   --foreground: #2d2d2d;
 
-  /* Felines brand palette */
-  --color-felines-background: #f9f6f2;
+  /* Felines brand palette — matched to the logo cat's colors. */
+  --color-felines-background: #f2f2f2;
   --color-felines-surface: #ffffff;
-  /* Caramel brown, used for alternating dark sections — a nod to the
-     Felines mascot (a caramel-colored cat), not a near-black brown. */
-  --color-felines-dark: #a85e24;
-  --color-felines-dark-accent: #bf7538;
+  --color-felines-dark: #2d1810;
+  --color-felines-dark-accent: #3d2318;
 
   --color-felines-text-primary: #2d2d2d;
   --color-felines-text-primary-on-dark: #ffffff;
   --color-felines-text-secondary: #6b6b6b;
-  --color-felines-text-secondary-on-dark: #c4a090;
+  --color-felines-text-secondary-on-dark: #f2ae72;
 
   --color-felines-border: #e8e4df;
-  --color-felines-border-on-dark: #bf7538;
+  --color-felines-border-on-dark: #4d3020;
 
-  --color-felines-accent: #c4704f;
-  --color-felines-accent-hover: #a85a3a;
-  --color-felines-accent-light: #fdf0eb;
+  --color-felines-accent: #b66119;
+  --color-felines-accent-hover: #8f4c14;
+  --color-felines-accent-light: #fef3e8;
 
   --color-felines-success: #6b8f6a;
   --color-felines-success-hover: #4a6b49;
   --color-felines-success-light: #f0f7f0;
 
-  --color-felines-warning: #e8a838;
-  --color-felines-warning-light: #fffbec;
+  --color-felines-warning: #da8433;
+  --color-felines-warning-light: #fff8ee;
 
   --color-felines-emergency: #c0392b;
   --color-felines-emergency-light: #fef2f2;
@@ -96,7 +94,7 @@ textarea:focus-visible,
 select:focus-visible,
 summary:focus-visible,
 [tabindex]:focus-visible {
-  outline: 2px solid #c4704f;
+  outline: 2px solid #b66119;
   outline-offset: 2px;
   border-radius: 4px;
 }
@@ -173,7 +171,7 @@ summary:focus-visible,
 
 .leaflet-popup-close-button:hover {
   background: #fff !important;
-  color: #c4704f !important;
+  color: #b66119 !important;
 }
 
 /* Circular map pin used for colony/sighting/emergency markers */
@@ -301,7 +299,7 @@ summary:focus-visible,
 /* Shimmering placeholder for loading states (map, colony page, profile,
    article) that currently show nothing or plain "Carregando..." text. */
 .felines-skeleton {
-  background: linear-gradient(90deg, #e8e4df 25%, #f9f6f2 50%, #e8e4df 75%);
+  background: linear-gradient(90deg, #e8e4df 25%, #f2f2f2 50%, #e8e4df 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
 }

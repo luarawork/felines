@@ -15,7 +15,7 @@ const NATAL_CENTER: [number, number] = [-5.7945, -35.211];
 
 const markerIcon = L.divIcon({
   className: "",
-  html: '<span class="felines-pin" style="background:#C4704F"></span>',
+  html: '<span class="felines-pin" style="background:#B66119"></span>',
   iconSize: [18, 18],
   iconAnchor: [9, 9],
 });

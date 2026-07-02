@@ -873,7 +873,7 @@ export default function ProfileContent() {
 
             {!showQuiz && !quizSkipped && (
               <Reveal delayMs={100}>
-                <div className="mt-6 max-w-2xl rounded-2xl bg-gradient-to-br from-felines-accent to-felines-accent-hover p-8 shadow-[0_8px_24px_rgba(196,112,79,0.35)]">
+                <div className="mt-6 max-w-2xl rounded-2xl bg-gradient-to-br from-felines-accent to-felines-accent-hover p-8 shadow-[0_8px_24px_rgba(182,97,25,0.35)]">
                   <span className="text-4xl" aria-hidden="true">
                     🐾
                   </span>

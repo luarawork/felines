@@ -154,7 +154,7 @@ function buildPinIcon(color: string, size: number, pulsing = false, icon = "") {
   });
 }
 
-const colonyIcon = buildPinIcon("#C4704F", 22);
+const colonyIcon = buildPinIcon("#B66119", 22);
 
 // Help requests, neutering requests, and false-pin flags used to show as
 // small badges layered on top of the pin itself ("bolinha em cima do
@@ -166,7 +166,7 @@ const colonyIcon = buildPinIcon("#C4704F", 22);
 // a whole-pin treatment, not a corner badge, so it's kept.
 const unverifiedColonyIcon = L.divIcon({
   className: "",
-  html: `<span style="display:flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:rgba(196,112,79,0.55);border:2px dashed #C4704F;"></span>`,
+  html: `<span style="display:flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:rgba(182,97,25,0.55);border:2px dashed #B66119;"></span>`,
   iconSize: [22, 22],
   iconAnchor: [11, 11],
 });
@@ -177,7 +177,7 @@ const unverifiedColonyIcon = L.divIcon({
 // two visual languages from competing on the same pin.
 const HEALTH_RING_COLORS: Record<string, string> = {
   thriving: "#2E7D32",
-  stable: "#E8A838",
+  stable: "#DA8433",
   needs_attention: "#E07B39",
   at_risk: "#C0392B",
 };
@@ -186,7 +186,7 @@ function buildHealthRingIcon(status: string): L.DivIcon {
   const color = HEALTH_RING_COLORS[status] ?? HEALTH_RING_COLORS.stable;
   return L.divIcon({
     className: "",
-    html: `<span style="display:flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:#C4704F;border:3px solid ${color};"></span>`,
+    html: `<span style="display:flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:#B66119;border:3px solid ${color};"></span>`,
     iconSize: [22, 22],
     iconAnchor: [11, 11],
   });
@@ -255,7 +255,7 @@ function PIN_TYPE_OPTIONS(
   t: (key: string) => string
 ): { value: PinType; label: string; color: string }[] {
   return [
-    { value: "colony", label: t("map.pinTypeColonies"), color: "#C4704F" },
+    { value: "colony", label: t("map.pinTypeColonies"), color: "#B66119" },
     { value: "sighting", label: t("map.pinTypeSightings"), color: "#6B6B6B" },
     { value: "emergency", label: t("map.pinTypeEmergencies"), color: "#C0392B" },
   ];
@@ -812,7 +812,7 @@ export default function ColonyMap({
               key={colony.id}
               center={position}
               radius={BLUR_RADIUS_METERS[level]}
-              pathOptions={{ color: "#E8A838", fillColor: "#E8A838", fillOpacity: 0.18, weight: 1 }}
+              pathOptions={{ color: "#DA8433", fillColor: "#DA8433", fillOpacity: 0.18, weight: 1 }}
               eventHandlers={{ click: handleColonyPinClick }}
             >
               <Tooltip direction="top" opacity={1}>
@@ -860,7 +860,7 @@ export default function ColonyMap({
             const needScore = colonyNeedScores.get(colony.id);
             if (!needScore) return null;
             const { position } = resolveColonyPosition(colony);
-            const color = needScore >= 2 ? "#C0392B" : "#E8A838";
+            const color = needScore >= 2 ? "#C0392B" : "#DA8433";
             return (
               <Circle
                 key={`heat-${colony.id}`}
