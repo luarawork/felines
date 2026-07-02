@@ -44,6 +44,7 @@ import ColonyClickTooltip, {
   markColonyClickTooltipSeen,
 } from "@/components/ColonyClickTooltip";
 import ColonyInterestModal from "@/components/ColonyInterestModal";
+import RotatingSingleFact from "@/components/RotatingSingleFact";
 
 // Natal, RN map center and default zoom, per the Felines spec.
 const NATAL_CENTER: [number, number] = [-5.7945, -35.211];
@@ -209,6 +210,18 @@ const suggestedColonyIcon = L.divIcon({
   iconSize: [36, 36],
   iconAnchor: [18, 18],
 });
+
+// "Did you know" facts shown while no colonies are visible in the
+// current map viewport — keeps the empty state from feeling like a
+// dead end, and gives first-time visitors some grounding context.
+const MAP_EMPTY_STATE_FACTS = [
+  "📊 Existem cerca de 480 milhões de gatos de rua no mundo",
+  "📊 TNR é o único método com eficácia comprovada para estabilizar colônias",
+  "📊 Gatos castrados marcam território até 90% menos e brigam muito menos",
+  "📊 Uma fêmea não castrada pode gerar até 3 ninhadas por ano",
+  "📊 Colônias com alimentação regular têm menor taxa de doenças infecciosas",
+  "📊 Território esvaziado atrai um grupo novo em poucos meses — o efeito vácuo",
+];
 
 const EMERGENCY_REPORT_TYPES = [
   "injured_sick",
@@ -1125,7 +1138,7 @@ export default function ColonyMap({
       {!compact && hasLoadedColonies && visiblePinTypes.has("colony") && filteredColonies.length === 0 && (
         // bottom-24 (not bottom-6) so this never overlaps the floating
         // "+ Cadastrar colônia" button anchored at the bottom-right.
-        <div className="absolute bottom-24 left-1/2 z-[1000] w-[90%] max-w-md -translate-x-1/2">
+        <div className="absolute bottom-24 left-1/2 z-[1000] w-[90%] max-w-md -translate-x-1/2 space-y-3">
           {panelSightings.length > 0 ? (
             <EmptyState
               main={t("map.unmappedSightingMain")}
@@ -1143,6 +1156,9 @@ export default function ColonyMap({
               ]}
             />
           )}
+          <div className="flex justify-center">
+            <RotatingSingleFact facts={MAP_EMPTY_STATE_FACTS} />
+          </div>
         </div>
       )}
     </div>

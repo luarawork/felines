@@ -394,15 +394,55 @@ export default function ProfileContent() {
   // loaded for the activity feed, rather than a separate achievements
   // table, since none of these need to persist beyond "has this
   // happened at least once."
-  const badges: { icon: string; label: string }[] = [];
-  if (caretakerLinks.length > 0) badges.push({ icon: "🤝", label: t("profile.badges.caretaker") });
-  if (createdColonies.length > 0) badges.push({ icon: "🐾", label: t("profile.badges.registeredColony") });
-  if (feedings.length > 0) badges.push({ icon: "🍽️", label: t("profile.badges.fed") });
-  if (foodDonationCount > 0) badges.push({ icon: "🥫", label: t("profile.badges.donated") });
-  if (ownReports.length > 0) badges.push({ icon: "🚨", label: t("profile.badges.reported") });
-  if (thanksReceived.length > 0) badges.push({ icon: "🙏", label: t("profile.badges.thanked") });
-  if (longestStreak >= 7) badges.push({ icon: "🔥", label: t("profile.badges.streak7") });
-  if (isCertified) badges.push({ icon: "🎓", label: t("profile.badges.certified") });
+  const badges: { icon: string; label: string; className: string }[] = [];
+  if (caretakerLinks.length > 0)
+    badges.push({
+      icon: "🤝",
+      label: t("profile.badges.caretaker"),
+      className: "border-felines-accent/30 bg-felines-accent-light text-felines-accent-hover",
+    });
+  if (createdColonies.length > 0)
+    badges.push({
+      icon: "🐾",
+      label: t("profile.badges.registeredColony"),
+      className: "border-felines-success/30 bg-felines-success-light text-felines-success-hover",
+    });
+  if (feedings.length > 0)
+    badges.push({
+      icon: "🍽️",
+      label: t("profile.badges.fed"),
+      className: "border-felines-warning/30 bg-felines-warning-light text-felines-warning",
+    });
+  if (foodDonationCount > 0)
+    badges.push({
+      icon: "🥫",
+      label: t("profile.badges.donated"),
+      className: "border-felines-warning/30 bg-felines-warning-light text-felines-warning",
+    });
+  if (ownReports.length > 0)
+    badges.push({
+      icon: "🚨",
+      label: t("profile.badges.reported"),
+      className: "border-felines-emergency/30 bg-felines-emergency-light text-felines-emergency",
+    });
+  if (thanksReceived.length > 0)
+    badges.push({
+      icon: "🙏",
+      label: t("profile.badges.thanked"),
+      className: "border-felines-accent/30 bg-felines-accent-light text-felines-accent-hover",
+    });
+  if (longestStreak >= 7)
+    badges.push({
+      icon: "🔥",
+      label: t("profile.badges.streak7"),
+      className: "border-felines-emergency/30 bg-felines-emergency-light text-felines-emergency",
+    });
+  if (isCertified)
+    badges.push({
+      icon: "🎓",
+      label: t("profile.badges.certified"),
+      className: "border-felines-success/30 bg-felines-success-light text-felines-success-hover",
+    });
 
   const colonyOpenReportCounts = new Map<string, number>();
   myColonyReports.forEach((report) => {
@@ -534,11 +574,15 @@ export default function ProfileContent() {
               other people. */}
           <Reveal delayMs={60}>
             <div className="mt-6 flex flex-wrap gap-3">
-              <div className="rounded-xl border border-felines-border bg-felines-surface px-4 py-3">
+              <div className="rounded-xl border border-felines-border bg-felines-surface px-5 py-4">
                 {currentStreak > 0 ? (
-                  <p className="text-sm font-semibold text-felines-accent">
-                    🔥 {currentStreak} {currentStreak === 1 ? t("profile.streak.day") : t("profile.streak.days")}{" "}
-                    {t("profile.streak.streak")}
+                  <p className="flex items-baseline gap-2">
+                    <span className="text-3xl leading-none" aria-hidden="true">🔥</span>
+                    <span className="text-3xl font-bold leading-none text-felines-accent">{currentStreak}</span>
+                    <span className="text-sm font-medium text-felines-text-secondary">
+                      {currentStreak === 1 ? t("profile.streak.day") : t("profile.streak.days")}{" "}
+                      {t("profile.streak.streak")}
+                    </span>
                   </p>
                 ) : (
                   <p className="text-sm text-felines-text-secondary">{t("profile.streak.noStreak")}</p>
@@ -626,10 +670,10 @@ export default function ProfileContent() {
               {badges.map((badge) => (
                 <div
                   key={badge.label}
-                  className="flex items-center gap-2 rounded-2xl border border-felines-border bg-felines-surface px-4 py-3 shadow-[0_2px_8px_rgba(0,0,0,0.05)]"
+                  className={`flex items-center gap-2 rounded-2xl border px-4 py-3 shadow-[0_2px_8px_rgba(0,0,0,0.05)] ${badge.className}`}
                 >
                   <span className="text-2xl" aria-hidden="true">{badge.icon}</span>
-                  <span className="text-sm font-medium text-felines-text-primary">{badge.label}</span>
+                  <span className="text-sm font-semibold">{badge.label}</span>
                 </div>
               ))}
             </div>
