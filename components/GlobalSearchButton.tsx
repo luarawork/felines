@@ -255,7 +255,7 @@ export default function GlobalSearchButton() {
         onClick={() => setOpen(true)}
         aria-label={t("common.searchAriaLabel")}
         title={t("common.searchTitle")}
-        className="flex h-9 w-9 items-center justify-center rounded-full text-felines-text-secondary transition-colors hover:bg-felines-background hover:text-felines-accent"
+        className="flex h-11 w-11 items-center justify-center rounded-full text-felines-text-secondary transition-colors hover:bg-felines-background hover:text-felines-accent"
       >
         🔍
       </button>

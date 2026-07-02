@@ -55,7 +55,7 @@ export default function StoryHeartButton({
       onClick={handleHeart}
       disabled={hearted || sending}
       aria-label={hearted ? t("stories.alreadyReactedAria") : t("stories.reactAria")}
-      className={`inline-flex items-center gap-1 text-xs transition-colors ${
+      className={`inline-flex min-h-[44px] items-center gap-1 px-2 text-xs transition-colors ${
         hearted ? "text-felines-emergency" : "text-felines-text-secondary hover:text-felines-emergency"
       }`}
     >

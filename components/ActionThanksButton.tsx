@@ -65,7 +65,7 @@ export default function ActionThanksButton({ timelineEventId }: { timelineEventI
       onClick={handleClick}
       disabled={!userId || thanked}
       title={!userId ? "Entre para agradecer essa ação" : thanked ? "Você já agradeceu" : "Agradecer essa ação"}
-      className={`inline-flex items-center gap-1 text-xs transition-colors ${
+      className={`inline-flex min-h-[44px] items-center gap-1 px-2 text-xs transition-colors ${
         thanked ? "text-felines-emergency" : "text-felines-text-secondary hover:text-felines-emergency"
       } ${!userId ? "cursor-default opacity-60" : ""}`}
     >

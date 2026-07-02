@@ -129,7 +129,7 @@ export default function NavBar() {
             width={150}
             height={48}
             priority
-            className="h-10 w-auto"
+            className="felines-logo-bounce h-10 w-auto"
           />
         </Link>
 
@@ -151,22 +151,28 @@ export default function NavBar() {
         </ul>
 
         <div className="flex items-center gap-3">
-          {/* Language switcher — joined PT|EN pill */}
+          {/* Language switcher — joined PT|EN pill with a sliding active
+              background instead of an instant color swap on toggle */}
           <div
             role="group"
             aria-label={t("nav.selectLanguage")}
-            className="hidden items-center overflow-hidden rounded-full border border-felines-border sm:flex"
+            className="relative hidden items-center overflow-hidden rounded-full border border-felines-border sm:flex"
           >
+            <span
+              aria-hidden="true"
+              className="absolute inset-y-0 left-0 w-1/2 rounded-full bg-felines-accent transition-transform duration-200 ease-out"
+              style={{ transform: language === "en" ? "translateX(100%)" : "translateX(0%)" }}
+            />
             {(["pt", "en"] as const).map((lang, i) => (
               <button
                 key={lang}
                 onClick={() => setLanguage(lang)}
                 aria-pressed={language === lang}
-                className={`h-8 px-3 text-xs font-semibold transition-colors ${
+                className={`relative z-10 h-8 px-3 text-xs font-semibold transition-colors ${
                   i === 0 ? "" : "border-l border-felines-border"
                 } ${
                   language === lang
-                    ? "bg-felines-accent text-white"
+                    ? "text-white"
                     : "bg-transparent text-felines-text-secondary hover:text-felines-text-primary"
                 }`}
               >
@@ -178,7 +184,7 @@ export default function NavBar() {
           <GlobalSearchButton />
           <button
             onClick={openHelpModal}
-            className="felines-help-pulse min-w-[9.5rem] whitespace-nowrap rounded-full bg-felines-accent px-4 py-1.5 text-center text-sm font-semibold text-white transition-colors hover:bg-felines-accent-hover"
+            className="felines-help-pulse min-h-[44px] min-w-[9.5rem] whitespace-nowrap rounded-full bg-felines-accent px-4 py-1.5 text-center text-sm font-semibold text-white transition-colors hover:bg-felines-accent-hover"
           >
             {t("nav.getHelp")}
           </button>

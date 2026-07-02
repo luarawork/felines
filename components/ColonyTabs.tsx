@@ -59,7 +59,7 @@ export default function ColonyTabs({
 
   return (
     <div className="mt-8">
-      <div role="tablist" aria-label="Seções da colônia" className="flex flex-wrap gap-2 border-b border-felines-border">
+      <div role="tablist" aria-label="Seções da colônia" className="flex flex-nowrap gap-2 overflow-x-auto border-b border-felines-border [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {tabs.map((tab, index) => {
           const isActive = tab.id === activeTabId;
           return (
@@ -73,7 +73,7 @@ export default function ColonyTabs({
               tabIndex={isActive ? 0 : -1}
               onClick={() => setActiveTabId(tab.id)}
               onKeyDown={(event) => handleKeyDown(event, index)}
-              className={`-mb-px border-b-2 px-3 py-2 text-sm font-medium transition-colors ${
+              className={`-mb-px flex-shrink-0 whitespace-nowrap border-b-2 px-3 py-2 text-sm font-medium transition-colors ${
                 isActive
                   ? "border-felines-accent text-felines-accent-hover"
                   : "border-transparent text-felines-text-secondary hover:text-felines-accent"
