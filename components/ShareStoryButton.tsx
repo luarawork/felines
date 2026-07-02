@@ -73,6 +73,16 @@ export default function ShareStoryButton({ colonyId }: { colonyId: string }) {
       return;
     }
 
+    // Mirror onto the timeline so the story shows up in the colony's
+    // history too, not just on the separate public /stories wall.
+    await supabase.from("timeline_events").insert({
+      colony_id: colonyId,
+      event_type: "story_shared",
+      description: title.trim(),
+      photo_url: photoUrl,
+      created_by: session.user.id,
+    });
+
     setSubmitted(true);
     router.refresh();
   }
