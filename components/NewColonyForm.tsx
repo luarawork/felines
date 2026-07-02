@@ -16,6 +16,7 @@ import PhotoUploadButton from "@/components/PhotoUploadButton";
 import QuickSightingForm from "@/components/QuickSightingForm";
 import { useEscapeToClose } from "@/lib/useEscapeToClose";
 import { useLanguage } from "@/lib/i18n";
+import { reverseGeocodeCity } from "@/lib/geocode";
 
 // Location blur protects cats from malicious users who could use exact
 // coordinates to find and harm animals. Both blur levels are computed
@@ -34,7 +35,7 @@ function blurCoordinateNear(value: number) {
 
 export default function NewColonyForm() {
   const router = useRouter();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [session, setSession] = useState<Session | null>(null);
   const [checkingSession, setCheckingSession] = useState(true);
   const [showSightingForm, setShowSightingForm] = useState(false);
@@ -318,20 +319,9 @@ export default function NewColonyForm() {
             onPick={async (lat, lng) => {
               setPosition([lat, lng]);
               setCityLoading(true);
-              try {
-                const res = await fetch(
-                  `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&accept-language=pt-BR`
-                );
-                const json = await res.json();
-                const addr = json.address ?? {};
-                const detected =
-                  addr.city ?? addr.town ?? addr.village ?? addr.municipality ?? "";
-                setCity(detected);
-              } catch {
-                // Nominatim unavailable — let user type manually
-              } finally {
-                setCityLoading(false);
-              }
+              const detected = await reverseGeocodeCity(lat, lng, language);
+              setCity(detected ?? "");
+              setCityLoading(false);
             }}
           />
         </div>
