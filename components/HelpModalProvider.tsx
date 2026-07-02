@@ -25,6 +25,10 @@ export function useHelpModal(): HelpModalContextValue {
 export default function HelpModalProvider({ children }: { children: React.ReactNode }) {
   const { t } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
+  // Drives the enter transition: mounts hidden, then flips to the
+  // "-in" classes a frame later for a fade + slide-up entrance instead
+  // of an instant snap into view.
+  const [entered, setEntered] = useState(false);
   const dialogRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLElement | null>(null);
 
@@ -35,6 +39,7 @@ export default function HelpModalProvider({ children }: { children: React.ReactN
 
   const close = useCallback(() => {
     setIsOpen(false);
+    setEntered(false);
     // Return focus to the element that opened the modal.
     setTimeout(() => triggerRef.current?.focus(), 50);
   }, []);
@@ -49,13 +54,21 @@ export default function HelpModalProvider({ children }: { children: React.ReactN
     }
   }, [isOpen]);
 
+  useEffect(() => {
+    if (!isOpen) return;
+    const frame = requestAnimationFrame(() => setEntered(true));
+    return () => cancelAnimationFrame(frame);
+  }, [isOpen]);
+
   return (
     <HelpModalContext.Provider value={{ openHelpModal }}>
       {children}
 
       {isOpen && (
         <div
-          className="fixed inset-0 z-[2000] flex items-center justify-center bg-black/40 p-4"
+          className={`felines-modal-backdrop fixed inset-0 z-[2000] flex items-center justify-center bg-black/40 p-4 ${
+            entered ? "felines-modal-backdrop-in" : ""
+          }`}
           onClick={close}
         >
           <div
@@ -64,7 +77,9 @@ export default function HelpModalProvider({ children }: { children: React.ReactN
             aria-modal="true"
             aria-labelledby="help-modal-title"
             tabIndex={-1}
-            className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-xl bg-felines-background p-6 shadow-xl outline-none"
+            className={`felines-modal-panel max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-xl bg-felines-background p-6 shadow-xl outline-none ${
+              entered ? "felines-modal-panel-in" : ""
+            }`}
             onClick={(event) => event.stopPropagation()}
           >
             <div className="flex items-start justify-between">

@@ -103,18 +103,29 @@ export default function GlobalSearchButton() {
   const [contactResults, setContactResults] = useState<SearchResult[]>([]);
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
   const [selectedIndex, setSelectedIndex] = useState(0);
+  // Drives the enter transition: mounts hidden, then flips to the
+  // "-in" classes a frame later for a fade + slide-up entrance instead
+  // of an instant snap into view.
+  const [entered, setEntered] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const dialogRef = useRef<HTMLDivElement>(null);
 
   const handleClose = useCallback(() => {
     setOpen(false);
+    setEntered(false);
     setQuery("");
     setDebouncedQuery("");
     setSelectedIndex(0);
     // Return focus to the button that opened the search.
     setTimeout(() => triggerRef.current?.focus(), 50);
   }, []);
+
+  useEffect(() => {
+    if (!open) return;
+    const frame = requestAnimationFrame(() => setEntered(true));
+    return () => cancelAnimationFrame(frame);
+  }, [open]);
 
   // Global Cmd+K / Ctrl+K shortcut, available from anywhere in the app.
   useEffect(() => {
@@ -263,7 +274,9 @@ export default function GlobalSearchButton() {
       {open &&
         createPortal(
           <div
-            className="fixed inset-0 z-[2500] flex justify-center bg-black/50 p-4"
+            className={`felines-modal-backdrop fixed inset-0 z-[2500] flex justify-center bg-black/50 p-4 ${
+              entered ? "felines-modal-backdrop-in" : ""
+            }`}
             style={{ paddingTop: "var(--navbar-height, 64px)" }}
             onClick={handleClose}
           >
@@ -272,7 +285,9 @@ export default function GlobalSearchButton() {
               role="dialog"
               aria-modal="true"
               aria-label={t("common.searchAriaModal")}
-              className="h-fit w-full max-w-lg overflow-hidden rounded-2xl bg-felines-background shadow-2xl"
+              className={`felines-modal-panel h-fit w-full max-w-lg overflow-hidden rounded-2xl bg-felines-background shadow-2xl ${
+                entered ? "felines-modal-panel-in" : ""
+              }`}
               onClick={(event) => event.stopPropagation()}
               onKeyDown={handleKeyDownInModal}
             >

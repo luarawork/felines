@@ -95,7 +95,7 @@ export default function FlagButton({
   return (
     <form
       onSubmit={handleSubmit}
-      className="mt-2 max-w-xs rounded-md border border-felines-border bg-felines-surface p-3"
+      className="felines-step-in mt-2 max-w-xs rounded-md border border-felines-border bg-felines-surface p-3"
     >
       <label htmlFor="flag-reason" className="text-xs font-medium text-felines-text-primary">
         {t("flag.reasonLabel")}

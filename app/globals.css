@@ -184,7 +184,7 @@ summary:focus-visible,
   border-radius: 50%;
   border: 2px solid #ffffff;
   box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.15);
-  transition: transform 200ms ease;
+  transition: transform 200ms cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .felines-pin:hover {
@@ -256,6 +256,80 @@ summary:focus-visible,
   animation: felines-help-pulse 3s ease-in-out infinite;
 }
 
+@keyframes felines-flame-flicker {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+/* Subtle flicker for the streak flame emoji on /profile */
+.felines-flame-flicker {
+  display: inline-block;
+  animation: felines-flame-flicker 2s ease-in-out infinite;
+}
+
+@keyframes felines-logo-bounce {
+  0% {
+    transform: scale(0.8);
+  }
+  60% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Runs once on mount — the nav logo's entrance, not a looping effect */
+.felines-logo-bounce {
+  animation: felines-logo-bounce 400ms ease-out;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* Shimmering placeholder for loading states (map, colony page, profile,
+   article) that currently show nothing or plain "Carregando..." text. */
+.felines-skeleton {
+  background: linear-gradient(90deg, #e8e4df 25%, #f9f6f2 50%, #e8e4df 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+/* Simple mount-transition helper for portal-based modals: render with
+   these classes, then flip to the *-in variant on the next frame (see
+   e.g. CatsConflictModal.tsx) for a fade + slide-up entrance instead of
+   an instant snap into view. */
+.felines-modal-backdrop {
+  opacity: 0;
+  transition: opacity 250ms ease;
+}
+
+.felines-modal-backdrop-in {
+  opacity: 1;
+}
+
+.felines-modal-panel {
+  opacity: 0;
+  transform: translateY(1rem);
+  transition: opacity 250ms ease, transform 250ms ease;
+}
+
+.felines-modal-panel-in {
+  opacity: 1;
+  transform: translateY(0);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .felines-reveal {
     opacity: 1;
@@ -263,7 +337,9 @@ summary:focus-visible,
     transition: none;
   }
   .felines-help-pulse,
-  .felines-pin-pulse {
+  .felines-pin-pulse,
+  .felines-flame-flicker,
+  .felines-logo-bounce {
     animation: none !important;
   }
   * {

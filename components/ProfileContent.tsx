@@ -577,7 +577,7 @@ export default function ProfileContent() {
               <div className="rounded-xl border border-felines-border bg-felines-surface px-5 py-4">
                 {currentStreak > 0 ? (
                   <p className="flex items-baseline gap-2">
-                    <span className="text-3xl leading-none" aria-hidden="true">🔥</span>
+                    <span className="felines-flame-flicker text-3xl leading-none" aria-hidden="true">🔥</span>
                     <span className="text-3xl font-bold leading-none text-felines-accent">{currentStreak}</span>
                     <span className="text-sm font-medium text-felines-text-secondary">
                       {currentStreak === 1 ? t("profile.streak.day") : t("profile.streak.days")}{" "}

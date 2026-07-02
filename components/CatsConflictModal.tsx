@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useEscapeToClose } from "@/lib/useEscapeToClose";
 import { createPortal } from "react-dom";
@@ -9,8 +9,23 @@ import { useLanguage } from "@/lib/i18n";
 export default function CatsConflictModal() {
   const { t } = useLanguage();
   const [open, setOpen] = useState(false);
+  // Drives the enter transition: mounts hidden, then flips to the
+  // "-in" classes a frame later so the opacity/translate change is
+  // actually animated instead of applied before first paint.
+  const [entered, setEntered] = useState(false);
 
-  useEscapeToClose(open, () => setOpen(false));
+  function handleClose() {
+    setOpen(false);
+    setEntered(false);
+  }
+
+  useEscapeToClose(open, handleClose);
+
+  useEffect(() => {
+    if (!open) return;
+    const frame = requestAnimationFrame(() => setEntered(true));
+    return () => cancelAnimationFrame(frame);
+  }, [open]);
 
   const vacuumEffect = t("catsConflict.vacuumEffect");
   const [removalBodyBefore, removalBodyAfter] = t("catsConflict.vacuumBody").split("{vacuumEffect}");
@@ -28,14 +43,18 @@ export default function CatsConflictModal() {
       {open &&
         createPortal(
           <div
-            className="fixed inset-0 z-[2500] flex items-center justify-center bg-black/50 p-4"
-            onClick={() => setOpen(false)}
+            className={`felines-modal-backdrop fixed inset-0 z-[2500] flex items-center justify-center bg-black/50 p-4 ${
+              entered ? "felines-modal-backdrop-in" : ""
+            }`}
+            onClick={handleClose}
           >
             <div
               role="dialog"
               aria-modal="true"
               aria-labelledby="cats-conflict-title"
-              className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl bg-felines-background p-7 shadow-2xl"
+              className={`felines-modal-panel max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl bg-felines-background p-7 shadow-2xl ${
+                entered ? "felines-modal-panel-in" : ""
+              }`}
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex items-start justify-between gap-4">
@@ -46,7 +65,7 @@ export default function CatsConflictModal() {
                   {t("catsConflict.title")}
                 </h2>
                 <button
-                  onClick={() => setOpen(false)}
+                  onClick={handleClose}
                   aria-label={t("catsConflict.close")}
                   className="flex h-10 w-10 flex-shrink-0 items-center justify-center text-xl text-felines-text-secondary hover:text-felines-text-primary"
                 >
@@ -95,14 +114,14 @@ export default function CatsConflictModal() {
               <div className="mt-6 flex flex-wrap gap-3 sm:flex-nowrap">
                 <Link
                   href="/map"
-                  onClick={() => setOpen(false)}
+                  onClick={handleClose}
                   className="rounded-full bg-felines-accent px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-felines-accent-hover"
                 >
                   {t("catsConflict.seeCaretakers")}
                 </Link>
                 <Link
                   href="/learn/why-removing-cats-doesnt-work"
-                  onClick={() => setOpen(false)}
+                  onClick={handleClose}
                   className="rounded-full border border-felines-border px-5 py-2 text-sm font-medium text-felines-text-secondary transition-colors hover:border-felines-accent hover:text-felines-accent"
                 >
                   {t("catsConflict.readMoreVacuum")}
