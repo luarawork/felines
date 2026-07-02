@@ -585,6 +585,15 @@ export default function ColonyMap({
     // eslint-disable-next-line react-hooks/exhaustive-deps -- resolveColonyPosition depends on session/myColonyIds/exactCoordsByColonyId, already covered by filteredColonies recomputation
   }, [visibleBounds, filteredColonies]);
 
+  // Lets the floating cat assistant (mounted globally in the root
+  // layout, with no visibility into this component's own state) know
+  // the map finished loading with nothing to show — it decides on its
+  // own whether it's actually appropriate to appear right now.
+  useEffect(() => {
+    if (compact || !hasLoadedColonies || !visiblePinTypes.has("colony") || filteredColonies.length !== 0) return;
+    window.dispatchEvent(new CustomEvent("felines:map-empty"));
+  }, [compact, hasLoadedColonies, visiblePinTypes, filteredColonies]);
+
   function isInBounds(report: EmergencyReport) {
     const position = resolveReportPosition(report);
     if (!visibleBounds || !position) return false;

@@ -173,6 +173,7 @@ export default function NewColonyForm() {
       created_by: session.user.id,
     });
 
+    window.dispatchEvent(new CustomEvent("felines:colony-created"));
     router.push(`/colony/${colony.id}`);
   }
 

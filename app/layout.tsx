@@ -6,6 +6,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import NavBar from "@/components/NavBar";
 import HelpModalProvider from "@/components/HelpModalProvider";
+import FelinesAssistantWrapper from "@/components/FelinesAssistantWrapper";
 import { SITE_URL } from "@/lib/siteUrl";
 import { LanguageProvider } from "@/lib/i18n";
 
@@ -55,6 +56,7 @@ export default function RootLayout({
               {children}
             </main>
           </HelpModalProvider>
+          <FelinesAssistantWrapper />
         </LanguageProvider>
       </body>
     </html>

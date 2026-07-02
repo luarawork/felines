@@ -790,6 +790,10 @@ export const pt = {
     },
   },
 
+  assistant: {
+    dismiss: "Dispensar",
+  },
+
   common: {
     loading: "Carregando...",
     error: "Algo deu errado. Tenta de novo?",

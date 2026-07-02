@@ -788,6 +788,10 @@ export const en = {
     },
   },
 
+  assistant: {
+    dismiss: "Dismiss",
+  },
+
   common: {
     loading: "Loading...",
     error: "Something went wrong. Try again?",

@@ -7,7 +7,7 @@
 // used to highlight every option with the same profile at once.
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { getNeighborProfiles, getQuizQuestions, type NeighborProfileKey } from "@/lib/quiz";
 import { useLanguage } from "@/lib/i18n";
@@ -55,6 +55,12 @@ export default function Quiz({ onSkip }: { onSkip?: () => void }) {
       ? QUIZ_QUESTIONS[SCORING_QUESTION_INDEX].options[scoringOptionIndex].profile
       : null;
   const resultProfile = resultProfileKey ? NEIGHBOR_PROFILES[resultProfileKey] : null;
+
+  useEffect(() => {
+    if (submitted && resultProfile) {
+      window.dispatchEvent(new CustomEvent("felines:quiz-completed"));
+    }
+  }, [submitted, resultProfile]);
 
   if (submitted && resultProfile) {
     return (
