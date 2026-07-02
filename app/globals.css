@@ -14,25 +14,28 @@
   /* Felines brand palette */
   --color-felines-background: #f9f6f2;
   --color-felines-surface: #ffffff;
-  /* Caramel-cat brown, used for dark/alternating sections instead of
-     a near-black brown — warmer, on-theme with a caramel cat's coat,
-     and light enough to stay clearly lighter than plain black. */
-  --color-felines-dark: #8a5a35;
-  --color-felines-dark-accent: #a4734a;
+  /* Dark coffee-brown, used for alternating dark sections — the
+     canonical brand palette (see the UI consistency/modernization
+     audit) specifies #2D1810/#3D2318 here; deliberately darker than
+     the caramel brown this used to be, for stronger contrast against
+     the warm cream background of the light sections. */
+  --color-felines-dark: #2d1810;
+  --color-felines-dark-accent: #3d2318;
 
   --color-felines-text-primary: #2d2d2d;
   --color-felines-text-primary-on-dark: #ffffff;
   --color-felines-text-secondary: #6b6b6b;
-  --color-felines-text-secondary-on-dark: #f0ddc8;
+  --color-felines-text-secondary-on-dark: #c4a090;
 
   --color-felines-border: #e8e4df;
-  --color-felines-border-on-dark: #bd8a5c;
+  --color-felines-border-on-dark: #4d3020;
 
   --color-felines-accent: #c4704f;
   --color-felines-accent-hover: #a85a3a;
   --color-felines-accent-light: #fdf0eb;
 
   --color-felines-success: #6b8f6a;
+  --color-felines-success-hover: #4a6b49;
   --color-felines-success-light: #f0f7f0;
 
   --color-felines-warning: #e8a838;
@@ -66,6 +69,7 @@
   --color-felines-accent-light: var(--color-felines-accent-light);
 
   --color-felines-success: var(--color-felines-success);
+  --color-felines-success-hover: var(--color-felines-success-hover);
   --color-felines-success-light: var(--color-felines-success-light);
 
   --color-felines-warning: var(--color-felines-warning);
