@@ -287,6 +287,8 @@ export const pt = {
       healthIndex: "Índice de saúde",
       healthExplainer:
         "Calculado automaticamente a partir de 5 fatores: frequência de alimentação registrada, avistamentos recentes dos gatos, porcentagem de castração, ausência de relatos graves abertos e cobertura de cuidadores. Atualizado a cada nova ação na colônia.",
+      showBreakdown: "Ver como é calculado",
+      hideBreakdown: "Ocultar detalhes",
       factors: {
         feeding: {
           label: "Alimentação recente",
@@ -371,6 +373,8 @@ export const pt = {
       noCats:
         "Nenhum gato cadastrado ainda. Cadastre os gatos na aba Gatos para acompanhar a castração.",
       stillNeed: "Ainda precisam castrar",
+      uncastratedNudge:
+        "Castrar reduz brigas, marcação de território e novas ninhadas.",
       activeNeutering: "✂️ Pedido de castração ativo",
       neuteringAwaiting: "aguardando castração",
       urgency: "urgência",

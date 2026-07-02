@@ -5,6 +5,7 @@
 // plain CSS bars rather than a canvas/SVG chart.
 "use client";
 
+import { useState } from "react";
 import { useLanguage } from "@/lib/i18n";
 import { getReportTypeLabel } from "@/lib/reportTypes";
 import { computeMilestones, type TimelineEventLike } from "@/components/ColonyMilestones";
@@ -93,6 +94,7 @@ export default function ColonyStatsTab({
 }) {
   const { t, language } = useLanguage();
   const dateLocale = language === "en" ? "en-US" : "pt-BR";
+  const [showHealthBreakdown, setShowHealthBreakdown] = useState(false);
   const milestones = computeMilestones(colonyCreatedAt, stats.total_cats, timelineEvents, t);
   const castrationPercent =
     stats.total_cats > 0 ? Math.round((stats.cats_castrated / stats.total_cats) * 100) : 0;
@@ -124,14 +126,27 @@ export default function ColonyStatsTab({
 
       <div>
         <div className="flex flex-wrap items-center gap-3">
-          <p className="text-sm font-semibold text-felines-text-primary">
-            {t("colony.statsTab.healthIndex")}: {healthScore}/100 — {t(`colony.health.${healthStatus}`)}
+          <p className="text-2xl font-bold text-felines-text-primary">
+            {healthScore}<span className="text-sm font-medium text-felines-text-secondary">/100</span>
           </p>
+          <span className="rounded-full bg-felines-accent-light px-3 py-1 text-xs font-semibold text-felines-accent-hover">
+            {t(`colony.health.${healthStatus}`)}
+          </span>
         </div>
         <p className="mt-1 text-xs text-felines-text-secondary max-w-xl">
           {t("colony.statsTab.healthExplainer")}
         </p>
-        <div className="mt-4 space-y-4">
+        <button
+          type="button"
+          onClick={() => setShowHealthBreakdown((previous) => !previous)}
+          aria-expanded={showHealthBreakdown}
+          className="mt-3 flex items-center gap-1 text-xs font-semibold text-felines-accent-hover transition-colors hover:text-felines-accent"
+        >
+          {showHealthBreakdown ? t("colony.statsTab.hideBreakdown") : t("colony.statsTab.showBreakdown")}
+          <span aria-hidden="true">{showHealthBreakdown ? "▲" : "▼"}</span>
+        </button>
+        {showHealthBreakdown && (
+        <div className="felines-step-in mt-4 space-y-4">
           {[
             {
               label: t("colony.statsTab.factors.feeding.label"),
@@ -188,6 +203,7 @@ export default function ColonyStatsTab({
             </div>
           ))}
         </div>
+        )}
       </div>
 
       <div>

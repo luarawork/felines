@@ -286,6 +286,8 @@ export const en = {
       healthIndex: "Health index",
       healthExplainer:
         "Automatically calculated from 5 factors: recorded feeding frequency, recent cat sightings, neutering percentage, absence of open serious reports, and caretaker coverage. Updated with every new action on the colony.",
+      showBreakdown: "See how it's calculated",
+      hideBreakdown: "Hide details",
       factors: {
         feeding: {
           label: "Recent feeding",
@@ -370,6 +372,8 @@ export const en = {
       noCats:
         "No cats registered yet. Add cats in the Cats tab to track neutering.",
       stillNeed: "Still need to be neutered",
+      uncastratedNudge:
+        "Neutering reduces fighting, territory marking, and new litters.",
       activeNeutering: "✂️ Active neutering request",
       neuteringAwaiting: "awaiting neutering",
       urgency: "urgency",

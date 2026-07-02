@@ -230,6 +230,15 @@ export default function ColonyDetailClient({
                     </span>
                   ))}
                 </div>
+                <p className="mt-3 text-xs text-felines-text-secondary">
+                  {t("colony.needs.uncastratedNudge")}{" "}
+                  <Link
+                    href="/learn/what-is-tnr-and-why-it-works"
+                    className="font-medium text-felines-accent-hover hover:text-felines-accent"
+                  >
+                    {t("common.learnMore")}
+                  </Link>
+                </p>
               </div>
             )}
           </>
