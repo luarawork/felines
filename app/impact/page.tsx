@@ -50,7 +50,7 @@ export default async function ImpactPage() {
     { data: colonyHealthRows },
   ] = await Promise.all([
       supabase.rpc("get_platform_impact_stats"),
-      supabase.rpc("get_recent_platform_activity", { p_limit: 20 }),
+      supabase.rpc("get_recent_platform_activity", { p_limit: 100 }),
       supabase
         .from("help_requests")
         .select("id, colony_id, type, description, urgency, created_at, colonies(name)")
@@ -106,6 +106,7 @@ export default async function ImpactPage() {
       groupedActivity.push({ kind: item.kind, date, count: 1 });
     }
   }
+  groupedActivity.splice(15);
 
   const averageReadingTime = Math.round(
     ARTICLES.reduce((total, article) => total + getReadingTimeMinutes(article), 0) / ARTICLES.length
