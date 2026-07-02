@@ -199,12 +199,14 @@ export default function ContactsBoard({
       <div className="flex flex-wrap items-center gap-3">
         <input
           type="text"
+          aria-label={t("contacts.filterCityAriaLabel")}
           placeholder={t("contacts.filterPlaceholder")}
           value={filterCity}
           onChange={(e) => setFilterCity(e.target.value)}
           className="w-full max-w-xs rounded-full border border-felines-border bg-white px-4 py-2 text-sm"
         />
         <select
+          aria-label={t("contacts.categoryFilterAriaLabel")}
           value={filterCategory}
           onChange={(e) => setFilterCategory(e.target.value)}
           className="rounded-full border border-felines-border bg-white px-4 py-2 text-sm"
@@ -375,6 +377,7 @@ export default function ContactsBoard({
                           <div className="grid gap-2 sm:grid-cols-2">
                             <input
                               type="text"
+                              aria-label={t("contacts.cityLabel")}
                               value={editForm.city}
                               onChange={(e) => setEditForm((prev) => ({ ...prev, city: e.target.value }))}
                               placeholder={t("contacts.cityLabel")}
@@ -383,6 +386,7 @@ export default function ContactsBoard({
                             />
                             <input
                               type="text"
+                              aria-label={t("contacts.nameLabel")}
                               value={editForm.name}
                               onChange={(e) => setEditForm((prev) => ({ ...prev, name: e.target.value }))}
                               placeholder={t("contacts.nameLabel")}
@@ -391,6 +395,7 @@ export default function ContactsBoard({
                             />
                             <input
                               type="text"
+                              aria-label={t("contacts.phoneLabel")}
                               value={editForm.phone}
                               onChange={(e) => setEditForm((prev) => ({ ...prev, phone: e.target.value }))}
                               placeholder={t("contacts.phoneLabel")}
@@ -399,6 +404,7 @@ export default function ContactsBoard({
                             />
                             <input
                               type="email"
+                              aria-label={t("contacts.emailLabel")}
                               value={editForm.email}
                               onChange={(e) => setEditForm((prev) => ({ ...prev, email: e.target.value }))}
                               placeholder={t("contacts.emailLabel")}
@@ -407,6 +413,7 @@ export default function ContactsBoard({
                             />
                             <input
                               type="text"
+                              aria-label={t("contacts.socialLabel")}
                               value={editForm.social}
                               onChange={(e) => setEditForm((prev) => ({ ...prev, social: e.target.value }))}
                               placeholder={t("contacts.socialLabel")}
@@ -414,6 +421,7 @@ export default function ContactsBoard({
                               className="rounded-lg border border-felines-border bg-white px-3 py-2 text-sm"
                             />
                             <select
+                              aria-label={t("contacts.categoryLabel")}
                               value={editForm.category}
                               onChange={(e) => setEditForm((prev) => ({ ...prev, category: e.target.value }))}
                               className="rounded-lg border border-felines-border bg-white px-3 py-2 text-sm"
@@ -429,6 +437,7 @@ export default function ContactsBoard({
                             </select>
                           </div>
                           <textarea
+                            aria-label={t("contacts.notesLabel")}
                             value={editForm.notes}
                             onChange={(e) => setEditForm((prev) => ({ ...prev, notes: e.target.value }))}
                             placeholder={t("contacts.notesLabel")}

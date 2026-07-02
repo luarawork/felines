@@ -243,44 +243,68 @@ export default function ResourcesBoard() {
             </button>
           </div>
 
-          <select
-            value={category}
-            onChange={(event) => setCategory(event.target.value)}
-            className="w-full rounded-md border border-felines-border bg-white px-3 py-2 text-sm"
-          >
-            {RESOURCE_CATEGORIES.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.icon} {getResourceCategoryLabel(option.value, t)}
-              </option>
-            ))}
-          </select>
+          <div>
+            <label htmlFor="resource-category" className="sr-only">
+              {t("forms.resource.categoryLabel")}
+            </label>
+            <select
+              id="resource-category"
+              value={category}
+              onChange={(event) => setCategory(event.target.value)}
+              className="w-full rounded-md border border-felines-border bg-white px-3 py-2 text-sm"
+            >
+              {RESOURCE_CATEGORIES.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.icon} {getResourceCategoryLabel(option.value, t)}
+                </option>
+              ))}
+            </select>
+          </div>
 
-          <input
-            type="text"
-            value={title}
-            onChange={(event) => setTitle(event.target.value)}
-            placeholder={t("forms.resource.titlePlaceholder")}
-            maxLength={60}
-            className="w-full rounded-md border border-felines-border bg-white px-3 py-2 text-sm"
-          />
+          <div>
+            <label htmlFor="resource-title" className="sr-only">
+              {t("forms.resource.titleLabel")}
+            </label>
+            <input
+              id="resource-title"
+              type="text"
+              value={title}
+              onChange={(event) => setTitle(event.target.value)}
+              placeholder={t("forms.resource.titlePlaceholder")}
+              maxLength={60}
+              className="w-full rounded-md border border-felines-border bg-white px-3 py-2 text-sm"
+            />
+          </div>
 
-          <textarea
-            value={description}
-            onChange={(event) => setDescription(event.target.value)}
-            placeholder={t("forms.resource.descPlaceholder")}
-            maxLength={200}
-            rows={3}
-            className="w-full rounded-md border border-felines-border bg-white px-3 py-2 text-sm"
-          />
+          <div>
+            <label htmlFor="resource-desc" className="sr-only">
+              {t("forms.resource.descLabel")}
+            </label>
+            <textarea
+              id="resource-desc"
+              value={description}
+              onChange={(event) => setDescription(event.target.value)}
+              placeholder={t("forms.resource.descPlaceholder")}
+              maxLength={200}
+              rows={3}
+              className="w-full rounded-md border border-felines-border bg-white px-3 py-2 text-sm"
+            />
+          </div>
 
-          <input
-            type="text"
-            value={locationHint}
-            onChange={(event) => setLocationHint(event.target.value)}
-            placeholder={t("forms.resource.locationPlaceholder")}
-            maxLength={60}
-            className="w-full rounded-md border border-felines-border bg-white px-3 py-2 text-sm"
-          />
+          <div>
+            <label htmlFor="resource-location" className="sr-only">
+              {t("forms.resource.locationLabel")}
+            </label>
+            <input
+              id="resource-location"
+              type="text"
+              value={locationHint}
+              onChange={(event) => setLocationHint(event.target.value)}
+              placeholder={t("forms.resource.locationPlaceholder")}
+              maxLength={60}
+              className="w-full rounded-md border border-felines-border bg-white px-3 py-2 text-sm"
+            />
+          </div>
 
           {error && <p role="alert" className="text-sm text-felines-emergency">{error}</p>}
 

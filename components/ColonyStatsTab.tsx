@@ -60,7 +60,7 @@ function BarChart({
             style={{ height: `${Math.max(4, (item.value / max) * 100)}%` }}
             title={`${item.value}`}
           />
-          <span className="text-[10px] text-felines-text-secondary">{labelFormatter(item.label)}</span>
+          <span className="text-xs text-felines-text-secondary">{labelFormatter(item.label)}</span>
         </div>
       ))}
     </div>

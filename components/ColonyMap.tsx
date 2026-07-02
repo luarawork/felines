@@ -668,7 +668,7 @@ export default function ColonyMap({
                 {chips.map((chip) => (
                   <span
                     key={chip.label}
-                    className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-semibold leading-none ${chip.className}`}
+                    className={`inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-semibold leading-none ${chip.className}`}
                   >
                     {chip.label}
                   </span>
