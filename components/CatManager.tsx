@@ -405,7 +405,7 @@ export default function CatManager({ colonyId }: { colonyId: string }) {
                   </button>
                   <button
                     onClick={() => handleToggleCastrated(cat)}
-                    className="text-felines-accent hover:text-felines-accent-hover"
+                    className="text-felines-accent transition-colors hover:text-felines-accent-hover"
                   >
                     {cat.castrated ? t("colony.catManager.markNotCastrated") : t("colony.catManager.markCastrated")}
                   </button>

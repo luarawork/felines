@@ -73,7 +73,7 @@ export default function FollowColonyButton({ colonyId }: { colonyId: string }) {
       <button
         onClick={handleToggle}
         disabled={submitting}
-        className={`rounded-full border px-4 py-2 text-sm font-medium transition-colors disabled:opacity-50 ${
+        className={`rounded-full border px-4 py-2 text-sm font-medium transition-all duration-200 active:scale-[0.97] disabled:opacity-50 ${
           following
             ? "border-felines-accent bg-felines-accent-light text-felines-text-primary"
             : "border-felines-border text-felines-text-secondary hover:border-felines-accent hover:text-felines-accent-hover"

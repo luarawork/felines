@@ -8,8 +8,10 @@ import dynamic from "next/dynamic";
 const ColonyMap = dynamic(() => import("@/components/ColonyMap"), {
   ssr: false,
   loading: () => (
-    <div className="flex h-full w-full items-center justify-center text-felines-text-secondary">
-      Carregando mapa...
+    <div className="felines-skeleton relative flex h-full w-full items-center justify-center">
+      <span className="rounded-full bg-white/70 px-3 py-1 text-xs font-medium text-felines-text-secondary">
+        Carregando mapa...
+      </span>
     </div>
   ),
 });

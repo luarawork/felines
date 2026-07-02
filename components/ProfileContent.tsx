@@ -326,7 +326,27 @@ export default function ProfileContent() {
 
   useEscapeToClose(showQuiz, () => setShowQuiz(false));
 
-  if (loading) return null;
+  if (loading) {
+    return (
+      <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
+        <div className="flex items-center gap-4">
+          <div className="felines-skeleton h-16 w-16 rounded-full" />
+          <div className="space-y-2">
+            <div className="felines-skeleton h-4 w-40 rounded" />
+            <div className="felines-skeleton h-3 w-24 rounded" />
+          </div>
+        </div>
+        <div className="mt-8 grid gap-3 sm:grid-cols-2">
+          <div className="felines-skeleton h-24 rounded-xl" />
+          <div className="felines-skeleton h-24 rounded-xl" />
+        </div>
+        <div className="mt-6 space-y-3">
+          <div className="felines-skeleton h-20 rounded-xl" />
+          <div className="felines-skeleton h-20 rounded-xl" />
+        </div>
+      </div>
+    );
+  }
 
   const readCount = readSlugs.length;
   const progressPercent = Math.round((readCount / ARTICLES.length) * 100);
