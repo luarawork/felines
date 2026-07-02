@@ -9,6 +9,7 @@ import type { GlossaryTerm } from "@/lib/glossary";
 import { localizeGlossaryTerm } from "@/lib/glossary";
 import { getArticleBySlug, localizeArticle } from "@/lib/articles";
 import FactChip from "@/components/FactChip";
+import Reveal from "@/components/Reveal";
 import { useLanguage } from "@/lib/i18n";
 
 export default function GlossaryList({ terms }: { terms: GlossaryTerm[] }) {
@@ -75,35 +76,37 @@ export default function GlossaryList({ terms }: { terms: GlossaryTerm[] }) {
             const letter = item.term[0].toUpperCase();
             const isFirstOfLetter = index === 0 || filteredTerms[index - 1].term[0].toUpperCase() !== letter;
             return (
-              <div key={item.term} id={isFirstOfLetter ? `glossary-${letter}` : undefined}>
-                <dt className="text-lg font-bold text-felines-text-primary">{item.term}</dt>
-                <dd className="mt-1.5 text-base leading-relaxed text-felines-text-secondary">
-                  {item.definition}
-                </dd>
-                {item.factChip && (
-                  <div className="mt-2">
-                    <FactChip text={item.factChip} />
-                  </div>
-                )}
-                {item.relatedArticleSlugs && item.relatedArticleSlugs.length > 0 && (
-                  <div className="mt-2 flex flex-wrap gap-3">
-                    {item.relatedArticleSlugs.map((slug) => {
-                      const article = getArticleBySlug(slug);
-                      if (!article) return null;
-                      const localizedArticle = localizeArticle(article, language);
-                      return (
-                        <Link
-                          key={slug}
-                          href={`/learn/${slug}`}
-                          className="text-sm font-medium text-felines-accent-hover"
-                        >
-                          {localizedArticle.title}
-                        </Link>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
+              <Reveal key={item.term} delayMs={Math.min(index, 8) * 60}>
+                <div id={isFirstOfLetter ? `glossary-${letter}` : undefined}>
+                  <dt className="text-lg font-bold text-felines-text-primary">{item.term}</dt>
+                  <dd className="mt-1.5 text-base leading-relaxed text-felines-text-secondary">
+                    {item.definition}
+                  </dd>
+                  {item.factChip && (
+                    <div className="mt-2">
+                      <FactChip text={item.factChip} />
+                    </div>
+                  )}
+                  {item.relatedArticleSlugs && item.relatedArticleSlugs.length > 0 && (
+                    <div className="mt-2 flex flex-wrap gap-3">
+                      {item.relatedArticleSlugs.map((slug) => {
+                        const article = getArticleBySlug(slug);
+                        if (!article) return null;
+                        const localizedArticle = localizeArticle(article, language);
+                        return (
+                          <Link
+                            key={slug}
+                            href={`/learn/${slug}`}
+                            className="text-sm font-medium text-felines-accent-hover"
+                          >
+                            {localizedArticle.title}
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              </Reveal>
             );
           })}
         </dl>

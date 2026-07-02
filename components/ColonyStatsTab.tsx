@@ -9,6 +9,7 @@ import { useLanguage } from "@/lib/i18n";
 import { getReportTypeLabel } from "@/lib/reportTypes";
 import { computeMilestones, type TimelineEventLike } from "@/components/ColonyMilestones";
 import { getUrgencyLabel } from "@/lib/neuteringRequestTypes";
+import CountUpStat from "@/components/CountUpStat";
 
 type Stats = {
   total_cats: number;
@@ -97,15 +98,15 @@ export default function ColonyStatsTab({
     stats.total_cats > 0 ? Math.round((stats.cats_castrated / stats.total_cats) * 100) : 0;
 
   const SUMMARY_CARDS = [
-    { label: t("colony.statsTab.catsRegistered"), value: stats.total_cats },
+    { label: t("colony.statsTab.catsRegistered"), value: String(stats.total_cats) },
     { label: t("colony.statsTab.catsCastrated"), value: `${stats.cats_castrated} (${castrationPercent}%)` },
-    { label: t("colony.statsTab.feedingCheckIns"), value: stats.total_feedings },
-    { label: t("colony.statsTab.reportsSubmitted"), value: stats.total_reports },
-    { label: t("colony.statsTab.reportsResolved"), value: stats.total_reports_resolved },
-    { label: t("colony.statsTab.daysSinceRegistered"), value: stats.days_since_registered },
-    { label: t("colony.statsTab.currentCaretakers"), value: stats.total_caretakers },
-    { label: t("colony.statsTab.timelineEvents"), value: stats.total_timeline_events },
-    { label: t("colony.statsTab.weatherEvents"), value: stats.total_weather_events },
+    { label: t("colony.statsTab.feedingCheckIns"), value: String(stats.total_feedings) },
+    { label: t("colony.statsTab.reportsSubmitted"), value: String(stats.total_reports) },
+    { label: t("colony.statsTab.reportsResolved"), value: String(stats.total_reports_resolved) },
+    { label: t("colony.statsTab.daysSinceRegistered"), value: String(stats.days_since_registered) },
+    { label: t("colony.statsTab.currentCaretakers"), value: String(stats.total_caretakers) },
+    { label: t("colony.statsTab.timelineEvents"), value: String(stats.total_timeline_events) },
+    { label: t("colony.statsTab.weatherEvents"), value: String(stats.total_weather_events) },
   ];
 
   return (
@@ -113,7 +114,9 @@ export default function ColonyStatsTab({
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {SUMMARY_CARDS.map((card) => (
           <div key={card.label} className="rounded-xl border border-felines-border bg-felines-surface p-4">
-            <p className="text-2xl font-bold text-felines-text-primary">{card.value}</p>
+            <p className="text-2xl font-bold text-felines-text-primary">
+              <CountUpStat value={card.value} />
+            </p>
             <p className="mt-1 text-xs text-felines-text-secondary">{card.label}</p>
           </div>
         ))}
