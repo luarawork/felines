@@ -16,8 +16,8 @@
   --color-felines-surface: #ffffff;
   /* Caramel brown, used for alternating dark sections — a nod to the
      Felines mascot (a caramel-colored cat), not a near-black brown. */
-  --color-felines-dark: #8a5a35;
-  --color-felines-dark-accent: #a4734a;
+  --color-felines-dark: #a85e24;
+  --color-felines-dark-accent: #bf7538;
 
   --color-felines-text-primary: #2d2d2d;
   --color-felines-text-primary-on-dark: #ffffff;
@@ -25,7 +25,7 @@
   --color-felines-text-secondary-on-dark: #c4a090;
 
   --color-felines-border: #e8e4df;
-  --color-felines-border-on-dark: #a4734a;
+  --color-felines-border-on-dark: #bf7538;
 
   --color-felines-accent: #c4704f;
   --color-felines-accent-hover: #a85a3a;
