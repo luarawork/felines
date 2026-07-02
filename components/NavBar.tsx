@@ -160,7 +160,7 @@ export default function NavBar() {
           >
             <span
               aria-hidden="true"
-              className="absolute inset-y-0 left-0 w-1/2 rounded-full bg-felines-accent transition-transform duration-200 ease-out"
+              className="absolute inset-y-0 left-0 w-1/2 bg-felines-accent transition-transform duration-200 ease-out"
               style={{ transform: language === "en" ? "translateX(100%)" : "translateX(0%)" }}
             />
             {(["pt", "en"] as const).map((lang, i) => (
