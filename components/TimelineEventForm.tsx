@@ -9,7 +9,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
-import { buildSafeStoragePath, validatePhotoFile } from "@/lib/storage";
+import { assertSafeStoragePath, buildSafeStoragePath, validatePhotoFile } from "@/lib/storage";
 import { useColonyAccessContext } from "@/components/ColonyAccessProvider";
 import PhotoUploadButton from "@/components/PhotoUploadButton";
 import { useLanguage } from "@/lib/i18n";
@@ -55,6 +55,7 @@ export default function TimelineEventForm({ colonyId }: { colonyId: string }) {
     let photoUrl: string | null = null;
     if (photoFile) {
       const filePath = buildSafeStoragePath(`timeline/${colonyId}`, photoFile);
+      assertSafeStoragePath(filePath);
       const { error: uploadError } = await supabase.storage
         .from("colony-photos")
         .upload(filePath, photoFile);

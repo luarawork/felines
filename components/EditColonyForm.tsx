@@ -7,7 +7,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
-import { buildSafeStoragePath, validatePhotoFile } from "@/lib/storage";
+import { assertSafeStoragePath, buildSafeStoragePath, validatePhotoFile } from "@/lib/storage";
 import { useColonyAccessContext } from "@/components/ColonyAccessProvider";
 import PhotoUploadButton from "@/components/PhotoUploadButton";
 import { encodeColonyEdit } from "@/lib/colonyEditHistory";
@@ -74,6 +74,7 @@ export default function EditColonyForm({
     let coverPhotoUrl = initialCoverPhotoUrl;
     if (photoFile) {
       const filePath = buildSafeStoragePath(colonyId, photoFile);
+      assertSafeStoragePath(filePath);
       const { error: uploadError } = await supabase.storage
         .from("colony-photos")
         .upload(filePath, photoFile);

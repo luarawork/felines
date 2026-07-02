@@ -9,7 +9,7 @@ import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import { useColonyAccessContext } from "@/components/ColonyAccessProvider";
 import { useEscapeToClose } from "@/lib/useEscapeToClose";
-import { buildSafeStoragePath, validatePhotoFile } from "@/lib/storage";
+import { assertSafeStoragePath, buildSafeStoragePath, validatePhotoFile } from "@/lib/storage";
 import PhotoUploadButton from "@/components/PhotoUploadButton";
 import { useLanguage } from "@/lib/i18n";
 
@@ -48,6 +48,7 @@ export default function ShareStoryButton({ colonyId }: { colonyId: string }) {
         return;
       }
       const filePath = buildSafeStoragePath(`stories/${colonyId}`, photoFile);
+      assertSafeStoragePath(filePath);
       const { error: uploadError } = await supabase.storage.from("colony-photos").upload(filePath, photoFile);
       if (uploadError) {
         setSubmitting(false);

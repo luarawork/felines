@@ -34,3 +34,13 @@ export function buildSafeStoragePath(prefix: string, file: File): string {
   const randomToken = Math.random().toString(36).slice(2, 10);
   return `${safePrefix}/${Date.now()}-${randomToken}.${extension}`;
 }
+
+// A path built by buildSafeStoragePath can never actually contain
+// ".." — this is a belt-and-suspenders assertion called right at each
+// upload call site (not just buried in the builder) so it's visible
+// wherever the path reaches Supabase Storage, per Aikido Security.
+export function assertSafeStoragePath(filePath: string): void {
+  if (filePath.includes("..") || filePath.startsWith("/")) {
+    throw new Error("Invalid file path");
+  }
+}

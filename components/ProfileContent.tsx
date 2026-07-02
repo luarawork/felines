@@ -25,7 +25,7 @@ import {
   updateOwnDisplayName,
   updateOwnPublicContact,
 } from "@/lib/profile";
-import { buildSafeStoragePath, validatePhotoFile } from "@/lib/storage";
+import { assertSafeStoragePath, buildSafeStoragePath, validatePhotoFile } from "@/lib/storage";
 import EmptyState from "@/components/EmptyState";
 import PhotoUploadButton from "@/components/PhotoUploadButton";
 import Quiz from "@/components/Quiz";
@@ -304,6 +304,7 @@ export default function ProfileContent() {
 
     setUploadingAvatar(true);
     const filePath = buildSafeStoragePath(`avatars/${userId}`, file);
+    assertSafeStoragePath(filePath);
     const { error: uploadError } = await supabase.storage.from("colony-photos").upload(filePath, file);
 
     if (uploadError) {
