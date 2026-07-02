@@ -686,79 +686,93 @@ export default function ColonyMap({
             });
           }
 
+          const castrationLabel = resolveCastrationLabel(
+            t,
+            colony.castration_status,
+            catCountsByColonyId.get(colony.id)
+          );
+
           const popupContent = (
-            <Popup minWidth={240} maxWidth={280} className="felines-colony-popup">
+            <Popup minWidth={264} maxWidth={264} className="felines-colony-popup">
               <div>
-                {colony.cover_photo_url && (
+                {/* Header strip: always present so every popup has the
+                    same visual anchor, whether or not the colony has a
+                    cover photo — a plain title floating with no header
+                    at all was part of what made this feel unfinished. */}
+                {colony.cover_photo_url ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={colony.cover_photo_url}
                     alt={colony.name}
-                    className="-mx-[18px] -mt-[14px] mb-2.5 h-24 w-[calc(100%+36px)] object-cover"
-                    style={{ borderRadius: "14px 14px 0 0" }}
+                    className="h-20 w-full object-cover"
                   />
-                )}
-
-                <strong className="block text-sm font-semibold text-felines-text-primary">
-                  {colony.name}
-                </strong>
-
-                {chips.length > 0 && (
-                  <div className="mt-1.5 flex flex-wrap gap-1">
-                    {chips.map((chip) => (
-                      <span
-                        key={chip.label}
-                        className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-medium ${chip.className}`}
-                      >
-                        {chip.label}
-                      </span>
-                    ))}
+                ) : (
+                  <div className="flex h-20 w-full items-center justify-center bg-felines-accent-light">
+                    <span className="text-3xl" aria-hidden="true">🐾</span>
                   </div>
                 )}
 
-                {colony.narrative && (
-                  <p className="mt-2 text-xs leading-relaxed text-felines-text-secondary">{colony.narrative}</p>
-                )}
+                <div className="p-3.5">
+                  <strong className="block text-sm font-bold leading-snug text-felines-text-primary">
+                    {colony.name}
+                  </strong>
 
-                <p className="mt-2 text-xs font-medium text-felines-text-secondary">
-                  {resolveCastrationLabel(t, colony.castration_status, catCountsByColonyId.get(colony.id))}
-                </p>
+                  {chips.length > 0 && (
+                    <div className="mt-2 flex flex-wrap gap-1">
+                      {chips.map((chip) => (
+                        <span
+                          key={chip.label}
+                          className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-semibold leading-none ${chip.className}`}
+                        >
+                          {chip.label}
+                        </span>
+                      ))}
+                    </div>
+                  )}
 
-                <div className="mt-1.5">
-                  <LocationBlurBadge level={level} />
-                </div>
+                  {colony.narrative && (
+                    <p className="mt-2 line-clamp-2 text-xs leading-relaxed text-felines-text-secondary">
+                      {colony.narrative}
+                    </p>
+                  )}
 
-                {/* The colony page's name and narrative can describe the
-                    location in plain language (street names, landmarks),
-                    so this is only offered to signed-in visitors —
-                    anonymous visitors get the blurred pin and nothing more.
-                    The detail page is meant for people who'd realistically
-                    look after the colony, so a short interest check comes
-                    before the link, instead of going straight there. */}
-                {session && (
-                  // Caretakers/creators already manage this colony, so the
-                  // "are you interested in becoming a caretaker?" gate
-                  // would be nonsensical for them — go straight to the page.
-                  myColonyIds.has(colony.id) ? (
-                    <a
-                      href={`/colony/${colony.id}`}
-                      className="felines-popup-cta mt-3 block rounded-full bg-felines-accent px-3 py-2 text-center text-xs font-semibold text-white transition-colors hover:bg-felines-accent-hover"
-                    >
-                      {t("map.viewColonyCta")}
-                    </a>
-                  ) : (
-                    <button
-                      type="button"
-                      onClick={() => setInterestColonyId(colony.id)}
-                      className="mt-3 block w-full rounded-full bg-felines-accent px-3 py-2 text-center text-xs font-semibold text-white transition-colors hover:bg-felines-accent-hover"
-                    >
-                      {t("map.viewColonyCta")}
-                    </button>
-                  )
-                )}
+                  <div className="mt-3 space-y-1.5 border-t border-felines-border pt-2.5">
+                    <p className="text-[11px] font-medium text-felines-text-secondary">{castrationLabel}</p>
+                    {level !== 3 && <LocationBlurBadge level={level} />}
+                  </div>
 
-                <div className="mt-2 flex justify-end border-t border-felines-border pt-2">
-                  <ReportFalsePinButton colonyId={colony.id} />
+                  {/* The colony page's name and narrative can describe the
+                      location in plain language (street names, landmarks),
+                      so this is only offered to signed-in visitors —
+                      anonymous visitors get the blurred pin and nothing more.
+                      The detail page is meant for people who'd realistically
+                      look after the colony, so a short interest check comes
+                      before the link, instead of going straight there. */}
+                  {session && (
+                    // Caretakers/creators already manage this colony, so the
+                    // "are you interested in becoming a caretaker?" gate
+                    // would be nonsensical for them — go straight to the page.
+                    myColonyIds.has(colony.id) ? (
+                      <a
+                        href={`/colony/${colony.id}`}
+                        className="felines-popup-cta mt-3 block rounded-full bg-felines-accent py-2 text-center text-xs font-semibold text-white transition-colors hover:bg-felines-accent-hover"
+                      >
+                        {t("map.viewColonyCta")}
+                      </a>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => setInterestColonyId(colony.id)}
+                        className="mt-3 block w-full rounded-full bg-felines-accent py-2 text-center text-xs font-semibold text-white transition-colors hover:bg-felines-accent-hover"
+                      >
+                        {t("map.viewColonyCta")}
+                      </button>
+                    )
+                  )}
+
+                  <div className="mt-2 flex justify-end">
+                    <ReportFalsePinButton colonyId={colony.id} />
+                  </div>
                 </div>
               </div>
             </Popup>

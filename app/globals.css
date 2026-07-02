@@ -118,30 +118,57 @@ summary:focus-visible,
    corners, generic drop shadow, tiny cramped padding) to match the
    rest of the app's card language — same radius/shadow used on
    colony cards and modals — instead of looking like an unstyled
-   browser default sitting on top of the map. */
+   browser default sitting on top of the map.
+
+   Padding/margin are zeroed out entirely here so all internal spacing
+   is controlled by the component's own markup (a single wrapper div
+   with its own padding) instead of fighting Leaflet's built-in
+   content margin — that's what made the previous pass still feel
+   cramped and default-y despite the rounded corners.
+
+   Every rule below is `!important`: `leaflet/dist/leaflet.css` is
+   imported inside ColonyMap.tsx (a nested component), which can load
+   *after* this global stylesheet in the final bundle depending on
+   webpack's chunk order — with equal selector specificity, whichever
+   loads last wins the cascade, and that was silently winning over
+   these overrides without `!important`, which is why the "redesigned"
+   popup was still rendering with Leaflet's stock padding/shadow. */
 .leaflet-popup-content-wrapper {
-  border-radius: 16px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.14);
-  padding: 2px;
+  border-radius: 16px !important;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.18) !important;
+  padding: 0 !important;
+  overflow: hidden !important;
 }
 
 .leaflet-popup-content {
-  margin: 14px 18px;
-  line-height: 1.4;
+  margin: 0 !important;
+  width: 264px !important;
+  line-height: 1.45 !important;
 }
 
 .leaflet-popup-tip-container {
-  filter: drop-shadow(0 4px 4px rgba(0, 0, 0, 0.06));
+  filter: drop-shadow(0 4px 4px rgba(0, 0, 0, 0.08));
 }
 
+/* The close button is positioned relative to the wrapper, which can
+   now have a cover photo running edge-to-edge behind it — give it its
+   own solid backdrop so the × stays legible over any photo, not just
+   a plain background. */
 .leaflet-popup-close-button {
-  top: 10px !important;
-  right: 10px !important;
-  color: #8a7b6c !important;
-  font-size: 18px !important;
+  top: 8px !important;
+  right: 8px !important;
+  width: 22px !important;
+  height: 22px !important;
+  line-height: 20px !important;
+  border-radius: 999px !important;
+  background: rgba(255, 255, 255, 0.92) !important;
+  color: #5b4636 !important;
+  font-size: 16px !important;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15) !important;
 }
 
 .leaflet-popup-close-button:hover {
+  background: #fff !important;
   color: #c4704f !important;
 }
 
