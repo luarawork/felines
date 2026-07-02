@@ -1,10 +1,8 @@
-// Floating cat assistant — a small video of a cat walking in from the
-// bottom-right corner, blending into the page's own background color
-// (#F2F2F2, matching public/videos/f2f2f2.mp4) so it reads as "a cat
-// wandered onscreen" rather than a boxed widget. After a short delay a
-// speech bubble surfaces one bite-sized cat curiosity; dismissing the
-// bubble lets the cat keep walking and leave naturally instead of
-// yanking it off mid-animation.
+// Floating cat assistant — a small looping video of a cat, shown inside
+// a rounded card/circle bottom-right (not blended into the page
+// background). After a short delay a speech bubble surfaces one
+// bite-sized cat curiosity; dismissing the bubble lets the video keep
+// playing instead of yanking it off mid-animation.
 "use client";
 
 import { useEffect, useRef, useState } from "react";
@@ -99,9 +97,9 @@ export default function FelinesAssistant({
   }
 
   return (
-    <div className="pointer-events-none fixed bottom-[120px] right-0 z-40 sm:bottom-0">
+    <div className="pointer-events-none fixed bottom-[126px] right-4 z-40 sm:bottom-6 sm:right-6">
       {showBubble && (
-        <div className="pointer-events-auto absolute bottom-[104px] right-4 w-64 sm:bottom-24 sm:right-8">
+        <div className="pointer-events-auto absolute bottom-[118px] right-0 w-64 sm:bottom-[140px]">
           <div
             role="status"
             aria-live="polite"
@@ -122,7 +120,7 @@ export default function FelinesAssistant({
             </div>
             <p className="mt-1 text-sm leading-relaxed text-felines-text-primary">{message}</p>
           </div>
-          {/* Triangle pointer aimed down-right at the cat's video. */}
+          {/* Triangle pointer aimed down at the circular video card. */}
           <div
             aria-hidden="true"
             className="absolute -bottom-2 right-8 h-4 w-4 rotate-45 border-b border-r border-felines-border bg-felines-surface"
@@ -130,16 +128,18 @@ export default function FelinesAssistant({
         </div>
       )}
 
-      <video
-        ref={videoRef}
-        src="/videos/f2f2f2.mp4"
-        aria-hidden="true"
-        autoPlay
-        muted
-        playsInline
-        onEnded={handleVideoEnd}
-        className="h-[120px] w-[160px] object-cover sm:h-[140px] sm:w-[200px]"
-      />
+      <div className="h-[110px] w-[110px] overflow-hidden rounded-full border-2 border-felines-surface bg-felines-surface shadow-[0_8px_24px_rgba(0,0,0,0.18)] sm:h-[130px] sm:w-[130px]">
+        <video
+          ref={videoRef}
+          src="/videos/catcurious.mp4"
+          aria-hidden="true"
+          autoPlay
+          muted
+          playsInline
+          onEnded={handleVideoEnd}
+          className="h-full w-full object-cover"
+        />
+      </div>
     </div>
   );
 }
