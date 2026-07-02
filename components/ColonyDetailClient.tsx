@@ -206,8 +206,8 @@ export default function ColonyDetailClient({
           <>
             <div className="mt-2 h-3 w-full max-w-sm rounded-full bg-felines-border">
               <div
-                className="h-3 rounded-full transition-all duration-700 ease-out"
-                style={{ width: `${Math.round((castratedCount / totalCats) * 100)}%`, backgroundColor: "#6B8F6A" }}
+                className="h-3 rounded-full bg-felines-success transition-all duration-700 ease-out"
+                style={{ width: `${Math.round((castratedCount / totalCats) * 100)}%` }}
               />
             </div>
             <p className="mt-1 text-sm text-felines-text-secondary">
@@ -505,7 +505,7 @@ export default function ColonyDetailClient({
 
           <Reveal delayMs={80}>
             {colony.narrative && (
-              <p className="mt-6 max-w-2xl text-base leading-relaxed text-felines-text-secondary">
+              <p className="mt-6 max-w-2xl text-lg leading-relaxed text-felines-text-primary">
                 {colony.narrative}
               </p>
             )}

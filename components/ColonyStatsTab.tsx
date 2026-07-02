@@ -196,8 +196,8 @@ export default function ColonyStatsTab({
         </p>
         <div className="mt-2 h-3 w-full rounded-full bg-felines-border">
           <div
-            className="h-3 rounded-full transition-all duration-700 ease-out"
-            style={{ width: `${castrationPercent}%`, backgroundColor: "#6B8F6A" }}
+            className="h-3 rounded-full bg-felines-success transition-all duration-700 ease-out"
+            style={{ width: `${castrationPercent}%` }}
           />
         </div>
         <p className="mt-2 text-xs text-felines-text-secondary">

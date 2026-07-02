@@ -132,8 +132,7 @@ export default function ColonyMilestones({
         {milestones.map((milestone, index) => (
           <div
             key={`${milestone.label}-${index}`}
-            className="flex w-40 flex-shrink-0 flex-col gap-2 rounded-xl border border-felines-border bg-[#F9F6F2] p-4"
-            style={{ borderLeft: "4px solid #C4704F" }}
+            className="flex w-40 flex-shrink-0 flex-col gap-2 rounded-xl border border-felines-border border-l-4 border-l-felines-accent bg-felines-background p-4"
           >
             <span className="text-[48px] leading-none" aria-hidden="true">
               {milestone.emoji}
@@ -147,7 +146,7 @@ export default function ColonyMilestones({
         {pending.map((placeholder) => (
           <div
             key={placeholder.eventType}
-            className="flex w-40 flex-shrink-0 flex-col gap-2 rounded-xl border border-felines-border bg-[#F9F6F2] p-4 opacity-50"
+            className="flex w-40 flex-shrink-0 flex-col gap-2 rounded-xl border border-felines-border bg-felines-background p-4 opacity-50"
           >
             <span className="text-[48px] leading-none" aria-hidden="true">
               {placeholder.emoji}

@@ -16,8 +16,7 @@ export default function LocationBlurBadge({ level }: { level: LocationAccessLeve
 
   return (
     <span
-      className="inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium"
-      style={{ background: "#FEF9EC", color: "#E8A838" }}
+      className="inline-flex items-center gap-1 rounded-full bg-felines-warning-light px-2 py-1 text-xs font-medium text-felines-warning"
     >
       🔒 {text}
     </span>

@@ -95,7 +95,7 @@ export default function ImpactPageClient({
   return (
     <div>
       {/* Hero */}
-      <section className="bg-[#2D1810] py-20">
+      <section className="bg-felines-dark py-20">
         <div className="mx-auto max-w-6xl px-4 text-center sm:px-6">
           <div className="mb-4 flex justify-center">
             <ShareButton title={t("impact.heroHeadline")} onDark />
@@ -112,7 +112,7 @@ export default function ImpactPageClient({
       </section>
 
       {/* Live stats grid */}
-      <section className="bg-[#2D1810] pb-20">
+      <section className="bg-felines-dark pb-20">
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
           <div className="grid grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-4">
             {STAT_CARDS.map((stat, index) => (
