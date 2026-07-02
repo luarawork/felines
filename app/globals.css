@@ -19,7 +19,9 @@
 
   --color-felines-text-primary: #2d2d2d;
   --color-felines-text-primary-on-dark: #ffffff;
-  --color-felines-text-secondary: #6b6b6b;
+  /* #6b6b6b only clears the 4.5:1 text minimum against #f2f2f2 by a
+     hair (4.76:1) — darkened for a safer margin across all surfaces. */
+  --color-felines-text-secondary: #595959;
   --color-felines-text-secondary-on-dark: #f2ae72;
 
   --color-felines-border: #e8e4df;
@@ -34,6 +36,10 @@
   --color-felines-success-light: #f0f7f0;
 
   --color-felines-warning: #da8433;
+  /* #da8433 only reaches ~2.9:1 against white/warning-light, well under
+     the 4.5:1 text minimum — this darker variant is for warning TEXT,
+     while the base warning color stays on badge backgrounds/borders. */
+  --color-felines-warning-hover: #8f5a1f;
   --color-felines-warning-light: #fff8ee;
 
   --color-felines-emergency: #c0392b;
@@ -68,6 +74,7 @@
   --color-felines-success-light: var(--color-felines-success-light);
 
   --color-felines-warning: var(--color-felines-warning);
+  --color-felines-warning-hover: var(--color-felines-warning-hover);
   --color-felines-warning-light: var(--color-felines-warning-light);
 
   --color-felines-emergency: var(--color-felines-emergency);
@@ -97,6 +104,24 @@ summary:focus-visible,
   outline: 2px solid #b66119;
   outline-offset: 2px;
   border-radius: 4px;
+}
+
+/* #b66119 is invisible against the near-black dark sections/cards
+   (contrast ~1.6:1) — swap to the lighter on-dark accent so keyboard
+   focus stays visible everywhere the site alternates to a dark bg. */
+.bg-felines-dark a:focus-visible,
+.bg-felines-dark button:focus-visible,
+.bg-felines-dark input:focus-visible,
+.bg-felines-dark textarea:focus-visible,
+.bg-felines-dark select:focus-visible,
+.bg-felines-dark [tabindex]:focus-visible,
+.bg-felines-dark-accent a:focus-visible,
+.bg-felines-dark-accent button:focus-visible,
+.bg-felines-dark-accent input:focus-visible,
+.bg-felines-dark-accent textarea:focus-visible,
+.bg-felines-dark-accent select:focus-visible,
+.bg-felines-dark-accent [tabindex]:focus-visible {
+  outline-color: #f2ae72;
 }
 
 /* Leaflet requires explicit height on its container to render correctly */

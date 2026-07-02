@@ -603,7 +603,7 @@ export default function ColonyMap({
     } else if (helpUrgency === "normal") {
       chips.push({
         label: t("map.needsHelp"),
-        className: "border-felines-warning bg-felines-warning/10 text-felines-warning",
+        className: "border-felines-warning bg-felines-warning/10 text-felines-warning-hover",
       });
     }
     if (needsNeutering) {
@@ -1121,7 +1121,7 @@ function SuggestedColonyPopup({ suggestion }: { suggestion: SuggestedColony }) {
           {t("map.registerColonyHereCta")}
         </a>
         {confirmed ? (
-          <span className="text-xs text-felines-success">{t("map.thanksForConfirming")}</span>
+          <span className="text-xs text-felines-success-hover">{t("map.thanksForConfirming")}</span>
         ) : (
           <button
             type="button"

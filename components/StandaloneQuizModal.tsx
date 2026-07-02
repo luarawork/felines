@@ -169,7 +169,7 @@ export default function StandaloneQuizModal({ quiz }: { quiz: StandaloneQuiz }) 
                             <p className="font-medium text-felines-text-primary">{q.question}</p>
                             <p
                               className={`mt-1 text-xs ${
-                                isCorrect ? "text-felines-success" : "text-felines-emergency"
+                                isCorrect ? "text-felines-success-hover" : "text-felines-emergency"
                               }`}
                             >
                               {isCorrect ? "✓ " : `✗ ${t("standaloneQuiz.answerPrefix")} `}

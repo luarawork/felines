@@ -79,7 +79,7 @@ export default function PhotoUploadButton({
         <p role="alert" className="mt-1 text-xs text-felines-emergency">{validationError}</p>
       )}
       {!validationError && file && (
-        <p className="mt-1 text-xs text-felines-success">Selecionada: {file.name}</p>
+        <p className="mt-1 text-xs text-felines-success-hover">Selecionada: {file.name}</p>
       )}
     </div>
   );

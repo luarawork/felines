@@ -52,7 +52,7 @@ export default function SignupForm() {
   if (submitted) {
     return (
       <div className="mt-6 space-y-3">
-        <p className="rounded-lg border border-felines-success bg-felines-success/10 px-4 py-3 text-sm text-felines-success">
+        <p className="rounded-lg border border-felines-success bg-felines-success/10 px-4 py-3 text-sm text-felines-success-hover" role="status">
           {t("auth.signup.success")}
         </p>
         <p className="text-center text-sm text-felines-text-secondary">

@@ -176,7 +176,7 @@ export default function ColonyDetailClient({
                   </p>
                   {isStale && (
                     <>
-                      <p className="mt-1 text-xs text-felines-warning">
+                      <p className="mt-1 text-xs text-felines-warning-hover">
                         {t("colony.catsStaleSuffix").replace("{name}", cat.name ?? t("colony.cats.noName"))}
                       </p>
                       <MarkCatSeenButton catId={cat.id} catName={cat.name ?? t("colony.cats.noName")} colonyId={colony.id} />
@@ -224,7 +224,7 @@ export default function ColonyDetailClient({
                   {uncastratedCats.map((cat) => (
                     <span
                       key={cat.id}
-                      className="rounded-full border border-felines-warning bg-felines-warning/10 px-3 py-1 text-xs font-medium text-felines-warning"
+                      className="rounded-full border border-felines-warning bg-felines-warning/10 px-3 py-1 text-xs font-medium text-felines-warning-hover"
                     >
                       {cat.name ?? t("colony.cats.noName")}
                     </span>
@@ -270,7 +270,7 @@ export default function ColonyDetailClient({
 
       {!activeNeuteringRequest && !activeHelpRequest && uncastratedCats.length === 0 && totalCats > 0 && (
         <div className="rounded-xl border border-felines-success/30 bg-felines-success/5 p-4">
-          <p className="font-semibold text-felines-success">{t("colony.needs.allGood")}</p>
+          <p className="font-semibold text-felines-success-hover">{t("colony.needs.allGood")}</p>
           <p className="mt-1 text-sm text-felines-text-secondary">
             {t("colony.needs.allGoodSub")}
           </p>

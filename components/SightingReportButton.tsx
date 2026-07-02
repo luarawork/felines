@@ -39,7 +39,7 @@ export default function SightingReportButton({ lostCatReportId }: { lostCatRepor
   }
 
   if (submitted) {
-    return <p className="text-xs text-felines-success">{t("sightingReportButton.thankYouOwnerNotified")}</p>;
+    return <p role="status" className="text-xs text-felines-success-hover">{t("sightingReportButton.thankYouOwnerNotified")}</p>;
   }
 
   if (!open) {

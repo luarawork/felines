@@ -399,7 +399,7 @@ export default function CatManager({ colonyId }: { colonyId: string }) {
                   </button>
                   <button
                     onClick={() => handleMarkSeenToday(cat.id)}
-                    className="text-felines-success hover:underline"
+                    className="text-felines-success-hover hover:underline"
                   >
                     {t("colony.catManager.seenToday")}
                   </button>

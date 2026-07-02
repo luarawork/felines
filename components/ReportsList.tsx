@@ -355,7 +355,7 @@ export default function ReportsList() {
                           </span>
                         )}
                         {report.status === "resolved" && (
-                          <span className="ml-2 text-xs font-normal text-felines-success">
+                          <span className="ml-2 text-xs font-normal text-felines-success-hover">
                             {t("reportStatus.resolved")}
                           </span>
                         )}
@@ -397,7 +397,7 @@ export default function ReportsList() {
 
                       {isOwnLostCat && sightings.length > 0 && (
                         <div className="mt-2 rounded-md bg-felines-success/10 p-2">
-                          <p className="text-xs font-medium text-felines-success">
+                          <p className="text-xs font-medium text-felines-success-hover">
                             {sightings.length}{" "}
                             {sightings.length === 1 ? t("reportStatus.sightingsCount") : t("reportStatus.sightingsCountPlural")}
                           </p>

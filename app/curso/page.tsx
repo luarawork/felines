@@ -121,7 +121,7 @@ export default function CursoPage() {
 
       {certified && (
         <div className="mt-4 rounded-xl border border-felines-success/30 bg-felines-success/10 px-5 py-4">
-          <p className="font-semibold text-felines-success">{t("curso.alreadyCertifiedTitle")}</p>
+          <p className="font-semibold text-felines-success-hover">{t("curso.alreadyCertifiedTitle")}</p>
           <p className="mt-1 text-sm text-felines-text-secondary">{t("curso.alreadyCertifiedBody")}</p>
         </div>
       )}

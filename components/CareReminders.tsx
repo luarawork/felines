@@ -246,7 +246,7 @@ export default function CareReminders({ colonyId }: { colonyId: string }) {
               statusClass = "border-felines-emergency bg-felines-emergency/10 text-felines-emergency";
             } else if (isDueToday) {
               statusLabel = t("careReminders.dueToday");
-              statusClass = "border-felines-warning bg-felines-warning/10 text-felines-warning";
+              statusClass = "border-felines-warning bg-felines-warning/10 text-felines-warning-hover";
             } else {
               statusLabel = t("careReminders.dueInDays").replace("{days}", String(days));
               statusClass = "border-felines-border bg-felines-background text-felines-text-secondary";

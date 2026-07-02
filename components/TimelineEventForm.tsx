@@ -169,7 +169,7 @@ export default function TimelineEventForm({ colonyId }: { colonyId: string }) {
       </button>
 
       {error && <p role="alert" className="mt-2 text-sm text-felines-emergency">{error}</p>}
-      {submitted && <p className="mt-2 text-sm text-felines-success">{t("timelineForm.success")}</p>}
+      {submitted && <p role="status" className="mt-2 text-sm text-felines-success-hover">{t("timelineForm.success")}</p>}
     </form>
   );
 }

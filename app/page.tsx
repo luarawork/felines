@@ -238,7 +238,7 @@ export default function Home() {
             <ul className="mt-5 space-y-3">
               {mapFeatures.map((feature, i) => (
                 <li key={i} className="flex gap-3 text-base text-felines-text-secondary">
-                  <span className="mt-1 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-felines-success-light text-felines-success">
+                  <span className="mt-1 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-felines-success-light text-felines-success-hover">
                     ✓
                   </span>
                   {feature}

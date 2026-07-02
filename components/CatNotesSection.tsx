@@ -16,7 +16,7 @@ type Note = {
 };
 
 const HEALTH_OPTIONS = [
-  { value: "good", label: "🟢 Bem", color: "text-felines-success border-felines-success/30 bg-felines-success/10" },
+  { value: "good", label: "🟢 Bem", color: "text-felines-success-hover border-felines-success/30 bg-felines-success/10" },
   { value: "concerning", label: "🟠 Atenção", color: "text-amber-600 border-amber-300/40 bg-amber-50" },
   { value: "serious", label: "🔴 Grave", color: "text-felines-emergency border-felines-emergency/30 bg-felines-emergency/10" },
 ];

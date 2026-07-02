@@ -66,7 +66,7 @@ export default function VerifyColonyButton({
   if (verifiedStatus === "community_verified") {
     const dateLocale = language === "en" ? "en-US" : "pt-BR";
     return (
-      <p className="text-xs font-medium text-felines-success">
+      <p className="text-xs font-medium text-felines-success-hover">
         {t("verifyColony.communityVerified")}
         {verifiedAt &&
           ` ${t("verifyColony.verifiedOn").replace(

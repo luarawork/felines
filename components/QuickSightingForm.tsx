@@ -82,7 +82,7 @@ export default function QuickSightingForm({
   if (submitted) {
     return (
       <div className="rounded-xl border border-felines-success bg-felines-success/10 p-5">
-        <p className="text-sm text-felines-success">
+        <p role="status" className="text-sm text-felines-success-hover">
           {t("quickSighting.successMessage")}
         </p>
         <Link

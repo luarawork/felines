@@ -267,7 +267,7 @@ export default function HelpFlow({ onClose }: { onClose?: () => void }) {
                   {submitted && (
                     <div className="flex flex-col gap-1">
                       <div className="flex items-center gap-3">
-                        <p className="text-sm text-felines-success">
+                        <p className="text-sm text-felines-success-hover">
                           {t("helpFlow.submitted")}
                         </p>
                         {onClose && (

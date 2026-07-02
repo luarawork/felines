@@ -45,7 +45,7 @@ export default function MarkCatSeenButton({
   }
 
   if (done) {
-    return <p className="mt-1 text-xs text-felines-success">{t("markCatSeen.thanks")}</p>;
+    return <p role="status" className="mt-1 text-xs text-felines-success-hover">{t("markCatSeen.thanks")}</p>;
   }
 
   if (!isLoggedIn) return null;

@@ -101,7 +101,7 @@ export default function ReportButton({ colonyId }: { colonyId: string }) {
 
             {submitted ? (
               <div className="mt-4">
-                <p className="rounded-lg border border-felines-success bg-felines-success/10 px-4 py-3 text-sm text-felines-success">
+                <p className="rounded-lg border border-felines-success bg-felines-success/10 px-4 py-3 text-sm text-felines-success-hover" role="status">
                   {t("forms.report.submitted")}
                 </p>
                 {!isLoggedIn && <CreateAccountInvite />}

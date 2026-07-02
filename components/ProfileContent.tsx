@@ -431,13 +431,13 @@ export default function ProfileContent() {
     badges.push({
       icon: "🍽️",
       label: t("profile.badges.fed"),
-      className: "border-felines-warning/30 bg-felines-warning-light text-felines-warning",
+      className: "border-felines-warning/30 bg-felines-warning-light text-felines-warning-hover",
     });
   if (foodDonationCount > 0)
     badges.push({
       icon: "🥫",
       label: t("profile.badges.donated"),
-      className: "border-felines-warning/30 bg-felines-warning-light text-felines-warning",
+      className: "border-felines-warning/30 bg-felines-warning-light text-felines-warning-hover",
     });
   if (ownReports.length > 0)
     badges.push({
@@ -659,7 +659,7 @@ export default function ProfileContent() {
                     >
                       <p className="font-semibold text-felines-text-primary">{colony.name}</p>
                       {openCount > 0 ? (
-                        <p className="mt-2 inline-block rounded-full bg-felines-warning-light px-2 py-0.5 text-xs font-medium text-felines-warning">
+                        <p className="mt-2 inline-block rounded-full bg-felines-warning-light px-2 py-0.5 text-xs font-medium text-felines-warning-hover">
                           {openCount} {openCount === 1 ? "relato aberto" : "relatos abertos"}
                         </p>
                       ) : (
@@ -757,7 +757,7 @@ export default function ProfileContent() {
                     <span className="text-lg">🎓</span>
                     <p className="font-semibold text-felines-text-primary">Cuidador Preparado</p>
                     {isCertified && (
-                      <span className="rounded-full border border-felines-success/30 bg-felines-success/10 px-2 py-0.5 text-xs font-medium text-felines-success">
+                      <span className="rounded-full border border-felines-success/30 bg-felines-success/10 px-2 py-0.5 text-xs font-medium text-felines-success-hover">
                         Concluído
                       </span>
                     )}

@@ -120,7 +120,7 @@ export default async function CatPage({
             <span
               className={`rounded-full border px-2.5 py-0.5 text-xs font-medium ${
                 cat.castrated
-                  ? "border-felines-success/30 bg-felines-success/10 text-felines-success"
+                  ? "border-felines-success/30 bg-felines-success/10 text-felines-success-hover"
                   : "border-felines-border text-felines-text-secondary"
               }`}
             >
