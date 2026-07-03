@@ -496,3 +496,4 @@ MIT — see [`LICENSE`](LICENSE). Third-party dependency license findings (revie
 - The World Health Organization and IBGE, for the population and conflict data cited throughout.
 - Instituto Pet Brasil, for Brazilian shelter-capacity statistics.
 - The real, often invisible caretakers of Natal, RN, who keep colonies fed, castrated, and looked after with no platform, budget, or recognition — this project exists to make that work a little more visible.
+- My cat-loving friends and the many people who patiently answered my questions and taught me so much about cats throughout this project.
