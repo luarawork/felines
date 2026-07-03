@@ -66,7 +66,7 @@ export default function StandaloneQuizModal({ quiz }: { quiz: StandaloneQuiz }) 
                   <button
                     onClick={() => setOpen(false)}
                     aria-label={t("common.close")}
-                    className="flex h-8 w-8 flex-shrink-0 items-center justify-center text-lg text-felines-text-secondary hover:text-felines-text-primary"
+                    className="flex h-11 w-11 flex-shrink-0 items-center justify-center text-lg text-felines-text-secondary hover:text-felines-text-primary"
                   >
                     ×
                   </button>

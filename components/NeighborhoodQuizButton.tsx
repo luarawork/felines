@@ -98,7 +98,7 @@ export default function NeighborhoodQuizButton({
               <button
                 onClick={handleClose}
                 aria-label="Fechar"
-                className="flex h-8 w-8 flex-shrink-0 items-center justify-center text-xl leading-none text-felines-text-secondary hover:text-felines-text-primary"
+                className="flex h-11 w-11 flex-shrink-0 items-center justify-center text-xl leading-none text-felines-text-secondary hover:text-felines-text-primary"
               >
                 ×
               </button>

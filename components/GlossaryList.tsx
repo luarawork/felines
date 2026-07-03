@@ -58,7 +58,7 @@ export default function GlossaryList({ terms }: { terms: GlossaryTerm[] }) {
             <a
               key={letter}
               href={`#glossary-${letter}`}
-              className="flex h-7 w-7 items-center justify-center rounded-full border border-felines-border text-xs font-medium text-felines-text-secondary hover:border-felines-accent hover:text-felines-accent"
+              className="flex h-11 w-11 items-center justify-center rounded-full border border-felines-border text-xs font-medium text-felines-text-secondary hover:border-felines-accent hover:text-felines-accent"
             >
               {letter}
             </a>
