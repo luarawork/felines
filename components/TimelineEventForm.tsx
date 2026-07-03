@@ -139,7 +139,7 @@ export default function TimelineEventForm({ colonyId }: { colonyId: string }) {
               setSubmitted(false);
             }}
             maxLength={300}
-            className="mt-1 w-full rounded-md border border-felines-border bg-white px-3 py-2 text-sm"
+            className="mt-1 w-full rounded-md border border-felines-border bg-white px-3 py-3.5 text-sm"
           />
         </div>
       </div>

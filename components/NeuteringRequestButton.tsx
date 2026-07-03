@@ -117,7 +117,7 @@ export default function NeuteringRequestButton({ colonyId }: { colonyId: string 
                     min={1}
                     value={catsCount}
                     onChange={(event) => setCatsCount(parseInt(event.target.value, 10) || 1)}
-                    className="mt-1 w-full rounded-md border border-felines-border bg-white px-3 py-2 text-sm"
+                    className="mt-1 w-full rounded-md border border-felines-border bg-white px-3 py-3.5 text-sm"
                   />
                 </div>
 
@@ -149,7 +149,7 @@ export default function NeuteringRequestButton({ colonyId }: { colonyId: string 
                     id="transport"
                     value={transportAvailable}
                     onChange={(event) => setTransportAvailable(event.target.value as "yes" | "no" | "need_help")}
-                    className="mt-1 w-full rounded-md border border-felines-border bg-white px-3 py-2 text-sm"
+                    className="mt-1 w-full rounded-md border border-felines-border bg-white px-3 py-3.5 text-sm"
                   >
                     <option value="yes">{t("transport.yes")}</option>
                     <option value="no">{t("transport.no")}</option>
@@ -167,7 +167,7 @@ export default function NeuteringRequestButton({ colonyId }: { colonyId: string 
                     value={bestTimes}
                     onChange={(event) => setBestTimes(event.target.value)}
                     maxLength={120}
-                    className="mt-1 w-full rounded-md border border-felines-border bg-white px-3 py-2 text-sm"
+                    className="mt-1 w-full rounded-md border border-felines-border bg-white px-3 py-3.5 text-sm"
                   />
                 </div>
 
@@ -181,7 +181,7 @@ export default function NeuteringRequestButton({ colonyId }: { colonyId: string 
                     onChange={(event) => setNotes(event.target.value)}
                     maxLength={300}
                     rows={3}
-                    className="mt-1 w-full rounded-md border border-felines-border bg-white px-3 py-2 text-sm"
+                    className="mt-1 w-full rounded-md border border-felines-border bg-white px-3 py-3.5 text-sm"
                   />
                 </div>
 

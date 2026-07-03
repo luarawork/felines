@@ -120,7 +120,7 @@ export default function ReportButton({ colonyId }: { colonyId: string }) {
                   id="report-type"
                   value={type}
                   onChange={(formEvent) => setType(formEvent.target.value)}
-                  className="mt-1 w-full rounded-md border border-felines-border bg-white px-3 py-2 text-sm"
+                  className="mt-1 w-full rounded-md border border-felines-border bg-white px-3 py-3.5 text-sm"
                 >
                   {REPORT_TYPES.map((reportType) => (
                     <option key={reportType.value} value={reportType.value}>
@@ -141,7 +141,7 @@ export default function ReportButton({ colonyId }: { colonyId: string }) {
                   onChange={(formEvent) => setDescription(formEvent.target.value)}
                   maxLength={500}
                   rows={3}
-                  className="mt-1 w-full rounded-md border border-felines-border bg-white px-3 py-2 text-sm"
+                  className="mt-1 w-full rounded-md border border-felines-border bg-white px-3 py-3.5 text-sm"
                 />
 
                 {error && <p role="alert" className="mt-2 text-xs text-felines-emergency">{error}</p>}

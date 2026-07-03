@@ -65,7 +65,7 @@ export default function ForgotPasswordForm() {
           onChange={(formEvent) => setEmail(formEvent.target.value)}
           required
           aria-describedby={error ? "forgot-error" : undefined}
-          className="mt-1 w-full rounded-md border border-felines-border bg-white px-3 py-2 text-sm"
+          className="mt-1 w-full rounded-md border border-felines-border bg-white px-3 py-3.5 text-sm"
         />
       </div>
 

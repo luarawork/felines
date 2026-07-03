@@ -118,7 +118,7 @@ export default function HelpRequestButton({ colonyId }: { colonyId: string }) {
                     id="help-type"
                     value={type}
                     onChange={(event) => setType(event.target.value)}
-                    className="mt-1 w-full rounded-md border border-felines-border bg-white px-3 py-2 text-sm"
+                    className="mt-1 w-full rounded-md border border-felines-border bg-white px-3 py-3.5 text-sm"
                   >
                     {HELP_REQUEST_TYPES.map((option) => (
                       <option key={option.value} value={option.value}>
@@ -138,7 +138,7 @@ export default function HelpRequestButton({ colonyId }: { colonyId: string }) {
                     onChange={(event) => setDescription(event.target.value)}
                     maxLength={200}
                     rows={3}
-                    className="mt-1 w-full rounded-md border border-felines-border bg-white px-3 py-2 text-sm"
+                    className="mt-1 w-full rounded-md border border-felines-border bg-white px-3 py-3.5 text-sm"
                   />
                 </div>
 

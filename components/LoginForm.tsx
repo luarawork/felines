@@ -56,7 +56,7 @@ export default function LoginForm() {
           onChange={(formEvent) => setEmail(formEvent.target.value)}
           required
           aria-describedby={error ? "login-error" : undefined}
-          className="mt-1 w-full rounded-md border border-felines-border bg-white px-3 py-2 text-sm"
+          className="mt-1 w-full rounded-md border border-felines-border bg-white px-3 py-3.5 text-sm"
         />
       </div>
       <div>
@@ -71,7 +71,7 @@ export default function LoginForm() {
           required
           minLength={6}
           aria-describedby={error ? "login-error" : undefined}
-          className="mt-1 w-full rounded-md border border-felines-border bg-white px-3 py-2 text-sm"
+          className="mt-1 w-full rounded-md border border-felines-border bg-white px-3 py-3.5 text-sm"
         />
         <p className="mt-1.5 text-right">
           <Link href="/forgot-password" className="text-xs font-medium text-felines-accent-hover">

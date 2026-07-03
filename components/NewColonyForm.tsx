@@ -253,7 +253,7 @@ export default function NewColonyForm() {
           onChange={(formEvent) => setName(formEvent.target.value)}
           required
           maxLength={100}
-          className="mt-1 w-full rounded-md border border-felines-border bg-white px-3 py-2 text-sm"
+          className="mt-1 w-full rounded-md border border-felines-border bg-white px-3 py-3.5 text-sm"
         />
       </div>
       <div>
@@ -270,7 +270,7 @@ export default function NewColonyForm() {
           rows={4}
           maxLength={1000}
           placeholder={t("newColony.narrativePlaceholder")}
-          className="mt-1 w-full rounded-md border border-felines-border bg-white px-3 py-2 text-sm"
+          className="mt-1 w-full rounded-md border border-felines-border bg-white px-3 py-3.5 text-sm"
         />
       </div>
 
@@ -288,7 +288,7 @@ export default function NewColonyForm() {
           onChange={(formEvent) =>
             setCastrationStatus(formEvent.target.value as "none" | "partial" | "full")
           }
-          className="mt-1 w-full rounded-md border border-felines-border bg-white px-3 py-2 text-sm"
+          className="mt-1 w-full rounded-md border border-felines-border bg-white px-3 py-3.5 text-sm"
         >
           <option value="none">{t("newColony.castrationNone")}</option>
           <option value="partial">{t("newColony.castrationPartial")}</option>

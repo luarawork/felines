@@ -178,7 +178,7 @@ export default function CareReminders({ colonyId }: { colonyId: string }) {
             <select
               value={type}
               onChange={(e) => setType(e.target.value as ReminderType)}
-              className="mt-1 w-full rounded-md border border-felines-border bg-white px-3 py-2 text-sm"
+              className="mt-1 w-full rounded-md border border-felines-border bg-white px-3 py-3.5 text-sm"
             >
               {REMINDER_TYPES.map((value) => (
                 <option key={value} value={value}>
@@ -199,7 +199,7 @@ export default function CareReminders({ colonyId }: { colonyId: string }) {
                 onChange={(e) => setCustomLabel(e.target.value)}
                 placeholder={t("careReminders.customLabelPlaceholder")}
                 maxLength={60}
-                className="mt-1 w-full rounded-md border border-felines-border bg-white px-3 py-2 text-sm"
+                className="mt-1 w-full rounded-md border border-felines-border bg-white px-3 py-3.5 text-sm"
               />
             </div>
           )}

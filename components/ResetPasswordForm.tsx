@@ -108,7 +108,7 @@ export default function ResetPasswordForm() {
           required
           minLength={6}
           aria-describedby={error ? "reset-error" : undefined}
-          className="mt-1 w-full rounded-md border border-felines-border bg-white px-3 py-2 text-sm"
+          className="mt-1 w-full rounded-md border border-felines-border bg-white px-3 py-3.5 text-sm"
         />
       </div>
       <div>
@@ -123,7 +123,7 @@ export default function ResetPasswordForm() {
           required
           minLength={6}
           aria-describedby={error ? "reset-error" : undefined}
-          className="mt-1 w-full rounded-md border border-felines-border bg-white px-3 py-2 text-sm"
+          className="mt-1 w-full rounded-md border border-felines-border bg-white px-3 py-3.5 text-sm"
         />
       </div>
 

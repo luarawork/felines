@@ -148,7 +148,7 @@ export default function ShareStoryButton({ colonyId }: { colonyId: string }) {
                     value={title}
                     onChange={(event) => setTitle(event.target.value)}
                     maxLength={80}
-                    className="mt-1 w-full rounded-md border border-felines-border bg-white px-3 py-2 text-sm"
+                    className="mt-1 w-full rounded-md border border-felines-border bg-white px-3 py-3.5 text-sm"
                   />
                 </div>
 
@@ -163,7 +163,7 @@ export default function ShareStoryButton({ colonyId }: { colonyId: string }) {
                     maxLength={500}
                     rows={5}
                     placeholder="Um momento especial, uma transformação, um gato que foi adotado..."
-                    className="mt-1 w-full rounded-md border border-felines-border bg-white px-3 py-2 text-sm"
+                    className="mt-1 w-full rounded-md border border-felines-border bg-white px-3 py-3.5 text-sm"
                   />
                 </div>
 

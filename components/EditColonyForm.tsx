@@ -188,7 +188,7 @@ export default function EditColonyForm({
           value={name}
           onChange={(formEvent) => setName(formEvent.target.value)}
           maxLength={100}
-          className="mt-1 w-full rounded-md border border-felines-border bg-white px-3 py-2 text-sm"
+          className="mt-1 w-full rounded-md border border-felines-border bg-white px-3 py-3.5 text-sm"
         />
       </div>
 
@@ -205,7 +205,7 @@ export default function EditColonyForm({
           onChange={(formEvent) => setNarrative(formEvent.target.value)}
           rows={4}
           maxLength={1000}
-          className="mt-1 w-full rounded-md border border-felines-border bg-white px-3 py-2 text-sm"
+          className="mt-1 w-full rounded-md border border-felines-border bg-white px-3 py-3.5 text-sm"
         />
       </div>
 
@@ -220,7 +220,7 @@ export default function EditColonyForm({
           id="edit-colony-castration"
           value={castrationStatus}
           onChange={(formEvent) => setCastrationStatus(formEvent.target.value as CastrationStatus)}
-          className="mt-1 w-full rounded-md border border-felines-border bg-white px-3 py-2 text-sm"
+          className="mt-1 w-full rounded-md border border-felines-border bg-white px-3 py-3.5 text-sm"
         >
           <option value="none">{t("forms.editColony.castrationNone")}</option>
           <option value="partial">{t("forms.editColony.castrationPartial")}</option>

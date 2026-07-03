@@ -113,7 +113,7 @@ export default function LostCatForm({ onSubmitted }: { onSubmitted?: () => void 
           onChange={(formEvent) => setDescription(formEvent.target.value)}
           rows={3}
           maxLength={500}
-          className="mt-1 w-full rounded-md border border-felines-border bg-white px-3 py-2 text-sm"
+          className="mt-1 w-full rounded-md border border-felines-border bg-white px-3 py-3.5 text-sm"
         />
       </div>
 

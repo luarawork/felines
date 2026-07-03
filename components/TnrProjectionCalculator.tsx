@@ -66,7 +66,7 @@ export default function TnrProjectionCalculator() {
             onChange={(e) => setColoniesMapped(Math.max(0, Number(e.target.value)))}
             min={0}
             max={10000}
-            className="mt-1 w-full rounded-md border border-felines-border bg-white px-3 py-2 text-sm"
+            className="mt-1 w-full rounded-md border border-felines-border bg-white px-3 py-3.5 text-sm"
           />
         </div>
         <div>
@@ -79,7 +79,7 @@ export default function TnrProjectionCalculator() {
             onChange={(e) => setCatsPerColony(Math.max(1, Number(e.target.value)))}
             min={1}
             max={100}
-            className="mt-1 w-full rounded-md border border-felines-border bg-white px-3 py-2 text-sm"
+            className="mt-1 w-full rounded-md border border-felines-border bg-white px-3 py-3.5 text-sm"
           />
         </div>
         <div>

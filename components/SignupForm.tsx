@@ -80,7 +80,7 @@ export default function SignupForm() {
           onChange={(formEvent) => setEmail(formEvent.target.value)}
           required
           aria-describedby={error ? "signup-error" : undefined}
-          className="mt-1 w-full rounded-md border border-felines-border bg-white px-3 py-2 text-sm"
+          className="mt-1 w-full rounded-md border border-felines-border bg-white px-3 py-3.5 text-sm"
         />
       </div>
       <div>
@@ -95,7 +95,7 @@ export default function SignupForm() {
           required
           minLength={6}
           aria-describedby={error ? "signup-error" : undefined}
-          className="mt-1 w-full rounded-md border border-felines-border bg-white px-3 py-2 text-sm"
+          className="mt-1 w-full rounded-md border border-felines-border bg-white px-3 py-3.5 text-sm"
         />
       </div>
 
