@@ -2,16 +2,26 @@
 
 > An educational platform for people who aren't "cat people" — at least, not yet.
 
+**Felines is not a colony registry.** It's an educational platform built to turn people who don't particularly like street cats — the annoyed neighbor, the indifferent passerby, the person who's never given it a thought — into people who understand the problem well enough to actually help. Mapping colonies is one of the *actions* the platform gives someone once they've been convinced, not the point of the product.
+
 [![Built with Next.js](https://img.shields.io/badge/Built%20with-Next.js%2016-000000?logo=next.js&logoColor=white)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Supabase](https://img.shields.io/badge/Database-Supabase-3ECF8E?logo=supabase&logoColor=white)](https://supabase.com/)
 [![Netlify](https://img.shields.io/badge/Deploy-Netlify-00C7B7?logo=netlify&logoColor=white)](https://www.netlify.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Hack the Kitty 2026](https://img.shields.io/badge/Hack%20the%20Kitty-2026-B66119)](https://hackthekitty.com)
+[![#hackthekitty](https://img.shields.io/badge/%23hackthekitty-The%20World%20Cat%20Domination%20Day%20Hackathon-B66119)](https://hackthekitty.com)
 
 - **Live demo:** [add after deploy] — see [Live Demo](#live-demo) below for current status
 - **Repository:** https://github.com/luarawork/felines
-- **Documentation:** [English](https://bronzed-longship-a0f.notion.site/Felines-Documentation-EN-392f091b2b7481ff9a45e3b8b06f3993?source=copy_link) · [Português](https://bronzed-longship-a0f.notion.site/Felines-Documenta-o-392f091b2b7481048a73e27049a939cb?source=copy_link)
+
+### 📖 Documentation
+
+For the full product documentation, visit the Notion:
+
+- 🇧🇷 [Documentação em Português](https://bronzed-longship-a0f.notion.site/Felines-Documenta-o-392f091b2b7481048a73e27049a939cb)
+- 🇺🇸 [Documentation in English](https://bronzed-longship-a0f.notion.site/Felines-Documentation-EN-392f091b2b7481ff9a45e3b8b06f3993)
+
+If you'd like to know more about my work: [luara.work](https://luara.work/)
 
 ---
 
@@ -42,7 +52,7 @@ There are an estimated 10 million stray cats in Brazil alone (World Health Organ
 
 Every cat-welfare platform we looked at talks to people who already care: established caretakers, donors, adopters. Nobody built a bridge for the much larger group that matters just as much — the neighbor annoyed by the smell on their street, the passerby who's curious but non-committal, the person who wants to help but has no idea where to start. Nearly 40% of Brazilians report having had a conflict with a neighbor involving animals (IBGE), and a lot of that friction comes down to not knowing why the cats are there, who (if anyone) is already caring for them, or that castration — not removal — is what actually works.
 
-Felines is built for that gap. It doesn't ask anyone to become a cat lover first. It talks to the unconvinced, and conversion happens through logic and self-interest, not guilt or emotional appeal — understanding the vacuum effect, seeing that castration reduces the exact behaviors that cause conflict, realizing that a mapped, cared-for colony is quieter and calmer than an unmanaged one. The product never asks for altruism. It just makes the practical case, and lets people arrive at caring on their own terms.
+Felines is built for that gap — and it is, deliberately, an **educational platform first**, not a colony-registration tool that happens to have some articles attached. Its job is to take someone who doesn't like street cats and walk them, through logic rather than guilt, to the point where they understand the problem well enough to act: the vacuum effect that explains why removal fails, the way castration reduces the exact behaviors that cause conflict, the fact that a mapped, cared-for colony is quieter and calmer than an unmanaged one. Once that understanding lands, the platform hands the person concrete actions — reporting a sighting, registering a colony, becoming a caretaker — that only make sense *because* the education came first. The product never asks for altruism up front. It makes the practical case, and lets people arrive at caring on their own terms.
 
 ---
 
@@ -423,7 +433,9 @@ The central insight behind the entire product — that the platform should talk 
 
 **Every security decision was human in intent**: framing progressive location blur as animal protection first and data protection second was a founder decision; Claude Code implemented the RLS policies, grants, and RPCs that enforce it.
 
-**Claude Code's role was implementation and audit execution**: writing the Next.js/TypeScript code and the 76 Supabase migrations, running the security/accessibility/functional/performance audits, identifying specific bugs, and drafting initial article and translation copy.
+**Every database migration was designed by the founder** — all 76 Supabase migrations (schema, RLS policies, RPCs, and security fixes) were her own database design decisions, with Claude Code writing the SQL syntax under her direction.
+
+**Claude Code's role was implementation and audit execution**: writing the Next.js/TypeScript code, running the security/accessibility/functional/performance audits, identifying specific bugs, and drafting initial article and translation copy.
 
 **Every piece of content was human-reviewed before publishing**: articles, translations, cat facts, and the 14 real local contacts were curated and verified by the founder, not auto-published from a model's first draft. All statistics cited throughout this README and the app come from real, named, verifiable sources (WHO, IBGE, Instituto Pet Brasil, the Brazilian Ministry of the Environment) — not generated figures.
 
@@ -432,7 +444,8 @@ Every audit finding, every direction change, and every code review across the pr
 | What was human | What was a tool |
 |---|---|
 | The core insight and target audience | Writing TypeScript/React code |
-| Every product and scope decision | Drafting the 76 SQL migrations |
+| Every product and scope decision | Writing SQL syntax under her direction |
+| Designing all 76 database migrations | — |
 | Security intent (animal safety framing) | Implementing RLS policies and RPCs |
 | Curating 14 real local contacts | Initial article/translation drafts |
 | Reviewing and approving all content | Running audits and flagging bugs |
@@ -478,7 +491,7 @@ MIT — see [`LICENSE`](LICENSE). Third-party dependency license findings (revie
 
 ## Acknowledgments
 
-- The Hack the Kitty 2026 organizers, for the prompt that started this.
+- The #hackthekitty — The World Cat Domination Day Hackathon organizers, for the prompt that started this.
 - Alley Cat Allies, for publicly available TNR research and methodology.
 - The World Health Organization and IBGE, for the population and conflict data cited throughout.
 - Instituto Pet Brasil, for Brazilian shelter-capacity statistics.
