@@ -98,6 +98,31 @@ export function useFelinesAssistant() {
     };
   }, [pathname, fire]);
 
+  // TRIGGER 2B — idle 45s on the reports/resources page, same idle
+  // pattern as trigger 2 but on its own page and its own once-per-session
+  // flag so it doesn't compete with the home page's idle trigger.
+  useEffect(() => {
+    if (pathname !== "/reports") return;
+    if (sessionStorage.getItem("assistant_idle_reports")) return;
+
+    let idleTimer: ReturnType<typeof setTimeout>;
+    function resetIdleTimer() {
+      clearTimeout(idleTimer);
+      idleTimer = setTimeout(() => {
+        if (fire("idle-reports")) sessionStorage.setItem("assistant_idle_reports", "true");
+      }, 45000);
+    }
+
+    resetIdleTimer();
+    window.addEventListener("click", resetIdleTimer);
+    window.addEventListener("keydown", resetIdleTimer);
+    return () => {
+      clearTimeout(idleTimer);
+      window.removeEventListener("click", resetIdleTimer);
+      window.removeEventListener("keydown", resetIdleTimer);
+    };
+  }, [pathname, fire]);
+
   // TRIGGER 3 — article scroll reaches 95% of page height.
   useEffect(() => {
     if (!pathname.startsWith("/learn/")) return;

@@ -72,24 +72,22 @@ export default function FelinesAssistant({
         <div
           role="status"
           aria-live="polite"
-          className="rounded-2xl border border-felines-border bg-felines-surface p-4 shadow-[0_8px_24px_rgba(0,0,0,0.12)]"
+          className="relative rounded-2xl border border-felines-border bg-felines-surface p-4 shadow-[0_8px_24px_rgba(0,0,0,0.12)]"
         >
-          <div className="flex items-start justify-between gap-2">
-            <p className="text-xs font-semibold uppercase tracking-[0.08em] text-felines-accent-hover">
-              {label}
-            </p>
-            <button
-              type="button"
-              onClick={() => {
-                setIsVisible(false);
-                onComplete();
-              }}
-              aria-label={t("assistant.dismiss")}
-              className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full text-felines-text-secondary hover:text-felines-text-primary"
-            >
-              ✕
-            </button>
-          </div>
+          <button
+            type="button"
+            onClick={() => {
+              setIsVisible(false);
+              onComplete();
+            }}
+            aria-label={t("assistant.dismiss")}
+            className="absolute right-0 top-0 flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full text-felines-text-secondary hover:text-felines-text-primary"
+          >
+            ✕
+          </button>
+          <p className="pr-8 text-xs font-semibold uppercase tracking-[0.08em] text-felines-accent-hover">
+            {label}
+          </p>
           <p className="mt-1 text-sm leading-relaxed text-felines-text-primary">{message}</p>
         </div>
       </div>
@@ -103,21 +101,19 @@ export default function FelinesAssistant({
           <div
             role="status"
             aria-live="polite"
-            className="felines-step-in rounded-2xl border border-felines-border bg-felines-surface p-4 shadow-[0_8px_24px_rgba(0,0,0,0.14)]"
+            className="felines-step-in relative rounded-2xl border border-felines-border bg-felines-surface p-4 shadow-[0_8px_24px_rgba(0,0,0,0.14)]"
           >
-            <div className="flex items-start justify-between gap-2">
-              <p className="text-xs font-semibold uppercase tracking-[0.08em] text-felines-accent-hover">
-                {label}
-              </p>
-              <button
-                type="button"
-                onClick={handleDismiss}
-                aria-label={t("assistant.dismiss")}
-                className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full text-felines-text-secondary hover:text-felines-text-primary"
-              >
-                ✕
-              </button>
-            </div>
+            <button
+              type="button"
+              onClick={handleDismiss}
+              aria-label={t("assistant.dismiss")}
+              className="absolute right-0 top-0 flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full text-felines-text-secondary hover:text-felines-text-primary"
+            >
+              ✕
+            </button>
+            <p className="pr-8 text-xs font-semibold uppercase tracking-[0.08em] text-felines-accent-hover">
+              {label}
+            </p>
             <p className="mt-1 text-sm leading-relaxed text-felines-text-primary">{message}</p>
           </div>
           {/* Triangle pointer aimed down at the circular video card. */}

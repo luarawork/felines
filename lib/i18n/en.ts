@@ -860,8 +860,7 @@ export const en = {
     searchGroupArticles: "Articles",
     searchGroupGlossary: "Glossary",
     searchGroupContacts: "Contacts",
-    firstVisit:
-      "👋 First time here? Felines helps you understand the street cats in your area, see who's already caring for them, and report what you find — no account needed for most things.",
+    firstVisit: "👋 First time here? See how Felines can help you.",
     firstVisitLearnMore: "Click here to learn more.",
     aboutFelines: {
       title: "About Felines",

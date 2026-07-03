@@ -862,8 +862,7 @@ export const pt = {
     searchGroupArticles: "Artigos",
     searchGroupGlossary: "Glossário",
     searchGroupContacts: "Contatos",
-    firstVisit:
-      "👋 Primeira vez por aqui? O Felines te ajuda a entender os gatos de rua da sua região, ver quem já cuida deles e relatar o que você encontrar — sem precisar de conta para a maioria das coisas.",
+    firstVisit: "👋 Primeira vez por aqui? Veja como o Felines pode te ajudar.",
     firstVisitLearnMore: "Clique aqui para entender melhor.",
     aboutFelines: {
       title: "Sobre o Felines",
