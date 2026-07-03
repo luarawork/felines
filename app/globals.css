@@ -87,6 +87,24 @@ body {
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
 }
 
+/* Safety net against horizontal scroll on mobile — a single oversized
+   element (a fixed-width popup, a long unbreakable string) shouldn't be
+   able to widen the whole page and let the viewport pan sideways. */
+html,
+body {
+  overflow-x: hidden;
+}
+
+/* iOS safe areas — keeps content clear of the notch and the home
+   indicator on devices that have them; a no-op (0px) everywhere else. */
+.felines-safe-top {
+  padding-top: env(safe-area-inset-top);
+}
+
+.felines-safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
 /* ---------------------------------------------------------
    Accessibility baseline.
    --------------------------------------------------------- */

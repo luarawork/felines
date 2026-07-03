@@ -1089,8 +1089,17 @@ export default function ColonyMap({
 
       {!compact && hasLoadedColonies && visiblePinTypes.has("colony") && filteredColonies.length === 0 && (
         // bottom-24 (not bottom-6) so this never overlaps the floating
-        // "+ Cadastrar colônia" button anchored at the bottom-right.
-        <div className="absolute bottom-24 left-1/2 z-[1000] w-[90%] max-w-md -translate-x-1/2 space-y-3">
+        // "+ Cadastrar colônia" button anchored at the bottom-right. On
+        // mobile the activity panel above (top-[19rem] to bottom-24 when
+        // expanded) spans almost the full screen height, so this card is
+        // hidden there while the panel is expanded — showing both at once
+        // means they visually overlap. Desktop's panel is a small
+        // top-right box, so no such conflict there.
+        <div
+          className={`absolute bottom-24 left-1/2 z-[1000] w-[90%] max-w-md -translate-x-1/2 space-y-3 ${
+            listExpanded ? "hidden sm:block" : ""
+          }`}
+        >
           {panelSightings.length > 0 ? (
             <EmptyState
               main={t("map.unmappedSightingMain")}

@@ -116,7 +116,7 @@ export default function NavBar() {
   return (
     <header
       ref={headerRef}
-      className="sticky top-0 z-[1500] border-b border-felines-border bg-white/80 backdrop-blur-md"
+      className="felines-safe-top sticky top-0 z-[1500] border-b border-felines-border bg-white/80 backdrop-blur-md"
     >
       <nav
         className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3 sm:px-6"
@@ -184,9 +184,11 @@ export default function NavBar() {
           <GlobalSearchButton />
           <button
             onClick={openHelpModal}
-            className="felines-help-pulse min-h-[44px] min-w-[9.5rem] whitespace-nowrap rounded-full bg-felines-accent px-4 py-1.5 text-center text-sm font-semibold text-white transition-colors hover:bg-felines-accent-hover"
+            aria-label={t("nav.getHelp")}
+            className="felines-help-pulse flex h-11 w-11 flex-shrink-0 items-center justify-center whitespace-nowrap rounded-full bg-felines-accent text-center text-sm font-semibold text-white transition-colors hover:bg-felines-accent-hover sm:h-auto sm:min-h-[44px] sm:w-auto sm:min-w-[9.5rem] sm:px-4 sm:py-1.5"
           >
-            {t("nav.getHelp")}
+            <span aria-hidden="true" className="text-lg sm:hidden">🆘</span>
+            <span className="hidden sm:inline">{t("nav.getHelp")}</span>
           </button>
 
           {session ? (

@@ -68,7 +68,7 @@ export default function FelinesAssistant({
 
   if (prefersReducedMotion) {
     return (
-      <div className="fixed bottom-24 right-4 z-40 max-w-xs sm:bottom-6">
+      <div className="fixed bottom-[calc(6rem_+_env(safe-area-inset-bottom))] right-4 z-40 max-w-xs sm:bottom-[calc(1.5rem_+_env(safe-area-inset-bottom))]">
         <div
           role="status"
           aria-live="polite"
@@ -95,7 +95,7 @@ export default function FelinesAssistant({
   }
 
   return (
-    <div className="pointer-events-none fixed bottom-[126px] right-4 z-40 sm:bottom-6 sm:right-6">
+    <div className="pointer-events-none fixed bottom-[calc(126px_+_env(safe-area-inset-bottom))] right-4 z-40 sm:bottom-[calc(1.5rem_+_env(safe-area-inset-bottom))] sm:right-6">
       {showBubble && (
         <div className="pointer-events-auto absolute bottom-[118px] right-0 w-64 sm:bottom-[140px]">
           <div
