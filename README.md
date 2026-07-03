@@ -8,6 +8,10 @@ Felines maps stray cat colonies and helps everyday people — not just existing 
 **Repository:** https://github.com/luarawork/felines
 **Live demo:** not yet deployed — see [Live Demo](#live-demo) below for why, and [Getting Started](#getting-started) to run it locally in a few minutes.
 
+For the full product documentation, visit the Notion:
+🇧🇷 Documentação em Português
+🇺🇸 Documentation in English
+
 ---
 
 ## Table of Contents
