@@ -659,6 +659,7 @@ export default function ColonyMap({
             <img
               src={colony.cover_photo_url}
               alt={colony.name}
+              loading="lazy"
               className="h-20 w-full object-cover"
             />
           ) : (

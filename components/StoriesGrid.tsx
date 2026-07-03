@@ -25,7 +25,7 @@ function StoryCard({ story }: { story: StoryWithMeta }) {
     <div className="mb-4 break-inside-avoid rounded-2xl border border-felines-border bg-felines-surface p-4">
       {photo && (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={photo} alt={story.title} className="mb-3 h-40 w-full rounded-xl object-cover" />
+        <img src={photo} alt={story.title} loading="lazy" className="mb-3 h-40 w-full rounded-xl object-cover" />
       )}
       <p className="font-bold text-felines-text-primary">{story.title}</p>
       <p className={`mt-1.5 text-sm leading-relaxed text-felines-text-secondary ${expanded ? "" : "line-clamp-3"}`}>

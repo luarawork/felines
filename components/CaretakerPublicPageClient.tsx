@@ -48,6 +48,7 @@ export default function CaretakerPublicPageClient({
                 <img
                   src={avatarUrl}
                   alt={displayName ?? t("publicProfile.avatarAlt")}
+                  loading="lazy"
                   className="h-20 w-20 rounded-full object-cover shadow-[0_2px_8px_rgba(0,0,0,0.10)]"
                 />
               ) : (

@@ -162,6 +162,7 @@ export default function ColonyDetailClient({
                     <img
                       src={cat.photo_url}
                       alt={cat.name ?? t("colony.cats.photoAlt")}
+                      loading="lazy"
                       className="h-32 w-full rounded-xl object-cover"
                     />
                   ) : (

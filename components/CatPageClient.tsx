@@ -61,6 +61,7 @@ export default function CatPageClient({
           <img
             src={photoUrl}
             alt={catName ?? t("catPage.photoAlt")}
+            loading="lazy"
             className="h-24 w-24 flex-shrink-0 rounded-2xl object-cover"
           />
         ) : (

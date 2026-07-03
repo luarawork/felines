@@ -16,6 +16,7 @@ export default function TimelinePhoto({ src, alt }: { src: string; alt: string }
         <img
           src={src}
           alt={alt}
+          loading="lazy"
           className="h-24 w-24 rounded-lg object-cover transition-opacity hover:opacity-90"
         />
       </button>

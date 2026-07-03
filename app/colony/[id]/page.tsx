@@ -75,66 +75,68 @@ export default async function ColonyDetailPage({
 
   if (!colony) notFound();
 
-  const { data: cats } = await supabase
-    .from("cats")
-    .select("id, name, photo_url, castrated, last_seen")
-    .eq("colony_id", id)
-    .order("last_seen", { ascending: false });
-
-  const { data: timelineEvents } = await supabase
-    .from("timeline_events")
-    .select("id, event_type, description, photo_url, created_at, created_by")
-    .eq("colony_id", id)
-    .order("created_at", { ascending: false });
-
-  // Most urgent, most recent active request — banner shows one at a
-  // time. "Active" means open AND not past its 7-day expiry; there's no
-  // backend job flipping status automatically, so this filter is what
-  // actually enforces the expiry.
-  const { data: activeHelpRequestRows } = await supabase
-    .from("help_requests")
-    .select("id, type, description, urgency")
-    .eq("colony_id", id)
-    .eq("status", "open")
-    .gt("expires_at", new Date().toISOString())
-    .order("urgency", { ascending: false })
-    .order("created_at", { ascending: false })
-    .limit(1);
+  // None of these 7 queries depend on each other's results, only on
+  // `id` — fire them together instead of round-tripping one at a time.
+  const [
+    { data: cats },
+    { data: timelineEvents },
+    { data: activeHelpRequestRows },
+    { data: neuteringRequestRows },
+    { data: neuteringHistoryRows },
+    { data: falsePinFlagRows },
+    { data: caretakerRows },
+  ] = await Promise.all([
+    supabase
+      .from("cats")
+      .select("id, name, photo_url, castrated, last_seen")
+      .eq("colony_id", id)
+      .order("last_seen", { ascending: false }),
+    supabase
+      .from("timeline_events")
+      .select("id, event_type, description, photo_url, created_at, created_by")
+      .eq("colony_id", id)
+      .order("created_at", { ascending: false }),
+    // Most urgent, most recent active request — banner shows one at a
+    // time. "Active" means open AND not past its 7-day expiry; there's no
+    // backend job flipping status automatically, so this filter is what
+    // actually enforces the expiry.
+    supabase
+      .from("help_requests")
+      .select("id, type, description, urgency")
+      .eq("colony_id", id)
+      .eq("status", "open")
+      .gt("expires_at", new Date().toISOString())
+      .order("urgency", { ascending: false })
+      .order("created_at", { ascending: false })
+      .limit(1),
+    supabase
+      .from("neutering_requests")
+      .select("id, cats_count, urgency, status")
+      .eq("colony_id", id)
+      .neq("status", "completed")
+      .order("created_at", { ascending: false })
+      .limit(1),
+    supabase
+      .from("neutering_requests")
+      .select("id, cats_count, urgency, status, created_at")
+      .eq("colony_id", id)
+      .order("created_at", { ascending: false }),
+    supabase
+      .from("flags")
+      .select("id")
+      .eq("target_type", "colony")
+      .eq("target_id", id)
+      .in("reason", ["never_seen_cats", "location_doesnt_exist", "duplicate_colony", "suspicious_harmful"]),
+    // caretakers.user_id and timeline_events.created_by both reference
+    // auth.users, not profiles, so PostgREST can't embed profiles in
+    // either query — every author id across both is resolved in one
+    // batched lookup instead.
+    supabase.from("caretakers").select("user_id").eq("colony_id", id),
+  ]);
 
   const activeHelpRequest = activeHelpRequestRows?.[0] ?? null;
-
-  const { data: neuteringRequestRows } = await supabase
-    .from("neutering_requests")
-    .select("id, cats_count, urgency, status")
-    .eq("colony_id", id)
-    .neq("status", "completed")
-    .order("created_at", { ascending: false })
-    .limit(1);
-
   const activeNeuteringRequest = neuteringRequestRows?.[0] ?? null;
-
-  const { data: neuteringHistoryRows } = await supabase
-    .from("neutering_requests")
-    .select("id, cats_count, urgency, status, created_at")
-    .eq("colony_id", id)
-    .order("created_at", { ascending: false });
-
-  const { data: falsePinFlagRows } = await supabase
-    .from("flags")
-    .select("id")
-    .eq("target_type", "colony")
-    .eq("target_id", id)
-    .in("reason", ["never_seen_cats", "location_doesnt_exist", "duplicate_colony", "suspicious_harmful"]);
   const hasFalsePinWarning = (falsePinFlagRows?.length ?? 0) >= 3;
-
-  // caretakers.user_id and timeline_events.created_by both reference
-  // auth.users, not profiles, so PostgREST can't embed profiles in
-  // either query — every author id across both is resolved in one
-  // batched lookup instead.
-  const { data: caretakerRows } = await supabase
-    .from("caretakers")
-    .select("user_id")
-    .eq("colony_id", id);
 
   const caretakerUserIds = (caretakerRows ?? []).map((row) => row.user_id);
   const timelineAuthorIds = (timelineEvents ?? [])

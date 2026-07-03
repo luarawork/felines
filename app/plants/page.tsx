@@ -82,6 +82,7 @@ export default function PlantsPage() {
                       <img
                         src={`/images/plants/${plant.slug}.svg`}
                         alt={t("plants.illustrationAlt").replace("{name}", plant.commonName)}
+                        loading="lazy"
                         className="mb-4 h-40 w-full rounded-xl object-cover"
                       />
 

@@ -133,10 +133,12 @@ export default function FelinesAssistant({
           ref={videoRef}
           src="/videos/catcurious.mp4"
           aria-hidden="true"
+          preload="none"
           autoPlay
           muted
           playsInline
           onEnded={handleVideoEnd}
+          onError={handleVideoEnd}
           className="h-full w-full object-cover"
         />
       </div>
