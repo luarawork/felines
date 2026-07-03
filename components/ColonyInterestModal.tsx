@@ -38,7 +38,7 @@ export default function ColonyInterestModal({
         role="dialog"
         aria-modal="true"
         aria-labelledby="colony-interest-title"
-        className="w-full max-w-sm rounded-xl bg-felines-background p-6 shadow-xl"
+        className="max-h-[90vh] w-full max-w-sm overflow-y-auto rounded-xl bg-felines-background p-6 shadow-xl"
         onClick={(event) => event.stopPropagation()}
       >
         <div className="flex items-start justify-between">

@@ -83,7 +83,7 @@ export default function ReportButton({ colonyId }: { colonyId: string }) {
             role="dialog"
             aria-modal="true"
             aria-labelledby="report-modal-title"
-            className="w-full max-w-sm rounded-xl bg-felines-background p-5 shadow-xl"
+            className="max-h-[90vh] w-full max-w-sm overflow-y-auto rounded-xl bg-felines-background p-5 shadow-xl"
             onClick={(event) => event.stopPropagation()}
           >
             <div className="flex items-start justify-between">

@@ -77,7 +77,7 @@ export default function NeighborhoodQuizButton({
             role="dialog"
             aria-modal="true"
             aria-label="O que está acontecendo no seu bairro?"
-            className="w-full max-w-md rounded-2xl bg-felines-background p-6 shadow-xl"
+            className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-2xl bg-felines-background p-6 shadow-xl"
             onClick={(event) => event.stopPropagation()}
           >
             <div className="flex items-start justify-between">
