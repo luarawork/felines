@@ -49,6 +49,10 @@ export default function ShareStoryButton({ colonyId }: { colonyId: string }) {
       }
       const filePath = buildSafeStoragePath(`stories/${colonyId}`, photoFile);
       assertSafeStoragePath(filePath);
+      if (filePath.includes('..')) {
+        setSubmitting(false);
+        throw new Error("Invalid file path");
+      }
       const { error: uploadError } = await supabase.storage.from("colony-photos").upload(filePath, photoFile);
       if (uploadError) {
         setSubmitting(false);
