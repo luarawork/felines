@@ -31,7 +31,7 @@ export default function FirstVisitBanner() {
 
   return (
     <>
-      <div className="mb-8 flex items-start justify-between gap-4 rounded-xl border border-felines-accent/30 bg-felines-accent/5 px-4 py-3 text-sm">
+      <div className="relative mb-8 rounded-xl border border-felines-accent/30 bg-felines-accent/5 py-3 pl-4 pr-12 text-sm">
         <p className="text-felines-text-primary">
           {t("common.firstVisit")}{" "}
           <button
@@ -44,7 +44,7 @@ export default function FirstVisitBanner() {
         <button
           onClick={dismiss}
           aria-label={t("common.close")}
-          className="flex h-11 w-11 flex-shrink-0 items-center justify-center text-lg leading-none text-felines-text-secondary hover:text-felines-text-primary"
+          className="absolute right-0 top-0 flex h-11 w-11 flex-shrink-0 items-center justify-center text-lg leading-none text-felines-text-secondary hover:text-felines-text-primary"
         >
           ×
         </button>
