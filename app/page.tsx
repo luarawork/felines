@@ -17,8 +17,12 @@ import { useLanguage } from "@/lib/i18n";
 const STAT_VALUES = ["10M", "480M", "185K", "40%"];
 
 export default function Home() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const previewArticles = ARTICLES.slice(0, 3);
+  const documentationUrl =
+    language === "en"
+      ? "https://bronzed-longship-a0f.notion.site/Felines-Documentation-EN-392f091b2b7481ff9a45e3b8b06f3993?source=copy_link"
+      : "https://bronzed-longship-a0f.notion.site/Felines-Documenta-o-392f091b2b7481048a73e27049a939cb?source=copy_link";
 
   const statLabels: string[] = [
     t("home.stats.0"),
@@ -279,7 +283,7 @@ export default function Home() {
               rel="noopener noreferrer"
               className="font-medium text-felines-accent-hover"
             >
-              © 2026 Luara Oliveira
+              Luara Oliveira
             </a>
           </p>
           <div className="flex items-center gap-4">
@@ -289,8 +293,12 @@ export default function Home() {
             <Link href="/curso" className="font-medium text-felines-accent-hover">
               {t("home.footerCourse")}
             </Link>
-            {/* TODO: link to product documentation once it's published */}
-            <a href="#" className="font-medium text-felines-accent-hover">
+            <a
+              href={documentationUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-medium text-felines-accent-hover"
+            >
               {t("home.footerAbout")}
             </a>
           </div>
