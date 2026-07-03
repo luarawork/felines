@@ -12,7 +12,7 @@ from an incident report.
 Report privately instead, so we have time to fix the issue before it's
 disclosed publicly.
 
-- Email: [INSERT SECURITY EMAIL] with the subject line `[SECURITY] <short
+- Email: luara.working@gmail.com with the subject line `[SECURITY] <short
   description>`.
 - Include what you found, the steps to reproduce it, and — if you can —
   what you think the impact is. A proof-of-concept request/response
