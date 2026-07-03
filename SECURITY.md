@@ -80,7 +80,7 @@ Aikido has already found and we've fixed:
 
 Row Level Security is enabled on all 25 application tables, with no
 "allow everything" fallback policy anywhere in the schema — see
-[`AUDIT_REPORT.md`](AUDIT_REPORT.md) for the full, itemized findings
+[`AUDIT_REPORT.md`](docs/AUDIT_REPORT.md) for the full, itemized findings
 (including internal review findings beyond the two above) and the
 reasoning behind each fix, and the [README's Security
 section](README.md#security) for the broader architecture.

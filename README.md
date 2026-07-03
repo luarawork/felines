@@ -235,7 +235,7 @@ There is no custom backend server — every write and read goes through Supabase
 
 ## Security
 
-Security here means two distinct things: protecting user data (standard practice), and protecting the cats themselves from anyone using the platform's own data against them — colonies have been targeted after their locations were shared carelessly online, which is why this is treated as animal safety, not just data privacy. Every control below was a deliberate design decision, then verified — and in some cases corrected — during a dedicated security review before submission. Full technical detail lives in [`AUDIT_REPORT.md`](AUDIT_REPORT.md); our vulnerability-disclosure process is in [`SECURITY.md`](SECURITY.md).
+Security here means two distinct things: protecting user data (standard practice), and protecting the cats themselves from anyone using the platform's own data against them — colonies have been targeted after their locations were shared carelessly online, which is why this is treated as animal safety, not just data privacy. Every control below was a deliberate design decision, then verified — and in some cases corrected — during a dedicated security review before submission. Full technical detail lives in [`AUDIT_REPORT.md`](docs/AUDIT_REPORT.md); our vulnerability-disclosure process is in [`SECURITY.md`](SECURITY.md).
 
 ### Progressive Location Blur
 
@@ -272,7 +272,7 @@ Commit: `security: fix SSRF vulnerability in geocoding requests — Aikido repor
 - **Rate limiting**: 10/hour (anonymous) and 30/hour (authenticated) on report submissions.
 - **Input validation on both client and server** — client-side checks are a UX nicety; every boundary is re-enforced by a database `CHECK` constraint or an RLS policy, since a direct REST call with the public anon key bypasses the client entirely.
 - **Field size limits on every free-text database column** (`colonies.narrative`, `cats.name`, `reports.description`, `caretakers.letter`, and others) — found missing during the internal review and fixed with `char_length` constraints, closing a storage-cost and rendering-DoS surface.
-- Full itemized findings, reasoning, and fix history: [`AUDIT_REPORT.md`](AUDIT_REPORT.md).
+- Full itemized findings, reasoning, and fix history: [`AUDIT_REPORT.md`](docs/AUDIT_REPORT.md).
 
 ---
 
@@ -321,7 +321,7 @@ Every major flow: home → map → colony detail → filing a report → the eme
 
 ### Numbers
 
-**40+ bugs found and fixed** across **9 dedicated audit sessions** (functional, security, accessibility, UI consistency, content, performance, and mobile responsiveness) over the course of the project.
+**40+ bugs found and fixed** across **9 dedicated audit sessions** (functional, security, accessibility, UI consistency, content, performance, and mobile responsiveness) over the course of the project. The UI-consistency, motion, and mobile-specific findings are itemized separately in [`docs/UI_AUDIT_REPORT.md`](docs/UI_AUDIT_REPORT.md).
 
 ---
 
@@ -402,7 +402,9 @@ felines/
 │   ├── rateLimit.ts            # In-memory rate limiter for report submissions
 │   └── i18n/pt.ts, en.ts       # Full Portuguese and English translations
 ├── supabase/migrations/         # 76 numbered SQL migrations (schema, RLS, RPCs)
-├── AUDIT_REPORT.md              # Full itemized security/bug/refactor audit
+├── docs/AUDIT_REPORT.md         # Full itemized security/bug/refactor audit
+├── docs/UI_AUDIT_REPORT.md      # UI consistency, motion, and mobile audit
+├── docs/LICENSE_COMPLIANCE.md   # Third-party dependency license findings
 ├── SECURITY.md                  # Vulnerability disclosure policy
 └── CONTRIBUTING.md               # Local setup and contribution guidelines
 ```
@@ -470,7 +472,7 @@ Contributions are welcome — from a typo fix to a new feature. Start with [`CON
 
 ## License
 
-MIT — see [`LICENSE`](LICENSE).
+MIT — see [`LICENSE`](LICENSE). Third-party dependency license findings (reviewed, not blocking) are documented in [`docs/LICENSE_COMPLIANCE.md`](docs/LICENSE_COMPLIANCE.md).
 
 ---
 
