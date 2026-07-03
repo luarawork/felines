@@ -2,7 +2,7 @@
 
 > An educational platform for people who aren't "cat people" — at least, not yet.
 
-**Felines is an educational platform built to turn people who don't particularly like street cats — the annoyed neighbor, the indifferent passerby, the person who's never given it a thought — into people who understand the problem well enough to actually help. Mapping colonies is one of the *actions* the platform gives someone once they've been convinced, not the point of the product.
+**Felines** is an educational platform built to turn people who don't particularly like street cats — the annoyed neighbor, the indifferent passerby, the person who's never given it a thought — into people who understand the problem well enough to actually help. Mapping colonies is one of the *actions* the platform gives someone once they've been convinced, not the point of the product.
 
 [![Built with Next.js](https://img.shields.io/badge/Built%20with-Next.js%2016-000000?logo=next.js&logoColor=white)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
