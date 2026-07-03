@@ -2,48 +2,70 @@
 
 > An educational platform for people who aren't "cat people" — at least, not yet.
 
-Felines maps cat colonies and helps everyday citizens understand what's happening with stray cats in their neighborhood — and what they can do about it. No cat expertise required.
+Felines maps stray cat colonies and helps everyday people — not just existing cat lovers — understand what's happening with the cats near them, and what to do about it. It's a bilingual (Portuguese/English) web app centered on Natal, RN, Brazil: an interactive map of real colonies, a step-by-step emergency help flow that needs no account, a 19-article educational guide, a community reporting system, and a full caretaker toolkit for the people who already feed and manage these colonies every day.
 
-The platform is built for the neighbor with a conflict, the curious passerby, and the person who wants to help but doesn't know how. We talk to neighbors before they become guardians — without asking them to love cats first.
+**Built for [Hack the Kitty 2026](https://hackthekitty.com)**
+**Repository:** https://github.com/luarawork/felines
+**Live demo:** not yet deployed — see [Live Demo](#live-demo) below for why, and [Getting Started](#getting-started) to run it locally in a few minutes.
 
-**Built for [Hack the Kitty 2026](https://hackthekitty.com)** (June 24 – July 7, 2026)
+---
+
+## Table of Contents
+
+- [The Problem](#the-problem)
+- [Live Demo](#live-demo)
+- [Features](#features)
+- [Tech Stack](#tech-stack)
+- [Architecture](#architecture)
+- [Security](#security)
+- [Testing](#testing)
+- [Getting Started](#getting-started)
+- [Project Structure](#project-structure)
+- [How AI Was Used](#how-ai-was-used)
+- [Impact Data](#impact-data)
+- [Roadmap](#roadmap)
+- [License](#license)
+- [Acknowledgments](#acknowledgments)
 
 ---
 
 ## The Problem
 
-There are an estimated 480 million stray cats worldwide, and more than 10 million in Brazil alone. Shelters and NGOs are already over capacity — roughly 185,000 animals are living in institutions with no more room to take in another one. Removal-based "solutions" don't work either: decades of attempts across different cities show that an emptied territory gets reoccupied within months, usually by a less stable, not-yet-castrated group.
+There are an estimated 480 million stray cats worldwide, and more than 10 million in Brazil alone. Shelters and NGOs are already past capacity — roughly 185,000 animals are living in institutions with no room to take in another one — and removal-based "solutions" don't work either: decades of attempts across different cities show an emptied territory gets reoccupied within months, usually by a less stable, not-yet-castrated group. The World Health Organization's own guidance is TNR (Trap-Neuter-Return), not removal, for exactly this reason.
 
-Most of the friction isn't really about the cats — it's about information. Nearly 40% of people report having had a conflict with a neighbor involving animals, and a lot of that comes down to not knowing why the cats are there, who (if anyone) is already caring for them, or that castration — not removal — is the method that actually works long-term.
+Every cat-welfare platform we looked at talks to people who already care: established caretakers, donors, adopters. That leaves out the much larger group that matters just as much — the neighbor annoyed by the smell on their street, the passerby who found a kitten and panicked, the person who saw something concerning and didn't know if it was worth reporting. Nearly 40% of Brazilians report having had a conflict with a neighbor involving animals, and a lot of that friction comes down to not knowing why the cats are there, who (if anyone) is already caring for them, or that castration — not removal — is what actually works. Caretakers, meanwhile, often work alone and invisibly, with no way for a worried neighbor to even find out they exist.
 
-Every cat-welfare platform we looked at talks to people who already care: established caretakers, donors, adopters. That leaves out the much larger group that matters just as much — the person annoyed by the smell on their street, the one who found a kitten and panicked, the one who saw something concerning and didn't know if it was worth reporting. Caretakers, meanwhile, often work alone and invisibly, with no way for a worried neighbor to even find out they exist.
-
-Felines is built for that gap. It doesn't require buying into "cat person" identity to be useful — it just asks: what's happening near you, and what's the smallest useful thing you can do about it right now?
+Felines is built for that gap. It doesn't require buying into a "cat person" identity to be useful — it asks a much smaller question: what's happening near you, right now, and what's the smallest useful thing you can do about it?
 
 ---
 
 ## Live Demo
 
-Not yet deployed to a public URL — deployment to Netlify is part of the post-hackathon roadmap (see below). In the meantime, the platform runs locally in a few minutes; see [Getting Started](#getting-started).
+**This project is not deployed to a public URL as of this submission**, and there is no seeded demo account. Both are listed in the [Roadmap](#roadmap) as the immediate next steps after the hackathon. This section explains what a judge would see either way, so the README stands on its own without requiring a running instance.
 
-There is no seeded demo account at this time. Every feature below is reachable by creating a free account through `/signup`, or — for most of the map, the educational guide, and the emergency help flow — with no account at all.
+The app runs locally in a few minutes with a free Supabase project and a free OpenWeatherMap key — see [Getting Started](#getting-started) for the exact steps.
 
-**Without an account, you can:**
-- Browse the interactive map, with colony pins shown at a privacy-protecting blurred location
-- Read the entire 18-article educational guide
-- Open the "Preciso de ajuda" (Need help) emergency assistant and get situation-specific guidance
-- Submit most report types (sightings, injured/sick cats, suspected abuse, disease outbreaks)
-- View any colony's public page and any caretaker's public profile
-- Flag a colony, report, or profile you believe is fake or harmful
+### What's reachable without any account
 
-**With an account, you additionally can:**
-- Register a new colony on the map (with a required photo and exact pin placement)
-- Link yourself as a caretaker of any mapped colony — or step down later
-- Log feedings and water check-ins, add named cats, and write a letter for the next caretaker
-- See the colony's exact location instead of the blurred approximation
-- Confirm or resolve community reports, and report a lost cat
-- Track your reading progress, take the "what kind of neighbor are you" quiz, and see your full contribution history
-- Receive notifications for extreme weather and cats that haven't been seen in a while
+- Browse the interactive colony map, with pins shown at a privacy-protecting blurred location (see [Progressive Location Blur](#progressive-location-blur))
+- Open any colony's public page — cover photo, narrative, cats, timeline, needs
+- Read the full 19-article educational guide, the 36-term glossary, and the toxic-plants reference
+- Open "Preciso de ajuda" (Need help) — a 2-step emergency assistant covering 9 situation types, no login wall
+- Submit most report types (sightings, injured/sick cats, suspected poisoning, abuse, disease outbreaks) — an account requirement would defeat the point during an actual emergency
+- View any caretaker's public profile, the community stories wall, the resource-exchange board, and the local contacts directory (14 real, verified contacts for Natal, RN)
+- View the public `/impact` page with live platform-wide statistics
+- Take the neighborhood diagnosis quiz to figure out what's likely going on with cats near you
+- Switch the entire UI between Portuguese and English at any time
+
+### What requires an account
+
+- Register a new colony on the map, or link yourself as a caretaker of an existing one
+- Log feedings/water check-ins, add named cats, write a caretaker's letter, set up recurring care reminders
+- See a colony's exact location instead of the blurred approximation ([why](#progressive-location-blur))
+- Confirm or manually resolve community reports; report a lost cat
+- Post to the community stories wall or the resource-exchange board
+- Track reading progress through the educational guide and take the "what kind of neighbor are you" personalization quiz
+- View your full contribution history and receive notifications (extreme weather for your colonies, a cat unseen for 7+ days, someone thanking one of your actions)
 
 ---
 
@@ -51,56 +73,66 @@ There is no seeded demo account at this time. Every feature below is reachable b
 
 ### 🗺️ Interactive Colony Map
 
-Built on Leaflet.js (`react-leaflet`), the `/map` page renders three kinds of pins — colonies (terracotta), sightings (gray), and emergencies (red, pulsing) — over an OpenStreetMap tile layer. Visitors can search colonies by name, toggle pin types and castration-status filters, and a persistent activity panel lists everything currently visible on screen, updating live as the map is panned or zoomed. Signed-in users can additionally turn on a heat-map overlay that highlights colonies likely needing attention (an open report and/or no feeding logged in 7+ days). A weather banner in the corner reflects the conditions at the map's current center, refetching as it moves.
+Built on Leaflet.js (`react-leaflet`) over OpenStreetMap tiles, `/map` renders three kinds of pins — colonies (terracotta), sightings (gray), and emergencies (red, pulsing) — with clustering at low zoom levels so dense areas stay readable. Visitors can search colonies by name and filter by pin type and castration status. A persistent activity panel lists everything currently visible, updating live as the map is panned or zoomed. A weather banner reflects real conditions at the map's current center (not a fixed city), refetching as the map moves. Anonymous visitors who suspect a pin is fake or nonexistent can flag it — a colony accumulating enough false-pin flags is visually marked as disputed.
 
 ### 🔒 Progressive Location Blur
 
-Exact colony coordinates are never exposed to a direct database query — they're protected at three levels, escalating with trust:
+The platform's most important security *and* UX decision — protecting the cats themselves, not just data:
 
-- **Level 1 (anonymous visitors):** a wide blurred offset (roughly ±0.005°, about 500m) with a visible uncertainty circle, computed once at registration time and stored in `latitude_blurred`/`longitude_blurred`.
-- **Level 2 (signed-in, non-caretaker):** a closer blurred offset (roughly ±0.001°, about 100m), stored in `latitude_blurred_near`/`longitude_blurred_near`.
-- **Level 3 (linked caretaker or the colony's creator):** the real, exact coordinates — but only ever returned by `get_colony_exact_location()`, a `SECURITY DEFINER` Postgres function that re-validates the caretaker link against the database on every call. No client query, cached value, or role grant can read the `latitude`/`longitude` columns directly — table-level `SELECT` on those two columns is revoked from both `anon` and `authenticated`.
+- **Level 1 (anonymous):** ~500m blur offset, shown as a visible uncertainty circle — enough to see "there's a colony in this neighborhood," never enough to find a specific address.
+- **Level 2 (signed in, not yet a caretaker):** ~100m blur offset — an account is a small trust signal, but not enough to hand out a precise address before someone's shown any actual commitment.
+- **Level 3 (linked caretaker or the colony's creator):** exact coordinates, returned only by a server-side function that re-checks the caretaker relationship against the database on every single call — never from a cached client flag.
 
-This exists for one reason: exact coordinates in the wrong hands could be used to find and harm the cats. A small lock badge appears over blurred pins so visitors understand what they're looking at is an approximate area, not a precise address.
-
-### 📚 Educational Guide
-
-18 short articles organized into 5 thematic levels (from "what even is a colony" to "what nobody tells you before becoming a caretaker"), merged into the home page as a sequence of alternating light/dark sections rather than a single long list. Each article tracks estimated reading time, shows a couple of sourced fact chips, and links to related articles at the end. Reading progress is saved per signed-in user (`knowledge_progress`), shown as a progress bar and a row of unlocked article badges on `/profile`. After reading at least 3 articles, a 3-question personalization quiz unlocks, sorting the reader into one of three "neighbor profiles" (Observer, Backup, Guardian) with a suggested first action — there's no wrong answer, it's about framing a next step, not scoring.
+Exact coordinates are never reachable through a direct table query, for any role — see [Security](#security) for the mechanism. The reasoning: exact coordinates in the wrong hands could be used to find and harm the cats living there.
 
 ### 🏘️ Colony Pages
 
-Each colony (`/colony/[id]`) has a full-bleed cover photo, a narrative description, and a castration-status badge that automatically reflects the actual registered cats once there are any (e.g. "3 de 5 gatos castrados") instead of just the manually-set status from registration. Any number of caretakers can be linked to the same colony, shown as a row of avatar + name, each linking to their public profile. The page is organized into three tabs:
+Each colony has a cover photo (with photo history preserved in the timeline instead of just being overwritten), a narrative description, and a castration-status badge that's automatically calculated from the actual registered cats, not a manually-set flag. Any number of caretakers can link to the same colony, each shown with their avatar and a link to their public profile. The page organizes into tabs:
 
-- **Gatos** — named cats with photos, castration toggle, and a "last seen" timestamp; a cat unseen for 7+ days gets a visible nudge ("does anyone know if he's okay?") and triggers a notification to caretakers.
-- **Linha do tempo** — a collective, chronological history of everything that's happened: feedings, water check-ins, new cats, castration rounds, edits to the colony's info, cover-photo changes (the previous photo is preserved as a timeline entry instead of just disappearing), and more. Each entry shows who did it, links to their public profile, and can be hearted (❤️) by any signed-in visitor to thank that specific action — which notifies whoever did it.
-- **Necessidades** — castration progress, active help/neutering requests, and **recurring care reminders** (feeding, water, health checks, or a custom task) that a caretaker can set up with a repeat interval in days; each shows an overdue/due-today/due-in-N-days badge computed from `last_done_at + frequency_days`, and any linked caretaker can mark one done. Scoped to caretakers/creator only via RLS — this is a private planning tool, not a public-facing section.
-- **Carta de quem cuidou antes** — a letter caretakers leave for whoever comes next, with full version history.
+- **Cats** — named cats with photos and a castration toggle; a cat unseen for 7+ days gets a visible nudge and triggers a caretaker notification.
+- **Timeline** — a chronological log of everything that's happened: feedings, water check-ins, new cats, castration rounds, edits to the colony's info, cover-photo changes, and automatic climate-event entries from the weather integration. Every entry can be hearted (❤️) to thank whoever did it.
+- **Needs** — castration progress, active help/neutering requests, and recurring care reminders (feeding, water, health checks, or a custom task) with a repeat interval and an overdue/due-today/due-in-N-days badge.
+- **Reports** — reports filed specifically against this colony.
+- **Letter** — a message caretakers leave for whoever comes next, with full version history.
+- **Edit** — an edit-history log of changes made to the colony's core info.
 
-A weather banner (now labeled with the actual place name, e.g. "Natal, 28°C, few clouds"), a rotating fact chip about street cats in general, a thank-you button per caretaker, and a "Sinalizar" (flag) link for reporting fake or harmful colony pages round out the page.
+A colony becomes community-verified once it accumulates 3 independent confirmations. A "Sinalizar" (flag) action lets anyone report a colony page as fake or harmful.
+
+### 📚 Educational Guide
+
+19 short articles across 5 progressive thematic levels (from "what even is a colony" to "what nobody tells you before becoming a caretaker"), each with a reading progress bar, at least two sourced fact chips, and links to related articles at the end. Reading progress is saved per signed-in user and shown on `/profile`. After reading at least 3 articles, a 3-question personalization quiz unlocks (distinct from the neighborhood diagnosis quiz below), sorting the reader into one of three "neighbor profiles" — Observer, Backup, or Guardian — with a suggested first action. There are no wrong answers; it's about framing a next step, not scoring. The guide is complemented by a 36-term bilingual glossary, a toxic-plants reference for cat owners, and a short caretaker course at `/curso`.
 
 ### 🚨 Emergency Help Flow
 
-The "Preciso de ajuda" button, available from the navbar on every page, opens a global modal (not a separate route) with a 2-step assistant: pick what's happening from 8 situations (injured/sick cat, lone kitten, suspected poisoning/abuse, disease outbreak, building conflict, missing cat, threat to the colony, or something else), then mark where on a map. Each situation shows tailored, plain-language guidance and, when relevant, a specific alert with real local resources — the Disque Denúncia hotline (181), Lei 9.605/98 (Brazil's animal-abuse law), or the municipal zoonosis control center, depending on the situation. Most situations let you submit a report directly from the flow without an account; reporting a missing cat requires one, since the whole point is letting a finder reach the owner.
+"Preciso de ajuda," available from the navbar on every page, opens a global modal (not a separate route) with a 2-step assistant: pick what's happening from 9 situations — a cat you've spotted, an injured/sick cat, a lone kitten, a building conflict, suspected poisoning or abuse, a disease outbreak, a missing cat, a threat to a whole colony, or something else — then mark the location on a map. Each situation shows tailored, plain-language guidance and, where relevant, a specific alert pointing to real local resources: the Disque Denúncia hotline (181), Lei 9.605/98 (Brazil's animal-abuse law), CIOSP emergency (190), or the municipal zoonosis control center (CCZ). Most situations let you submit a report directly from the flow without an account; a missing cat requires one, since the whole point is letting a finder reach the owner.
 
 ### 📋 Community Reports
 
-`/reports` lists open community reports, filterable by type across all 9 categories (no food/water, injured/sick, new kitten, missing cat, suspected poisoning, suspected abuse, disease outbreak, threat to colony, sighting). Anyone can submit one — accounts aren't required, since waiting for a signup would defeat the point during an emergency — but viewing the list and confirming/resolving requires being signed in. A report resolves automatically once 3 different community members confirm it (`confirm_report()`, an atomic RPC that also blocks a report's own creator from confirming it themselves and prevents the same person from confirming twice). "Sensitive" reports (suspected poisoning, abuse, or disease outbreak) are flagged automatically by a database trigger and always leave a permanent timeline entry when resolved — they're never silently deleted. A linked caretaker can also resolve a report on their colony manually. Every report shows who filed it (or "Relato anônimo" if filed without an account), linked to their public profile.
+`/reports` lists open community reports across 9 categories (no food/water, injured/sick, new kitten, missing cat, suspected poisoning, suspected abuse, disease outbreak, threat to colony, sighting). Anyone can submit most types without an account — an emergency shouldn't wait on a signup — but viewing the list and confirming/resolving requires signing in. A report auto-resolves once 3 different community members confirm it, via an atomic database function that also blocks a report's own creator from confirming it and prevents the same person confirming twice. Reports about suspected poisoning, abuse, or disease outbreaks are automatically flagged as "sensitive" by a database trigger and always leave a permanent timeline entry when resolved — they're never silently deleted, since that history matters to whoever considers caretaking that colony later. Submissions are rate-limited (10/hour for anonymous callers, 30/hour for authenticated ones) to curb abuse of the no-account path.
+
+### 🤝 Community Features
+
+`/reports` is actually a 4-tab hub — **Relatos** (reports, above), **Troca de recursos** (a resource-exchange board where anyone can offer or request supplies, transport, medication, or volunteer time), **Contatos** (a curated directory of 14 real, verified contacts in Natal, RN — veterinary hospitals, NGOs, the environmental police, and official reporting hotlines), and **Histórias** (a public wall where linked caretakers share moments from their colonies, with reactions from any signed-in visitor). `/contacts` and `/stories` also work as standalone deep links to the same content.
 
 ### 🌡️ Weather Integration
 
-A weather banner (OpenWeatherMap) shows the current conditions and a care alert for extreme heat or heavy rain, since both directly affect food/water availability and shelter needs for street cats. It reflects real coordinates — a colony's own location on its detail page, or the map's current visible center on `/map`, refetching as the map is panned — rather than a single fixed city.
+A weather banner (OpenWeatherMap) shows current conditions and a care alert for extreme heat or heavy rain, since both directly affect food/water availability and shelter needs for street cats. It always uses real coordinates — a colony's own location on its detail page, or the map's current visible center on `/map` — never a single hardcoded city, and extreme readings are logged as automatic climate events in the relevant colony's timeline.
 
-### 👤 User Profiles and Caretaker System
+### 👤 User Profiles & Caretaker System
 
-`/profile` shows a signed-in user's avatar, display name, the colonies they created or linked to as a caretaker, a knowledge-guide progress bar, and a unified "Sua jornada" timeline merging every contribution into one chronological feed: colonies registered, becoming a caretaker, feedings logged, reports filed, confirmations given, and thanks sent or received. Anyone — signed in or not — can view a caretaker's public profile at `/u/[id]`, showing their colonies, the reports they've filed, and the confirmations they've given (type/status/date only, never private details). Registering a new colony automatically links its creator as a caretaker; becoming or stepping down from caretaking updates access to the colony's management controls immediately, without a page reload, via a shared `ColonyAccessProvider` context.
+`/profile` shows a signed-in user's colonies, a knowledge-guide progress bar, a personal care streak, an earned badge set, and a unified contribution timeline merging colonies registered, caretaking links, feedings logged, reports filed, confirmations given, and thanks sent or received. Anyone — signed in or not — can view a caretaker's public profile at `/u/[id]`. Registering a colony automatically links its creator as a caretaker; linking or stepping down updates access to management controls immediately, without a reload.
 
-### 🔔 Notifications
+### 🔔 Notifications & Care Reminders
 
-A bell icon in the navbar (with an unread badge) leads to `/notifications`. Two kinds of alerts are generated automatically when a signed-in caretaker loads any page: extreme weather (below 10°C or above 32°C) for any colony they care for, and a cat that hasn't been marked "seen" in 7+ days. A third type fires whenever someone hearts one of your timeline actions. All three are deduplicated (at most one per colony/cat/day) by checking for an existing row before inserting a new one — there's no backend cron in this stack, so the check runs client-side on page load instead.
+A bell icon with an unread badge leads to `/notifications`. Alerts fire for extreme weather affecting a caretaker's colonies, a cat unseen for 7+ days, and someone hearting one of your timeline actions — each deduplicated so the same alert doesn't repeat. Caretakers can also set up recurring care reminders per colony (feeding, water, health checks, or a custom task) with their own overdue/due-today tracking.
 
-### 🎯 Onboarding
+### 🌍 Bilingual Support (PT/EN)
 
-First-time visitors to the home page see a one-time dismissible banner explaining what the platform does (remembered via `localStorage`, never shown again afterward). The first time anyone clicks a blurred colony circle on the map, a one-time tooltip explains why the pin looks fuzzy instead of precise. Anonymous visitors filling out a report see a contextual notice that an account isn't required for that action; visitors hitting an account-gated action see a notice explaining why an account helps, with direct links to `/signup` and `/login` instead of a silent redirect.
+The entire interface — navigation, all 19 articles, the 36-term glossary, every form, every modal — exists in full Portuguese and English, switchable at any time from the navbar, with the preference remembered and the page's `lang` attribute updated to match. This isn't a machine translation layer bolted on top; every piece of content has a human-reviewed English counterpart.
+
+### 🐱 Cat Assistant
+
+A small floating cat character with a looping video appears contextually at key moments in the visitor's journey — first-ever visit, being idle on the home page or on `/reports`, finishing an article, registering a first colony, viewing an empty map area, or completing the neighborhood quiz — and shares one of 8 real cat facts (not platform data) in a speech bubble. It respects a 15-minute cooldown between appearances, never interrupts an open modal or active typing, and honors `prefers-reduced-motion` with a static, non-animated fallback.
 
 ---
 
@@ -108,142 +140,150 @@ First-time visitors to the home page see a one-time dismissible banner explainin
 
 | Layer | Technology | Why |
 |---|---|---|
-| Frontend | Next.js 16 (App Router, Turbopack) + TypeScript | Server components keep data-fetching close to the database for public pages (colony, profile, reports list), while client components handle the genuinely interactive parts (map, forms, modals) |
+| Frontend | Next.js 16 (App Router, Turbopack) + TypeScript + React 19 | Server components keep data-fetching close to the database for public pages; client components handle the genuinely interactive parts (map, forms, modals) |
 | Styling | Tailwind CSS v4 (CSS-based `@theme`, no JS config file) | Fast iteration on a custom editorial design system without leaving the markup |
-| Map | Leaflet.js + react-leaflet | Open source, no API key or usage quota, full control over custom pin styling and the blur-circle overlay |
-| Database | Supabase (PostgreSQL) | Row Level Security lets sensitive rules (location blur, report visibility, who can edit what) live in the database itself, not just in application code |
-| Auth | Supabase Auth | Email/password auth wired directly into Postgres' `auth.users`, so every RLS policy can reference `auth.uid()` |
-| Storage | Supabase Storage | One bucket (`colony-photos`) for every uploaded image — colony covers, cat photos, avatars, timeline and report photos — with server-side size/MIME enforcement |
+| Map | Leaflet.js + `react-leaflet` + `react-leaflet-cluster` | Open source, no API key or usage quota, full control over custom pin styling, the blur-circle overlay, and marker clustering |
+| Database | Supabase (PostgreSQL) | Row Level Security lets sensitive rules — location blur, report visibility, who can edit what — live in the database itself, not just application code |
+| Auth | Supabase Auth | Email/password wired directly into Postgres' `auth.users`, so every RLS policy can reference `auth.uid()` |
+| Storage | Supabase Storage | One bucket for every uploaded image — colony covers, cat photos, avatars, timeline and report photos — with server-side size/MIME enforcement |
 | Weather | OpenWeatherMap API | Free tier, simple REST call, good enough granularity for a "should I worry about my cats today" banner |
-| Deploy | Netlify (planned) | Native Next.js support, generous free tier for a hackathon project |
+| Geocoding | Nominatim (OpenStreetMap) | Free, no API key, used for reverse-geocoding a colony's city name |
 
 ---
 
-## Security Architecture
+## Architecture
 
-This section exists to show the reasoning, not just the mechanism — every
-control below was a deliberate design decision, made when the relevant
-feature was built, not a hardening pass bolted on afterward. (A full audit
-of the *whole* codebase against this design, including what it found, lives
-in [`AUDIT_REPORT.md`](AUDIT_REPORT.md).)
+```
+Browser
+  │
+  ├─→ Next.js 16 App Router (server components fetch public data directly;
+  │    client components handle the map, forms, and modals)
+  │
+  ├─→ Supabase
+  │     ├─ PostgreSQL — 25 tables, Row Level Security enabled on all of them
+  │     ├─ 24 server-side (SECURITY DEFINER) functions for anything a row
+  │     │   policy alone can't express safely — see Security below
+  │     ├─ Auth — email/password, backs every RLS policy via auth.uid()
+  │     └─ Storage — one bucket, server-enforced size/MIME limits
+  │
+  ├─→ Leaflet.js + OpenStreetMap tiles (map rendering)
+  ├─→ OpenWeatherMap API (weather banner)
+  └─→ Nominatim / OpenStreetMap (reverse geocoding)
+```
 
-### Progressive Location Blur
+There is no custom backend server — every write and read goes through Supabase's auto-generated REST API and RPC endpoints, gated entirely by RLS policies and the security-definer functions described below. The Next.js layer never holds a service-role key or bypasses RLS; it uses the same public anon key a browser would.
 
-**Why this exists at all:** a colony's exact coordinates in the wrong hands
-could be used to find and harm the cats living there. The threat isn't
-"someone sees the map" — it's "someone who wants to hurt animals gets a
-precise address." That risk scales with how much the app can verify about
-who's asking, so the response is a **three-tier trust ladder** instead of a
-single all-or-nothing setting:
+**Database migrations:** 75 numbered SQL files in `supabase/migrations/`, applied in order, spanning the initial schema through the most recent security-grant fix. Each migration is a single, reviewed, incremental change — nothing here was ever run outside of that sequence.
 
-| Tier | Who | What they get | Column(s) | Why this tier gets this much |
-|---|---|---|---|---|
-| 1 | Anonymous visitor | ~500m blur radius, shown as a visible uncertainty circle (not a precise pin) | `latitude_blurred` / `longitude_blurred` | Enough to see "there's a colony in this neighborhood" — the whole point of the public map — without ever narrowing down to a specific building or lot |
-| 2 | Signed-in, not yet a caretaker | ~100m blur radius | `latitude_blurred_near` / `longitude_blurred_near` | An account is a small trust signal (traceable, rate-limited by Supabase Auth itself) but not enough to hand someone an exact address before they've shown any actual commitment to that colony |
-| 3 | Linked caretaker or the colony's creator | Exact coordinates | `latitude` / `longitude`, **never via a direct column grant** | The person actually feeding/managing this colony needs the real address to get there |
+---
 
-The property that makes this actually enforceable, not just a UI
-convention: `latitude`/`longitude` are **revoked from every role at the
-grant level**, not merely hidden by a row policy —
-[`revoke select (latitude, longitude) on colonies from anon, authenticated`](supabase/migrations/0016_progressive_location_blur.sql).
-That means even a signed-in caretaker's own browser can't fetch those two
-columns directly (`supabase.from("colonies").select("latitude")` fails
-regardless of who's asking); the *only* path to the exact value is
-[`get_colony_exact_location(p_colony_id)`](supabase/migrations/0001_init.sql),
-a `SECURITY DEFINER` function that re-checks the caretaker/creator
-relationship **against the database, on every call** — never from a cached
-session flag, a client-side "isCaretaker" boolean, or anything the client
-could tamper with. The identical pattern (blurred columns for lower tiers,
-a grant-revoked exact column, an RPC gate) was reused for
-[`reports.latitude`/`longitude`](supabase/migrations/0040_blur_report_coordinates.sql)
-once it became clear a report's exact location could otherwise leak a
-colony's near-exact position through its own open reports.
+## Security
 
-A small lock badge appears over blurred pins on the map specifically so a
-visitor understands what they're looking at is an approximate area, not
-imprecise data — the ambiguity is intentional, and the UI says so.
+Security here means two distinct things: protecting user data (standard practice), and protecting the cats themselves from anyone using the platform's own data against them. Every control below was a deliberate design decision made when the relevant feature was built, then verified — and in some cases corrected — during a dedicated security review before submission. Full technical detail lives in [`AUDIT_REPORT.md`](AUDIT_REPORT.md); this section is the summary a judge doesn't need to run code to evaluate.
 
-### Row Level Security (RLS), by table
+### Progressive Location Blur — the mechanism
 
-Every application table has RLS enabled — there is no table anywhere in
-this schema with a permissive "allow everything" policy, and the design
-default for a new table is "start from zero access, grant back exactly
-what's needed," not the reverse. The reasoning per table, not just the rule:
+The property that makes the three-tier system in [Features](#progressive-location-blur) actually enforceable, not just a UI convention: the database revokes `SELECT` on the exact `latitude`/`longitude` columns from **every** role except the function that's allowed to read them —
+
+```sql
+revoke select (latitude, longitude) on colonies from anon, authenticated;
+```
+
+That means even a signed-in caretaker's own browser cannot fetch those two columns directly; the *only* path to the real value is `get_colony_exact_location(p_colony_id)`, a `SECURITY DEFINER` function that re-checks the caretaker/creator relationship against the database on every call — never a cached session flag or a client-side boolean the browser could tamper with. The identical column-vs-function pattern is reused for `reports.latitude`/`longitude`, since a report's exact location could otherwise leak a colony's near-exact position through its own open reports.
+
+### Row Level Security, by table
+
+All 25 application tables have RLS enabled; the design default for a new table is "start from zero access, grant back exactly what's needed." A few representative examples:
 
 | Table | Public can | Requires auth | Why |
 |---|---|---|---|
-| [`colonies`](supabase/migrations/0001_init.sql) | Read name/narrative/blurred coordinates/castration status | Insert, update (creator/caretaker only) | The map is meant to be publicly browsable — that's the product. Writes need an identity to attribute the change to. |
-| [`reports`](supabase/migrations/0024_public_report_pins.sql) | Insert (no account needed) | Read full rows, update/resolve | Emergencies (a poisoned cat, active abuse) can't wait for someone to create an account first — but browsing the list and resolving reports is gated so it isn't a fully open read/write surface. |
-| [`caretakers`](supabase/migrations/0001_init.sql) | Read | Insert own link, delete own link only | "Who cares for this colony" is meant to build public trust, so it's readable by anyone; only the caretaker themselves can step down — another caretaker can't remove someone else. |
-| [`knowledge_progress`](supabase/migrations/0001_init.sql) | Nothing | Read/write own rows only | Reading progress is personal — there's no reason another user, or the public, should see which articles you've read. |
-| [`profiles`](supabase/migrations/0066_restrict_streak_columns_to_owner.sql) | Read `id`/`display_name`/`avatar_url`/`created_at` | Own streak fields via `get_own_streak()` RPC only | Display name/avatar are the public-facing identity; care-streak numbers are a private motivational signal, never a leaderboard. |
-| Storage (`colony-photos` bucket) | Read | Insert (size/MIME enforced server-side) | Public photos need public read; uploads need an account, and the 5MB/image-MIME limit is enforced [at the bucket level](supabase/migrations/0026_storage_bucket_limits.sql), not just client-side, since a client-only check is trivially bypassed with a real access token and a raw HTTP request. |
+| `colonies` | Read name/narrative/blurred coordinates/castration status | Insert, update (creator/caretaker only) | The map is meant to be publicly browsable — that's the product. Writes need an identity to attribute the change to. |
+| `reports` | Insert (no account needed) | Read full rows, update/resolve | An active emergency can't wait for a signup — but browsing and resolving is gated so it isn't a fully open surface. |
+| `caretakers` | Read | Insert own link, delete own link only | "Who cares for this colony" builds public trust, so it's readable by anyone; only the caretaker themselves can step down. |
+| `profiles` | Read `id`/`display_name`/`avatar_url`/`created_at` | Own care-streak fields, only via a dedicated RPC | Display name/avatar are the public identity; streak numbers are a private motivational signal, never a leaderboard — this was a real gap found and fixed, see below. |
 
 ### Why RPCs use `SECURITY DEFINER`
 
-A Postgres function needs `SECURITY DEFINER` when it has to do something
-the *calling* role's own grants wouldn't allow on their own — in this
-codebase, that's always one of two shapes:
+A Postgres function needs `SECURITY DEFINER` only when it has to do something the calling role's own grants wouldn't allow on their own. In this codebase that's always one of two shapes: (1) writing a row that belongs to someone else — notifying a caretaker, thanking someone's action — where the caller's own RLS grant on that table doesn't (and shouldn't) permit it directly; or (2) authorization logic a row policy can't express, like `get_colony_exact_location` needing to check "is this specific caller a caretaker of this specific colony" and return different data based on the answer, or `confirm_report` needing an atomic counter increment plus a self-confirm guard plus an auto-resolve check as one transaction. The pattern to watch for — and the one that produced every real finding below — is a `SECURITY DEFINER` function accepting unvalidated caller input that ends up somewhere another user will see it.
 
-1. **Writing a row that belongs to someone else** — notifying another
-   user means inserting into *their* `notifications` row, which the
-   caller's own RLS grant on that table doesn't (and shouldn't) permit
-   directly. Examples: `notify_caretakers`, `notify_followers`,
-   `thank_action`, `respond_to_help_request`, `respond_to_resource_post`.
-2. **Authorization logic a row policy can't express** — `get_colony_exact_location`
-   needs to check "is this caller a caretaker of *this specific* colony"
-   and return different data based on the answer, which is a function's
-   job, not a `SELECT ... WHERE` policy's; `confirm_report` needs an
-   atomic counter increment plus a self-confirm guard plus an auto-resolve
-   check, all as one transaction.
+### Vulnerabilities found and fixed
 
-The security property that actually matters for each of these: **what can
-the caller control, and where does it end up?** A `SECURITY DEFINER`
-function that just bypasses a check on the caller's *own* data is low
-risk. One that accepts caller-supplied content and writes it somewhere
-another user will see it is where real bugs live — see
-[`AUDIT_REPORT.md §2.1`](AUDIT_REPORT.md#21-notify_caretakersnotify_nearby_caretakers--message-injection-via-direct-rpc-call-fixed-applied)
-for the one place this codebase actually got that wrong (since fixed).
+Two issues were reported by [Aikido Security](https://www.aikido.dev/)'s automated scanning during development and fixed the same day:
 
-### Rate Limiting
+**Path Traversal (HIGH severity).** File uploads across 6 different upload sites (colony photos, cat photos, avatars, timeline photos, story photos, and the new-colony form) were building storage paths from user-influenced input without sanitization. Fixed by centralizing path construction in `lib/storage.ts` — `buildSafeStoragePath()` strips `..` sequences and non-safe characters and generates the filename from a UUID plus a validated extension, never the original filename, and `assertSafeStoragePath()` is called again immediately before every single `.upload()` call site as defense-in-depth. Commit: `security: fix path traversal vulnerability in file uploads — Aikido report`.
 
-[`lib/rateLimit.ts`](lib/rateLimit.ts) — an in-memory sliding-window limiter
-(10 requests/hour for anonymous callers, 30/hour for authenticated, keyed
-by IP or user id) — guards `/api/reports` specifically, since that's the
-one write path reachable by someone with no account at all. Every other
-user-generated-content path (contacts, stories, resource posts, flags)
-already requires authentication, which changes the abuse math from "free
-and untraceable" to "tied to a real account" — a meaningfully higher cost
-even without a per-endpoint limit, though extending rate limiting to those
-paths too remains on the backlog (see [`AUDIT_REPORT.md §2.9`](AUDIT_REPORT.md#29-rate-limiting)).
+**SSRF in Geocoding (LOW severity).** The reverse-geocoding call to Nominatim was interpolating latitude/longitude directly into a URL string with no validation. Fixed with `lib/validateCoordinates.ts` (rejects out-of-range or non-finite coordinates before any request is built), `URLSearchParams` instead of string interpolation, and `redirect: "error"` on the fetch so a malicious redirect can't be followed silently. While fixing this, the identical unvalidated pattern was also found in the weather-fetch helper — outside Aikido's original report — and fixed the same way. Commit: `security: fix SSRF vulnerability in geocoding requests — Aikido report`.
 
-### Report Integrity
+A third, unrelated finding — CVE-2026-41305, a PostCSS AST-stringification issue nested inside `next`'s own transitive dependencies — was resolved via an `npm` `overrides` entry forcing a single patched version across the dependency tree, verified with a clean `npm audit`.
 
-A report needs 3 confirmations from 3 *different* people to auto-resolve — enforced by a unique constraint on `(report_id, user_id)` in `report_confirmations`, so the same account can't inflate the count by clicking repeatedly. The report's own creator is blocked from confirming it, both client-side (the button doesn't render for them) and server-side (`confirm_report()` checks `created_by` before recording anything). Sensitive report types (suspected poisoning, suspected abuse, disease outbreak) are marked automatically by a trigger and always leave a permanent timeline trace when resolved, whether that happens via the 3-confirmation threshold or a caretaker's manual resolve. This is deliberate, not incidental: a poisoning incident from months ago is relevant context for a new caretaker deciding whether to link themselves to that colony, in a way a routine feeding log isn't — so the record of "this happened" never disappears, even after the report itself is marked resolved. See [`AUDIT_REPORT.md §2.7`](AUDIT_REPORT.md#27-why-sensitive-reports-stay-permanent-in-the-timeline) for the full reasoning.
+### Additional gaps found during the pre-submission security review
 
-### Security Headers
+A dedicated review — live-testing every RLS policy and RPC with the real public anon key, not just reading the code — found and fixed several gaps beyond the Aikido reports:
 
-`next.config.ts` sets `X-Frame-Options: DENY` (clickjacking protection), `X-Content-Type-Options: nosniff` (MIME-sniffing protection), `Referrer-Policy: strict-origin-when-cross-origin`, a `Permissions-Policy` restricting camera/microphone entirely and geolocation to same-origin, and a `Content-Security-Policy` scoped to the app's actual external origins (Supabase, OpenStreetMap tiles, OpenWeatherMap, Nominatim) — nothing else is allowed to load or connect.
+- **`profiles.current_streak`/`longest_streak`/`last_action_date` were publicly readable by anyone**, despite an existing code comment stating streaks are "never exposed on a public profile." A row policy allowing `select` on `profiles` doesn't restrict *which columns* are readable — column-level grants do. Fixed by revoking table-wide `SELECT` and granting back only the genuinely public columns, with streak data now readable exclusively through a `get_own_streak()` RPC scoped to `auth.uid() = id`.
+- **`notify_caretakers`/`notify_nearby_caretakers` accepted arbitrary free text from the caller** and inserted it verbatim into another user's notifications — reachable directly via the public REST RPC endpoint with the anon key, bypassing the app's UI entirely. Fixed by removing the free-text parameter; the function now selects from a small set of fixed, server-built message templates.
+- **`thank_action()` had no self-thank guard**, unlike the equivalent, already-guarded `confirm_report()`. Fixed to no-op if the caller authored the action being thanked.
+- **A live-tested RPC (`record_daily_visit`) was still callable by the anonymous key** even though its migration file said otherwise — the deployed database had drifted from the migration history. Found via direct `curl` testing against the real Supabase REST endpoint with the anon key, fixed with a follow-up migration re-asserting the correct grant, and re-verified live afterward.
+- Several tables (`colonies.narrative`, `cats.name`, `reports.description`, `caretakers.letter`) had **no database-level length limit at all** — a client-side `maxLength` is a UX nicety, not a boundary, since a direct REST call with the public anon key can send arbitrary-length text. Fixed with `CHECK (char_length(...) <= n)` constraints matching the pattern already used elsewhere.
+
+### Other measures
+
+- **Rate limiting:** 10 requests/hour (anonymous) and 30/hour (authenticated) on report submissions, keyed by IP or user id — the one write path reachable with no account at all.
+- **Security headers** (`next.config.ts`): `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, a `Permissions-Policy` blocking camera/microphone and restricting geolocation to same-origin, and a `Content-Security-Policy` scoped to only the app's real external origins (Supabase, OpenStreetMap tiles, OpenWeatherMap, Nominatim).
+- **Report integrity:** a unique constraint on `(report_id, user_id)` stops the same account inflating a report's confirmation count; a report's own creator is blocked from confirming it, both in the UI and inside the database function itself.
+- **File validation:** type and size (5MB max) checked client-side before upload, and enforced again at the Supabase Storage bucket level so a direct API call can't bypass the client check.
+- No `dangerouslySetInnerHTML` anywhere in the codebase; no `select("*")` queries anywhere; no service-role key ever present in application code.
 
 ---
 
-## Database Schema
+## Testing
 
-| Table | Purpose | Key columns | RLS |
-|---|---|---|---|
-| `colonies` | A mapped cat colony | `name`, `narrative`, `latitude`/`longitude` (creator/caretaker-only via RPC), `latitude_blurred`/`longitude_blurred`, `latitude_blurred_near`/`longitude_blurred_near`, `castration_status`, `cover_photo_url`, `created_by` | ✅ |
-| `cats` | A named cat within a colony | `colony_id`, `name`, `photo_url`, `castrated`, `last_seen` | ✅ |
-| `caretakers` | Links a user to a colony they care for | `colony_id`, `user_id`, `letter` | ✅ |
-| `reports` | A community report (sighting, emergency, or lost cat) | `colony_id`, `type`, `description`, `photo_url`, `latitude`/`longitude`, `status`, `confirmations`, `sensitive`, `related_report_id`, `created_by` | ✅ |
-| `report_confirmations` | One row per person who confirmed a report | `report_id`, `user_id` (unique together) | ✅ |
-| `timeline_events` | The chronological log of everything that happens to a colony | `colony_id`, `event_type`, `description`, `photo_url`, `created_by` | ✅ |
-| `feedings` | A logged food or water check-in | `colony_id`, `user_id`, `type` (`food`/`water`) | ✅ |
-| `knowledge_progress` | Which articles a user has read | `user_id`, `article_slug` | ✅ |
-| `thanks` | A one-time "thanks for caretaking" between a sender and a caretaker | `colony_id`, `caretaker_user_id`, `sender_user_id` | ✅ |
-| `action_thanks` | A heart on one specific timeline event | `timeline_event_id`, `sender_user_id` (unique together) | ✅ |
-| `flags` | A flag on a colony, report, or profile suspected of being fake/harmful | `target_type`, `target_id`, `reason`, `details`, `created_by` | ✅ |
-| `notifications` | In-app alerts (weather, stale cats, action thanks) | `user_id`, `colony_id`, `type`, `message`, `read` | ✅ |
-| `profiles` | Public-facing display name/avatar, mirroring `auth.users` | `id` (= `auth.users.id`), `display_name`, `avatar_url` | ✅ |
+### Methodology
+
+Testing combined three approaches, since none alone would have caught everything below: reading the code, exercising the actual user flows manually in both anonymous and signed-in states, and — critically — issuing raw HTTP requests directly against the live Supabase REST and RPC endpoints with the real public anon key, exactly as an attacker with no account would. That last approach is what caught the RLS/RPC gaps listed under [Security](#security) above; code review alone had missed them because the *intent* documented in comments didn't match the *deployed* database state.
+
+### Key flows tested
+
+Every major user journey was walked through in both anonymous and authenticated states: home → map → colony detail → filing a report → the emergency help flow → reading an article → the personalization quiz → registering a colony → linking as a caretaker → confirming and resolving a report → the public caretaker profile.
+
+### Security tests (verified live against the anon key)
+
+| Test | Result |
+|---|---|
+| Read a colony's exact `latitude`/`longitude` via direct REST query | Correctly rejected (permission denied) |
+| Read a report's exact coordinates via direct REST query | Correctly rejected |
+| Call `get_colony_exact_location` for a colony you're not linked to | Correctly rejected |
+| Call `confirm_report` on your own report | Correctly rejected (self-confirm guard) |
+| Upload with `../` in the storage path | Sanitized before the request reaches storage |
+| Reverse-geocode request with out-of-range coordinates | Rejected before any external request is built |
+| Call `record_daily_visit` with the anon key | Initially succeeded (drift found, migration fixed, re-verified as rejected) |
+
+### Edge cases covered
+
+- Colony health index and castration badge calculated correctly with **zero registered cats** (no division-by-zero)
+- Double-clicking a feeding/water check-in button produces exactly one event, not two (debounce guard)
+- The 11th anonymous report submission within an hour is blocked by the rate limiter
+- The same signed-in user confirming the same report twice is blocked
+- A user attempting to thank their own timeline action is blocked
+- Submitting a duplicate false-pin flag against the same colony is blocked by a database constraint
+- A file of the wrong MIME type or over the 5MB limit is rejected before the upload request is even sent
+- Visiting `/colony/[id]` with a nonexistent id renders a proper 404, not a blank or broken page
+- A signed-out visitor opening any account-gated action sees an explanation and a link to sign up, never a silent redirect
+
+### Bugs found and fixed
+
+Across a series of dedicated audit passes (functional, accessibility, security, UI consistency, content, and performance), more than 40 bugs were found and fixed. The most significant:
+
+- **A critical anonymous-visitor bug**: `/reports` unconditionally redirected any signed-out visitor to `/login`, regardless of which of its 4 tabs they were trying to view — caused by the tab component keeping all tab panels mounted simultaneously (only toggling a `hidden` attribute), so an effect meant to gate one tab fired for every visitor to the page. Fixed by replacing the hard redirect with an inline sign-in prompt scoped to just that tab.
+- Articles were marked "read" on page mount instead of on scroll-to-bottom.
+- A feeding/water check-in double-click race could create two log entries for one action.
+- A fully built `NeuteringRequestBanner` component existed but was never actually rendered anywhere on the colony page.
+- The signup form ignored a `returnTo` parameter and never redirected back to the page that prompted the signup.
+- 15 modals had no focus trap; keyboard users could tab out of an open dialog into the page behind it. Fixed with one shared hook reused across every modal.
+- Two forms relied on placeholder text as their only label, which disappears the moment a screen reader user starts typing. Fixed with real, associated `<label>` elements.
+- Several success-state text colors failed WCAG contrast (measured at 3.3:1 against a 4.5:1 minimum). Corrected across the palette.
+
+The complete, itemized list — file references, exact fixes, and the reasoning behind each — is in [`AUDIT_REPORT.md`](AUDIT_REPORT.md).
 
 ---
 
@@ -253,53 +293,56 @@ A report needs 3 confirmations from 3 *different* people to auto-resolve — enf
 
 - Node.js 18+
 - npm
-- A free Supabase project
-- A free OpenWeatherMap API key
+- A free [Supabase](https://supabase.com) project
+- A free [OpenWeatherMap](https://openweathermap.org/api) API key
 
 ### Installation
 
-1. Clone the repository:
-   ```bash
-   git clone <repository-url>
-   cd felines
-   ```
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-3. Set up environment variables (see below).
-4. Run every file in `supabase/migrations/` in numeric order against your Supabase project (see below).
-5. Start the development server:
-   ```bash
-   npm run dev
-   ```
-   Open [http://localhost:3000](http://localhost:3000).
+```bash
+git clone https://github.com/luarawork/felines
+cd felines
+npm install
+```
 
 ### Environment Variables
 
-Create a `.env.local` file in the project root:
+Copy `.env.example` to `.env.local` and fill in real values:
 
-```
-NEXT_PUBLIC_SUPABASE_URL=
-NEXT_PUBLIC_SUPABASE_ANON_KEY=
-NEXT_PUBLIC_WEATHER_API_KEY=
+```bash
+cp .env.example .env.local
 ```
 
-- **`NEXT_PUBLIC_SUPABASE_URL`** and **`NEXT_PUBLIC_SUPABASE_ANON_KEY`** — found in your Supabase project under Project Settings → API. The anon key is safe to expose client-side; every sensitive operation is enforced by RLS and the RPCs described above, not by hiding this key.
-- **`NEXT_PUBLIC_WEATHER_API_KEY`** — an OpenWeatherMap API key (free tier is sufficient). Despite the `NEXT_PUBLIC_` prefix implying it's meant to be public, be aware it is genuinely fetched client-side in a couple of code paths today (see the note at the top of `lib/weather.ts`) — treat it as a low-sensitivity key, not a secret.
+```
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+NEXT_PUBLIC_WEATHER_API_KEY=your_openweathermap_key
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
+```
 
-### Running Supabase Migrations
+Where to find each value:
 
-`supabase/migrations/` contains 39 numbered SQL files — run them **in order** (`0001`, `0002`, `0003`, ...) in the Supabase SQL Editor, since most assume everything before them has already been applied. A few are worth knowing about specifically:
+- **`NEXT_PUBLIC_SUPABASE_URL`** and **`NEXT_PUBLIC_SUPABASE_ANON_KEY`** — Supabase dashboard → your project → Project Settings → API. The anon key is safe to expose client-side by design; every sensitive rule is enforced by RLS and the security-definer functions described above, not by hiding this key.
+- **`NEXT_PUBLIC_WEATHER_API_KEY`** — OpenWeatherMap → "My API keys" (free account, free tier is sufficient).
+- **`NEXT_PUBLIC_SITE_URL`** — defaults to `http://localhost:3000` for local development; only change it for a deployed instance.
 
-- **`0001_init.sql`** — initial schema and RLS policies for the core tables.
-- **`0002_colony_photos.sql`** — adds the `colony-photos` storage bucket.
-- **`0016_progressive_location_blur.sql`** / **`0017_fix_exact_location_grant.sql`** / **`0018_regenerate_wide_blur.sql`** — the 3-level location blur system.
-- **`0024_public_report_pins.sql`** / **`0025_public_report_history_and_confirmations.sql`** — column-scoped public access to reports.
-- **`0026_storage_bucket_limits.sql`** — server-side file size/MIME enforcement.
-- **`0035_notifications.sql`** / **`0039_action_thanks.sql`** — the notifications system and per-action thanks.
-- **`0003_seed_demo_data.sql`** is optional seed data for local testing; **`0037_full_data_reset.sql`** is a one-time, deliberately destructive script for wiping all application rows during development — don't run it against data you want to keep.
-- The rest are incremental fixes, RPCs, and cleanups made along the way (several `00xx_cleanup_*.sql` files remove test/debug data created during early development).
+### Database Setup
+
+`supabase/migrations/` contains 75 numbered SQL files — run them **in order** in the Supabase SQL Editor (Supabase dashboard → SQL Editor → paste each file's contents → Run), since most assume everything before them has already been applied. `0001_init.sql` creates the core schema and RLS policies; the rest are incremental features, RPCs, and the security fixes described above.
+
+### Run Locally
+
+```bash
+npm run dev
+```
+
+Open [http://localhost:3000](http://localhost:3000).
+
+### Build
+
+```bash
+npm run build
+npm run start
+```
 
 ---
 
@@ -307,125 +350,108 @@ NEXT_PUBLIC_WEATHER_API_KEY=
 
 ```
 felines/
-├── app/                          # Next.js App Router pages
-│   ├── colony/
-│   │   ├── [id]/                # Colony detail page
-│   │   └── new/                 # Colony registration form
-│   ├── learn/[slug]/            # Individual educational article
-│   ├── login/, signup/          # Authentication
-│   ├── map/                     # Interactive map
-│   ├── notifications/           # Notification inbox
-│   ├── profile/                 # Signed-in user's profile
-│   ├── reports/                 # Community reports list
-│   ├── u/[id]/                  # Public caretaker profile
-│   └── page.tsx                 # Home — hero, stats, entry points, learning guide
-├── components/                   # ~53 React components (one concern each:
-│                                 # map, forms, modals, timeline pieces, etc.)
-├── lib/                          # Framework-free utilities and content
-│   ├── articles.ts               # All 18 educational articles
-│   ├── reportTypes.ts            # The 9 report type definitions/labels
-│   ├── notifications.ts          # Extreme weather + stale cat notification logic
-│   ├── weather.ts                # OpenWeatherMap fetch helper
-│   ├── quiz.ts                   # The 3-question neighbor-profile quiz
-│   ├── profile.ts                # Display name/avatar helpers
-│   └── storage.ts                # Safe upload path building + client-side validation
-└── supabase/
-    └── migrations/                # 39 numbered SQL migrations (schema, RLS, RPCs)
+├── app/                       # Next.js App Router — 21 page routes
+│   ├── page.tsx               # Home — hero, impact stats, entry points, the guide
+│   ├── map/                   # Interactive colony map
+│   ├── colony/[id]/           # Colony detail (tabs: cats, timeline, needs, reports, letter, edit)
+│   ├── colony/new/            # Register a colony
+│   ├── cat/[id]/              # Individual cat page
+│   ├── learn/[slug]/          # Individual educational article
+│   ├── glossary/              # 36-term bilingual glossary
+│   ├── plants/                # Toxic plants reference
+│   ├── curso/                 # Caretaker course
+│   ├── reports/               # Reports / resources / contacts / stories hub
+│   ├── resources/, contacts/, stories/  # Standalone deep links into the hub above
+│   ├── impact/                # Public platform-wide impact statistics
+│   ├── profile/                # Signed-in user's profile
+│   ├── u/[id]/                 # Public caretaker profile
+│   ├── notifications/          # Notification inbox
+│   ├── login/, signup/, forgot-password/, reset-password/  # Auth
+│   └── api/reports/           # Rate-limited report submission endpoint
+├── components/                 # ~90 single-concern React components
+├── hooks/
+│   └── useFelinesAssistant.ts # Cat assistant trigger logic
+├── lib/
+│   ├── articles.ts             # All 19 educational articles
+│   ├── glossary.ts             # 36 glossary terms, bilingual
+│   ├── catCuriosities.ts       # 8 real cat facts for the assistant
+│   ├── quiz.ts                 # The "what kind of neighbor are you" quiz
+│   ├── neighborhoodQuiz.ts     # The neighborhood-diagnosis quiz (a distinct, situational quiz)
+│   ├── reportTypes.ts          # The 9 report type definitions/labels
+│   ├── rateLimit.ts            # In-memory rate limiter for report submissions
+│   ├── storage.ts              # Safe upload-path building (anti path traversal)
+│   ├── geocode.ts               # Validated reverse geocoding (anti SSRF)
+│   ├── validateCoordinates.ts  # Geographic range validation
+│   └── i18n/pt.ts, en.ts       # Full Portuguese and English translations
+├── supabase/migrations/         # 75 numbered SQL migrations (schema, RLS, RPCs)
+├── AUDIT_REPORT.md              # Full itemized security/bug/refactor audit
+└── LICENSE_COMPLIANCE.md        # Third-party license findings, reviewed and documented
 ```
 
 ---
 
-## Pages
+## How AI Was Used
 
-| Route | Description | Auth required |
-|---|---|---|
-| `/` | Home — hero, impact stats, entry points, and the full educational guide | No |
-| `/map` | Interactive colony map | No (exact coordinates require being a linked caretaker) |
-| `/colony/[id]` | Colony detail page — cats, timeline, caretaker letter, actions | No (editing/managing requires being a linked caretaker or the creator) |
-| `/colony/new` | Register a new colony | Yes |
-| `/learn/[slug]` | Individual educational article | No |
-| `/reports` | Community reports list | Yes (viewing/confirming); submitting most types doesn't require an account, but happens via the help modal or a colony page, not this page directly |
-| `/profile` | Signed-in user's profile and contribution history | Yes |
-| `/u/[id]` | Public caretaker profile | No |
-| `/notifications` | Notification inbox | Yes |
-| `/login`, `/signup` | Authentication | No |
+This project was built solo by **Luara** (UX Designer / Business Analyst) using **Claude Code** for implementation, across many focused sessions.
 
-The emergency help flow ("Preciso de ajuda") isn't a separate route — it's a global modal available from the navbar on every page, via `HelpModalProvider`.
+**Human direction (founder only):**
+- Problem identification and target-audience insight — the founder herself didn't know what a cat colony was before starting this project, and used that gap as her own primary persona for design decisions.
+- The strategic read on the hackathon's "world domination" theme — that for a project like this, it means converting the people who *aren't* allies yet, not preaching to people who already love cats. No tool suggested this framing.
+- Every product decision: what to build, what to cut, and why.
+- Security design intent — framing progressive location blur as animal protection first, data protection second.
+- Visual identity, sourced from the logo cat's own coloring.
+- Curating the 14 real, verified local contacts for Natal, RN.
+- Reviewing and approving every article, translation, and cat fact before it shipped.
+- Directing every audit pass and reviewing every finding across the project's security, accessibility, functional, content, and performance reviews.
 
----
+**Claude Code (implementation):**
+- All Next.js/TypeScript code, all 75 Supabase migrations, and the 21 page routes.
+- Running the security, accessibility, functional, and performance audits, and identifying the specific bugs and gaps described above.
+- Initial drafts of articles and translations, always reviewed and corrected by the founder before shipping.
 
-## Educational Content
-
-**Level 1 — The basics**
-- `what-is-a-cat-colony` — O que é, exatamente, uma colônia de gatos?
-- `por-que-existem-gatos-de-rua` — Por que os gatos sempre voltam pro mesmo lugar
-- `castracao-reduz-conflitos` — A castração resolve mais conflito do que qualquer reclamação
-- `why-removing-cats-doesnt-work` — Por que remover os gatos nunca resolve de verdade
-- `what-is-tnr-and-why-it-works` — TNR: as 3 letras que resolvem o problema de verdade
-- `stray-cats-in-brazil-the-numbers` — Os números que mostram o tamanho real do problema
-- `common-myths-about-stray-cats` — 5 mitos sobre gatos de rua que vale desmontar agora
-- `feral-semi-feral-e-socializado` — Feral, semi-feral ou socializado? O comportamento explica tudo
-
-**Level 2 — Getting involved**
-- `how-to-approach-a-stray-cat` — Como se aproximar de um gato de rua sem ser mordido
-- `found-a-kitten-alone` — Achou um filhote sozinho? Respire antes de agir
-- `como-ajudar-sem-adotar` — Você não precisa adotar nenhum gato pra fazer diferença
-- `small-actions-real-impact` — Pequenas ações que realmente fazem diferença
-
-**Level 3 — Responding to emergencies**
-- `how-to-report-animal-abuse` — Maus-tratos são crime. Veja como denunciar direito
-- `found-injured-cat-step-by-step` — Gato ferido na rua: 5 passos, sem complicar
-- `how-to-help-injured-cat` — O gato ferido sobreviveu ao resgate. E agora?
-
-**Level 4 — Living alongside a colony**
-- `cats-bothering-your-building` — Os gatos estão incomodando seu prédio? Isso aqui funciona de verdade
-- `living-with-a-cat-colony` — Convivendo bem com a colônia que mora perto de você
-
-**Level 5 — Going further**
-- `tornando-se-cuidador` — O que ninguém te conta antes de virar cuidador
+**Collaborative:**
+- Security architecture — the founder defined what needed protecting and why; Claude Code implemented the RLS policies, grants, and RPCs that enforce it.
+- User flows — designed by the founder, implemented by Claude Code, refined together across multiple review passes.
+- The cat assistant — tone and content approved by the founder, triggers and animation timing implemented by Claude Code.
 
 ---
 
 ## Impact Data
 
-The numbers behind the platform's framing (cited in the home page hero and the educational guide):
+The numbers behind why this platform exists, cited on the home page and throughout the educational guide:
 
-- **480 million** stray cats worldwide.
-- **10+ million** stray cats in Brazil alone.
-- **~185,000** animals already living in NGOs/shelters operating at capacity — there's no realistic sheltering capacity to remove cats at scale.
-- **~40%** of people report having had a conflict with a neighbor involving animals.
+- **480 million** stray cats worldwide (World Animal Foundation).
+- **10+ million** stray cats in Brazil alone (WHO), with only around **7,400** in formal shelters.
+- **~185,000** animals already living in NGOs/shelters operating at capacity (Instituto Pet Brasil, 2023) — there's no realistic sheltering capacity to remove cats at scale.
+- **~40%** of Brazilians report having had a conflict with a neighbor involving animals (IBGE).
+- Animal abandonment in Brazil grew from an estimated **3.9 million** animals (2018) to **8.8 million** (2020).
+- **71%** of people who abuse animals also commit crimes against humans (Brazilian Ministry of the Environment, citing "The Link" research) — animal welfare and community safety are not separate issues.
 - The World Health Organization recommends TNR (Trap-Neuter-Return) as the preferred method for stray population control — not removal.
-
----
-
-## The Hackathon Context
-
-Built solo for **Hack the Kitty 2026** (June 24 – July 7, 2026). As of this writing, the project sits at 93 commits across 4 days of active development, spanning the full schema/RLS/RPC design, every feature described above, a complete editorial UI redesign, a full Portuguese copy pass, and an accessibility/security audit.
-
-The theme nudges toward "world domination" — our read on that is: world domination, for a project like this, means converting the people who aren't allies yet. Not the people who already love cats, but the neighbor who's annoyed, the passerby who's curious, the person who saw something and didn't know it was worth mentioning. That's who Felines is actually trying to reach.
 
 ---
 
 ## Roadmap
 
-- Deploy to Netlify and add a seeded demo account for evaluators
+- Deploy to a public URL and seed a demo account for evaluators
 - Expand beyond Natal, RN to additional cities, one at a time
-- Integration with municipal TNR programs and clinics
-- A PWA build for offline-capable mobile use in the field
+- A PWA build for offline-capable use in the field
+- Integration with municipal TNR programs and public clinics
 - Scheduled (not just on-page-load) notification checks
-- A public, live impact dashboard (colonies mapped, cats castrated, reports resolved)
+- A public API for researchers and city governments
+- A caretaker mentorship network connecting new and experienced caretakers
 
 ---
 
 ## License
 
-No license file is currently included in this repository. Treat the code as all-rights-reserved unless/until a license is added.
+**No license file is currently included in this repository.** Treat the code as all-rights-reserved unless and until a license is formally added. (A separate document, [`LICENSE_COMPLIANCE.md`](LICENSE_COMPLIANCE.md), records a third-party dependency license review completed during development — that's about a dependency of this project, not a license grant for the project itself.)
 
 ---
 
 ## Acknowledgments
 
-- The Hack the Kitty organizers, for the prompt that started this.
+- The Hack the Kitty 2026 organizers, for the prompt that started this.
 - Alley Cat Allies, for publicly available TNR research and methodology.
-- The World Health Organization, for stray population control guidance.
-- The real, often invisible caretakers who keep colonies fed, castrated, and looked after with no platform, budget, or recognition — this project exists to make that work a little more visible.
+- The World Health Organization and IBGE, for the population and conflict data cited throughout.
+- Instituto Pet Brasil, for Brazilian shelter-capacity statistics.
+- The real, often invisible caretakers of Natal, RN, who keep colonies fed, castrated, and looked after with no platform, budget, or recognition — this project exists to make that work a little more visible.
