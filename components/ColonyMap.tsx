@@ -14,6 +14,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import {
   MapContainer,
@@ -655,13 +656,15 @@ export default function ColonyMap({
               cover photo — a plain title floating with no header
               at all was part of what made this feel unfinished. */}
           {colony.cover_photo_url ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={colony.cover_photo_url}
-              alt={colony.name}
-              loading="lazy"
-              className="h-20 w-full object-cover"
-            />
+            <div className="relative h-20 w-full overflow-hidden">
+              <Image
+                src={colony.cover_photo_url}
+                alt={colony.name}
+                fill
+                sizes="264px"
+                className="object-cover"
+              />
+            </div>
           ) : (
             <div className="flex h-20 w-full items-center justify-center bg-felines-accent-light">
               <span className="text-3xl" aria-hidden="true">🐾</span>

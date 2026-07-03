@@ -7,6 +7,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabaseClient";
@@ -339,13 +340,14 @@ export default function ReportsList() {
                 <div className="flex flex-wrap items-start justify-between gap-2">
                   <div className="flex gap-3">
                     {report.photo_url && (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={report.photo_url}
-                        alt={getReportTypeLabel(report.type, t)}
-                        loading="lazy"
-                        className="h-16 w-16 flex-shrink-0 rounded-lg object-cover"
-                      />
+                      <div className="relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-lg">
+                        <Image
+                          src={report.photo_url}
+                          alt={getReportTypeLabel(report.type, t)}
+                          fill
+                          className="object-cover"
+                        />
+                      </div>
                     )}
                     <div>
                       <p className="font-semibold text-felines-text-primary">

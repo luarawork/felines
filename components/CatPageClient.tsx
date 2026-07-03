@@ -4,6 +4,7 @@
 // and ColonyDetailClient for the same reason.
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import CatNotesSection from "@/components/CatNotesSection";
 import { useLanguage } from "@/lib/i18n";
@@ -57,13 +58,14 @@ export default function CatPageClient({
 
       <div className="mt-5 flex gap-5">
         {photoUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={photoUrl}
-            alt={catName ?? t("catPage.photoAlt")}
-            loading="lazy"
-            className="h-24 w-24 flex-shrink-0 rounded-2xl object-cover"
-          />
+          <div className="relative h-24 w-24 flex-shrink-0 overflow-hidden rounded-2xl">
+            <Image
+              src={photoUrl}
+              alt={catName ?? t("catPage.photoAlt")}
+              fill
+              className="object-cover"
+            />
+          </div>
         ) : (
           <div className="flex h-24 w-24 flex-shrink-0 items-center justify-center rounded-2xl bg-felines-surface text-4xl">
             🐱

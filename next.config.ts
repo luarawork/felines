@@ -1,6 +1,11 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  images: {
+    remotePatterns: [
+      { protocol: "https", hostname: "oyncjimmwgyxvkmdqxpv.supabase.co", pathname: "/storage/v1/object/public/**" },
+    ],
+  },
   // Baseline hardening headers — this app embeds a Leaflet map and renders
   // user-generated content (colony narratives, letters, report text), so
   // clickjacking and MIME-sniffing protections are worth having even

@@ -4,6 +4,7 @@
 // hardcoded in Portuguese with no i18n at all.
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import ReportTypeLabel from "@/components/ReportTypeLabel";
 import Reveal from "@/components/Reveal";
@@ -44,13 +45,14 @@ export default function CaretakerPublicPageClient({
           <Reveal>
             <div className="flex items-center gap-5">
               {avatarUrl ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={avatarUrl}
-                  alt={displayName ?? t("publicProfile.avatarAlt")}
-                  loading="lazy"
-                  className="h-20 w-20 rounded-full object-cover shadow-[0_2px_8px_rgba(0,0,0,0.10)]"
-                />
+                <div className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-full shadow-[0_2px_8px_rgba(0,0,0,0.10)]">
+                  <Image
+                    src={avatarUrl}
+                    alt={displayName ?? t("publicProfile.avatarAlt")}
+                    fill
+                    className="object-cover"
+                  />
+                </div>
               ) : (
                 <div className="h-20 w-20 rounded-full bg-felines-border" />
               )}

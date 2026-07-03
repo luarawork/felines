@@ -8,6 +8,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import Link from "next/link";
 import { ARTICLES } from "@/lib/articles";
 import { COURSE_MODULES, STANDALONE_QUIZZES, localizeStandaloneQuiz, localizeCourseModules } from "@/lib/caretakerCourse";
@@ -478,12 +479,14 @@ export default function ProfileContent() {
           <Reveal>
             <div className="flex flex-wrap items-center gap-5">
               {avatarUrl ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={avatarUrl}
-                  alt={t("profile.header.photoAlt")}
-                  className="h-20 w-20 rounded-full object-cover shadow-[0_2px_8px_rgba(0,0,0,0.10)]"
-                />
+                <div className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-full shadow-[0_2px_8px_rgba(0,0,0,0.10)]">
+                  <Image
+                    src={avatarUrl}
+                    alt={t("profile.header.photoAlt")}
+                    fill
+                    className="object-cover"
+                  />
+                </div>
               ) : (
                 <div className="h-20 w-20 rounded-full bg-felines-border" />
               )}

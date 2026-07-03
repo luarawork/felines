@@ -199,8 +199,7 @@ export default function NavBar() {
                 className="relative flex h-11 w-11 items-center justify-center overflow-hidden rounded-full border border-felines-border bg-felines-accent-light text-sm font-semibold text-felines-accent-hover transition-colors hover:bg-felines-accent hover:text-white"
               >
                 {avatarUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={avatarUrl} alt={t("nav.profileAlt")} className="h-full w-full object-cover" />
+                  <Image src={avatarUrl} alt={t("nav.profileAlt")} fill className="object-cover" />
                 ) : (
                   initial
                 )}

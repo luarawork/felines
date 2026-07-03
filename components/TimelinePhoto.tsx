@@ -3,6 +3,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { useEscapeToClose } from "@/lib/useEscapeToClose";
 
 export default function TimelinePhoto({ src, alt }: { src: string; alt: string }) {
@@ -11,13 +12,12 @@ export default function TimelinePhoto({ src, alt }: { src: string; alt: string }
 
   return (
     <>
-      <button type="button" onClick={() => setOpen(true)} className="mt-2 block">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
+      <button type="button" onClick={() => setOpen(true)} className="relative mt-2 block h-24 w-24 overflow-hidden rounded-lg">
+        <Image
           src={src}
           alt={alt}
-          loading="lazy"
-          className="h-24 w-24 rounded-lg object-cover transition-opacity hover:opacity-90"
+          fill
+          className="object-cover transition-opacity hover:opacity-90"
         />
       </button>
 

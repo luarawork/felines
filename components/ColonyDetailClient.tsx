@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import Reveal from "@/components/Reveal";
 import EmptyState from "@/components/EmptyState";
@@ -158,13 +159,14 @@ export default function ColonyDetailClient({
               <Reveal key={cat.id} delayMs={Math.min(index, 6) * 60}>
                 <div className="h-full rounded-2xl border border-felines-border bg-felines-surface p-4 shadow-[0_2px_8px_rgba(0,0,0,0.05)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(0,0,0,0.10)]">
                   {cat.photo_url ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={cat.photo_url}
-                      alt={cat.name ?? t("colony.cats.photoAlt")}
-                      loading="lazy"
-                      className="h-32 w-full rounded-xl object-cover"
-                    />
+                    <div className="relative h-32 w-full overflow-hidden rounded-xl">
+                      <Image
+                        src={cat.photo_url}
+                        alt={cat.name ?? t("colony.cats.photoAlt")}
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
                   ) : (
                     <div className="h-32 w-full rounded-xl bg-felines-border" />
                   )}
@@ -402,11 +404,12 @@ export default function ColonyDetailClient({
         {/* Hero */}
         <div className="relative h-72 w-full sm:h-80">
           {colony.cover_photo_url ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
+            <Image
               src={colony.cover_photo_url}
               alt={`${colony.name}`}
-              className="absolute inset-0 h-full w-full object-cover"
+              fill
+              priority
+              className="object-cover"
             />
           ) : (
             <div className="absolute inset-0 h-full w-full bg-felines-dark" />
@@ -479,12 +482,14 @@ export default function ColonyDetailClient({
                   <div key={caretaker.userId} className="flex flex-col items-center gap-1.5 text-center">
                     <Link href={`/u/${caretaker.userId}`}>
                       {caretaker.avatarUrl ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
-                          src={caretaker.avatarUrl}
-                          alt={caretaker.displayName}
-                          className="h-16 w-16 rounded-full border border-felines-border object-cover"
-                        />
+                        <div className="relative h-16 w-16 overflow-hidden rounded-full border border-felines-border">
+                          <Image
+                            src={caretaker.avatarUrl}
+                            alt={caretaker.displayName}
+                            fill
+                            className="object-cover"
+                          />
+                        </div>
                       ) : (
                         <div className="h-16 w-16 rounded-full border border-felines-border bg-felines-accent-light" />
                       )}
