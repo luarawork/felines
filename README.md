@@ -23,6 +23,7 @@ Felines maps stray cat colonies and helps everyday people — not just existing 
 - [Project Structure](#project-structure)
 - [How AI Was Used](#how-ai-was-used)
 - [Impact Data](#impact-data)
+- [The Hackathon Context](#the-hackathon-context)
 - [Roadmap](#roadmap)
 - [License](#license)
 - [Acknowledgments](#acknowledgments)
@@ -427,6 +428,16 @@ The numbers behind why this platform exists, cited on the home page and througho
 - Animal abandonment in Brazil grew from an estimated **3.9 million** animals (2018) to **8.8 million** (2020).
 - **71%** of people who abuse animals also commit crimes against humans (Brazilian Ministry of the Environment, citing "The Link" research) — animal welfare and community safety are not separate issues.
 - The World Health Organization recommends TNR (Trap-Neuter-Return) as the preferred method for stray population control — not removal.
+
+---
+
+## The Hackathon Context
+
+Built solo for **Hack the Kitty 2026** (June 24 – July 7, 2026), spanning the full schema/RLS/RPC design, every feature described above, a complete editorial UI redesign, a full Portuguese copy pass, and an accessibility/security audit.
+
+For the founder, this hackathon was also a personal opportunity — a chance to learn, train new skills end-to-end (product design, database security, bilingual UX, and working alongside AI as an implementation partner), and, above all, to build a real solution in service of the cats' world domination.
+
+The theme nudges toward "world domination" — our read on that is: world domination, for a project like this, means converting the people who aren't allies yet. Not the people who already love cats, but the neighbor who's annoyed, the passerby who's curious, the person who saw something and didn't know it was worth mentioning. That's who Felines is actually trying to reach.
 
 ---
 
