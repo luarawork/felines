@@ -23,6 +23,10 @@ For the full product documentation, visit the Notion:
 
 If you'd like to know more about my work: [luara.work](https://luara.work/)
 
+For the full product documentation, visit the Notion:
+🇧🇷 Documentação em Português
+🇺🇸 Documentation in English
+
 ---
 
 ## Table of Contents
