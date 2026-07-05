@@ -359,6 +359,9 @@ export const en = {
       nameRequired: "Give the cat a name before continuing.",
       photoUploadError: "The cat's photo couldn't be uploaded. Try again?",
       addError: "The cat couldn't be added. Try again?",
+      newCatTimelineDescription: "{name} was added to the colony.",
+      newCatFollowerMessage: "{name} was added to a colony you follow.",
+      castrationMilestoneMessage: "A colony you follow is now fully neutered!",
       toggleError: "Couldn't update the cat right now.",
       seenError: "Couldn't mark as seen today.",
       removeError: "Couldn't remove the cat right now.",
@@ -906,6 +909,7 @@ export const en = {
   editColony: {
     trigger: "Edit colony",
     close: "Close",
+    previousCoverPhotoDescription: "Previous cover photo of the colony.",
   },
 
   notificationsList: {
@@ -926,6 +930,30 @@ export const en = {
     close: "Close",
     restart: "Start over",
     back: "Back",
+  },
+
+  neuteringBanner: {
+    completedTimelineOne: "✂️ 1 cat neutered — neutering request completed.",
+    completedTimelineMany: "✂️ {count} cats neutered — neutering request completed.",
+    neededOne: "✂️ Neutering needed for 1 cat — urgency {urgency}",
+    neededMany: "✂️ Neutering needed for {count} cats — urgency {urgency}",
+    inProgressSuffix: " · in progress",
+    markInProgress: "Mark as in progress",
+    markCompleted: "Neutering completed ✓",
+  },
+
+  editHistory: {
+    toggle: "Edit history ({count})",
+    changed: "changed",
+    on: "on",
+    before: "Before:",
+    after: "After:",
+    empty: "(empty)",
+    fields: {
+      name: "name",
+      narrative: "narrative",
+      castration_status: "castration status",
+    },
   },
 
   colonyClickTooltip: {
@@ -954,6 +982,7 @@ export const en = {
       title: "Share a story",
       titleLabel: "Title",
       textLabel: "The story",
+      textPlaceholder: "A special moment, a transformation, a cat that got adopted...",
       photoLabel: "Photo (optional)",
       submit: "Publish story",
       submitting: "Submitting...",
@@ -961,7 +990,6 @@ export const en = {
       validationError: "Please fill in the title and the story before submitting.",
       photoUploadError: "Photo didn't upload. Try again?",
       insertError: "Story wasn't submitted. Try again?",
-      textPlaceholder: "A special moment, a transformation, a cat that got adopted...",
     },
     lostCat: {
       loginPrompt: "To report a lost cat, you need an account — so anyone who spots them knows how to reach you.",
@@ -1000,6 +1028,7 @@ export const en = {
       submitting: "Adding...",
     },
     helpRequest: {
+      followerMessage: "A colony you follow needs help: {type}.",
       trigger: "Ask the community for help",
       title: "Ask the community for help",
       typeLabel: "Type of help",
@@ -1088,6 +1117,7 @@ export const en = {
   },
 
   reportStatus: {
+    sensitiveResolvedManually: "Sensitive report ({type}) resolved manually.",
     sensitive: "sensitive",
     resolved: "resolved",
     anonymous: "Anonymous report",
@@ -1153,6 +1183,9 @@ export const en = {
   },
 
   map: {
+    approxLocation: "🔒 Approximate location",
+    viewReport: "View report",
+    alertPrefix: "Alert:",
     quizButton: "Not sure what you're looking at?",
     castrationNone: "No cats neutered",
     castrationNoneYet: "No cats neutered yet",
@@ -1356,6 +1389,7 @@ export const en = {
   },
 
   newColony: {
+    createdTimelineDescription: "Colony registered on the map.",
     pageLabel: "New colony",
     pageTitle: "Put this colony on the map",
     pageSub: "This way, any neighbor can find it and help look after it too.",
@@ -1493,6 +1527,24 @@ export const en = {
     almostThere: "Almost there — try again!",
     answerPrefix: "Answer:",
     tryAgain: "Try again",
+  },
+
+  colonyFactChips: {
+    0: "📊 There are roughly 480 million street cats in the world",
+    1: "📊 Formal shelters already receive more cats than they can care for",
+    2: "📊 4 in 10 people have argued with a neighbor over animals",
+    3: "📊 TNR is the only method with proven effectiveness for stabilizing colonies",
+    4: "📊 Colonies with regular feeding have a lower rate of infectious disease",
+    5: "📊 Neutered cats mark territory up to 90% less and fight much less",
+    6: "📊 Brazil's Sansão Law provides for 2 to 5 years in prison for abuse of dogs and cats",
+    7: "📊 An unneutered female can produce up to 3 litters a year",
+    8: "📊 Kittens have a window of just a few weeks to become socialized",
+    9: "📊 Fully neutered colonies naturally decline in size over the years",
+    10: "📊 Cow's milk causes serious diarrhea in kittens — it's not a safe food",
+    11: "📊 The WHO recommends TNR as a population-control strategy",
+    12: "📊 An emptied territory attracts a new group within months — the vacuum effect",
+    13: "📊 Street cats live 3 to 5 years on average; care increases that estimate",
+    14: "📊 In Brazil, cats are the animals with the highest abandonment rate",
   },
 
   neighborhoodQuizContent: {

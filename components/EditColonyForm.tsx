@@ -16,12 +16,6 @@ import { useLanguage } from "@/lib/i18n";
 
 type CastrationStatus = "none" | "partial" | "full";
 
-const CASTRATION_LABELS: Record<CastrationStatus, string> = {
-  none: "nenhum gato castrado",
-  partial: "castração parcial",
-  full: "colônia totalmente castrada",
-};
-
 export default function EditColonyForm({
   colonyId,
   initialName,
@@ -40,6 +34,12 @@ export default function EditColonyForm({
   const router = useRouter();
   const { session, canManage, checkingAccess } = useColonyAccessContext();
   const { t } = useLanguage();
+
+  function castrationLabel(status: CastrationStatus): string {
+    if (status === "none") return t("map.castrationNone");
+    if (status === "partial") return t("map.castrationPartial");
+    return t("map.castrationFull");
+  }
 
   const [name, setName] = useState(initialName);
   const [narrative, setNarrative] = useState(initialNarrative ?? "");
@@ -94,7 +94,7 @@ export default function EditColonyForm({
         await supabase.from("timeline_events").insert({
           colony_id: colonyId,
           event_type: "cover_photo_changed",
-          description: "Foto de capa anterior da colônia.",
+          description: t("editColony.previousCoverPhotoDescription"),
           photo_url: initialCoverPhotoUrl,
           created_by: session.user.id,
         });
@@ -142,8 +142,8 @@ export default function EditColonyForm({
       if (castrationStatus !== initialCastrationStatus) {
         edits.push({
           field: "castration_status",
-          oldValue: CASTRATION_LABELS[initialCastrationStatus],
-          newValue: CASTRATION_LABELS[castrationStatus],
+          oldValue: castrationLabel(initialCastrationStatus),
+          newValue: castrationLabel(castrationStatus),
         });
       }
 

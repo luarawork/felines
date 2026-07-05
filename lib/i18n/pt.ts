@@ -360,6 +360,9 @@ export const pt = {
       nameRequired: "Dá um nome pro gato antes de continuar.",
       photoUploadError: "A foto do gato não subiu. Tenta de novo?",
       addError: "O gato não foi adicionado. Tenta de novo?",
+      newCatTimelineDescription: "{name} foi adicionado à colônia.",
+      newCatFollowerMessage: "{name} foi adicionado a uma colônia que você segue.",
+      castrationMilestoneMessage: "Uma colônia que você segue agora está totalmente castrada!",
       toggleError: "Não consegui atualizar o gato agora.",
       seenError: "Não consegui marcar como visto hoje.",
       removeError: "Não consegui remover o gato agora.",
@@ -908,6 +911,7 @@ export const pt = {
   editColony: {
     trigger: "Editar colônia",
     close: "Fechar",
+    previousCoverPhotoDescription: "Foto de capa anterior da colônia.",
   },
 
   notificationsList: {
@@ -928,6 +932,30 @@ export const pt = {
     close: "Fechar",
     restart: "Recomeçar",
     back: "Voltar",
+  },
+
+  neuteringBanner: {
+    completedTimelineOne: "✂️ 1 gato castrado — pedido de castração concluído.",
+    completedTimelineMany: "✂️ {count} gatos castrados — pedido de castração concluído.",
+    neededOne: "✂️ Castração necessária para 1 gato — urgência {urgency}",
+    neededMany: "✂️ Castração necessária para {count} gatos — urgência {urgency}",
+    inProgressSuffix: " · em andamento",
+    markInProgress: "Marcar como em andamento",
+    markCompleted: "Castração concluída ✓",
+  },
+
+  editHistory: {
+    toggle: "Histórico de edições ({count})",
+    changed: "alterou",
+    on: "em",
+    before: "Antes:",
+    after: "Depois:",
+    empty: "(vazio)",
+    fields: {
+      name: "nome",
+      narrative: "narrativa",
+      castration_status: "status de castração",
+    },
   },
 
   colonyClickTooltip: {
@@ -956,6 +984,7 @@ export const pt = {
       title: "Compartilhar uma história",
       titleLabel: "Título",
       textLabel: "A história",
+      textPlaceholder: "Um momento especial, uma transformação, um gato que foi adotado...",
       photoLabel: "Foto (opcional)",
       submit: "Publicar história",
       submitting: "Enviando...",
@@ -963,7 +992,6 @@ export const pt = {
       validationError: "Preencha o título e a história antes de enviar.",
       photoUploadError: "A foto não subiu. Tenta de novo?",
       insertError: "A história não foi enviada. Tenta de novo?",
-      textPlaceholder: "Um momento especial, uma transformação, um gato que foi adotado...",
     },
     lostCat: {
       loginPrompt: "Pra cadastrar um gato perdido, você precisa de uma conta. Assim, quem encontrar ele sabe como te avisar.",
@@ -1002,6 +1030,7 @@ export const pt = {
       submitting: "Adicionando...",
     },
     helpRequest: {
+      followerMessage: "Uma colônia que você segue precisa de ajuda: {type}.",
       trigger: "Pedir ajuda à comunidade",
       title: "Pedir ajuda à comunidade",
       typeLabel: "Tipo de ajuda",
@@ -1090,6 +1119,7 @@ export const pt = {
   },
 
   reportStatus: {
+    sensitiveResolvedManually: "Relato sensível ({type}) resolvido manualmente.",
     sensitive: "sensível",
     resolved: "resolvido",
     anonymous: "Relato anônimo",
@@ -1154,6 +1184,9 @@ export const pt = {
   },
 
   map: {
+    approxLocation: "🔒 Localização aproximada",
+    viewReport: "Ver relato",
+    alertPrefix: "Alerta:",
     quizButton: "Não sabe o que está vendo?",
     castrationNone: "Nenhum gato castrado",
     castrationNoneYet: "Nenhum gato castrado ainda",
@@ -1357,6 +1390,7 @@ export const pt = {
   },
 
   newColony: {
+    createdTimelineDescription: "Colônia cadastrada no mapa.",
     pageLabel: "Nova colônia",
     pageTitle: "Coloque essa colônia no mapa",
     pageSub: "Com isso, qualquer vizinho consegue encontrar e ajudar a cuidar dela também.",
@@ -1494,6 +1528,24 @@ export const pt = {
     almostThere: "Quase lá — tente de novo!",
     answerPrefix: "Resposta:",
     tryAgain: "Tentar novamente",
+  },
+
+  colonyFactChips: {
+    0: "📊 Existem cerca de 480 milhões de gatos de rua no mundo",
+    1: "📊 Abrigos formais já recebem mais gatos do que conseguem cuidar",
+    2: "📊 4 em cada 10 pessoas já brigaram com um vizinho por causa de animais",
+    3: "📊 TNR é o único método com eficácia comprovada para estabilizar colônias",
+    4: "📊 Colônias com alimentação regular têm menor taxa de doenças infecciosas",
+    5: "📊 Gatos castrados marcam território até 90% menos e brigam muito menos",
+    6: "📊 A Lei Sansão prevê 2 a 5 anos de prisão por maus-tratos a cães e gatos",
+    7: "📊 Uma fêmea não castrada pode gerar até 3 ninhadas por ano",
+    8: "📊 Filhotes têm uma janela de poucas semanas para se tornar socializados",
+    9: "📊 Colônias totalmente castradas diminuem naturalmente ao longo dos anos",
+    10: "📊 Leite de vaca causa diarreia grave em filhotes — não é alimento seguro",
+    11: "📊 A OMS recomenda o método TNR como estratégia de controle populacional",
+    12: "📊 Território esvaziado atrai um grupo novo em poucos meses — o efeito vácuo",
+    13: "📊 Gatos de rua vivem em média 3 a 5 anos; os cuidados aumentam essa estimativa",
+    14: "📊 No Brasil, gatos são os animais com maior índice de abandono",
   },
 
   neighborhoodQuizContent: {

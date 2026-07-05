@@ -11,12 +11,6 @@ export type ColonyEditPayload = {
   newValue: string;
 };
 
-export const FIELD_LABELS: Record<ColonyEditField, string> = {
-  name: "nome",
-  narrative: "narrativa",
-  castration_status: "status de castração",
-};
-
 export function encodeColonyEdit(payload: ColonyEditPayload): string {
   return JSON.stringify(payload);
 }
@@ -32,6 +26,11 @@ export function decodeColonyEdit(description: string | null): ColonyEditPayload 
   }
 }
 
-export function getFieldLabel(field: string): string {
-  return FIELD_LABELS[field as ColonyEditField] ?? field;
+// Translated strings come from lib/i18n/{pt,en}.ts under
+// "editHistory.fields.*" — `t` is a parameter since this file has no
+// React context of its own.
+export function getFieldLabel(field: string, t: (key: string) => string): string {
+  const key = `editHistory.fields.${field}`;
+  const translated = t(key);
+  return translated === key ? field : translated;
 }

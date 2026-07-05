@@ -27,6 +27,7 @@ import FlagButton from "@/components/FlagButton";
 import ColonyAccessProvider, { useColonyAccessContext } from "@/components/ColonyAccessProvider";
 import AuthRequiredNotice from "@/components/AuthRequiredNotice";
 import RotatingSingleFact from "@/components/RotatingSingleFact";
+import { getColonyFactChips } from "@/lib/colonyFactChips";
 import ColonyStatsTab from "@/components/ColonyStatsTab";
 import ActionThanksButton from "@/components/ActionThanksButton";
 import CareReminders from "@/components/CareReminders";
@@ -94,7 +95,6 @@ export default function ColonyDetailClient({
   reportBreakdownRows,
   monthlyWeatherRows,
   healthBreakdown,
-  colonyFactChips,
 }: {
   colony: {
     id: string;
@@ -123,9 +123,9 @@ export default function ColonyDetailClient({
   reportBreakdownRows: unknown[];
   monthlyWeatherRows: unknown[];
   healthBreakdown: HealthBreakdown;
-  colonyFactChips: string[];
 }) {
   const { t } = useLanguage();
+  const colonyFactChips = getColonyFactChips(t);
   const [now] = useState(() => Date.now());
 
   function eventTypeLabel(eventType: string): string {

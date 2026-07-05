@@ -51,9 +51,10 @@ export default function NeuteringRequestBanner({
     await supabase.from("timeline_events").insert({
       colony_id: colonyId,
       event_type: "neutering_completed",
-      description: `✂️ ${request.cats_count} ${
-        request.cats_count === 1 ? "gato castrado" : "gatos castrados"
-      } — pedido de castração concluído.`,
+      description:
+        request.cats_count === 1
+          ? t("neuteringBanner.completedTimelineOne")
+          : t("neuteringBanner.completedTimelineMany").replace("{count}", String(request.cats_count)),
       created_by: session.user.id,
     });
 
@@ -64,9 +65,9 @@ export default function NeuteringRequestBanner({
   return (
     <div className="mb-6 rounded-xl border border-felines-border bg-felines-accent-light px-4 py-3 text-sm">
       <p className="font-medium text-felines-text-primary">
-        ✂️ Castração necessária para {request.cats_count}{" "}
-        {request.cats_count === 1 ? "gato" : "gatos"} — urgência {getUrgencyLabel(request.urgency, t)}
-        {request.status === "in_progress" && " · em andamento"}
+        {(request.cats_count === 1 ? t("neuteringBanner.neededOne") : t("neuteringBanner.neededMany").replace("{count}", String(request.cats_count)))
+          .replace("{urgency}", getUrgencyLabel(request.urgency, t))}
+        {request.status === "in_progress" && t("neuteringBanner.inProgressSuffix")}
       </p>
       {canManage && (
         <div className="mt-2 flex flex-wrap gap-3">
@@ -76,7 +77,7 @@ export default function NeuteringRequestBanner({
               disabled={updating}
               className="rounded-full border border-felines-border px-3 py-1.5 text-xs font-medium text-felines-text-secondary hover:border-felines-accent disabled:opacity-50"
             >
-              Marcar como em andamento
+              {t("neuteringBanner.markInProgress")}
             </button>
           )}
           <button
@@ -84,7 +85,7 @@ export default function NeuteringRequestBanner({
             disabled={updating}
             className="rounded-full bg-felines-success px-3 py-1.5 text-xs font-medium text-white hover:opacity-90 disabled:opacity-50"
           >
-            Castração concluída ✓
+            {t("neuteringBanner.markCompleted")}
           </button>
         </div>
       )}

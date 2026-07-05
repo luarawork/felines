@@ -7,27 +7,6 @@ import { notFound } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import ColonyDetailClient from "@/components/ColonyDetailClient";
 
-// Contextual facts shown on every colony page — general background on
-// street cats, not specific to this particular colony, but relevant
-// enough to give a first-time visitor some grounding right where they land.
-const COLONY_FACT_CHIPS: string[] = [
-  "📊 Existem cerca de 480 milhões de gatos de rua no mundo",
-  "📊 Abrigos formais já recebem mais gatos do que conseguem cuidar",
-  "📊 4 em cada 10 pessoas já brigaram com um vizinho por causa de animais",
-  "📊 TNR é o único método com eficácia comprovada para estabilizar colônias",
-  "📊 Colônias com alimentação regular têm menor taxa de doenças infecciosas",
-  "📊 Gatos castrados marcam território até 90% menos e brigam muito menos",
-  "📊 A Lei Sansão prevê 2 a 5 anos de prisão por maus-tratos a cães e gatos",
-  "📊 Uma fêmea não castrada pode gerar até 3 ninhadas por ano",
-  "📊 Filhotes têm uma janela de poucas semanas para se tornar socializados",
-  "📊 Colônias totalmente castradas diminuem naturalmente ao longo dos anos",
-  "📊 Leite de vaca causa diarreia grave em filhotes — não é alimento seguro",
-  "📊 A OMS recomenda o método TNR como estratégia de controle populacional",
-  "📊 Território esvaziado atrai um grupo novo em poucos meses — o efeito vácuo",
-  "📊 Gatos de rua vivem em média 3 a 5 anos; os cuidados aumentam essa estimativa",
-  "📊 No Brasil, gatos são os animais com maior índice de abandono",
-];
-
 export async function generateMetadata({
   params,
 }: {
@@ -213,7 +192,6 @@ export default async function ColonyDetailPage({
       reportBreakdownRows={reportBreakdownRows ?? []}
       monthlyWeatherRows={monthlyWeatherRows ?? []}
       healthBreakdown={healthBreakdown}
-      colonyFactChips={COLONY_FACT_CHIPS}
     />
   );
 }

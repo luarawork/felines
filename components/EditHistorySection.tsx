@@ -20,7 +20,7 @@ type EditEntry = {
 };
 
 export default function EditHistorySection({ colonyId }: { colonyId: string }) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [entries, setEntries] = useState<EditEntry[]>([]);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
@@ -85,7 +85,7 @@ export default function EditHistorySection({ colonyId }: { colonyId: string }) {
         onClick={() => setOpen((previous) => !previous)}
         className="text-sm font-medium text-felines-text-secondary hover:text-felines-text-primary"
       >
-        {open ? "▲" : "▼"} Histórico de edições ({entries.length})
+        {open ? "▲" : "▼"} {t("editHistory.toggle").replace("{count}", String(entries.length))}
       </button>
 
       {open && (
@@ -99,19 +99,19 @@ export default function EditHistorySection({ colonyId }: { colonyId: string }) {
                   className="block w-full text-left"
                 >
                   <span className="text-felines-text-primary">
-                    {entry.authorName} alterou {getFieldLabel(entry.field)}
+                    {entry.authorName} {t("editHistory.changed")} {getFieldLabel(entry.field, t)}
                   </span>{" "}
                   <span className="text-xs text-felines-text-secondary">
-                    em {new Date(entry.createdAt).toLocaleDateString("pt-BR")}
+                    {t("editHistory.on")} {new Date(entry.createdAt).toLocaleDateString(language === "en" ? "en-US" : "pt-BR")}
                   </span>
                 </button>
                 {isExpanded && (
                   <div className="mt-2 space-y-1 text-xs text-felines-text-secondary">
                     <p>
-                      <span className="font-medium">Antes:</span> {entry.oldValue || "(vazio)"}
+                      <span className="font-medium">{t("editHistory.before")}</span> {entry.oldValue || t("editHistory.empty")}
                     </p>
                     <p>
-                      <span className="font-medium">Depois:</span> {entry.newValue || "(vazio)"}
+                      <span className="font-medium">{t("editHistory.after")}</span> {entry.newValue || t("editHistory.empty")}
                     </p>
                   </div>
                 )}

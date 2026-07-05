@@ -243,7 +243,7 @@ export default function ReportsList() {
       await supabase.from("timeline_events").insert({
         colony_id: resolvedReport.colony_id,
         event_type: "report_resolved",
-        description: `Relato sensível (${getReportTypeLabel(resolvedReport.type, t)}) resolvido manualmente.`,
+        description: t("reportStatus.sensitiveResolvedManually").replace("{type}", getReportTypeLabel(resolvedReport.type, t)),
         created_by: session.user.id,
       });
     }

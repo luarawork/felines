@@ -118,14 +118,14 @@ export default function CatManager({ colonyId }: { colonyId: string }) {
     await supabase.from("timeline_events").insert({
       colony_id: colonyId,
       event_type: "new_cat",
-      description: `${name.trim()} foi adicionado à colônia.`,
+      description: t("colony.catManager.newCatTimelineDescription").replace("{name}", name.trim()),
       created_by: session.user.id,
     });
 
     await supabase.rpc("notify_followers", {
       p_colony_id: colonyId,
       p_type: "new_cat",
-      p_message: `${name.trim()} foi adicionado a uma colônia que você segue.`,
+      p_message: t("colony.catManager.newCatFollowerMessage").replace("{name}", name.trim()),
     });
 
     await supabase.rpc("recalculate_colony_health", { p_colony_id: colonyId });
@@ -168,7 +168,7 @@ export default function CatManager({ colonyId }: { colonyId: string }) {
         await supabase.rpc("notify_followers", {
           p_colony_id: colonyId,
           p_type: "castration_milestone",
-          p_message: "Uma colônia que você segue agora está totalmente castrada!",
+          p_message: t("colony.catManager.castrationMilestoneMessage"),
         });
       }
     }

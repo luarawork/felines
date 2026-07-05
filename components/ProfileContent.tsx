@@ -684,10 +684,10 @@ export default function ProfileContent() {
           <div className="mx-auto max-w-6xl px-4 sm:px-6">
             <Reveal>
               <p className="text-xs font-semibold uppercase tracking-[0.1em] text-felines-accent-hover">
-                Conquistas
+                {t("profile.badges.label")}
               </p>
               <h2 className="mt-3 text-2xl font-bold text-felines-text-primary">
-                Seus badges
+                {t("profile.badges.headline")}
               </h2>
             </Reveal>
             <div className="mt-6 flex flex-wrap gap-3">

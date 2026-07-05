@@ -171,7 +171,7 @@ export default function NewColonyForm() {
     await supabase.from("timeline_events").insert({
       colony_id: colony.id,
       event_type: "colony_created",
-      description: "Colônia cadastrada no mapa.",
+      description: t("newColony.createdTimelineDescription"),
       created_by: session.user.id,
     });
 

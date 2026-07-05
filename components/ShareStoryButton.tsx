@@ -162,7 +162,7 @@ export default function ShareStoryButton({ colonyId }: { colonyId: string }) {
                     onChange={(event) => setStoryText(event.target.value)}
                     maxLength={500}
                     rows={5}
-                    placeholder="Um momento especial, uma transformação, um gato que foi adotado..."
+                    placeholder={t("forms.story.textPlaceholder")}
                     className="mt-1 w-full rounded-md border border-felines-border bg-white px-3 py-3.5 text-sm"
                   />
                 </div>

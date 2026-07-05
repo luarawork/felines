@@ -46,6 +46,7 @@ import ColonyClickTooltip, {
 } from "@/components/ColonyClickTooltip";
 import ColonyInterestModal from "@/components/ColonyInterestModal";
 import RotatingSingleFact from "@/components/RotatingSingleFact";
+import { getMapEmptyStateFacts } from "@/lib/colonyFactChips";
 
 // Natal, RN map center and default zoom, per the Felines spec.
 const NATAL_CENTER: [number, number] = [-5.7945, -35.211];
@@ -224,18 +225,6 @@ const suggestedColonyIcon = L.divIcon({
   iconSize: [36, 36],
   iconAnchor: [18, 18],
 });
-
-// "Did you know" facts shown while no colonies are visible in the
-// current map viewport — keeps the empty state from feeling like a
-// dead end, and gives first-time visitors some grounding context.
-const MAP_EMPTY_STATE_FACTS = [
-  "📊 Existem cerca de 480 milhões de gatos de rua no mundo",
-  "📊 TNR é o único método com eficácia comprovada para estabilizar colônias",
-  "📊 Gatos castrados marcam território até 90% menos e brigam muito menos",
-  "📊 Uma fêmea não castrada pode gerar até 3 ninhadas por ano",
-  "📊 Colônias com alimentação regular têm menor taxa de doenças infecciosas",
-  "📊 Território esvaziado atrai um grupo novo em poucos meses — o efeito vácuo",
-];
 
 const EMERGENCY_REPORT_TYPES = [
   "injured_sick",
@@ -910,14 +899,14 @@ export default function ColonyMap({
               <strong>{getReportTypeLabel(report.type, t)}</strong>
               {!isExact && (
                 <p className="mt-1 text-xs text-felines-text-secondary">
-                  🔒 Localização aproximada
+                  {t("map.approxLocation")}
                 </p>
               )}
               <a
                 href={`/reports#report-${report.id}`}
                 className="mt-2 block text-xs font-medium text-felines-accent-hover"
               >
-                Ver relato
+                {t("map.viewReport")}
               </a>
             </Popup>
           );
@@ -943,17 +932,17 @@ export default function ColonyMap({
           const isExact = report.latitude != null;
           const popupContent = (
             <Popup>
-              <strong>Alerta: {getReportTypeLabel(report.type, t)}</strong>
+              <strong>{t("map.alertPrefix")} {getReportTypeLabel(report.type, t)}</strong>
               {!isExact && (
                 <p className="mt-1 text-xs text-felines-text-secondary">
-                  🔒 Localização aproximada
+                  {t("map.approxLocation")}
                 </p>
               )}
               <a
                 href={`/reports#report-${report.id}`}
                 className="mt-2 block text-xs font-medium text-felines-accent-hover"
               >
-                Ver relato
+                {t("map.viewReport")}
               </a>
             </Popup>
           );
@@ -1118,7 +1107,7 @@ export default function ColonyMap({
             />
           )}
           <div className="flex justify-center">
-            <RotatingSingleFact facts={MAP_EMPTY_STATE_FACTS} />
+            <RotatingSingleFact facts={getMapEmptyStateFacts(t)} />
           </div>
         </div>
       )}
