@@ -368,14 +368,14 @@ export default function ProfileContent() {
       id: `colony-created-${colony.id}`,
       date: colony.created_at,
       icon: "🐾",
-      label: `Colônia cadastrada: ${colony.name}`,
+      label: `${t("profile.activity.colonyRegistered")} ${colony.name}`,
       href: `/colony/${colony.id}`,
     })),
     ...caretakerLinks.map((link) => ({
       id: `caretaker-${link.id}`,
       date: link.createdAt,
       icon: "🤝",
-      label: `Passou a cuidar de ${link.name}`,
+      label: `${t("profile.activity.becameCaretaker")} ${link.name}`,
       href: `/colony/${link.id}`,
     })),
     ...feedings.map((feeding) => ({
@@ -640,16 +640,16 @@ export default function ProfileContent() {
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
           <Reveal>
             <p className="text-xs font-semibold uppercase tracking-[0.1em] text-felines-accent-hover">
-              Suas colônias
+              {t("profile.colonies.label")}
             </p>
             <h2 className="mt-3 text-3xl font-bold leading-tight text-felines-text-primary">
-              As colônias que você cuida
+              {t("profile.colonies.headline")}
             </h2>
           </Reveal>
 
           {linkedColonies.length === 0 ? (
             <p className="mt-6 text-sm text-felines-text-secondary">
-              Você ainda não cuida de nenhuma colônia.
+              {t("profile.colonies.empty")}
             </p>
           ) : (
             <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -712,10 +712,10 @@ export default function ProfileContent() {
           <div className="mx-auto max-w-6xl px-4 sm:px-6">
             <Reveal>
               <p className="text-xs font-semibold uppercase tracking-[0.1em] text-felines-accent-hover">
-                Acompanhando
+                {t("profile.following.label")}
               </p>
               <h2 className="mt-3 text-3xl font-bold leading-tight text-felines-text-primary">
-                Colônias que você segue
+                {t("profile.following.headline")}
               </h2>
             </Reveal>
             <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -742,32 +742,32 @@ export default function ProfileContent() {
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
           <Reveal>
             <p className="text-xs font-semibold uppercase tracking-[0.1em] text-felines-accent-hover">
-              Conhecimento
+              {t("profile.knowledge.label")}
             </p>
             <h2 className="mt-3 text-3xl font-bold leading-tight text-felines-text-primary">
-              Sua jornada de aprendizado
+              {t("profile.knowledge.headline")}
             </h2>
           </Reveal>
 
           {/* 1. Cursos */}
           <div className="mt-8">
             <h3 className="text-sm font-semibold uppercase tracking-wide text-felines-text-secondary">
-              Cursos
+              {t("profile.knowledge.courses")}
             </h3>
             <div className="mt-3 overflow-hidden rounded-xl border border-felines-border bg-felines-surface">
               <div className="flex items-start justify-between gap-3 p-4">
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
                     <span className="text-lg">🎓</span>
-                    <p className="font-semibold text-felines-text-primary">Cuidador Preparado</p>
+                    <p className="font-semibold text-felines-text-primary">{t("profile.course.name")}</p>
                     {isCertified && (
                       <span className="rounded-full border border-felines-success/30 bg-felines-success/10 px-2 py-0.5 text-xs font-medium text-felines-success-hover">
-                        Concluído
+                        {t("profile.course.completed")}
                       </span>
                     )}
                   </div>
                   <p className="mt-0.5 text-xs text-felines-text-secondary">
-                    5 módulos + quiz final
+                    {t("profile.course.modules")}
                   </p>
                   <ol className="mt-3 space-y-1">
                     {courseModules.map((mod) => {
@@ -795,7 +795,11 @@ export default function ProfileContent() {
                   href="/curso"
                   className="flex-shrink-0 rounded-full bg-felines-accent px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-felines-accent-hover"
                 >
-                  {isCertified ? "Rever" : courseModules.every((m) => readSlugs.includes(m.articleSlug)) ? "Fazer quiz" : "Continuar"}
+                  {isCertified
+                    ? t("profile.course.review")
+                    : courseModules.every((m) => readSlugs.includes(m.articleSlug))
+                      ? t("profile.course.doQuiz")
+                      : t("profile.course.continue")}
                 </Link>
               </div>
               <div className="h-1 bg-felines-border">
@@ -939,16 +943,16 @@ export default function ProfileContent() {
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
           <Reveal>
             <p className="text-xs font-semibold uppercase tracking-[0.1em] text-felines-text-secondary-on-dark">
-              Sua jornada
+              {t("profile.activity.label")}
             </p>
             <h2 className="mt-3 text-3xl font-bold leading-tight text-white">
-              O que você já fez
+              {t("profile.activity.headline")}
             </h2>
           </Reveal>
 
           {activity.length === 0 ? (
             <p className="mt-6 text-sm text-felines-text-secondary-on-dark">
-              Ainda não tem nada registrado por aqui. Toda alimentação, relato ou agradecimento vai aparecer aqui.
+              {t("profile.activity.empty")}
             </p>
           ) : (
             <ol className="mt-8 max-w-3xl space-y-4 border-l-2 border-felines-accent pl-5">
