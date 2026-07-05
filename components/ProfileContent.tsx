@@ -306,6 +306,9 @@ export default function ProfileContent() {
     setUploadingAvatar(true);
     const filePath = buildSafeStoragePath(`avatars/${userId}`, file);
     assertSafeStoragePath(filePath);
+    if (userId.includes('..')) {
+      throw new Error('Invalid user ID');
+    }
     const { error: uploadError } = await supabase.storage.from("colony-photos").upload(filePath, file);
 
     if (uploadError) {
