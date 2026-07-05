@@ -172,7 +172,7 @@ export default function ShareStoryButton({ colonyId }: { colonyId: string }) {
                     {t("forms.story.photoLabel")}
                   </label>
                   <div className="mt-1">
-                    <PhotoUploadButton label="Escolher foto" file={photoFile} onChange={setPhotoFile} />
+                    <PhotoUploadButton label={t("common.choosePhoto")} file={photoFile} onChange={setPhotoFile} />
                   </div>
                 </div>
 

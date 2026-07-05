@@ -838,6 +838,7 @@ export const pt = {
   },
 
   common: {
+    choosePhoto: "Escolher foto",
     loading: "Carregando...",
     error: "Algo deu errado. Tenta de novo?",
     retry: "Tentar novamente",

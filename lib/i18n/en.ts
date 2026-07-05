@@ -836,6 +836,7 @@ export const en = {
   },
 
   common: {
+    choosePhoto: "Choose photo",
     loading: "Loading...",
     error: "Something went wrong. Try again?",
     retry: "Try again",

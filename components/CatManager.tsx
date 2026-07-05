@@ -297,7 +297,7 @@ export default function CatManager({ colonyId }: { colonyId: string }) {
             {t("colony.catManager.photoLabel")}
           </label>
           <div className="mt-1">
-            <PhotoUploadButton label="Escolher foto" file={photoFile} onChange={setPhotoFile} />
+            <PhotoUploadButton label={t("common.choosePhoto")} file={photoFile} onChange={setPhotoFile} />
           </div>
         </div>
 
@@ -351,7 +351,7 @@ export default function CatManager({ colonyId }: { colonyId: string }) {
                   </label>
                   <div className="mt-1">
                     <PhotoUploadButton
-                      label="Escolher foto"
+                      label={t("common.choosePhoto")}
                       file={editPhotoFile}
                       onChange={setEditPhotoFile}
                     />

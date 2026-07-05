@@ -111,7 +111,9 @@ export default function TimelineEventForm({ colonyId }: { colonyId: string }) {
             id="timeline-event-type"
             value={eventType}
             onChange={(formEvent) => {
-              setEventType(formEvent.target.value as typeof EVENT_TYPE_KEYS[number]);
+              const nextType = formEvent.target.value as typeof EVENT_TYPE_KEYS[number];
+              setEventType(nextType);
+              if (nextType !== "photo_update") setPhotoFile(null);
               setSubmitted(false);
             }}
             className="mt-1 rounded-md border border-felines-border bg-white px-3 py-2 text-sm"
@@ -144,21 +146,23 @@ export default function TimelineEventForm({ colonyId }: { colonyId: string }) {
         </div>
       </div>
 
-      <div className="mt-3">
-        <label className="block text-xs font-medium text-felines-text-secondary">
-          {t("timelineForm.photoLabel")}
-        </label>
-        <div className="mt-1">
-          <PhotoUploadButton
-            label="Escolher foto"
-            file={photoFile}
-            onChange={(file) => {
-              setPhotoFile(file);
-              setSubmitted(false);
-            }}
-          />
+      {eventType === "photo_update" && (
+        <div className="mt-3">
+          <label className="block text-xs font-medium text-felines-text-secondary">
+            {t("timelineForm.photoLabel")}
+          </label>
+          <div className="mt-1">
+            <PhotoUploadButton
+              label={t("common.choosePhoto")}
+              file={photoFile}
+              onChange={(file) => {
+                setPhotoFile(file);
+                setSubmitted(false);
+              }}
+            />
+          </div>
         </div>
-      </div>
+      )}
 
       <button
         type="submit"

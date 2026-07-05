@@ -302,7 +302,7 @@ export default function NewColonyForm() {
           {t("newColony.photoLabel")} <span className="text-felines-emergency">*</span>
         </label>
         <div className="mt-1">
-          <PhotoUploadButton label="Escolher foto" file={photoFile} onChange={setPhotoFile} />
+          <PhotoUploadButton label={t("common.choosePhoto")} file={photoFile} onChange={setPhotoFile} />
         </div>
       </div>
 
