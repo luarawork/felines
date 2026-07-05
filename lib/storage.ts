@@ -1,9 +1,17 @@
 // Shared helpers for uploading user photos to Supabase Storage.
 const MAX_PHOTO_SIZE_BYTES = 5 * 1024 * 1024; // 5MB
 
+// Explicit allowlist rather than a broad "image/*" check — that would
+// also accept image/svg+xml, which can embed a <script> tag and isn't a
+// raster image at all. Matches the extension allowlist in
+// buildSafeStoragePath below, so a file can't pass validation with one
+// MIME type and land in storage with a different, unvalidated extension.
+const ALLOWED_MIME_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+const ALLOWED_EXTENSIONS = ["jpg", "jpeg", "png", "webp", "gif"];
+
 export function validatePhotoFile(file: File): string | null {
-  if (!file.type.startsWith("image/")) {
-    return "O arquivo precisa ser uma imagem.";
+  if (!ALLOWED_MIME_TYPES.includes(file.type)) {
+    return "O arquivo precisa ser uma imagem (JPG, PNG, WebP ou GIF).";
   }
   if (file.size > MAX_PHOTO_SIZE_BYTES) {
     return "A imagem precisa ter no máximo 5MB.";
@@ -30,7 +38,8 @@ export function buildSafeStoragePath(prefix: string, file: File): string {
     .replace(/^\/+/, "")
     .replace(/\/+/g, "/");
   const extensionMatch = file.name.match(/\.([a-zA-Z0-9]{1,5})$/);
-  const extension = extensionMatch ? extensionMatch[1].toLowerCase() : "jpg";
+  const candidateExtension = extensionMatch ? extensionMatch[1].toLowerCase() : "jpg";
+  const extension = ALLOWED_EXTENSIONS.includes(candidateExtension) ? candidateExtension : "jpg";
   const randomToken = Math.random().toString(36).slice(2, 10);
   return `${safePrefix}/${Date.now()}-${randomToken}.${extension}`;
 }
