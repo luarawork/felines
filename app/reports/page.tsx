@@ -102,14 +102,14 @@ export default async function ReportsPage({
       <ColonyTabs
         defaultTabId={defaultTabId}
         tabs={[
-          { id: "reports", label: "Relatos", labelKey: "reports.tabs.reports", content: <ReportsList /> },
-          { id: "resources", label: "Troca de recursos", labelKey: "reports.tabs.resources", content: <ResourcesBoard /> },
           {
             id: "contacts",
             label: "Contatos",
             labelKey: "reports.tabs.contacts",
             content: <ContactsBoard initialByCity={byCity} categoryLabels={CATEGORY_LABELS} />,
           },
+          { id: "reports", label: "Relatos", labelKey: "reports.tabs.reports", content: <ReportsList /> },
+          { id: "resources", label: "Troca de recursos", labelKey: "reports.tabs.resources", content: <ResourcesBoard /> },
           { id: "stories", label: "Histórias", labelKey: "reports.tabs.stories", content: storiesContent },
         ]}
       />
