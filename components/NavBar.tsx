@@ -198,15 +198,17 @@ export default function NavBar() {
                 aria-label={unreadCount > 0 ? t("nav.menuLabelUnread").replace("{count}", String(unreadCount)) : t("nav.menuLabel")}
                 aria-haspopup="true"
                 aria-expanded={menuOpen}
-                className="relative flex h-11 w-11 items-center justify-center overflow-hidden rounded-full border border-felines-border bg-felines-accent-light text-sm font-semibold text-felines-accent-hover transition-colors hover:bg-felines-accent hover:text-white"
+                className="relative flex h-11 w-11 items-center justify-center rounded-full border border-felines-border bg-felines-accent-light text-sm font-semibold text-felines-accent-hover transition-colors hover:bg-felines-accent hover:text-white"
               >
-                {avatarUrl ? (
-                  <Image src={avatarUrl} alt={t("nav.profileAlt")} fill className="object-cover" />
-                ) : (
-                  initial
-                )}
+                <span className="relative flex h-full w-full items-center justify-center overflow-hidden rounded-full">
+                  {avatarUrl ? (
+                    <Image src={avatarUrl} alt={t("nav.profileAlt")} fill className="object-cover" />
+                  ) : (
+                    initial
+                  )}
+                </span>
                 {unreadCount > 0 && (
-                  <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-felines-emergency text-[10px] font-bold text-white">
+                  <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full border-2 border-white bg-felines-emergency text-[10px] font-bold text-white">
                     {unreadCount > 9 ? "9+" : unreadCount}
                   </span>
                 )}

@@ -601,25 +601,30 @@ export default function ProfileContent() {
               other people. */}
           <Reveal delayMs={60}>
             <div className="mt-6 flex flex-wrap gap-3">
-              <div className="rounded-xl border border-felines-border bg-felines-surface px-5 py-4">
+              <div className="flex items-center gap-2 rounded-xl border border-felines-border bg-felines-surface px-4 py-2.5">
                 {currentStreak > 0 ? (
-                  <p className="flex items-baseline gap-2">
-                    <span className="felines-flame-flicker text-3xl leading-none" aria-hidden="true">🔥</span>
-                    <span className="text-3xl font-bold leading-none text-felines-accent">{currentStreak}</span>
-                    <span className="text-sm font-medium text-felines-text-secondary">
-                      {currentStreak === 1 ? t("profile.streak.day") : t("profile.streak.days")}{" "}
-                      {t("profile.streak.streak")}
-                    </span>
-                  </p>
+                  <>
+                    <span className="felines-flame-flicker text-xl leading-none" aria-hidden="true">🔥</span>
+                    <p className="leading-tight">
+                      <span className="block text-lg font-bold text-felines-accent">{currentStreak}</span>
+                      <span className="text-xs text-felines-text-secondary">
+                        {currentStreak === 1 ? t("profile.streak.day") : t("profile.streak.days")}{" "}
+                        {t("profile.streak.streak")}
+                      </span>
+                    </p>
+                  </>
                 ) : (
                   <p className="text-sm text-felines-text-secondary">{t("profile.streak.noStreak")}</p>
                 )}
               </div>
               {longestStreak > 0 && (
-                <div className="rounded-xl border border-felines-border bg-felines-surface px-4 py-3">
-                  <p className="text-xs text-felines-text-secondary">
-                    {t("profile.streak.best")} {longestStreak}{" "}
-                    {longestStreak === 1 ? t("profile.streak.day") : t("profile.streak.days")}
+                <div className="flex items-center gap-2 rounded-xl border border-felines-border bg-felines-surface px-4 py-2.5">
+                  <span className="text-xl leading-none" aria-hidden="true">🏆</span>
+                  <p className="leading-tight">
+                    <span className="block text-lg font-bold text-felines-text-primary">
+                      {longestStreak} {longestStreak === 1 ? t("profile.streak.day") : t("profile.streak.days")}
+                    </span>
+                    <span className="text-xs text-felines-text-secondary">{t("profile.streak.best")}</span>
                   </p>
                 </div>
               )}
@@ -864,6 +869,24 @@ export default function ProfileContent() {
                 </Link>
               );
             })}
+          </div>
+
+          {/* 5. Glossário */}
+          <div className="mt-8">
+            <h3 className="text-sm font-semibold uppercase tracking-wide text-felines-text-secondary">
+              {t("home.footerGlossary")}
+            </h3>
+            <div className="mt-3 grid gap-3 sm:grid-cols-3">
+              <Link
+                href="/glossary"
+                className="flex w-full flex-col rounded-xl border border-felines-border bg-felines-surface p-4 text-left transition-all duration-200 hover:-translate-y-0.5 hover:border-felines-accent hover:shadow-[0_4px_12px_rgba(0,0,0,0.08)]"
+              >
+                <span className="text-2xl" aria-hidden="true">📖</span>
+                <p className="mt-2 font-semibold text-felines-text-primary">{t("home.footerGlossary")}</p>
+                <p className="mt-1 text-xs text-felines-text-secondary">{t("profile.glossary.description")}</p>
+                <p className="mt-3 text-xs font-medium text-felines-accent-hover">{t("profile.glossary.cta")}</p>
+              </Link>
+            </div>
           </div>
 
         </div>

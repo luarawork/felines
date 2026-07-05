@@ -382,7 +382,8 @@ export default function ColonyMap({
           .from("colonies")
           .select(
             "id, name, narrative, cover_photo_url, latitude_blurred, longitude_blurred, latitude_blurred_near, longitude_blurred_near, castration_status, created_by, verified_status, health_status"
-          ),
+          )
+          .is("removed_at", null),
         supabase
           .from("suggested_colonies")
           .select("id, latitude, longitude, sighting_count"),
@@ -895,19 +896,26 @@ export default function ColonyMap({
           if (!position) return null;
           const isExact = report.latitude != null;
           const popupContent = (
-            <Popup>
-              <strong>{getReportTypeLabel(report.type, t)}</strong>
-              {!isExact && (
-                <p className="mt-1 text-xs text-felines-text-secondary">
-                  {t("map.approxLocation")}
-                </p>
-              )}
-              <a
-                href={`/reports#report-${report.id}`}
-                className="mt-2 block text-xs font-medium text-felines-accent-hover"
-              >
-                {t("map.viewReport")}
-              </a>
+            <Popup minWidth={220} maxWidth={220} className="felines-colony-popup">
+              <div className="flex items-center gap-2 bg-felines-accent-light px-3.5 py-2.5">
+                <span className="text-lg leading-none" aria-hidden="true">👁️</span>
+                <strong className="text-sm font-bold leading-snug text-felines-text-primary">
+                  {getReportTypeLabel(report.type, t)}
+                </strong>
+              </div>
+              <div className="p-3.5">
+                {!isExact && (
+                  <span className="inline-flex items-center rounded-full border border-felines-border bg-felines-surface px-2 py-0.5 text-[11px] font-medium text-felines-text-secondary">
+                    {t("map.approxLocation")}
+                  </span>
+                )}
+                <a
+                  href={`/reports#report-${report.id}`}
+                  className="felines-popup-cta mt-3 block rounded-full bg-felines-accent py-2 text-center text-xs font-semibold text-white transition-colors hover:bg-felines-accent-hover"
+                >
+                  {t("map.viewReport")}
+                </a>
+              </div>
             </Popup>
           );
           return isExact ? (

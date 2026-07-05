@@ -728,7 +728,11 @@ export const pt = {
       days: "dias",
       streak: "de sequência",
       noStreak: "Volte amanhã para começar sua sequência 🐾",
-      best: "Melhor sequência:",
+      best: "Melhor sequência",
+    },
+    glossary: {
+      description: "36 termos sobre colônias, castração e cuidado com gatos de rua, explicados em linguagem simples.",
+      cta: "Ver glossário →",
     },
     empty: {
       main: "Sua jornada começa aqui.",
@@ -922,6 +926,7 @@ export const pt = {
     emptySub: "Quando uma colônia que você cuida enfrentar frio ou calor extremo, você vai saber por aqui.",
     emptyCta: "Ver suas colônias",
     viewColony: "ver colônia",
+    markRead: "Marcar como lida",
   },
 
   photoUpload: {

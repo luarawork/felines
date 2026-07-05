@@ -123,6 +123,54 @@ export function useFelinesAssistant() {
     };
   }, [pathname, fire]);
 
+  // TRIGGER 2C — idle 45s on a colony page, same idle pattern as trigger
+  // 2 but scoped to /colony/[id] with its own once-per-session flag.
+  useEffect(() => {
+    if (!pathname.startsWith("/colony/") || pathname === "/colony/new") return;
+    if (sessionStorage.getItem("assistant_idle_colony")) return;
+
+    let idleTimer: ReturnType<typeof setTimeout>;
+    function resetIdleTimer() {
+      clearTimeout(idleTimer);
+      idleTimer = setTimeout(() => {
+        if (fire("idle-colony")) sessionStorage.setItem("assistant_idle_colony", "true");
+      }, 45000);
+    }
+
+    resetIdleTimer();
+    window.addEventListener("click", resetIdleTimer);
+    window.addEventListener("keydown", resetIdleTimer);
+    return () => {
+      clearTimeout(idleTimer);
+      window.removeEventListener("click", resetIdleTimer);
+      window.removeEventListener("keydown", resetIdleTimer);
+    };
+  }, [pathname, fire]);
+
+  // TRIGGER 2D — idle 45s on the profile page, same idle pattern as
+  // trigger 2 but scoped to /profile with its own once-per-session flag.
+  useEffect(() => {
+    if (pathname !== "/profile") return;
+    if (sessionStorage.getItem("assistant_idle_profile")) return;
+
+    let idleTimer: ReturnType<typeof setTimeout>;
+    function resetIdleTimer() {
+      clearTimeout(idleTimer);
+      idleTimer = setTimeout(() => {
+        if (fire("idle-profile")) sessionStorage.setItem("assistant_idle_profile", "true");
+      }, 45000);
+    }
+
+    resetIdleTimer();
+    window.addEventListener("click", resetIdleTimer);
+    window.addEventListener("keydown", resetIdleTimer);
+    return () => {
+      clearTimeout(idleTimer);
+      window.removeEventListener("click", resetIdleTimer);
+      window.removeEventListener("keydown", resetIdleTimer);
+    };
+  }, [pathname, fire]);
+
   // TRIGGER 3 — article scroll reaches 95% of page height.
   useEffect(() => {
     if (!pathname.startsWith("/learn/")) return;

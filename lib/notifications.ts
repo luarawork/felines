@@ -39,6 +39,14 @@ export async function markAllRead(userId: string): Promise<void> {
   await supabase.from("notifications").update({ read: true }).eq("user_id", userId).eq("read", false);
 }
 
+// Dismisses a single notification permanently — there's no separate
+// read/unread view in this app, so "mark as read" on an individual
+// notification means removing it from the list entirely rather than
+// leaving it there forever in a read state.
+export async function dismissNotification(notificationId: string): Promise<void> {
+  await supabase.from("notifications").delete().eq("id", notificationId);
+}
+
 // Checks the current weather and, if it's significant (extreme heat,
 // extreme cold, or heavy rain), creates a notification AND a
 // timeline_event for every colony the user cares for — unless one was

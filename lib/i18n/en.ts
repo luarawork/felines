@@ -726,7 +726,11 @@ export const en = {
       days: "days",
       streak: "streak",
       noStreak: "Come back tomorrow to start your streak 🐾",
-      best: "Best streak:",
+      best: "Best streak",
+    },
+    glossary: {
+      description: "36 terms about colonies, castration, and caring for street cats, explained in plain language.",
+      cta: "View glossary →",
     },
     empty: {
       main: "Your journey starts here.",
@@ -920,6 +924,7 @@ export const en = {
     emptySub: "When a colony you care for faces extreme cold or heat, you'll find out here.",
     emptyCta: "See your colonies",
     viewColony: "view colony",
+    markRead: "Mark as read",
   },
 
   photoUpload: {
