@@ -103,6 +103,8 @@ export const pt = {
   },
 
   stories: {
+    loginPromptPre: "Entre na sua conta",
+    loginPromptPost: "para ver as histórias da comunidade.",
     pageTitle: "Histórias da comunidade",
     pageSub: "Momentos especiais contados por quem cuida das colônias.",
     empty: "Nenhuma história ainda. Seja a primeira pessoa a compartilhar um momento da sua colônia.",

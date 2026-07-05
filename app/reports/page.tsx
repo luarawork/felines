@@ -5,9 +5,9 @@
 import { createClient } from "@supabase/supabase-js";
 import ReportsList from "@/components/ReportsList";
 import ResourcesBoard from "@/components/ResourcesBoard";
-import StoriesGrid from "@/components/StoriesGrid";
 import ContactsBoard from "@/components/ContactsBoard";
 import ReportsStoriesEmpty from "@/components/ReportsStoriesEmpty";
+import StoriesSection from "@/components/StoriesSection";
 import ColonyTabs from "@/components/ColonyTabs";
 import ReportsPageHeader from "@/components/ReportsPageHeader";
 import type { StoryWithMeta } from "@/app/stories/page";
@@ -94,8 +94,7 @@ export default async function ReportsPage({
     return acc;
   }, {});
 
-  const storiesContent =
-    stories.length === 0 ? <ReportsStoriesEmpty /> : <StoriesGrid stories={stories} />;
+  const storiesContent = <StoriesSection stories={stories} emptyState={<ReportsStoriesEmpty />} />;
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6">

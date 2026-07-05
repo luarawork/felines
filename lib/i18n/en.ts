@@ -103,6 +103,8 @@ export const en = {
   },
 
   stories: {
+    loginPromptPre: "Sign in",
+    loginPromptPost: "to see the community stories.",
     pageTitle: "Community stories",
     pageSub: "Special moments told by the people who care for the colonies.",
     empty: "No stories yet. Be the first person to share a moment from your colony.",
