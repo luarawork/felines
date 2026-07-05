@@ -14,7 +14,7 @@
 - **Repository:** https://github.com/luarawork/felines
 - **Documentation (PT):** [Felines — Documentação](https://bronzed-longship-a0f.notion.site/Felines-Documenta-o-392f091b2b7481048a73e27049a939cb)
 - **Documentation (EN):** [Felines — Documentation](https://bronzed-longship-a0f.notion.site/Felines-Documentation-EN-392f091b2b7481ff9a45e3b8b06f3993)
-- **Wiki (architecture, database schema, API reference, security deep-dive, roadmap):** https://github.com/luarawork/felines/wiki
+- **Wiki (product vision, research & benchmark, personas, user flows, design decisions, visual identity, UI design system, features deep-dive, content strategy, architecture, database schema, security deep-dive, API reference, environment setup, testing, how AI was used, behind the scenes, process log, roadmap):** https://github.com/luarawork/felines/wiki
 
 If you'd like to know more about my work: [luara.work](https://luara.work/)
 
@@ -699,7 +699,7 @@ More detail on the product than fits in this README:
 
 - 🇧🇷 [Documentação em Português](https://bronzed-longship-a0f.notion.site/Felines-Documenta-o-392f091b2b7481048a73e27049a939cb)
 - 🇺🇸 [Documentation in English](https://bronzed-longship-a0f.notion.site/Felines-Documentation-EN-392f091b2b7481ff9a45e3b8b06f3993)
-- **GitHub Wiki:** https://github.com/luarawork/felines/wiki — architecture deep-dive, full database schema and RPC reference, security technical detail, environment setup, and the full roadmap.
+- **GitHub Wiki:** https://github.com/luarawork/felines/wiki — the full detail behind every section of this README and more: product vision and positioning, sourced research and the competitor benchmark, user personas and flows, 18 documented design decisions, visual identity and the UI design system, a fully detailed feature-by-feature breakdown, content strategy, architecture, database schema and RPC reference, an in-depth security page (including the live Aikido dashboard screenshot), environment setup, the full testing record, how AI was used, the story behind the product, the day-by-day development log, and the roadmap.
 
 ---
 
