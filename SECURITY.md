@@ -38,7 +38,7 @@ Anything that could let someone:
 
 - **Find the exact location of a colony or cat they shouldn't be able
   to.** This is the one we care about most — see [Progressive Location
-  Blur](README.md#progressive-location-blur) for how location data is
+  Blur](README.md#71-progressive-location-blur) for how location data is
   meant to be protected, at three trust levels, entirely at the
   database layer.
 - Bypass Row Level Security or a Supabase RPC's authorization check —
@@ -78,12 +78,12 @@ Aikido has already found and we've fixed:
   `URLSearchParams` instead of string interpolation, and disabling
   redirect-following on the fetch.
 
-Row Level Security is enabled on all 25 application tables, with no
+Row Level Security is enabled on all 26 application tables, with no
 "allow everything" fallback policy anywhere in the schema — see
 [`AUDIT_REPORT.md`](docs/AUDIT_REPORT.md) for the full, itemized findings
 (including internal review findings beyond the two above) and the
 reasoning behind each fix, and the [README's Security
-section](README.md#security) for the broader architecture.
+section](README.md#7-security) for the broader architecture.
 
 ## What to Expect After You Report
 

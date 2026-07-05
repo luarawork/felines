@@ -34,11 +34,12 @@ whole point.
    ```
 
 3. **Set up your environment.** Copy `.env.example` to `.env.local` and
-   fill in the three required variables:
+   fill in the required variables:
    ```
    NEXT_PUBLIC_SUPABASE_URL=
    NEXT_PUBLIC_SUPABASE_ANON_KEY=
    NEXT_PUBLIC_WEATHER_API_KEY=
+   NEXT_PUBLIC_SITE_URL=http://localhost:3000
    ```
    Both Supabase values come from your project's Project Settings → API.
 
