@@ -8,6 +8,7 @@ import { useState } from "react";
 import EditColonyForm from "@/components/EditColonyForm";
 import { useColonyAccessContext } from "@/components/ColonyAccessProvider";
 import { useEscapeToClose } from "@/lib/useEscapeToClose";
+import { useLanguage } from "@/lib/i18n";
 
 type CastrationStatus = "none" | "partial" | "full";
 
@@ -29,6 +30,7 @@ export default function EditColonyButton({
   menuItem?: boolean;
 }) {
   const { canManage, checkingAccess } = useColonyAccessContext();
+  const { t } = useLanguage();
   const [open, setOpen] = useState(false);
   useEscapeToClose(open, () => setOpen(false));
 
@@ -44,7 +46,7 @@ export default function EditColonyButton({
             : "rounded-full border border-felines-border px-4 py-2 text-sm font-medium text-felines-text-secondary transition-colors hover:border-felines-accent hover:text-felines-accent-hover"
         }
       >
-        Editar colônia
+        {t("editColony.trigger")}
       </button>
 
       {open && (
@@ -65,7 +67,7 @@ export default function EditColonyButton({
               </h2>
               <button
                 onClick={() => setOpen(false)}
-                aria-label="Fechar"
+                aria-label={t("editColony.close")}
                 className="flex h-11 w-11 flex-shrink-0 items-center justify-center text-xl leading-none text-felines-text-secondary hover:text-felines-text-primary"
               >
                 ×

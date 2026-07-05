@@ -48,8 +48,11 @@ export async function markAllRead(userId: string): Promise<void> {
 // lookup at its own (blurred) coordinates. timeline_events.created_by
 // is left null — these are system-generated, not attributed to the
 // signed-in user whose session happened to trigger the check.
-export async function checkExtremeWeatherForCaretaker(userId: string): Promise<void> {
-  const weather = await getWeatherAt(NATAL_COORDS.lat, NATAL_COORDS.lon);
+export async function checkExtremeWeatherForCaretaker(
+  userId: string,
+  language: "pt" | "en" = "pt"
+): Promise<void> {
+  const weather = await getWeatherAt(NATAL_COORDS.lat, NATAL_COORDS.lon, language);
   if (!weather) return;
 
   const isExtremeCold = weather.temperatureCelsius < 10;
@@ -71,18 +74,34 @@ export async function checkExtremeWeatherForCaretaker(userId: string): Promise<v
   todayStart.setHours(0, 0, 0, 0);
 
   const roundedTemp = Math.round(weather.temperatureCelsius);
-  const notificationMessage = isExtremeCold
-    ? `Está fazendo ${roundedTemp}°C — frio extremo para os gatos de`
-    : isExtremeHeat
-      ? `Está fazendo ${roundedTemp}°C — calor extremo para os gatos de`
-      : `Chuva forte registrada perto de`;
+  const notificationMessage =
+    language === "en"
+      ? isExtremeCold
+        ? `It's ${roundedTemp}°C — extreme cold for the cats of`
+        : isExtremeHeat
+          ? `It's ${roundedTemp}°C — extreme heat for the cats of`
+          : `Heavy rain recorded near`
+      : isExtremeCold
+        ? `Está fazendo ${roundedTemp}°C — frio extremo para os gatos de`
+        : isExtremeHeat
+          ? `Está fazendo ${roundedTemp}°C — calor extremo para os gatos de`
+          : `Chuva forte registrada perto de`;
+  const notificationSuffix =
+    language === "en" ? "Consider checking food, water, and shelter." : "Considere checar comida, água e abrigo.";
 
   const timelineEventType = isExtremeCold ? "extreme_cold" : isExtremeHeat ? "extreme_heat" : "heavy_rain";
-  const timelineDescription = isExtremeCold
-    ? `🌡️ Frio extremo registrado — ${roundedTemp}°C`
-    : isExtremeHeat
-      ? `🌡️ Calor extremo registrado — ${roundedTemp}°C`
-      : `🌧️ Chuva forte registrada`;
+  const timelineDescription =
+    language === "en"
+      ? isExtremeCold
+        ? `🌡️ Extreme cold recorded — ${roundedTemp}°C`
+        : isExtremeHeat
+          ? `🌡️ Extreme heat recorded — ${roundedTemp}°C`
+          : `🌧️ Heavy rain recorded`
+      : isExtremeCold
+        ? `🌡️ Frio extremo registrado — ${roundedTemp}°C`
+        : isExtremeHeat
+          ? `🌡️ Calor extremo registrado — ${roundedTemp}°C`
+          : `🌧️ Chuva forte registrada`;
 
   for (const colony of colonies) {
     const { data: existingNotification } = await supabase
@@ -99,7 +118,7 @@ export async function checkExtremeWeatherForCaretaker(userId: string): Promise<v
         user_id: userId,
         colony_id: colony.id,
         type: "extreme_weather",
-        message: `${notificationMessage} ${colony.name}. Considere checar comida, água e abrigo.`,
+        message: `${notificationMessage} ${colony.name}. ${notificationSuffix}`,
       });
     }
 
@@ -127,7 +146,10 @@ export async function checkExtremeWeatherForCaretaker(userId: string): Promise<v
 // — unless one was already created today for that cat. last_seen is
 // only ever set at registration or via "marcar como visto", so a stale
 // value is a real signal something might be wrong, not just inactivity.
-export async function checkStaleCatsForCaretaker(userId: string): Promise<void> {
+export async function checkStaleCatsForCaretaker(
+  userId: string,
+  language: "pt" | "en" = "pt"
+): Promise<void> {
   const { data: caretakerRows } = await supabase
     .from("caretakers")
     .select("colonies(id, name)")
@@ -171,7 +193,10 @@ export async function checkStaleCatsForCaretaker(userId: string): Promise<void> 
         // message so the dedupe check above can target this specific
         // cat — `notifications` has no cat_id column, and adding one
         // for a single notification type isn't worth a new migration.
-        message: `${cat.name ?? "Um gato"} de ${colony.name} não é visto há mais de 7 dias. Tudo bem com ele? (ref:${cat.id})`,
+        message:
+          language === "en"
+            ? `${cat.name ?? "A cat"} from ${colony.name} hasn't been seen in over 7 days. Is everything okay? (ref:${cat.id})`
+            : `${cat.name ?? "Um gato"} de ${colony.name} não é visto há mais de 7 dias. Tudo bem com ele? (ref:${cat.id})`,
       });
     }
   }

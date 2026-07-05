@@ -80,12 +80,12 @@ export default function NavBar() {
   useEffect(() => {
     if (!session) return;
     Promise.all([
-      checkExtremeWeatherForCaretaker(session.user.id),
-      checkStaleCatsForCaretaker(session.user.id),
+      checkExtremeWeatherForCaretaker(session.user.id, language),
+      checkStaleCatsForCaretaker(session.user.id, language),
     ]).finally(() => {
       getUnreadCount(session.user.id).then(setUnreadCount);
     });
-  }, [session]);
+  }, [session, language]);
 
   // Closes the avatar dropdown when clicking outside it or pressing Escape.
   useEffect(() => {

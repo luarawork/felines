@@ -8,6 +8,7 @@
 "use client";
 
 import { useId, useState } from "react";
+import { useLanguage } from "@/lib/i18n";
 
 const MAX_BYTES = 5 * 1024 * 1024; // 5 MB
 
@@ -21,6 +22,7 @@ export default function PhotoUploadButton({
   onChange: (file: File | null) => void;
 }) {
   const inputId = useId();
+  const { t } = useLanguage();
   const [validationError, setValidationError] = useState<string | null>(null);
 
   function handleChange(formEvent: React.ChangeEvent<HTMLInputElement>) {
@@ -29,13 +31,13 @@ export default function PhotoUploadButton({
 
     if (selected) {
       if (!selected.type.startsWith("image/")) {
-        setValidationError("Apenas imagens são aceitas (JPG, PNG, WebP…).");
+        setValidationError(t("photoUpload.invalidType"));
         formEvent.target.value = "";
         onChange(null);
         return;
       }
       if (selected.size > MAX_BYTES) {
-        setValidationError("A imagem deve ter no máximo 5 MB.");
+        setValidationError(t("photoUpload.tooLarge"));
         formEvent.target.value = "";
         onChange(null);
         return;
@@ -79,7 +81,9 @@ export default function PhotoUploadButton({
         <p role="alert" className="mt-1 text-xs text-felines-emergency">{validationError}</p>
       )}
       {!validationError && file && (
-        <p className="mt-1 text-xs text-felines-success-hover">Selecionada: {file.name}</p>
+        <p className="mt-1 text-xs text-felines-success-hover">
+          {t("photoUpload.selected").replace("{name}", file.name)}
+        </p>
       )}
     </div>
   );

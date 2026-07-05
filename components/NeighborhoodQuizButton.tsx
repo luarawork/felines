@@ -8,20 +8,24 @@
 import { useState } from "react";
 import Link from "next/link";
 import {
-  NEIGHBORHOOD_QUESTIONS,
-  DIAGNOSES,
+  getNeighborhoodQuestions,
+  getDiagnoses,
   diagnose,
   type AnswerKey,
 } from "@/lib/neighborhoodQuiz";
 import { useEscapeToClose } from "@/lib/useEscapeToClose";
+import { useLanguage } from "@/lib/i18n";
 
 export default function NeighborhoodQuizButton({
   triggerClassName,
-  triggerLabel = "O que está acontecendo no seu bairro?",
+  triggerLabel,
 }: {
   triggerClassName?: string;
   triggerLabel?: string;
 }) {
+  const { t } = useLanguage();
+  const NEIGHBORHOOD_QUESTIONS = getNeighborhoodQuestions(t);
+  const DIAGNOSES = getDiagnoses(t);
   const [open, setOpen] = useState(false);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [animKey, setAnimKey] = useState(0);
@@ -65,7 +69,7 @@ export default function NeighborhoodQuizButton({
           "rounded-full border border-felines-accent px-4 py-2 text-sm font-medium text-felines-accent-hover transition-colors hover:bg-felines-accent hover:text-white"
         }
       >
-        {triggerLabel}
+        {triggerLabel ?? t("neighborhoodQuiz.triggerLabel")}
       </button>
 
       {open && (
@@ -76,7 +80,7 @@ export default function NeighborhoodQuizButton({
           <div
             role="dialog"
             aria-modal="true"
-            aria-label="O que está acontecendo no seu bairro?"
+            aria-label={t("neighborhoodQuiz.triggerLabel")}
             className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-2xl bg-felines-background p-6 shadow-xl"
             onClick={(event) => event.stopPropagation()}
           >
@@ -97,7 +101,7 @@ export default function NeighborhoodQuizButton({
               </div>
               <button
                 onClick={handleClose}
-                aria-label="Fechar"
+                aria-label={t("neighborhoodQuiz.close")}
                 className="flex h-11 w-11 flex-shrink-0 items-center justify-center text-xl leading-none text-felines-text-secondary hover:text-felines-text-primary"
               >
                 ×
@@ -111,7 +115,7 @@ export default function NeighborhoodQuizButton({
                     onClick={() => setCurrentQuestion((previous) => previous - 1)}
                     className="mb-3 text-sm text-felines-text-secondary hover:text-felines-accent"
                   >
-                    ← Voltar
+                    ← {t("neighborhoodQuiz.back")}
                   </button>
                 )}
                 <h2 className="text-lg font-semibold text-felines-text-primary">
@@ -152,7 +156,7 @@ export default function NeighborhoodQuizButton({
                       onClick={handleStartOver}
                       className="text-sm font-medium text-felines-text-secondary hover:text-felines-accent"
                     >
-                      Recomeçar
+                      {t("neighborhoodQuiz.restart")}
                     </button>
                   </div>
                 </div>

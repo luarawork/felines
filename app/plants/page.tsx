@@ -7,6 +7,7 @@
 import Link from "next/link";
 import { TOXIC_PLANTS, TOXICITY_LABELS, TOXICITY_LABELS_EN, localizeToxicPlant, type ToxicityLevel } from "@/lib/toxicPlants";
 import Reveal from "@/components/Reveal";
+import BackLink from "@/components/BackLink";
 import { useLanguage } from "@/lib/i18n";
 
 function ToxicityBadge({ level, language }: { level: ToxicityLevel; language: "pt" | "en" }) {
@@ -34,9 +35,9 @@ export default function PlantsPage() {
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6">
-      <Link href="/" className="text-sm text-felines-text-secondary hover:text-felines-accent">
+      <BackLink fallbackHref="/" className="text-sm text-felines-text-secondary hover:text-felines-accent">
         {t("plants.backHome")}
-      </Link>
+      </BackLink>
 
       <Reveal>
         <h1 className="mt-4 text-3xl font-bold text-felines-text-primary sm:text-4xl">

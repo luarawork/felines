@@ -892,6 +892,48 @@ export const pt = {
     },
   },
 
+  colonyInterest: {
+    title: "Antes de ver os detalhes",
+    close: "Fechar",
+    interestQuestion: "Você tem interesse em se tornar cuidador dessa colônia?",
+    yes: "Sim",
+    no: "Não",
+    proximityQuestion: "Você mora perto, ou passa por esse local com frequência?",
+    liveNearby: "Moro perto",
+    passByOften: "Passo com frequência",
+    noneOfTheAbove: "Nenhuma das opções",
+    denied: "O detalhamento dessa colônia é só para quem cuida dela. Se isso mudar, volte aqui quando quiser.",
+  },
+
+  editColony: {
+    trigger: "Editar colônia",
+    close: "Fechar",
+  },
+
+  notificationsList: {
+    emptyMain: "Nenhuma notificação por aqui ainda.",
+    emptySub: "Quando uma colônia que você cuida enfrentar frio ou calor extremo, você vai saber por aqui.",
+    emptyCta: "Ver suas colônias",
+    viewColony: "ver colônia",
+  },
+
+  photoUpload: {
+    invalidType: "Apenas imagens são aceitas (JPG, PNG, WebP…).",
+    tooLarge: "A imagem deve ter no máximo 5 MB.",
+    selected: "Selecionada: {name}",
+  },
+
+  neighborhoodQuiz: {
+    triggerLabel: "O que está acontecendo no seu bairro?",
+    close: "Fechar",
+    restart: "Recomeçar",
+    back: "Voltar",
+  },
+
+  colonyClickTooltip: {
+    body: "Essa bolinha é uma colônia de gatos. Toque pra ver quem vive ali e como você pode ajudar.",
+  },
+
   forms: {
     photo: {
       typeError: "Apenas imagens são aceitas (JPG, PNG, WebP…).",
@@ -1452,6 +1494,70 @@ export const pt = {
     almostThere: "Quase lá — tente de novo!",
     answerPrefix: "Resposta:",
     tryAgain: "Tentar novamente",
+  },
+
+  neighborhoodQuizContent: {
+    q1: {
+      question: "Quantos gatos você costuma ver no mesmo lugar?",
+      options: {
+        0: "Só um ou dois, de vez em quando",
+        1: "Um grupo pequeno — de 3 a 6 gatos",
+        2: "Um grupo maior — 7 ou mais",
+        3: "Nunca prestei muita atenção",
+      },
+    },
+    q2: {
+      question: "Você vê os mesmos gatos com frequência, no mesmo lugar?",
+      options: {
+        0: "Sim, sempre os mesmos",
+        1: "Às vezes — alguns conhecidos, outros novos",
+        2: "Parecem diferentes a cada vez",
+        3: "Não tenho certeza",
+      },
+    },
+    q3: {
+      question: "Tem alguém que parece alimentar ou cuidar deles?",
+      options: {
+        0: "Sim, já vi alguém deixando comida",
+        1: "Tem potes de comida, mas nunca vi quem deixa",
+        2: "Nenhum sinal de que alguém cuida",
+        3: "Não sei",
+      },
+    },
+    q4: {
+      question: "Já houve algum conflito ou reclamação sobre os gatos?",
+      options: {
+        0: "Sim, vizinhos já reclamaram",
+        1: "Alguma tensão, mas nada grave",
+        2: "Nenhum conflito que eu saiba",
+        3: "Não ouvi nada sobre isso",
+      },
+    },
+    diagnoses: {
+      established: {
+        title: "Isso parece uma colônia já estabelecida",
+        explanation:
+          "Você provavelmente está vendo uma colônia que já tem alguém de olho nela. Isso é uma boa notícia — significa que já existe cuidado acontecendo, mesmo que discreto.",
+        ctaLabel: "Descobrir se ela já está mapeada",
+      },
+      unregistered: {
+        title: "Isso pode ser uma colônia ainda não registrada",
+        explanation:
+          "Esses gatos parecem ter se estabelecido ali, mas ninguém está acompanhando oficialmente. Eles podem precisar de apoio — e você pode ser a pessoa que começa isso.",
+        ctaLabel: "Seja o primeiro a mapear essa colônia",
+      },
+      conflict: {
+        title: "Isso parece uma situação de conflito",
+        explanation:
+          "Conflitos de vizinhança envolvendo gatos são mais comuns do que parece — e têm soluções reais, que não passam por remover os gatos.",
+        ctaLabel: "Veja o que realmente funciona",
+      },
+      unclear: {
+        title: "Ainda é difícil saber",
+        explanation: "Sem problema. O mapa pode te ajudar a descobrir o que já existe perto de você.",
+        ctaLabel: "Explorar o que tem na sua área",
+      },
+    },
   },
 
   quizContent: {

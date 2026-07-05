@@ -5,6 +5,7 @@ import OpenHelpModalButton from "@/components/OpenHelpModalButton";
 import ShareButton from "@/components/ShareButton";
 import FactChip from "@/components/FactChip";
 import Reveal from "@/components/Reveal";
+import BackLink from "@/components/BackLink";
 import type { Article } from "@/lib/articles";
 import { localizeArticle } from "@/lib/articles";
 import { useLanguage } from "@/lib/i18n";
@@ -12,9 +13,9 @@ import { useLanguage } from "@/lib/i18n";
 export function ArticleBackLink() {
   const { t } = useLanguage();
   return (
-    <Link href="/#aprender" className="text-sm text-felines-text-secondary hover:text-felines-accent">
+    <BackLink fallbackHref="/#aprender" className="text-sm text-felines-text-secondary hover:text-felines-accent">
       {t("article.backToGuide")}
-    </Link>
+    </BackLink>
   );
 }
 

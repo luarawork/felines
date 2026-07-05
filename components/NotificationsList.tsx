@@ -10,9 +10,11 @@ import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient";
 import { getNotifications, markAllRead, type Notification } from "@/lib/notifications";
 import EmptyState from "@/components/EmptyState";
+import { useLanguage } from "@/lib/i18n";
 
 export default function NotificationsList() {
   const router = useRouter();
+  const { t, language } = useLanguage();
   const [loading, setLoading] = useState(true);
   const [notifications, setNotifications] = useState<Notification[]>([]);
 
@@ -40,9 +42,9 @@ export default function NotificationsList() {
     return (
       <div className="mt-8">
         <EmptyState
-          main="Nenhuma notificação por aqui ainda."
-          sub="Quando uma colônia que você cuida enfrentar frio ou calor extremo, você vai saber por aqui."
-          ctas={[{ label: "Ver suas colônias", href: "/profile" }]}
+          main={t("notificationsList.emptyMain")}
+          sub={t("notificationsList.emptySub")}
+          ctas={[{ label: t("notificationsList.emptyCta"), href: "/profile" }]}
         />
       </div>
     );
@@ -61,12 +63,14 @@ export default function NotificationsList() {
             {notification.message.replace(/\s*\(ref:[^)]+\)/, "")}
           </p>
           <div className="mt-2 flex items-center gap-2 text-xs text-felines-text-secondary">
-            <span>{new Date(notification.created_at).toLocaleDateString("pt-BR")}</span>
+            <span>
+              {new Date(notification.created_at).toLocaleDateString(language === "en" ? "en-US" : "pt-BR")}
+            </span>
             {notification.colony_id && (
               <>
                 <span>·</span>
                 <Link href={`/colony/${notification.colony_id}`} className="text-felines-accent-hover">
-                  ver colônia
+                  {t("notificationsList.viewColony")}
                 </Link>
               </>
             )}

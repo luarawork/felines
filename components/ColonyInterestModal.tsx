@@ -10,6 +10,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useEscapeToClose } from "@/lib/useEscapeToClose";
+import { useLanguage } from "@/lib/i18n";
 
 type Step = "interest" | "proximity" | "denied";
 
@@ -21,6 +22,7 @@ export default function ColonyInterestModal({
   onClose: () => void;
 }) {
   const router = useRouter();
+  const { t } = useLanguage();
   const [step, setStep] = useState<Step>("interest");
   useEscapeToClose(true, onClose);
 
@@ -43,11 +45,11 @@ export default function ColonyInterestModal({
       >
         <div className="flex items-start justify-between">
           <h2 id="colony-interest-title" className="text-lg font-bold text-felines-text-primary">
-            Antes de ver os detalhes
+            {t("colonyInterest.title")}
           </h2>
           <button
             onClick={onClose}
-            aria-label="Fechar"
+            aria-label={t("colonyInterest.close")}
             className="flex h-11 w-11 flex-shrink-0 items-center justify-center text-xl leading-none text-felines-text-secondary hover:text-felines-text-primary"
           >
             ×
@@ -57,20 +59,20 @@ export default function ColonyInterestModal({
         {step === "interest" && (
           <>
             <p className="mt-3 text-sm text-felines-text-secondary">
-              Você tem interesse em se tornar cuidador dessa colônia?
+              {t("colonyInterest.interestQuestion")}
             </p>
             <div className="mt-4 flex gap-3">
               <button
                 onClick={() => setStep("proximity")}
                 className="rounded-full bg-felines-accent px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-felines-accent-hover"
               >
-                Sim
+                {t("colonyInterest.yes")}
               </button>
               <button
                 onClick={() => setStep("denied")}
                 className="rounded-full border border-felines-border px-4 py-2 text-sm font-medium text-felines-text-secondary transition-colors hover:border-felines-accent hover:text-felines-accent-hover"
               >
-                Não
+                {t("colonyInterest.no")}
               </button>
             </div>
           </>
@@ -79,26 +81,26 @@ export default function ColonyInterestModal({
         {step === "proximity" && (
           <>
             <p className="mt-3 text-sm text-felines-text-secondary">
-              Você mora perto, ou passa por esse local com frequência?
+              {t("colonyInterest.proximityQuestion")}
             </p>
             <div className="mt-4 flex flex-col gap-2">
               <button
                 onClick={goToColony}
                 className="rounded-full bg-felines-accent px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-felines-accent-hover"
               >
-                Moro perto
+                {t("colonyInterest.liveNearby")}
               </button>
               <button
                 onClick={goToColony}
                 className="rounded-full border border-felines-accent px-4 py-2 text-sm font-medium text-felines-accent-hover transition-colors hover:bg-felines-accent hover:text-white"
               >
-                Passo com frequência
+                {t("colonyInterest.passByOften")}
               </button>
               <button
                 onClick={() => setStep("denied")}
                 className="rounded-full border border-felines-border px-4 py-2 text-sm font-medium text-felines-text-secondary transition-colors hover:border-felines-accent hover:text-felines-accent-hover"
               >
-                Nenhuma das opções
+                {t("colonyInterest.noneOfTheAbove")}
               </button>
             </div>
           </>
@@ -106,8 +108,7 @@ export default function ColonyInterestModal({
 
         {step === "denied" && (
           <p className="mt-3 text-sm text-felines-text-secondary">
-            O detalhamento dessa colônia é só para quem cuida dela. Se isso mudar, volte aqui
-            quando quiser.
+            {t("colonyInterest.denied")}
           </p>
         )}
       </div>

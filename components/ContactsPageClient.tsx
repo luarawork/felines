@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import BackLink from "@/components/BackLink";
 import ContactsBoard from "@/components/ContactsBoard";
 import type { ContactRow } from "@/app/contacts/page";
 import { useLanguage } from "@/lib/i18n";
@@ -16,9 +16,9 @@ export default function ContactsPageClient({
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-12 sm:px-6">
-      <Link href="/" className="text-sm text-felines-text-secondary hover:text-felines-accent">
+      <BackLink fallbackHref="/" className="text-sm text-felines-text-secondary hover:text-felines-accent">
         {t("common.backHome")}
-      </Link>
+      </BackLink>
 
       <h1 className="mt-4 text-3xl font-bold text-felines-text-primary">
         {t("contacts.pageTitle")}

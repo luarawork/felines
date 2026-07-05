@@ -890,6 +890,48 @@ export const en = {
     },
   },
 
+  colonyInterest: {
+    title: "Before you see the details",
+    close: "Close",
+    interestQuestion: "Are you interested in becoming a caretaker for this colony?",
+    yes: "Yes",
+    no: "No",
+    proximityQuestion: "Do you live nearby, or pass by this location often?",
+    liveNearby: "I live nearby",
+    passByOften: "I pass by often",
+    noneOfTheAbove: "None of the above",
+    denied: "This colony's details are only for people who care for it. If that changes, come back anytime.",
+  },
+
+  editColony: {
+    trigger: "Edit colony",
+    close: "Close",
+  },
+
+  notificationsList: {
+    emptyMain: "No notifications here yet.",
+    emptySub: "When a colony you care for faces extreme cold or heat, you'll find out here.",
+    emptyCta: "See your colonies",
+    viewColony: "view colony",
+  },
+
+  photoUpload: {
+    invalidType: "Only images are accepted (JPG, PNG, WebP…).",
+    tooLarge: "The image must be at most 5 MB.",
+    selected: "Selected: {name}",
+  },
+
+  neighborhoodQuiz: {
+    triggerLabel: "What's going on in your neighborhood?",
+    close: "Close",
+    restart: "Start over",
+    back: "Back",
+  },
+
+  colonyClickTooltip: {
+    body: "This dot is a cat colony. Tap it to see who lives there and how you can help.",
+  },
+
   forms: {
     photo: {
       typeError: "Only images are accepted (JPG, PNG, WebP…).",
@@ -1451,6 +1493,70 @@ export const en = {
     almostThere: "Almost there — try again!",
     answerPrefix: "Answer:",
     tryAgain: "Try again",
+  },
+
+  neighborhoodQuizContent: {
+    q1: {
+      question: "How many cats do you usually see in the same spot?",
+      options: {
+        0: "Just one or two, now and then",
+        1: "A small group — 3 to 6 cats",
+        2: "A larger group — 7 or more",
+        3: "I've never really paid attention",
+      },
+    },
+    q2: {
+      question: "Do you see the same cats often, in the same place?",
+      options: {
+        0: "Yes, always the same ones",
+        1: "Sometimes — some familiar, some new",
+        2: "They seem different every time",
+        3: "Not sure",
+      },
+    },
+    q3: {
+      question: "Does someone seem to feed or care for them?",
+      options: {
+        0: "Yes, I've seen someone leaving food",
+        1: "There are food bowls, but I've never seen who leaves them",
+        2: "No sign that anyone cares for them",
+        3: "I don't know",
+      },
+    },
+    q4: {
+      question: "Has there been any conflict or complaint about the cats?",
+      options: {
+        0: "Yes, neighbors have already complained",
+        1: "Some tension, but nothing serious",
+        2: "No conflict that I know of",
+        3: "I haven't heard anything about it",
+      },
+    },
+    diagnoses: {
+      established: {
+        title: "This looks like an already-established colony",
+        explanation:
+          "You're probably looking at a colony someone already keeps an eye on. That's good news — it means care is already happening, even if quietly.",
+        ctaLabel: "Find out if it's already mapped",
+      },
+      unregistered: {
+        title: "This could be an unregistered colony",
+        explanation:
+          "These cats seem to have settled there, but no one is officially keeping track. They might need support — and you could be the one who starts that.",
+        ctaLabel: "Be the first to map this colony",
+      },
+      conflict: {
+        title: "This looks like a conflict situation",
+        explanation:
+          "Neighborhood conflicts involving cats are more common than they seem — and have real solutions that don't involve removing the cats.",
+        ctaLabel: "See what actually works",
+      },
+      unclear: {
+        title: "Still hard to tell",
+        explanation: "No worries. The map can help you find out what's already near you.",
+        ctaLabel: "Explore what's in your area",
+      },
+    },
   },
 
   quizContent: {

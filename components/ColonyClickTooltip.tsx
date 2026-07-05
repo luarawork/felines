@@ -4,6 +4,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useLanguage } from "@/lib/i18n";
 
 const STORAGE_KEY = "felines_colony_click_tooltip_shown";
 
@@ -17,6 +18,7 @@ export function markColonyClickTooltipSeen(): void {
 }
 
 export default function ColonyClickTooltip({ onDismiss }: { onDismiss: () => void }) {
+  const { t } = useLanguage();
   const [visible, setVisible] = useState(true);
 
   useEffect(() => {
@@ -37,7 +39,7 @@ export default function ColonyClickTooltip({ onDismiss }: { onDismiss: () => voi
         onDismiss();
       }}
     >
-      Essa bolinha é uma colônia de gatos. Toque pra ver quem vive ali e como você pode ajudar.
+      {t("colonyClickTooltip.body")}
     </div>
   );
 }
