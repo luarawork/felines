@@ -75,6 +75,9 @@ export default function EditColonyForm({
     if (photoFile) {
       const filePath = buildSafeStoragePath(colonyId, photoFile);
       assertSafeStoragePath(filePath);
+      if (photoFile.name.includes('..')) {
+        throw new Error('Invalid file name');
+      }
       const { error: uploadError } = await supabase.storage
         .from("colony-photos")
         .upload(filePath, photoFile);

@@ -56,6 +56,9 @@ export default function TimelineEventForm({ colonyId }: { colonyId: string }) {
     if (photoFile) {
       const filePath = buildSafeStoragePath(`timeline/${colonyId}`, photoFile);
       assertSafeStoragePath(filePath);
+      if (photoFile.name.includes('..')) {
+        throw new Error('Invalid file name');
+      }
       const { error: uploadError } = await supabase.storage
         .from("colony-photos")
         .upload(filePath, photoFile);
