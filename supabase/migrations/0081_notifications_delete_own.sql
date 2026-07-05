@@ -4,5 +4,6 @@
 -- a read row around forever served no purpose. notifications_select_own
 -- and notifications_update_own already scope to auth.uid() = user_id;
 -- this adds the matching delete policy.
+drop policy if exists "notifications_delete_own" on notifications;
 create policy "notifications_delete_own" on notifications
   for delete to authenticated using (auth.uid() = user_id);
