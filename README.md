@@ -113,11 +113,25 @@ Nobody is asked to love cats to take the first step, and by the time they've tak
 
 ## 4. Features
 
+This is an educational platform first — the guide below is the point of the product, and every other feature (the map included) is one of the actions that education leads to, not a separate goal competing with it.
+
+<details>
+<summary>📚 Educational Guide</summary>
+<br>
+
+19 articles across 5 progressive thematic levels, following a deliberate narrative arc: first understand the world cats live in, then understand the actual problem (not the assumed one), then understand the platform's specific impact, then understand what a reader personally can do. Titles are written for **search intent** ("why removing cats doesn't work"), not product framing ("about our mission") — someone searching their actual question should land here.
+
+Each article has a reading progress bar, sourced fact chips, and links to related articles. Reading progress is saved per signed-in user and shown on `/profile`. After reading at least 3 articles — never fewer — a 3-question personalization quiz unlocks, sorting the reader into one of three "neighbor profiles" (Observer, Backup, or Guardian) with a suggested first action; there are no wrong answers. The 3-article gate exists because classifying someone before they have any context produces a generic, forgettable result — the quiz is a payoff for having engaged, not a cold-open personality test.
+
+The guide is complemented by a **36-term bilingual glossary** (now also linked directly from the profile page's Knowledge section, alongside courses and quizzes — the same place a reader is already reviewing what they've learned), a toxic-plants reference, a separate neighborhood-diagnosis quiz, and a short caretaker course at `/curso` culminating in a **unique certification** ("Cuidador Preparado"). The certification can only be earned once per account — a badge anyone can re-earn by retaking a quiz signals nothing; a badge that's genuinely one-time is worth displaying.
+
+</details>
+
 <details>
 <summary>🗺️ Interactive Colony Map</summary>
 <br>
 
-Built on Leaflet.js (`react-leaflet`) over OpenStreetMap tiles, `/map` renders three pin types, each color and behavior chosen deliberately: **colonies** (terracotta — warm, not alarming, since most colonies are a neutral fact, not a problem), **sightings** (gray — informational, doesn't compete visually with anything urgent), and **emergencies** (red, pulsing — the one visual language on the whole map that's allowed to demand attention). Pins cluster automatically at low zoom so dense urban areas stay legible instead of turning into a wall of overlapping markers. A search box filters colonies by name; toggles filter by pin type and castration status. A persistent activity panel lists everything currently visible, updating live as the map is panned or zoomed.
+One of the actions the educational guide leads to, not a separate goal — once someone understands why colonies exist and why they matter, the map is where that understanding becomes something concrete and local. Built on Leaflet.js (`react-leaflet`) over OpenStreetMap tiles, `/map` renders three pin types, each color and behavior chosen deliberately: **colonies** (terracotta — warm, not alarming, since most colonies are a neutral fact, not a problem), **sightings** (gray — informational, doesn't compete visually with anything urgent), and **emergencies** (red, pulsing — the one visual language on the whole map that's allowed to demand attention). Pins cluster automatically at low zoom so dense urban areas stay legible instead of turning into a wall of overlapping markers. A search box filters colonies by name; toggles filter by pin type and castration status. A persistent activity panel lists everything currently visible, updating live as the map is panned or zoomed.
 
 **Weather banner.** Reflects real conditions at the map's *current* center, refetching as the map moves — not a fixed city. This isn't decoration: extreme heat and cold directly affect outdoor cat welfare, and a caretaker checking the map for their neighborhood should see weather for that neighborhood, not for wherever the app happened to default to.
 
@@ -164,18 +178,6 @@ Any number of caretakers can link to the same colony, deliberately with **no hie
 - **Letter** — a message caretakers leave for whoever comes next, with full version history. Passing the baton to a future caretaker should carry the *dignity* of an actual handoff note, not just get lost the moment someone else takes over.
 
 A colony becomes **community-verified** once it accumulates 3 independent confirmations from people who are neither its creator nor one of its linked caretakers — self-verification is blocked at the row-policy level — and once verified, it never un-verifies. Anyone can also flag a colony page as fake or harmful, feeding into the 3-strikes system above.
-
-</details>
-
-<details>
-<summary>📚 Educational Guide</summary>
-<br>
-
-19 articles across 5 progressive thematic levels, following a deliberate narrative arc: first understand the world cats live in, then understand the actual problem (not the assumed one), then understand the platform's specific impact, then understand what a reader personally can do. Titles are written for **search intent** ("why removing cats doesn't work"), not product framing ("about our mission") — someone searching their actual question should land here.
-
-Each article has a reading progress bar, sourced fact chips, and links to related articles. Reading progress is saved per signed-in user and shown on `/profile`. After reading at least 3 articles — never fewer — a 3-question personalization quiz unlocks, sorting the reader into one of three "neighbor profiles" (Observer, Backup, or Guardian) with a suggested first action; there are no wrong answers. The 3-article gate exists because classifying someone before they have any context produces a generic, forgettable result — the quiz is a payoff for having engaged, not a cold-open personality test.
-
-The guide is complemented by a **36-term bilingual glossary** (now also linked directly from the profile page's Knowledge section, alongside courses and quizzes — the same place a reader is already reviewing what they've learned), a toxic-plants reference, a separate neighborhood-diagnosis quiz, and a short caretaker course at `/curso` culminating in a **unique certification** ("Cuidador Preparado"). The certification can only be earned once per account — a badge anyone can re-earn by retaking a quiz signals nothing; a badge that's genuinely one-time is worth displaying.
 
 </details>
 
