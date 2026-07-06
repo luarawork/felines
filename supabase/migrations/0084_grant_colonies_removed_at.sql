@@ -1,0 +1,14 @@
+-- Bug found live: the map query added a `.is("removed_at", null)`
+-- filter (0082's false-pin ban system) to exclude removed colonies,
+-- but `colonies` has column-level SELECT grants (0017 revoked all,
+-- then specific columns were granted back one at a time — see 0054,
+-- 0057) and `removed_at` was never one of them. Postgres requires
+-- SELECT privilege on a column to filter by it, even when that column
+-- isn't in the requested output — so every colonies query that
+-- included this filter failed with 42501 permission denied, for both
+-- anon and authenticated, silently hiding every colony from the map.
+--
+-- removed_at carries no sensitive information (just a removal
+-- timestamp, or null), so it's safe to grant broadly like
+-- verified_status/health_status already are.
+grant select (removed_at) on colonies to anon, authenticated;
