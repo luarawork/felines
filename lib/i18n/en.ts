@@ -620,7 +620,7 @@ export const en = {
           "Don't confront whoever you suspect. Your safety and the animal's come first.",
         ],
         alert:
-          "You can also call the anonymous tip line or emergency services. Animal cruelty is a crime.",
+          "You can also call Disque Denúncia at 181 (anonymous) or Emergency Services at 190. Animal cruelty is a crime under Lei 9.605/98, with aggravated penalties for dogs and cats under the Sansão Law (Lei 14.064/2020) — 2 to 5 years in prison.",
         relatedLabel: "Learn how to report properly",
       },
       kitten: {
@@ -654,7 +654,7 @@ export const en = {
           "Avoid direct contact with sick cats, and keep other pets away.",
           "Note how many cats seem affected and what symptoms you're seeing.",
         ],
-        alert: "Contact the zoonosis control center in your area.",
+        alert: "Contact the CCZ (zoonosis control center) in your area.",
       },
       other: {
         label: "❓ Something else",

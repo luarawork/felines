@@ -621,7 +621,7 @@ export const pt = {
           "Não confronte quem você suspeita. Sua segurança e a do animal vêm primeiro.",
         ],
         alert:
-          "Você também pode ligar pro Disque Denúncia 181 (anônimo) ou pra Emergência 190. Maus-tratos a animais são crime pela Lei 9.605/98.",
+          "Você também pode ligar pro Disque Denúncia 181 (anônimo) ou pra Emergência 190. Maus-tratos a animais são crime pela Lei 9.605/98, com penas agravadas para cães e gatos pela Lei Sansão (Lei 14.064/2020) — de 2 a 5 anos de prisão.",
         relatedLabel: "Saiba como denunciar corretamente",
       },
       kitten: {
@@ -656,7 +656,7 @@ export const pt = {
           "Evite contato direto com gatos doentes, e não deixe outros bichos domésticos se aproximarem.",
           "Anote quantos gatos parecem afetados e quais sintomas você está vendo.",
         ],
-        alert: "Contate o centro de controle de zoonoses da sua região.",
+        alert: "Contate o CCZ (Centro de Controle de Zoonoses) da sua região.",
       },
       other: {
         label: "❓ Outro motivo",
