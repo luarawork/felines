@@ -726,9 +726,9 @@ MIT — see [`LICENSE`](LICENSE). Third-party dependency license findings (revie
 - Felipe França, without whom I wouldn't have even known this hackathon existed.
 - My friends, who patiently tested the site every single time I asked, no matter how many times that was.
 - The judges, for making the time to evaluate this, read through all the documentation, and see everything that was built.
-- The Aikido team, for making a security scan available so we could find and verify real vulnerabilities.
-- The Temporal team, for sponsoring this hackathon and making it possible in the first place.
-- The Kiro team, for putting such an interesting and useful tool at our disposal — I didn't end up using it this time, worried I'd cause more bugs than progress not knowing it well enough yet, but I plan to actually learn it now that the hackathon is over.
+- The Aikido, Temporal, and Kiro teams, for sponsoring this hackathon and making it possible in the first place.
+- The Aikido team specifically, for also making a security scan available so we could find and verify real vulnerabilities.
+- The Kiro team specifically, for putting such an interesting and useful tool at our disposal — I didn't end up using it this time, worried I'd cause more bugs than progress not knowing it well enough yet, but I plan to actually learn it now that the hackathon is over.
 - Everyone in the Discord who I learned from, asked questions to, shared a meme with, or just interacted with along the way.
 - Alley Cat Allies, for publicly available TNR research and vacuum-effect methodology.
 - The World Health Organization and IBGE, for the population and conflict data cited throughout.
