@@ -310,17 +310,24 @@ the Supabase SQL editor. As of this writing:
 | [`0071_seed_natal_contacts.sql`](supabase/migrations/0071_seed_natal_contacts.sql) | Seeds `community_contacts` with 14 real Natal/RN contacts |
 | [`0072_contacts_update_policy.sql`](supabase/migrations/0072_contacts_update_policy.sql) | Adds the missing update-own RLS policy for `community_contacts` |
 | [`0073_resource_contact_exchange.sql`](supabase/migrations/0073_resource_contact_exchange.sql) | Adds `resource_post_interests` + `profiles.public_contact` |
-
-**Pending (not yet run):**
-
-| Migration | Purpose |
-|---|---|
 | [`0074_care_reminders.sql`](supabase/migrations/0074_care_reminders.sql) | New `care_reminders` table + RLS for the recurring-reminders feature |
+| [`0075_reassert_record_daily_visit_grant.sql`](supabase/migrations/0075_reassert_record_daily_visit_grant.sql) | Re-revokes anon execute on `record_daily_visit` after a live-tested grant drift |
+| [`0076_clear_test_data_pre_submission.sql`](supabase/migrations/0076_clear_test_data_pre_submission.sql) | One-time test-data cleanup, preserving judge accounts and seeded contacts |
+| [`0077_stories_require_login.sql`](supabase/migrations/0077_stories_require_login.sql) | Restricts `colony_stories` reads to authenticated visitors |
+| [`0078_rate_limit_notify_caretakers.sql`](supabase/migrations/0078_rate_limit_notify_caretakers.sql) | Fixes [§9.1](#91-new-findings-fixed-this-pass) — database-level circuit breaker on `notify_caretakers` |
+| [`0079_coordinate_range_constraints.sql`](supabase/migrations/0079_coordinate_range_constraints.sql) | Fixes [§9.1](#91-new-findings-fixed-this-pass) — coordinate range `CHECK` constraints |
+| [`0080_profile_display_name_length_check.sql`](supabase/migrations/0080_profile_display_name_length_check.sql) | Fixes [§9.1](#91-new-findings-fixed-this-pass) — `profiles.display_name` length constraint |
+| [`0081_notifications_delete_own.sql`](supabase/migrations/0081_notifications_delete_own.sql) | Adds the delete-own RLS policy for `notifications`, enabling per-notification dismiss |
+| [`0082_false_pin_ban_system.sql`](supabase/migrations/0082_false_pin_ban_system.sql) | 3-false-pin-flag colony removal + 1-month/permanent creator ban ([Security §8](https://github.com/luarawork/felines/wiki/Security#8-the-3-false-pin-flag-ban-system)) |
+| [`0083_full_data_wipe_keep_accounts.sql`](supabase/migrations/0083_full_data_wipe_keep_accounts.sql) | One-time full data wipe requested for a clean pre-submission reset, preserving login accounts only |
+| [`0084_grant_colonies_removed_at.sql`](supabase/migrations/0084_grant_colonies_removed_at.sql) | Fixes [§9.5](#95-post-launch-bug-colonies-vanishing-from-the-map) — missing column grant broke the map's colony query for every visitor |
+| [`0085_localize_caretaker_notifications.sql`](supabase/migrations/0085_localize_caretaker_notifications.sql) | Fixes [§9.6](#96-post-launch-bug-caretaker-notifications-ignoring-site-language) — adds `p_language` to `notify_caretakers`/`notify_nearby_caretakers` |
+
+All of the above have been run against the live database as of this writing.
 
 ## 8. Recommendations for next steps
 
-1. Run [`0074_care_reminders.sql`](supabase/migrations/0074_care_reminders.sql) via the Supabase SQL editor.
-2. Decide on the rate-limiting and session-expiry UX questions flagged above; both are self-contained enough to implement in a follow-up session once a direction is chosen.
+1. Decide on the rate-limiting and session-expiry UX questions flagged above; both are self-contained enough to implement in a follow-up session once a direction is chosen.
 3. Consider a dedicated session to split the 6 oversized components — each is a contained, well-understood piece of UI, so the risk is manageable with focused attention rather than a blind sweep.
 4. Re-run `npm audit` after any future `next` major-version upgrade to confirm the transitive `postcss` advisory clears on its own.
 
@@ -385,4 +392,24 @@ Root cause: this app has no SSR session forwarding. [`lib/supabaseClient.ts`](li
 - **Known gap, honestly documented rather than silently accepted**: no SSR session forwarding, meaning a few non-sensitive but UI-gated fields (cat names/photos, caretaker letters, timeline) are technically fetchable by anyone with the public anon key even when the page visually requires login. Exact coordinates and all genuinely sensitive data remain protected regardless.
 - **Zero dependency vulnerabilities**, zero lint errors, clean production build as of this audit.
 
-Migrations `0078`, `0079`, and `0080` from this pass have **not yet been run against the live database** — they need to be executed via the Supabase SQL editor before this audit's fixes take effect in production.
+Migrations `0078`–`0085` have since all been run against the live database and verified live (see [§7](#7-migration-status)).
+
+### 9.5 Post-launch bug: colonies vanishing from the map
+
+**Found:** the morning after the false-pin ban system ([§9.1](#91-new-findings-fixed-this-pass), migration `0082`) shipped, a real user report came in: a newly-registered colony wasn't appearing on `/map` at all — and on investigation, **no** colony was appearing, for any visitor.
+
+**Root cause:** `colonies` uses column-level RLS grants (only specific columns are exposed to `anon`/`authenticated`, per the progressive-blur design in [§2.8](#28-progressive-location-blur--the-mechanics)). The map's client query was updated to add a `.is("removed_at", null)` filter, so removed colonies wouldn't render — but `removed_at` had never been added to either role's column grant. Postgres requires `SELECT` privilege on a column to filter by it, **even when that column is never returned in the result set**, so every colony query network-inspected in the browser was returning a flat `401` — hiding every colony, not just removed ones.
+
+**Fix:** [`0084_grant_colonies_removed_at.sql`](supabase/migrations/0084_grant_colonies_removed_at.sql) grants `select (removed_at)` to `anon`/`authenticated`. The column carries no sensitive information (just a removal timestamp or `null`), so a broad grant here is safe — the same reasoning already applied to `verified_status`/`health_status` in earlier migrations.
+
+**Why this is worth documenting here, not just in a commit message:** it's a direct example of the exact column-grant model this audit relies on elsewhere for legitimate protection ([§2.1](#1-bugs-found-and-fixed), coordinate blur, streak data) — the same mechanism that protects sensitive columns will just as silently break a feature if a new column is referenced in a query without its grant being added at the same time. Any future column added to a filter/query on a column-restricted table needs its grant added in the same migration, not as an afterthought.
+
+### 9.6 Post-launch bug: caretaker notifications ignoring site language
+
+**Found:** a user testing the English UI reported that caretaker/follower notifications (new report filed, area alert) always arrived in Portuguese regardless of the site's language toggle.
+
+**Root cause:** `notify_caretakers()`/`notify_nearby_caretakers()` build their message from a fixed server-side template (hardened against free-text injection in `0065`/`0078`) — but that template was Portuguese-only, with no parameter for the caller to request a translation. Client-generated notifications (`extreme_weather`, `cat_unseen` in `lib/notifications.ts`) already correctly took a `language` argument; the RPC-driven ones never did.
+
+**Fix:** [`0085_localize_caretaker_notifications.sql`](supabase/migrations/0085_localize_caretaker_notifications.sql) adds a `p_language` parameter (default `'pt'`, backward compatible) to both functions, with an English template alongside the existing Portuguese one. `app/api/reports/route.ts` now reads a `language` field from the report submission and passes it through; all 6 report-submitting components (`ColonyMap`, `HelpFlow`, `LostCatForm`, `QuickSightingForm`, `ReportButton`, `SightingReportButton`) now send the visitor's current site language with every report.
+
+**Known limitation:** notifications already in the database keep whatever language they were created in — this only affects notifications generated after the fix. Re-localizing historical notification text would require storing structured data (type + parameters) instead of a final rendered string, which is a larger schema change out of scope for this fix.

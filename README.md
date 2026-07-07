@@ -565,7 +565,7 @@ Where to find each value:
 
 ### Database setup
 
-`supabase/migrations/` contains 83 numbered SQL files — run them **in order** in the Supabase SQL Editor (Dashboard → SQL Editor → paste each file's contents → Run), since most assume everything before them has already been applied. `0001_init.sql` creates the core schema and RLS policies; the rest are incremental features, RPCs, and security fixes. A few files near the end are one-time maintenance scripts (test-data cleanup, a full data wipe that preserves accounts) rather than schema changes — each says so in its own header comment, and is safe to skip on a fresh database.
+`supabase/migrations/` contains 85 numbered SQL files — run them **in order** in the Supabase SQL Editor (Dashboard → SQL Editor → paste each file's contents → Run), since most assume everything before them has already been applied. `0001_init.sql` creates the core schema and RLS policies; the rest are incremental features, RPCs, and security fixes. A few files near the end are one-time maintenance scripts (test-data cleanup, a full data wipe that preserves accounts) rather than schema changes — each says so in its own header comment, and is safe to skip on a fresh database.
 
 ### Run
 
@@ -608,7 +608,7 @@ felines/
 │   ├── external/                # Third-party API wrappers (geocode.ts, weather.ts, siteUrl.ts)
 │   ├── i18n/pt.ts, en.ts       # Full Portuguese and English translations
 │   └── supabaseClient.ts       # Shared Supabase client (anon key, used client- and server-side)
-├── supabase/migrations/         # 83 numbered SQL migrations (schema, RLS, RPCs) — 26 tables
+├── supabase/migrations/         # 85 numbered SQL migrations (schema, RLS, RPCs) — 26 tables
 ├── docs/AUDIT_REPORT.md         # Full itemized security/bug/refactor audit
 ├── docs/UI_AUDIT_REPORT.md      # UI consistency, motion, and mobile audit
 ├── docs/LICENSE_COMPLIANCE.md   # Third-party dependency license findings
@@ -632,12 +632,12 @@ Built solo by **Luara Oliveira** (UX Designer / Business Analyst), using **Claud
 - The decision to let anonymous users report *situations*, never *people* — an ethical line the product holds throughout the emergency and reporting flows.
 - Visual identity — the color palette derived directly from the logo cat.
 - Curation and verification of the 14 real local contacts in the community directory.
-- Every database migration's design — all 83 Supabase migrations (schema, RLS policies, RPCs, and security fixes) reflect the founder's own database design decisions, with Claude Code writing the SQL syntax under her direction.
+- Every database migration's design — all 85 Supabase migrations (schema, RLS policies, RPCs, and security fixes) reflect the founder's own database design decisions, with Claude Code writing the SQL syntax under her direction.
 - Every direction change, every audit finding's disposition, and every code review across the project's many working sessions.
 
 **What Claude Code did:**
 - Wrote the Next.js/TypeScript application code across 21 routes and ~90 components.
-- Implemented all 83 database migrations from the founder's design decisions.
+- Implemented all 85 database migrations from the founder's design decisions.
 - Drafted initial article and translation copy for review.
 - Ran the security, accessibility, functional, and performance audits, and identified specific bugs and fixes.
 
@@ -650,7 +650,7 @@ Built solo by **Luara Oliveira** (UX Designer / Business Analyst), using **Claud
 |---|---|
 | The core insight and target audience | Writing TypeScript/React code |
 | Every product and scope decision | Writing SQL syntax under her direction |
-| Designing all 83 database migrations | — |
+| Designing all 85 database migrations | — |
 | Security intent (animal-safety framing) | Implementing RLS policies and RPCs |
 | Curating 14 real local contacts | Initial article/translation drafts |
 | Reviewing and approving all content | Running audits and flagging bugs |
