@@ -939,19 +939,26 @@ export default function ColonyMap({
           if (!position) return null;
           const isExact = report.latitude != null;
           const popupContent = (
-            <Popup>
-              <strong>{t("map.alertPrefix")} {getReportTypeLabel(report.type, t)}</strong>
-              {!isExact && (
-                <p className="mt-1 text-xs text-felines-text-secondary">
-                  {t("map.approxLocation")}
-                </p>
-              )}
-              <a
-                href={`/reports#report-${report.id}`}
-                className="mt-2 block text-xs font-medium text-felines-accent-hover"
-              >
-                {t("map.viewReport")}
-              </a>
+            <Popup minWidth={220} maxWidth={220} className="felines-colony-popup">
+              <div className="flex items-center gap-2 bg-felines-emergency-light px-3.5 py-2.5">
+                <span className="text-lg leading-none" aria-hidden="true">🚨</span>
+                <strong className="text-sm font-bold leading-snug text-felines-emergency">
+                  {t("map.alertPrefix")} {getReportTypeLabel(report.type, t)}
+                </strong>
+              </div>
+              <div className="p-3.5">
+                {!isExact && (
+                  <span className="inline-flex items-center rounded-full border border-felines-border bg-felines-surface px-2 py-0.5 text-[11px] font-medium text-felines-text-secondary">
+                    {t("map.approxLocation")}
+                  </span>
+                )}
+                <a
+                  href={`/reports#report-${report.id}`}
+                  className="felines-popup-cta mt-3 block rounded-full bg-felines-emergency py-2 text-center text-xs font-semibold text-white transition-colors hover:opacity-90"
+                >
+                  {t("map.viewReport")}
+                </a>
+              </div>
             </Popup>
           );
           return isExact ? (
@@ -1127,7 +1134,7 @@ export default function ColonyMap({
 // offers two actions — register it for real (pre-filling the location)
 // or add one more sighting confirmation at this exact spot.
 function SuggestedColonyPopup({ suggestion }: { suggestion: SuggestedColony }) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [confirming, setConfirming] = useState(false);
   const [confirmed, setConfirmed] = useState(false);
 
@@ -1138,6 +1145,7 @@ function SuggestedColonyPopup({ suggestion }: { suggestion: SuggestedColony }) {
       latitude: suggestion.latitude,
       longitude: suggestion.longitude,
       status: "open",
+      language,
     });
     setConfirming(false);
     if (!error) setConfirmed(true);

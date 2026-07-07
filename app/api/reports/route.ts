@@ -61,6 +61,7 @@ export async function POST(request: NextRequest) {
 
   const { colony_id, type, description, photo_url, latitude, longitude, related_report_id, status } =
     body;
+  const language: "pt" | "en" = body.language === "en" ? "en" : "pt";
 
   const { data, error } = await supabase
     .from("reports")
@@ -98,7 +99,10 @@ export async function POST(request: NextRequest) {
       ? supabase.rpc("notify_followers", {
           p_colony_id: colony_id,
           p_type: "report_submitted",
-          p_message: "Um novo relato foi feito em uma colônia que você segue.",
+          p_message:
+            language === "en"
+              ? "A new report was filed on a colony you follow."
+              : "Um novo relato foi feito em uma colônia que você segue.",
         })
       : Promise.resolve(),
 
@@ -106,6 +110,7 @@ export async function POST(request: NextRequest) {
       ? supabase.rpc("notify_caretakers", {
           p_colony_id: colony_id,
           p_type: "report_submitted",
+          p_language: language,
         })
       : Promise.resolve(),
 
@@ -115,6 +120,7 @@ export async function POST(request: NextRequest) {
           p_longitude: longitude,
           p_radius_km: 1,
           p_report_type: type,
+          p_language: language,
         })
       : Promise.resolve(),
 

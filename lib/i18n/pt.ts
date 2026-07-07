@@ -1080,6 +1080,8 @@ export const pt = {
       new: "+ Publicar anúncio",
       cancelNew: "Cancelar",
       postedBy: "Publicado por",
+      colonyNeedFrom: "Necessidade da colônia",
+      viewColony: "Ver colônia",
       exchanged: "Trocado ✓",
       interested: "Tenho interesse",
       interestSent: "Interesse enviado ✓",

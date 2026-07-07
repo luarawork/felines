@@ -10,7 +10,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { ARTICLES } from "@/lib/articles";
+import { ARTICLES, localizeArticle } from "@/lib/articles";
 import { COURSE_MODULES, STANDALONE_QUIZZES, localizeStandaloneQuiz, localizeCourseModules } from "@/lib/caretakerCourse";
 import StandaloneQuizModal from "@/components/StandaloneQuizModal";
 import { supabase } from "@/lib/supabaseClient";
@@ -855,6 +855,7 @@ export default function ProfileContent() {
           <div className="mt-8 flex flex-wrap gap-2">
             {ARTICLES.map((article) => {
               const isRead = readSlugs.includes(article.slug);
+              const localized = localizeArticle(article, language);
               return (
                 <Link
                   key={article.slug}
@@ -865,7 +866,7 @@ export default function ProfileContent() {
                       : "border-2 border-felines-border text-felines-text-secondary"
                   }`}
                 >
-                  {article.title}
+                  {localized.title}
                 </Link>
               );
             })}

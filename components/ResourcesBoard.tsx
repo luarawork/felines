@@ -10,6 +10,7 @@ import Link from "next/link";
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabaseClient";
 import { RESOURCE_CATEGORIES, getResourceCategoryIcon, getResourceCategoryLabel } from "@/lib/resourceTypes";
+import { getHelpRequestTypeIcon, getHelpRequestTypeLabel } from "@/lib/helpRequestTypes";
 import EmptyState from "@/components/EmptyState";
 import { useLanguage } from "@/lib/i18n";
 
@@ -24,6 +25,22 @@ type ResourcePost = {
   status: "open" | "resolved";
   created_at: string;
   authorName: string;
+};
+
+// A colony's own "Needs" tab requests (help_requests) shown alongside
+// community resource posts — they're stored separately (a need is tied
+// to one specific colony, not a general community offer/request), but
+// from a reader's point of view both answer "what does someone need
+// right now," so they're merged into the same "Procurado" tab instead
+// of requiring two separate places to look.
+type ColonyNeed = {
+  id: string;
+  colonyId: string;
+  colonyName: string;
+  type: string;
+  description: string;
+  urgency: "normal" | "urgent";
+  created_at: string;
 };
 
 type InterestedUser = { userId: string; displayName: string };
@@ -44,6 +61,7 @@ export default function ResourcesBoard() {
   const [session, setSession] = useState<Session | null>(null);
   const [checkingSession, setCheckingSession] = useState(true);
   const [posts, setPosts] = useState<ResourcePost[]>([]);
+  const [colonyNeeds, setColonyNeeds] = useState<ColonyNeed[]>([]);
   const [activeTab, setActiveTab] = useState<"offering" | "requesting">("offering");
   const [respondedIds, setRespondedIds] = useState<Set<string>>(new Set());
   const [showForm, setShowForm] = useState(false);
@@ -92,6 +110,30 @@ export default function ResourcesBoard() {
         (postRows ?? []).map((row) => ({
           ...row,
           authorName: (profiles ?? []).find((p) => p.id === row.created_by)?.display_name || t("colony.timeline.authorDefault"),
+        }))
+      );
+
+      // Colony "Needs" requests (help_requests) are a separate table
+      // tied to one specific colony, but they're still a request for
+      // something — shown here too so a caretaker's need doesn't only
+      // live on their own colony page where nobody browsing the
+      // community board would ever see it.
+      const { data: needRows } = await supabase
+        .from("help_requests")
+        .select("id, colony_id, type, description, urgency, created_at, colonies(name)")
+        .eq("status", "open")
+        .gt("expires_at", new Date().toISOString())
+        .order("created_at", { ascending: false });
+
+      setColonyNeeds(
+        (needRows ?? []).map((row) => ({
+          id: row.id,
+          colonyId: row.colony_id,
+          colonyName: (row.colonies as unknown as { name: string } | null)?.name ?? t("colony.timeline.authorDefault"),
+          type: row.type,
+          description: row.description,
+          urgency: row.urgency,
+          created_at: row.created_at,
         }))
       );
 
@@ -169,6 +211,7 @@ export default function ResourcesBoard() {
       { ...newPost, authorName: t("common.you") },
       ...previous,
     ]);
+    setActiveTab(postType);
     setTitle("");
     setDescription("");
     setLocationHint("");
@@ -200,6 +243,9 @@ export default function ResourcesBoard() {
   }
 
   const filteredPosts = posts.filter((post) => post.type === activeTab);
+  // Colony needs are inherently requests (a colony asking for
+  // something), so they only ever show up under the "requesting" tab.
+  const visibleColonyNeeds = activeTab === "requesting" ? colonyNeeds : [];
 
   return (
     <div className="mt-8">
@@ -337,7 +383,7 @@ export default function ResourcesBoard() {
         </form>
       )}
 
-      {filteredPosts.length === 0 ? (
+      {filteredPosts.length === 0 && visibleColonyNeeds.length === 0 ? (
         <div className="mt-8">
           <EmptyState
             main={t("forms.resource.noResults")}
@@ -345,6 +391,37 @@ export default function ResourcesBoard() {
         </div>
       ) : (
         <div className="mt-6 grid gap-4 sm:grid-cols-2">
+          {visibleColonyNeeds.map((need) => (
+            <div key={`need-${need.id}`} className="rounded-2xl border border-felines-border bg-felines-surface p-4">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-semibold uppercase tracking-[0.1em] text-felines-accent-hover">
+                  {getHelpRequestTypeIcon(need.type)} {t("forms.resource.requesting")}
+                </span>
+                <span className="text-xs text-felines-text-secondary">{timeAgo(need.created_at, t)}</span>
+              </div>
+              <p className="mt-2 font-semibold text-felines-text-primary">{getHelpRequestTypeLabel(need.type, t)}</p>
+              {need.urgency === "urgent" && (
+                <span className="mt-1 inline-flex items-center rounded-full border border-felines-emergency bg-felines-emergency-light px-2 py-0.5 text-[11px] font-semibold text-felines-emergency">
+                  {t("map.urgentHelp")}
+                </span>
+              )}
+              <p className="mt-1 text-sm text-felines-text-secondary">{need.description}</p>
+              <p className="mt-2 text-xs text-felines-text-secondary">
+                {t("forms.resource.colonyNeedFrom")}{" "}
+                <Link href={`/colony/${need.colonyId}`} className="text-felines-accent-hover">
+                  {need.colonyName}
+                </Link>
+              </p>
+              <div className="mt-3">
+                <Link
+                  href={`/colony/${need.colonyId}`}
+                  className="inline-block rounded-full border border-felines-accent px-3 py-1.5 text-xs font-medium text-felines-accent-hover transition-colors hover:bg-felines-accent hover:text-white"
+                >
+                  {t("forms.resource.viewColony")}
+                </Link>
+              </div>
+            </div>
+          ))}
           {filteredPosts.map((post) => (
             <div key={post.id} className="rounded-2xl border border-felines-border bg-felines-surface p-4">
               <div className="flex items-center justify-between">

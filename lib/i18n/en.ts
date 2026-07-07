@@ -1078,6 +1078,8 @@ export const en = {
       new: "+ Post listing",
       cancelNew: "Cancel",
       postedBy: "Posted by",
+      colonyNeedFrom: "Colony need",
+      viewColony: "View colony",
       exchanged: "Exchanged ✓",
       interested: "I'm interested",
       interestSent: "Interest sent ✓",

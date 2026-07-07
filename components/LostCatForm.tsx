@@ -16,7 +16,7 @@ import PhotoUploadButton from "@/components/PhotoUploadButton";
 import { useLanguage } from "@/lib/i18n";
 
 export default function LostCatForm({ onSubmitted }: { onSubmitted?: () => void }) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [checkingSession, setCheckingSession] = useState(true);
 
@@ -73,6 +73,7 @@ export default function LostCatForm({ onSubmitted }: { onSubmitted?: () => void 
       latitude: locationCoords?.[0] ?? null,
       longitude: locationCoords?.[1] ?? null,
       status: "open",
+      language,
     });
 
     setSubmitting(false);

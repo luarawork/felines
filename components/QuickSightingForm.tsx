@@ -25,7 +25,7 @@ export default function QuickSightingForm({
   const [description, setDescription] = useState("");
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [position, setPosition] = useState<[number, number] | null>(initialPosition ?? null);
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -67,6 +67,7 @@ export default function QuickSightingForm({
       latitude: position?.[0] ?? null,
       longitude: position?.[1] ?? null,
       status: "open",
+      language,
     });
 
     setSubmitting(false);

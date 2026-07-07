@@ -69,7 +69,7 @@ export function useFelinesAssistant() {
 
     const timeout = setTimeout(() => {
       if (fire("first-visit", "meow")) localStorage.setItem(VISITED_KEY, "true");
-    }, 2500);
+    }, 60000);
     return () => clearTimeout(timeout);
   }, [pathname, fire]);
 

@@ -27,23 +27,35 @@ export default function LearnIndex({
   const { t } = useLanguage();
 
   useEffect(() => {
-    async function loadProgress() {
-      const { data } = await supabase.auth.getSession();
-      setSession(data.session);
+    async function loadProgress(currentSession: Session | null) {
+      setSession(currentSession);
 
-      if (data.session) {
-        const { data: progress } = await supabase
-          .from("knowledge_progress")
-          .select("article_slug")
-          .eq("user_id", data.session.user.id);
+      if (!currentSession) {
+        // Signing out doesn't unmount this component (it renders inline
+        // on the home page), so without this the previous session's
+        // "Lido" badges would keep showing after logout until a full
+        // page reload.
+        setReadSlugs([]);
+        return;
+      }
 
-        if (progress) {
-          setReadSlugs(Array.from(new Set(progress.map((row) => row.article_slug))));
-        }
+      const { data: progress } = await supabase
+        .from("knowledge_progress")
+        .select("article_slug")
+        .eq("user_id", currentSession.user.id);
+
+      if (progress) {
+        setReadSlugs(Array.from(new Set(progress.map((row) => row.article_slug))));
       }
     }
 
-    loadProgress();
+    supabase.auth.getSession().then(({ data }) => loadProgress(data.session));
+
+    const { data: subscription } = supabase.auth.onAuthStateChange((_event, newSession) => {
+      loadProgress(newSession);
+    });
+
+    return () => subscription.subscription.unsubscribe();
   }, []);
 
   // "Convivência e conflito" goes second, right after the introductory

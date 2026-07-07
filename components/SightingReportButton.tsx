@@ -12,7 +12,7 @@ import MapMarkerPickerShell from "@/components/MapMarkerPickerShell";
 import { useLanguage } from "@/lib/i18n";
 
 export default function SightingReportButton({ lostCatReportId }: { lostCatReportId: string }) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [open, setOpen] = useState(false);
   const [locationCoords, setLocationCoords] = useState<[number, number] | null>(null);
   const [note, setNote] = useState("");
@@ -32,6 +32,7 @@ export default function SightingReportButton({ lostCatReportId }: { lostCatRepor
       latitude: locationCoords?.[0] ?? null,
       longitude: locationCoords?.[1] ?? null,
       status: "open",
+      language,
     });
 
     setSubmitting(false);

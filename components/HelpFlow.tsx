@@ -53,7 +53,7 @@ const SITUATION_META: SituationMeta[] = [
 ];
 
 export default function HelpFlow({ onClose }: { onClose?: () => void }) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [step, setStep] = useState<1 | 2>(1);
   const [activeMeta, setActiveMeta] = useState<SituationMeta | null>(null);
   const [locationCoords, setLocationCoords] = useState<[number, number] | null>(null);
@@ -81,6 +81,7 @@ export default function HelpFlow({ onClose }: { onClose?: () => void }) {
       latitude: locationCoords?.[0] ?? null,
       longitude: locationCoords?.[1] ?? null,
       status: "open",
+      language,
     });
     setSubmitting(false);
     if (error) {

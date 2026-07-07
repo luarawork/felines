@@ -14,6 +14,11 @@ export type ReportSubmission = {
   longitude?: number | null;
   related_report_id?: string | null;
   status?: string;
+  // Site language at submission time — the API route uses this to
+  // localize the resulting caretaker/follower notifications, since
+  // those are generated server-side and have no other way to know
+  // which language the reporting visitor was using.
+  language?: "pt" | "en";
 };
 
 export async function submitReport(submission: ReportSubmission): Promise<{ error: string | null }> {

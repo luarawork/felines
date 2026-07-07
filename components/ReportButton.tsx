@@ -15,7 +15,7 @@ import { useEscapeToClose } from "@/lib/useEscapeToClose";
 import { useLanguage } from "@/lib/i18n";
 
 export default function ReportButton({ colonyId }: { colonyId: string }) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [open, setOpen] = useState(false);
   const [type, setType] = useState(REPORT_TYPES[0].value);
   const [description, setDescription] = useState("");
@@ -54,6 +54,7 @@ export default function ReportButton({ colonyId }: { colonyId: string }) {
       type,
       description: description.trim() || null,
       status: "open",
+      language,
     });
     setSubmitting(false);
 
