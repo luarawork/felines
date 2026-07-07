@@ -10,6 +10,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Hack the Kitty 2026](https://img.shields.io/badge/%23hackthekitty-2026-B66119)](https://hackthekitty.com)
 
+- **Demo video:** https://youtu.be/lm37b4Qs99g
 - **Live demo:** [add after deploy] — see [Live Demo](#3-live-demo) below for current status
 - **Repository:** https://github.com/luarawork/felines
 - **Documentation (PT):** [Felines — Documentação](https://bronzed-longship-a0f.notion.site/Felines-Documenta-o-392f091b2b7481048a73e27049a939cb)
@@ -79,6 +80,8 @@ Nobody is asked to love cats to take the first step, and by the time they've tak
 ---
 
 ## 3. Live Demo
+
+**Demo video:** https://youtu.be/lm37b4Qs99g — a full walkthrough of the product for judges who can't run it locally.
 
 **This project is not yet deployed to a public URL as of this submission.** Once deployed to Netlify, this section will be updated with the live URL and the demo account below. In the meantime, the app runs locally in a few minutes with a free Supabase project and a free OpenWeatherMap key — see [Getting Started](#9-getting-started).
 
