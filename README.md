@@ -734,4 +734,4 @@ MIT — see [`LICENSE`](LICENSE). Third-party dependency license findings (revie
 - Alley Cat Allies, for publicly available TNR research and vacuum-effect methodology.
 - The World Health Organization and IBGE, for the population and conflict data cited throughout.
 - Instituto Pet Brasil, for Brazilian shelter-capacity and abandonment statistics.
-- The real, often invisible caretakers and cats of Natal, RN, who inspired every decision in this product — this exists to make their work a little more visible.
+- The real, often invisible caretakers and cats of Natal, RN — and everywhere else in the world where the same quiet work happens — who inspired every decision in this product. This exists to make that work a little more visible.
