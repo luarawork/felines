@@ -723,7 +723,6 @@ MIT — see [`LICENSE`](LICENSE). Third-party dependency license findings (revie
 ## 17. Acknowledgments
 
 - The #hackthekitty — Hack the Kitty 2026 organizers, for the prompt that started this.
-- Felipe França, without whom I wouldn't have even known this hackathon existed.
 - My friends, who patiently tested the site every single time I asked, no matter how many times that was.
 - The judges, for making the time to evaluate this, read through all the documentation, and see everything that was built.
 - The Aikido, Temporal, and Kiro teams, for sponsoring this hackathon and making it possible in the first place.
