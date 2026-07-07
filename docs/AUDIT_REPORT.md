@@ -323,7 +323,13 @@ the Supabase SQL editor. As of this writing:
 | [`0084_grant_colonies_removed_at.sql`](supabase/migrations/0084_grant_colonies_removed_at.sql) | Fixes [§9.5](#95-post-launch-bug-colonies-vanishing-from-the-map) — missing column grant broke the map's colony query for every visitor |
 | [`0085_localize_caretaker_notifications.sql`](supabase/migrations/0085_localize_caretaker_notifications.sql) | Fixes [§9.6](#96-post-launch-bug-caretaker-notifications-ignoring-site-language) — adds `p_language` to `notify_caretakers`/`notify_nearby_caretakers` |
 
-All of the above have been run against the live database as of this writing.
+**Pending (not yet run):**
+
+| Migration | Purpose |
+|---|---|
+| [`0086_drop_stale_notify_overloads.sql`](supabase/migrations/0086_drop_stale_notify_overloads.sql) | Fixes [§10.1](#101-new-findings-fixed-this-pass) — drops the stale pre-`0085` 3-parameter overloads of `notify_caretakers`/`notify_nearby_caretakers` |
+
+0001–0085 have been run against the live database as of this writing.
 
 ## 8. Recommendations for next steps
 
@@ -413,3 +419,78 @@ Migrations `0078`–`0085` have since all been run against the live database and
 **Fix:** [`0085_localize_caretaker_notifications.sql`](supabase/migrations/0085_localize_caretaker_notifications.sql) adds a `p_language` parameter (default `'pt'`, backward compatible) to both functions, with an English template alongside the existing Portuguese one. `app/api/reports/route.ts` now reads a `language` field from the report submission and passes it through; all 6 report-submitting components (`ColonyMap`, `HelpFlow`, `LostCatForm`, `QuickSightingForm`, `ReportButton`, `SightingReportButton`) now send the visitor's current site language with every report.
 
 **Known limitation:** notifications already in the database keep whatever language they were created in — this only affects notifications generated after the fix. Re-localizing historical notification text would require storing structured data (type + parameters) instead of a final rendered string, which is a larger schema change out of scope for this fix.
+
+## 10. Final pre-submission bug and security test (2026-07-07)
+
+The final full pass before submission, covering functional regression testing, a fresh live security sweep against the production Supabase project, and a final build/lint/dependency check. All fixes below have been applied to the codebase; the accompanying migration has **not yet been run** against the live database as of this writing (see [§7](#7-migration-status)).
+
+### 10.1 New findings, fixed this pass
+
+**Stale RPC overload left `notify_caretakers`/`notify_nearby_caretakers` ambiguous (LOW, fixed).** Migration `0085` added a `p_language` parameter by appending it as a new trailing parameter — but `create or replace function` only replaces a function whose signature matches exactly, so this created a **second, overloaded** function instead of replacing the first. The pre-`0085` 3-parameter versions were still live in the database alongside the new 4-parameter ones. Confirmed live: calling `notify_caretakers` with `(p_colony_id, p_type, p_report_type)` — a shape technically valid under both signatures — returns `PGRST203 "Could not choose the best candidate function"`, a hard error instead of running. The app's current calls happen to always include `p_language`, so this wasn't hit in production traffic, but any other caller using the pre-`0085` shape would break. **Fix:** [`0086_drop_stale_notify_overloads.sql`](supabase/migrations/0086_drop_stale_notify_overloads.sql) drops the old 3-parameter overloads outright, leaving only the 4-parameter versions.
+
+**Language switcher completely inaccessible on mobile (LOW, fixed).** The PT/EN toggle in `NavBar.tsx` was `hidden ... sm:flex` — invisible below the 640px breakpoint, with no alternative anywhere else in the UI (no hamburger menu, no language option in the profile/avatar dropdown). A mobile visitor had **no way to switch languages at all**. Found by testing the language toggle at the exact 375px viewport this checklist specifies. **Fix:** made the switcher visible at every viewport width; to make room without introducing horizontal overflow (confirmed live at 375px before and after), the logo shrunk slightly on narrow screens (`h-8` → `h-10` at `sm:`), the switcher's own padding tightened on mobile, and the flex gap between navbar icons tightened on mobile. Re-verified: `document.body.scrollWidth === window.innerWidth` (no overflow) at 375px, and clicking the toggle correctly updates `document.documentElement.lang` and re-renders all visible text.
+
+### 10.2 Tests performed and results
+
+**Functional smoke test — all 19 routes**, checked live against the running app (a real colony ID, cat ID, profile ID, and article slug fetched from the live database first, per the checklist's own instruction not to use placeholder IDs):
+
+| Route | Result |
+|---|---|
+| `/`, `/map`, `/colony/new`, `/reports`, `/impact`, `/stories`, `/resources`, `/glossary`, `/plants`, `/contacts`, `/curso`, `/profile`, `/login`, `/signup`, `/notifications`, `/forgot-password`, `/reset-password` | ✅ 200, no console errors |
+| `/colony/[real id]` | ✅ 200 — correctly shows the login-required access gate for an anonymous visitor (see [§9.3](#93-known-limitation-documented-honestly) for the known underlying-data caveat, unaffected by this test) |
+| `/cat/[real id]` | ✅ 200 |
+| `/u/[real id]` | ✅ 200 |
+| `/learn/[real slug]` | ✅ 200 |
+| `/learn` (no slug) | 404 — **this is not a bug**: there is no `app/learn/page.tsx`, and nothing in the app ever links to a bare `/learn` (confirmed via a full-repo grep for `href="/learn"`). The guide index is intentionally the home page's `LearnIndex` component, not a standalone route. |
+
+One live false alarm during this pass, worth recording so it isn't repeated: `/colony/[id]` appeared to hang indefinitely on the client at a loading skeleton after several `location.reload()` calls, with a clean network log and zero console errors. A full dev-server restart (not just a page reload) resolved it immediately. This was stale Fast-Refresh/HMR state from the same dev server having been live-edited continuously all session — not a real bug; `npm run build` (production mode, no HMR) had already succeeded cleanly moments earlier and was re-confirmed after this fix.
+
+**PT/EN toggle:** switching language updates `document.documentElement.lang` (`pt-BR` ↔ `en`) and re-renders visible text immediately, confirmed via direct DOM inspection (not just visual). See [§10.1](#101-new-findings-fixed-this-pass) for the mobile-visibility bug found and fixed here.
+
+**Security — RLS, live against production, anon key:**
+
+| Test | Result |
+|---|---|
+| `colonies?select=latitude,longitude` | ✅ `42501 permission denied` |
+| `reports?select=latitude,longitude,created_by` | ✅ `42501 permission denied` |
+| `knowledge_progress?select=*` | ✅ Empty result (RLS-scoped) |
+| `profiles?select=*` | ✅ `42501 permission denied` (column-level grant enforced) |
+| `flags?select=*` | ✅ Empty result |
+| `/rest/v1/auth/users` | ✅ Not a valid/reachable path — `auth.users` is not exposed via PostgREST |
+
+**Security — RPCs, live against production, anon key** (tested with each function's *current* real parameter signature, since several checklist names/params were stale — e.g. `mark_cat_seen` is now `mark_cat_seen_today`, `thank_action` takes `p_timeline_event_id`, `record_daily_visit` takes no parameters):
+
+| RPC | Result |
+|---|---|
+| `get_colony_exact_location` | ✅ `42501 permission denied` |
+| `confirm_report` | ✅ `42501 permission denied` |
+| `thank_action` | ✅ `42501 permission denied` |
+| `mark_cat_seen_today` | ✅ `42501 permission denied` |
+| `record_daily_visit` | ✅ `42501 permission denied` (re-confirms the `0075` fix still holds) |
+| `record_care_streak` | ✅ `42501 permission denied` |
+| `get_own_streak` | ✅ Empty result (correctly scoped, no data leak) |
+| `notify_caretakers` (intentionally anon-callable) | ✅ Runs (`204`) with the current 4-parameter shape — see [§10.1](#101-new-findings-fixed-this-pass) for the overload-ambiguity bug found and fixed |
+| `notify_nearby_caretakers` (intentionally anon-callable) | ✅ Runs (`204`) with the current 4-parameter shape |
+
+**Other security items:**
+- All 8 required security headers confirmed present in `next.config.ts`: `X-DNS-Prefetch-Control`, `X-Frame-Options`, `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy`, `X-XSS-Protection`, `Strict-Transport-Security`, `Content-Security-Policy`.
+- `grep` for `service_role`/`SUPABASE_SERVICE` and for a hardcoded JWT pattern across the full source tree: zero matches.
+- `.env*` confirmed in `.gitignore`; `git log --all --full-history -- "*.env*"` shows only `.env.example` was ever touched, never a real `.env` file.
+- `grep -rn "console.log"` across the full source tree: zero matches (already clean from the previous audit pass).
+- `lib/security/safeReturnTo.ts`, `lib/security/storage.ts`, `lib/security/validateCoordinates.ts`, `lib/external/geocode.ts` all re-read and confirmed to still contain the open-redirect, path-traversal, and SSRF fixes from earlier passes, unchanged.
+- `npm audit`: 0 vulnerabilities of any severity across 448 dependencies.
+
+### 10.3 Final build verification
+
+- `npm run lint` — 0 warnings.
+- `npm run build` — 0 errors, all 17 build-time routes compiled (the 19-route count in this checklist includes 2 dynamic-segment routes — `/colony/[id]` and `/learn/[slug]` — that Next.js reports once per pattern, not once per real page).
+
+### 10.4 Confirmation: all Aikido findings remain resolved
+
+Both Aikido Security findings from the original report — Path Traversal (HIGH) and SSRF in Geocoding (LOW) — were re-verified in this pass by re-reading the fix code directly (`lib/security/storage.ts`'s `buildSafeStoragePath`/`assertSafeStoragePath`, `lib/security/validateCoordinates.ts`, `lib/external/geocode.ts`). Both fixes are intact and unchanged since they were first applied. See [§4](#4-aikido-security-findings) on the wiki's Security page and [§9.4](#94-security-architecture-summary) above for the full technical detail.
+
+### 10.5 Remaining known limitations (unchanged from earlier passes)
+
+- **No SSR session forwarding** ([§9.3](#93-known-limitation-documented-honestly)): `cats`, `caretakers`, and `timeline_events` remain fetchable via the anon key regardless of a visiting browser's login state, even though the UI visually gates them. Exact coordinates and all genuinely sensitive data remain unaffected. Scoped as a dedicated architectural follow-up, not a last-minute patch.
+- **Historical notification text doesn't re-localize** ([§9.6](#96-post-launch-bug-caretaker-notifications-ignoring-site-language)): only notifications created after the `0085` fix respect the site's language toggle.
+- **Language-switcher touch target** is `32px` tall (`h-8`), below the 44×44px minimum this checklist itself specifies for tap targets — flagged here rather than silently left, but not changed in this pass: enlarging it risks reintroducing the mobile-overflow regression found and fixed in [§10.1](#101-new-findings-fixed-this-pass) without a more careful redesign of the whole switcher pill, which deserves its own dedicated pass rather than a rushed fix immediately after fixing the visibility bug in the same component.

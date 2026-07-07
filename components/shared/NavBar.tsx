@@ -129,7 +129,7 @@ export default function NavBar() {
             width={150}
             height={48}
             priority
-            className="felines-logo-bounce h-10 w-auto"
+            className="felines-logo-bounce h-8 w-auto sm:h-10"
           />
         </Link>
 
@@ -150,13 +150,13 @@ export default function NavBar() {
           })}
         </ul>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-1.5 sm:gap-3">
           {/* Language switcher — joined PT|EN pill with a sliding active
               background instead of an instant color swap on toggle */}
           <div
             role="group"
             aria-label={t("nav.selectLanguage")}
-            className="relative hidden items-center overflow-hidden rounded-full border border-felines-border sm:flex"
+            className="relative flex flex-shrink-0 items-center overflow-hidden rounded-full border border-felines-border"
           >
             <span
               aria-hidden="true"
@@ -168,7 +168,7 @@ export default function NavBar() {
                 key={lang}
                 onClick={() => setLanguage(lang)}
                 aria-pressed={language === lang}
-                className={`relative z-10 h-8 px-3 text-xs font-semibold transition-colors ${
+                className={`relative z-10 h-8 px-2 text-xs font-semibold transition-colors sm:px-3 ${
                   i === 0 ? "" : "border-l border-felines-border"
                 } ${
                   language === lang

@@ -1,0 +1,21 @@
+-- Final pre-submission bug/security test found this live: 0085 added a
+-- `p_language` parameter to notify_caretakers()/notify_nearby_caretakers()
+-- by appending it as a new trailing parameter, but `create or replace`
+-- only replaces a function whose signature (name + parameter types)
+-- matches exactly — adding a parameter creates a second, overloaded
+-- function instead of replacing the first. The old 3-parameter versions
+-- were still live in the database alongside the new 4-parameter ones.
+--
+-- Confirmed live: calling notify_caretakers with exactly
+-- (p_colony_id, p_type, p_report_type) — a shape valid under both the
+-- old and new signatures once p_language defaults — returns PGRST203
+-- "Could not choose the best candidate function," a hard error instead
+-- of running. The app's own current calls happen to always include
+-- p_language now, so this wasn't hit in practice, but any other caller
+-- (a future code path, a direct REST call replaying an old integration)
+-- using the pre-0085 shape would break.
+--
+-- Fix: drop the old 3-parameter overloads outright. Only the
+-- 4-parameter versions (with p_language defaulting to 'pt') remain.
+drop function if exists notify_caretakers(uuid, text, text);
+drop function if exists notify_nearby_caretakers(double precision, double precision, double precision, text);
