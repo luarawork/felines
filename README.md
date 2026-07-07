@@ -416,7 +416,7 @@ Both findings from an external security review, documented here in full, not sum
 
 File uploads across 6 upload sites (colony photos, cat photos, avatars, timeline photos, story photos, the new-colony form) were building storage paths from user-influenced input without sanitization — a filename or prefix containing `../` sequences could, in principle, write outside the intended storage folder.
 
-Fixed by centralizing all path construction in [`lib/storage.ts`](lib/storage.ts):
+Fixed by centralizing all path construction in [`lib/security/storage.ts`](lib/security/storage.ts):
 - `buildSafeStoragePath()` strips `../`/`..\` sequences and any character outside an explicit allowlist
 - The filename is never the user's original filename — it's a timestamp + random token + a validated extension
 - `validatePhotoFile()` checks an explicit MIME allowlist (`image/jpeg`, `image/png`, `image/webp`, `image/gif`) instead of a broad `image/*` match, which would also accept `image/svg+xml` — SVGs can embed `<script>` tags, a known upload-based XSS vector unrelated to the path-traversal finding but caught during the same hardening pass
@@ -428,7 +428,7 @@ Commit: `security: fix path traversal vulnerability in file uploads — Aikido r
 
 The reverse-geocoding call to Nominatim interpolated latitude/longitude directly into a URL string with no validation. Severity was rated LOW because coordinates in practice come from Leaflet map clicks, not typed input — but it was fixed for defense in depth regardless of how likely exploitation was in the current UI.
 
-Fixed with [`lib/validateCoordinates.ts`](lib/validateCoordinates.ts) (rejects out-of-range, `NaN`, `Infinity`, or non-numeric coordinates before any request is built), `URLSearchParams` instead of string interpolation in [`lib/geocode.ts`](lib/geocode.ts), and `redirect: "error"` so a malicious redirect response can't be followed silently. While patching this, the same unvalidated pattern was found in the weather-fetch helper — outside Aikido's original report — and fixed identically, plus a pre-existing bug where the geocoding response's language was always Portuguese regardless of the visitor's actual language preference.
+Fixed with [`lib/security/validateCoordinates.ts`](lib/security/validateCoordinates.ts) (rejects out-of-range, `NaN`, `Infinity`, or non-numeric coordinates before any request is built), `URLSearchParams` instead of string interpolation in [`lib/external/geocode.ts`](lib/external/geocode.ts), and `redirect: "error"` so a malicious redirect response can't be followed silently. While patching this, the same unvalidated pattern was found in the weather-fetch helper — outside Aikido's original report — and fixed identically, plus a pre-existing bug where the geocoding response's language was always Portuguese regardless of the visitor's actual language preference.
 
 Commit: `security: fix SSRF vulnerability in geocoding requests — Aikido report`
 
@@ -454,11 +454,11 @@ Commit: `security: fix SSRF vulnerability in geocoding requests — Aikido repor
 
 #### 7.5.1 Rate limiting, in two layers
 
-- **API layer**: `lib/rateLimit.ts`, an in-memory sliding-window limiter — 10 requests/hour for anonymous callers, 30/hour for authenticated, keyed by IP or user id.
+- **API layer**: `lib/security/rateLimit.ts`, an in-memory sliding-window limiter — 10 requests/hour for anonymous callers, 30/hour for authenticated, keyed by IP or user id.
 - **Database layer**: a circuit breaker inside `notify_caretakers()` itself, so the limit still holds even if a caller skips the Next.js API route entirely and calls the public Supabase RPC endpoint directly with the anon key — the one code path the first layer physically cannot see.
 
 **Auth security:**
-- The post-login/signup `returnTo` redirect parameter is validated by [`lib/safeReturnTo.ts`](lib/safeReturnTo.ts) to accept only an internal path starting with exactly one `/` — rejecting `//evil.com` and any absolute URL, closing an open-redirect vector that could otherwise fire a phishing redirect immediately after a real login.
+- The post-login/signup `returnTo` redirect parameter is validated by [`lib/security/safeReturnTo.ts`](lib/security/safeReturnTo.ts) to accept only an internal path starting with exactly one `/` — rejecting `//evil.com` and any absolute URL, closing an open-redirect vector that could otherwise fire a phishing redirect immediately after a real login.
 - No service-role key exists anywhere in client-side code, server code, `.env.local`, or git history — confirmed by a full-repository grep, not assumed.
 - Streak data (`profiles.current_streak`, `longest_streak`) and ban status (`banned`, `banned_until`, `ban_count`) are **not publicly readable** — protected the same way exact coordinates are, via column-level grant revocation plus a narrow `SECURITY DEFINER` accessor function, not a row policy alone.
 
@@ -596,16 +596,18 @@ felines/
 │   ├── notifications/          # Notification inbox
 │   ├── profile/, u/[id]/       # Signed-in profile, public caretaker profile
 │   └── login/, signup/         # Auth
-├── components/                 # ~90 single-concern React components
+├── components/                 # ~90 single-concern React components, grouped by domain
+│   ├── assistant/, auth/, colony/, impact/, learn/
+│   ├── map/, profile/, reports/, resources/, shared/, stories/
 ├── hooks/
 │   └── useFelinesAssistant.ts  # Cat assistant trigger logic — 9 distinct triggers
 ├── lib/
-│   ├── articles.ts, glossary.ts, catCuriosities.ts   # Content sources
-│   ├── storage.ts, geocode.ts, validateCoordinates.ts  # Security-hardened utilities
-│   ├── safeReturnTo.ts         # Open-redirect protection for post-auth redirects
-│   ├── rateLimit.ts            # In-memory rate limiter for report submissions
-│   ├── notifications.ts        # Client-side triggers for weather/stale-cat alerts
-│   └── i18n/pt.ts, en.ts       # Full Portuguese and English translations
+│   ├── content/                # Static content sources (articles, glossary, quizzes, type enums)
+│   ├── security/                # storage.ts, safeReturnTo.ts, rateLimit.ts, validateCoordinates.ts
+│   ├── data/                    # Supabase read/write helpers (notifications, profile, reports)
+│   ├── external/                # Third-party API wrappers (geocode.ts, weather.ts, siteUrl.ts)
+│   ├── i18n/pt.ts, en.ts       # Full Portuguese and English translations
+│   └── supabaseClient.ts       # Shared Supabase client (anon key, used client- and server-side)
 ├── supabase/migrations/         # 83 numbered SQL migrations (schema, RLS, RPCs) — 26 tables
 ├── docs/AUDIT_REPORT.md         # Full itemized security/bug/refactor audit
 ├── docs/UI_AUDIT_REPORT.md      # UI consistency, motion, and mobile audit
