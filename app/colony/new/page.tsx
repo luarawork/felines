@@ -6,8 +6,8 @@
 // questions, a required photo, a map marker, and a name/narrative.
 // Styled with the same light header + Reveal entrance used across the
 // rest of the site, instead of a bare form dropped on a blank page.
-import NewColonyForm from "@/components/NewColonyForm";
-import Reveal from "@/components/Reveal";
+import NewColonyForm from "@/components/colony/NewColonyForm";
+import Reveal from "@/components/shared/Reveal";
 import { useLanguage } from "@/lib/i18n";
 
 export default function NewColonyPage() {

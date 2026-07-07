@@ -1,7 +1,7 @@
 // /glossary route for Felines.
 "use client";
-import GlossaryList from "@/components/GlossaryList";
-import { GLOSSARY_TERMS } from "@/lib/glossary";
+import GlossaryList from "@/components/learn/GlossaryList";
+import { GLOSSARY_TERMS } from "@/lib/content/glossary";
 import { useLanguage } from "@/lib/i18n";
 
 export default function GlossaryPage() {

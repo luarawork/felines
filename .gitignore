@@ -34,6 +34,7 @@ dev.err.log
 
 # local tooling
 .claude/
+/aikidoreport/
 
 # env files (can opt-in for committing if needed)
 .env*

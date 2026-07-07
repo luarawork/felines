@@ -8,8 +8,8 @@
 // the database for a count instead of the rows themselves).
 import type { Metadata } from "next";
 import { supabase } from "@/lib/supabaseClient";
-import { ARTICLES, getArticleBySlug, getReadingTimeMinutes } from "@/lib/articles";
-import ImpactPageClient from "@/components/ImpactPageClient";
+import { ARTICLES, getArticleBySlug, getReadingTimeMinutes } from "@/lib/content/articles";
+import ImpactPageClient from "@/components/impact/ImpactPageClient";
 
 // These are live counts, not content that should be baked in at build
 // time — without this, Next.js would statically render the page once

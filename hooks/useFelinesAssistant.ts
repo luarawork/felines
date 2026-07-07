@@ -7,8 +7,8 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
-import { getCuriosityById, getRandomCuriosity } from "@/lib/catCuriosities";
-import type { AssistantTrigger } from "@/components/FelinesAssistant";
+import { getCuriosityById, getRandomCuriosity } from "@/lib/content/catCuriosities";
+import type { AssistantTrigger } from "@/components/assistant/FelinesAssistant";
 
 const MIN_MINUTES_BETWEEN_APPEARANCES = 15;
 const LAST_SHOWN_KEY = "felines_assistant_last";

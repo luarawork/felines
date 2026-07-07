@@ -13,8 +13,8 @@
 // same as always.
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { checkRateLimit } from "@/lib/rateLimit";
-import { REPORT_TYPES } from "@/lib/reportTypes";
+import { checkRateLimit } from "@/lib/security/rateLimit";
+import { REPORT_TYPES } from "@/lib/content/reportTypes";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;

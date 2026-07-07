@@ -4,7 +4,7 @@
 // and anyone authenticated can add one.
 import type { Metadata } from "next";
 import { createClient } from "@supabase/supabase-js";
-import CatPageClient, { CatNotFoundNotice } from "@/components/CatPageClient";
+import CatPageClient, { CatNotFoundNotice } from "@/components/colony/CatPageClient";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,

@@ -1,6 +1,6 @@
 // /forgot-password route for Felines.
 "use client";
-import ForgotPasswordForm from "@/components/ForgotPasswordForm";
+import ForgotPasswordForm from "@/components/auth/ForgotPasswordForm";
 import { useLanguage } from "@/lib/i18n";
 
 export default function ForgotPasswordPage() {

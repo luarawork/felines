@@ -4,10 +4,10 @@
 // Localization (title/summary/body/factChips) happens client-side in
 // ArticlePageClient, since this server component can't call useLanguage().
 import type { Metadata } from "next";
-import { getArticleBySlug, getReadingTimeMinutes, getRelatedArticles } from "@/lib/articles";
-import ArticleProgressTracker from "@/components/ArticleProgressTracker";
-import ReadingProgressBar from "@/components/ReadingProgressBar";
-import ArticleNotFound from "@/components/ArticleNotFound";
+import { getArticleBySlug, getReadingTimeMinutes, getRelatedArticles } from "@/lib/content/articles";
+import ArticleProgressTracker from "@/components/learn/ArticleProgressTracker";
+import ReadingProgressBar from "@/components/learn/ReadingProgressBar";
+import ArticleNotFound from "@/components/learn/ArticleNotFound";
 import {
   ArticleBackLink,
   ArticleReadingTime,
@@ -17,7 +17,7 @@ import {
   ArticleFactChips,
   ArticleTitleAndShare,
   ArticleRelatedList,
-} from "@/components/ArticlePageClient";
+} from "@/components/learn/ArticlePageClient";
 
 export async function generateMetadata({
   params,

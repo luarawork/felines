@@ -2,16 +2,16 @@
 "use client";
 import Image from "next/image";
 import Link from "next/link";
-import FirstVisitBanner from "@/components/FirstVisitBanner";
-import LearnIndex from "@/components/LearnIndex";
-import OpenHelpModalButton from "@/components/OpenHelpModalButton";
-import Reveal from "@/components/Reveal";
-import CountUpStat from "@/components/CountUpStat";
-import MapPreviewIllustration from "@/components/MapPreviewIllustration";
-import ArticleCard from "@/components/ArticleCard";
-import NeighborhoodQuizButton from "@/components/NeighborhoodQuizButton";
-import CatsConflictModal from "@/components/CatsConflictModal";
-import { ARTICLES } from "@/lib/articles";
+import FirstVisitBanner from "@/components/shared/FirstVisitBanner";
+import LearnIndex from "@/components/learn/LearnIndex";
+import OpenHelpModalButton from "@/components/assistant/OpenHelpModalButton";
+import Reveal from "@/components/shared/Reveal";
+import CountUpStat from "@/components/impact/CountUpStat";
+import MapPreviewIllustration from "@/components/map/MapPreviewIllustration";
+import ArticleCard from "@/components/learn/ArticleCard";
+import NeighborhoodQuizButton from "@/components/learn/NeighborhoodQuizButton";
+import CatsConflictModal from "@/components/colony/CatsConflictModal";
+import { ARTICLES } from "@/lib/content/articles";
 import { useLanguage } from "@/lib/i18n";
 
 const STAT_VALUES = ["10M", "480M", "185K", "40%"];

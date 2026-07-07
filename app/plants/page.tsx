@@ -5,9 +5,9 @@
 // no DB queries needed. Images are optional; each card falls back to
 // a color-coded emoji badge when imageUrl is null.
 import Link from "next/link";
-import { TOXIC_PLANTS, TOXICITY_LABELS, TOXICITY_LABELS_EN, localizeToxicPlant, type ToxicityLevel } from "@/lib/toxicPlants";
-import Reveal from "@/components/Reveal";
-import BackLink from "@/components/BackLink";
+import { TOXIC_PLANTS, TOXICITY_LABELS, TOXICITY_LABELS_EN, localizeToxicPlant, type ToxicityLevel } from "@/lib/content/toxicPlants";
+import Reveal from "@/components/shared/Reveal";
+import BackLink from "@/components/shared/BackLink";
 import { useLanguage } from "@/lib/i18n";
 
 function ToxicityBadge({ level, language }: { level: ToxicityLevel; language: "pt" | "en" }) {

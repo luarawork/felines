@@ -5,7 +5,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
-import ColonyDetailClient from "@/components/ColonyDetailClient";
+import ColonyDetailClient from "@/components/colony/ColonyDetailClient";
 
 export async function generateMetadata({
   params,

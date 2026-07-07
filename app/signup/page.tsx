@@ -1,7 +1,7 @@
 // /signup route for Felines.
 "use client";
 import { Suspense } from "react";
-import SignupForm from "@/components/SignupForm";
+import SignupForm from "@/components/auth/SignupForm";
 import { useLanguage } from "@/lib/i18n";
 
 export default function SignupPage() {

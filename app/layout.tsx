@@ -4,10 +4,10 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import NavBar from "@/components/NavBar";
-import HelpModalProvider from "@/components/HelpModalProvider";
-import FelinesAssistantWrapper from "@/components/FelinesAssistantWrapper";
-import { SITE_URL } from "@/lib/siteUrl";
+import NavBar from "@/components/shared/NavBar";
+import HelpModalProvider from "@/components/assistant/HelpModalProvider";
+import FelinesAssistantWrapper from "@/components/assistant/FelinesAssistantWrapper";
+import { SITE_URL } from "@/lib/external/siteUrl";
 import { LanguageProvider } from "@/lib/i18n";
 
 const inter = Inter({

@@ -4,7 +4,7 @@
 // Server component renders the list; client component handles the form.
 import type { Metadata } from "next";
 import { createClient } from "@supabase/supabase-js";
-import ContactsPageClient from "@/components/ContactsPageClient";
+import ContactsPageClient from "@/components/resources/ContactsPageClient";
 
 export const metadata: Metadata = {
   title: "Contatos úteis — Felines",

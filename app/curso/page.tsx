@@ -15,7 +15,7 @@ import {
   PASSING_SCORE,
   localizeCourseModules,
   localizeQuestions,
-} from "@/lib/caretakerCourse";
+} from "@/lib/content/caretakerCourse";
 import { useLanguage } from "@/lib/i18n";
 
 type Phase = "modules" | "quiz" | "result";

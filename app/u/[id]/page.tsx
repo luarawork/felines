@@ -7,7 +7,7 @@
 // full-bleed section rhythm as /profile and the home page.
 import { notFound } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
-import CaretakerPublicPageClient from "@/components/CaretakerPublicPageClient";
+import CaretakerPublicPageClient from "@/components/colony/CaretakerPublicPageClient";
 
 export default async function CaretakerPublicPage({
   params,

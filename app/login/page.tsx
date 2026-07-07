@@ -1,7 +1,7 @@
 // /login route for Felines.
 "use client";
 import { Suspense } from "react";
-import LoginForm from "@/components/LoginForm";
+import LoginForm from "@/components/auth/LoginForm";
 import { useLanguage } from "@/lib/i18n";
 
 export default function LoginPage() {

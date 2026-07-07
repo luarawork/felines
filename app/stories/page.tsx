@@ -5,7 +5,7 @@
 // ShareStoryButton on the colony page, gated by RLS on insert).
 import type { Metadata } from "next";
 import { supabase } from "@/lib/supabaseClient";
-import StoriesPageClient from "@/components/StoriesPageClient";
+import StoriesPageClient from "@/components/stories/StoriesPageClient";
 
 export const dynamic = "force-dynamic";
 

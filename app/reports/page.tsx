@@ -3,13 +3,13 @@
 // Stories and contacts are fetched here server-side so they render in the tab
 // without a second full-page route.
 import { createClient } from "@supabase/supabase-js";
-import ReportsList from "@/components/ReportsList";
-import ResourcesBoard from "@/components/ResourcesBoard";
-import ContactsBoard from "@/components/ContactsBoard";
-import ReportsStoriesEmpty from "@/components/ReportsStoriesEmpty";
-import StoriesSection from "@/components/StoriesSection";
-import ColonyTabs from "@/components/ColonyTabs";
-import ReportsPageHeader from "@/components/ReportsPageHeader";
+import ReportsList from "@/components/reports/ReportsList";
+import ResourcesBoard from "@/components/resources/ResourcesBoard";
+import ContactsBoard from "@/components/resources/ContactsBoard";
+import ReportsStoriesEmpty from "@/components/reports/ReportsStoriesEmpty";
+import StoriesSection from "@/components/stories/StoriesSection";
+import ColonyTabs from "@/components/colony/ColonyTabs";
+import ReportsPageHeader from "@/components/reports/ReportsPageHeader";
 import type { StoryWithMeta } from "@/app/stories/page";
 import { CATEGORY_LABELS } from "@/app/contacts/page";
 import type { ContactRow } from "@/app/contacts/page";

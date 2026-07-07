@@ -1,6 +1,6 @@
 // /notifications route for Felines.
 "use client";
-import NotificationsList from "@/components/NotificationsList";
+import NotificationsList from "@/components/profile/NotificationsList";
 import { useLanguage } from "@/lib/i18n";
 
 export default function NotificationsPage() {

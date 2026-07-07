@@ -1,7 +1,7 @@
 // /reset-password route for Felines — landing page for the password
 // recovery email link sent from /forgot-password.
 "use client";
-import ResetPasswordForm from "@/components/ResetPasswordForm";
+import ResetPasswordForm from "@/components/auth/ResetPasswordForm";
 import { useLanguage } from "@/lib/i18n";
 
 export default function ResetPasswordPage() {
